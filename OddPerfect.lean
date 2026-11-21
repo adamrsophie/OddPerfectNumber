@@ -31,3 +31,4 @@ import OddPerfect.OmegaFive
 import OddPerfect.ThreeFreeCert
 import OddPerfect.Valuation
 import OddPerfect.ThreeFreeException
+import OddPerfect.ExponentCap
