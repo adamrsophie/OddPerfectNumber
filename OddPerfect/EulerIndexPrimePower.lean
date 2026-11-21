@@ -9,8 +9,13 @@ and `q ∤ m`. Suppose the Euler index `σ(m ^ 2) / q` is a prime power `r ^ b` 
 Then `m ^ 2 = r ^ b * M ^ 2` with `r ∤ M`, `σ(r ^ b) = q`, `q + 1 = 2 M ^ 2`,
 `σ(M ^ 2) = r ^ b`, `b = v_r(m ^ 2)` is even, and `b + 1` is prime.
 
-Results on prime power Euler indices exist in the literature; this normal form is an
-elementary consequence of the identities `σ(m ^ 2) = q i` and `(q + 1) i = 2 m ^ 2`.
+This is known mathematics. For any prime power `q ^ α` exactly dividing `N`, F.-J. Chen and
+Y.-G. Chen (On the index of an odd perfect number, Colloq. Math. 136 (2014), 41 to 49) prove
+that the index `σ(N / q ^ α) / q ^ α` is not of the form `p ^ (2 u)` with `2 u + 1`
+composite; earlier results on small indices are due to Dris and Luca and to Broughan,
+Delbourgo and Zhou. The normal form here covers only the special prime with exponent `1`;
+it is an elementary consequence of the identities `σ(m ^ 2) = q i` and
+`(q + 1) i = 2 m ^ 2`.
 -/
 
 open ArithmeticFunction

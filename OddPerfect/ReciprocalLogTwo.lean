@@ -12,7 +12,9 @@ With `q` the special prime of an odd perfect number `N` and `S` its set of prime
 give, for every `U ⊆ S.erase q`,
 `∑_{p ∈ S} 1/p ≤ log 2 + 1/(2q²) - (1/4) ∑_{p ∈ U} 1/p²`.
 A prime `r ≠ q` of `N` divides `(q + 1)/2`, so `1/(4r²) ≥ 1/(q + 1)²`, and since
-`(q + 1)² < 2q²` the right side is below `log 2`. This is a classical result.
+`(q + 1)² < 2q²` the right side is below `log 2`. This is a classical result: it is due to D. Suryanarayana
+(On odd perfect numbers II, Proc. Amer. Math. Soc. 14 (1963), 896 to 904), and a short proof
+is in G. L. Cohen (On odd perfect numbers, Fibonacci Quart. 16 (1978)).
 -/
 
 open Finset
