@@ -11,3 +11,15 @@ import OddPerfect.Euler
 import OddPerfect.Cyclotomic
 import OddPerfect.Network
 import OddPerfect.Abundancy
+import OddPerfect.SteuerwaldThree
+import OddPerfect.Phi3
+import OddPerfect.ClosedLoop
+import OddPerfect.Pratt
+import OddPerfect.OmegaFour
+import OddPerfect.Spoof
+import OddPerfect.Certificate
+import OddPerfect.SpecialPrime
+import OddPerfect.Zsigmondy
+import OddPerfect.Counting
+import OddPerfect.Reduction
+import OddPerfect.SmallestPrime
