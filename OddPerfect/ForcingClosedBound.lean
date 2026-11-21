@@ -12,7 +12,8 @@ and repeatedly delete every prime `p` that has no move inside the current list `
 * an ordinary move: an odd prime `l` with `2 * l + 1 ≤ P0` such that every prime factor of
   `(p ^ l - 1) / (p - 1) = σ(p ^ (l - 1))` divides `2 * A.prod`.
 
-Smoothness is tested exactly through `n ∣ M ^ K` with an explicit `n < 2 ^ K` (`K = p + 1` for\nthe special move, `K = p * l` for a row), by fast modular exponentiation.
+Smoothness is tested exactly through `n ∣ M ^ K` with an explicit `n < 2 ^ K` (`K = p + 1` for
+the special move, `K = p * l` for a row), by fast modular exponentiation.
 By `ForcingClosed.reduce`, the support of a forcing closed configuration whose nodes are all
 at most `P0` survives every round, so it is empty once the iteration reaches `[]`.
 

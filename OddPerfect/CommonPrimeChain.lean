@@ -1187,29 +1187,29 @@ def rows7 : List (List ℕ) :=
 
 -- K = 124, passes = 2
 
-/-- The  table is accepted with . -/
+/-- The table for `l = 5` is accepted with 2 passes and robust count 186. -/
 theorem check5 : check 5 nodes5 rows5 2 186 = true := by decide +kernel
 
-/-- The  table is accepted with . -/
+/-- The table for `l = 7` is accepted with 2 passes and robust count 124. -/
 theorem check7 : check 7 nodes7 rows7 2 124 = true := by decide +kernel
 
-/-- The Pratt certificates for  are accepted. -/
+/-- The Pratt certificates for `l = 5` are accepted. -/
 theorem pc5_check : Pratt.check pc5 = true := by decide +kernel
 
-/-- The Pratt certificates for  are accepted. -/
+/-- The Pratt certificates for `l = 7` are accepted. -/
 theorem pc7_check : Pratt.check pc7 = true := by decide +kernel
 
-/-- Every node of the  table is certified. -/
+/-- Every node of the table for `l = 5` is certified. -/
 theorem nodes5_isP : nodes5.all (EqChain.isP pc5) = true := by decide +kernel
 
-/-- Every node of the  table is certified. -/
+/-- Every node of the table for `l = 7` is certified. -/
 theorem nodes7_isP : nodes7.all (EqChain.isP pc7) = true := by decide +kernel
 
-/-- The nodes of the  table are prime. -/
+/-- The nodes of the table for `l = 5` are prime. -/
 theorem nodes5_prime : ∀ t ∈ nodes5, t.Prime := fun _ ht =>
   EqChain.isP_sound pc5_check (List.all_eq_true.mp nodes5_isP _ ht)
 
-/-- The nodes of the  table are prime. -/
+/-- The nodes of the table for `l = 7` are prime. -/
 theorem nodes7_prime : ∀ t ∈ nodes7, t.Prime := fun _ ht =>
   EqChain.isP_sound pc7_check (List.all_eq_true.mp nodes7_isP _ ht)
 

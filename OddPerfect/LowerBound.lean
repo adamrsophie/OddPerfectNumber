@@ -835,8 +835,10 @@ theorem prod_range_le_prod (S : Finset ℕ) : ∀ {m k : ℕ}, (∀ s ∈ S, Odd
           _ ≤ (∏ s ∈ S, s) * a := Nat.mul_le_mul h1 hma
           _ = a * ∏ s ∈ S, s := mul_comm _ _
 
-/-- `consec m l`: the list `l` starts with the least prime `≥ m` and continues with consecutive
-primes (no prime lies in `[m, x)` before each entry `x`). -/
+/-- `consec m l`: a gap check. For each entry `x` in turn, `m ≤ x` and no prime lies in `[m, x)`;
+then the check continues from `x + 1`. The entries themselves are not required to be prime: for
+instance `consec 8 [8] = true`. So the `i`-th entry is a lower bound for the `i`-th prime that
+is at least `m`, which is all that `prod_consec_le_prod` uses. -/
 def consec : ℕ → List ℕ → Bool
   | _, [] => true
   | m, x :: l => Nat.ble m x && (List.range' m (x - m)).all (fun p => !tdPrime p) &&

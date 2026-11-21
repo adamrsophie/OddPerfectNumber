@@ -138,7 +138,9 @@ private theorem cofree_dvd (M : ℕ) : ∀ f m, cofree M f m ∣ m
     · exact (cofree_dvd M f _).trans (Nat.div_dvd_of_dvd (Nat.gcd_dvd_left m M))
     · exact dvd_rfl
 
-/-- `m` has a prime factor not dividing `M`. -/
+/-- A sufficient test: if `bigF M m = true` then `m` has a prime factor not dividing `M`
+(`bigF_sound`). The value `false` is inconclusive, because the stripping stops after 100 rounds:
+for instance `bigF 2 (3 * 2 ^ 101) = false`. -/
 def bigF (M m : ℕ) : Bool :=
   !Nat.beq (cofree M 100 m) 1 && Nat.beq (Nat.gcd (cofree M 100 m) M) 1
 
@@ -158,7 +160,9 @@ def parityOK (p e : ℕ) : Bool :=
   Nat.beq (e % 2) 0 || (Nat.beq (p % 4) 1 && Nat.beq (e % 4) 1)
 
 /-- The row of `p`: exponents `e` with `1 ≤ e`, `2 e + 3 ≤ B`, Euler's parity condition,
-and `σ (p ^ e)` free of prime factors not dividing `M`. -/
+for which the test `bigF` does not find a prime factor of `σ (p ^ e)` outside `M`. The row may
+contain exponents whose `σ (p ^ e)` does have such a factor (the test is one sided); a longer
+row only makes the search harder, never unsound. -/
 def row (B M p : ℕ) : List ℕ :=
   (List.range ((B - 3) / 2 + 1)).filter fun e =>
     Nat.ble 1 e && parityOK p e && !bigF M (gs p e)
