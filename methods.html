@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methods: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="The proof techniques used in the library, each explained with a concrete instance from the Lean source: ledgers, forcing chains, abundant divisors, closed loops, primitive divisors, kernel computations, certificates and Pratt primality certificates.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html">Background</a></li>
+<li><a href="network.html">Network</a></li>
+<li><a href="methods.html" aria-current="page">Methods</a></li>
+<li><a href="theorems.html">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap with-toc">
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#ledger">The ℓ-adic ledger</a></li><li class="l2"><a href="#forcing">Forcing chains</a></li><li class="l2"><a href="#abundancy">Abundancy bounds and abundant divisors</a></li><li class="l2"><a href="#closed-loop">The closed loop exclusion</a></li><li class="l2"><a href="#primitive">Primitive divisors and exponent caps</a></li><li class="l2"><a href="#kernel">Finite kernel computations over explicit supports</a></li><li class="l2"><a href="#certificates">Verified certificate checking</a></li><li class="l2"><a href="#pratt">Pratt primality certificates</a></li><li class="l2"><a href="#residues">Quadratic residue constraints</a></li></ul></nav></details></aside>
+<main id="content" tabindex="-1">
+<h1>Methods</h1>
+<p class="lead">Almost every theorem in the library is a combination of a few techniques. Each section explains one of them and gives an instance taken from the Lean source on the main branch. Terms are defined on the <a href="background.html">Background</a> page.</p>
+
+<h2 id="ledger">The ℓ-adic ledger</h2>
+<p><b>How it works.</b> For a fixed prime ℓ, take v<sub>ℓ</sub> of σ(N) = 2N. The left side is the sum of v<sub>ℓ</sub>(σ(p<sup>e<sub>p</sub></sup>)) over the components, the right side is v<sub>ℓ</sub>(N) (plus 1 if ℓ = 2). If the exponent of ℓ in N is known, that is a fixed budget; any set of components that together put more than that many factors ℓ into σ(N) is a contradiction. In network language, this is <a href="network.html#conservation">conservation</a> at the vertex ℓ.</p>
+<p><b>Instance.</b> If 3 has exponent exactly 2 and 7, 13, 19 have exponent exactly 2, then σ(7²) = 57 = 3·19, σ(13²) = 183 = 3·61 and σ(19²) = 381 = 3·127 put three factors 3 into σ(N) against a budget of 2.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exclude_four_exact_squares</span> {n : <span class="t"><span class="t">ℕ</span></span>} (hn : n.Perfect)
+  (h3 : n.factorization 3 = 2) (h7 : n.factorization 7 = 2)
+  (h13 : n.factorization 13 = 2) (h19 : n.factorization 19 = 2) : False</code></code></pre><p class="src-link"><a href="reference.html#OPNStarter.exclude_four_exact_squares">OPNStarter.exclude_four_exact_squares</a> in <a href="reference.html#mod-Seed.Starter">OddPerfect.Seed.Starter</a></p>
+<p>The same scheme with ℓ = 3 proves Steuerwald's theorem when 3 divides N, with ℓ = 5 the exponent four case, and with ℓ = 7 the exponent six case: each ordinary prime p ≡ 1 (mod ℓ) whose exponent e satisfies ℓ | e + 1 contributes at least one factor ℓ, by <a href="background.html#lte">lifting the exponent</a>. With ℓ = 2 the ledger gives <a href="background.html#euler-form">Euler's form</a>.</p>
+
+<h2 id="forcing">Forcing chains</h2>
+<p><b>How it works.</b> If p has exact exponent e in N, then σ(p<sup>e</sup>) divides σ(N) = 2N, so every odd prime dividing σ(p<sup>e</sup>) divides N. More generally, if a + 1 divides e + 1 then σ(p<sup>a</sup>) divides σ(p<sup>e</sup>), because a geometric sum of length a + 1 divides one whose length is a multiple of a + 1. Each forced prime has its own exponent, which may force further primes: a chain. The exponent must be known exactly, since σ(3²) = 13 while σ(3⁴) = 11².</p>
+<p><b>Instance.</b> σ(3²) = 13, and σ(13²) = 183 = 3·61. The second link needs its own hypothesis that 13 has exponent exactly 2.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">force_prime</span> {n p e q : <span class="t"><span class="t">ℕ</span></span>} (hn : n.Perfect) (hp : p.Prime)
+  (he : n.factorization p = e) (hq : q.Prime) (hodd : q ≠ 2)
+  (hdiv : q ∣ σ 1 (p ^ e)) : q ∣ n</code></code></pre><p class="src-link"><a href="reference.html#OPNStarter.force_prime">OPNStarter.force_prime</a> in <a href="reference.html#mod-Seed.Starter">OddPerfect.Seed.Starter</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sixty_one_dvd_of_thirteen_sq</span> {n : <span class="t"><span class="t">ℕ</span></span>} (hn : n.Perfect) (he : n.factorization 13 = 2) :
+  61 ∣ n</code></code></pre><p class="src-link"><a href="reference.html#OPNStarter.sixty_one_dvd_of_thirteen_sq">OPNStarter.sixty_one_dvd_of_thirteen_sq</a> in <a href="reference.html#mod-Seed.Starter">OddPerfect.Seed.Starter</a></p>
+
+<h2 id="abundancy">Abundancy bounds and abundant divisors</h2>
+<p><b>How it works.</b> Two uses of <a href="background.html#abundancy">abundancy</a>. Upward: a perfect number has no abundant divisor, so exhibiting a divisor d with σ(d) &gt; 2d closes a case. Downward: the abundancy of N is below the product of p/(p − 1) over its prime factors, so a set of primes whose product is at most 2 cannot be the full support of N. The second use bounds the number and size of prime factors, the first closes the leaves of case analyses.</p>
+<p><b>Instance.</b> 3 and 7 are ≡ 3 (mod 4), so they cannot be the special prime and appear at least squared. If 105 = 3·5·7 divides N, then 3²·5·7² = 2205 divides N, and σ(2205) = 13·6·57 = 4446 &gt; 4410.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">not_105_dvd</span> (h : OddPerfect N) : ¬ 105 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.not_105_dvd">OddPerfect.not_105_dvd</a> in <a href="reference.html#mod-SpecialPrime">OddPerfect.SpecialPrime</a></p>
+
+<h2 id="closed-loop">The closed loop exclusion</h2>
+<p><b>How it works.</b> Suppose that for every ordinary prime r, σ(r<sup>e<sub>r</sub></sup>) is a power q<sup>c<sub>r</sub></sup> of the special prime. Then all weight from ordinary primes goes to q, and the ordinary primes are fed only by q. The proof, in the steps of the source:</p>
+<ol>
+<li>conservation at r gives r<sup>e<sub>r</sub></sup> dividing σ(q<sup>k</sup>), which divides q<sup>k+1</sup> − 1;</li>
+<li>q<sup>c<sub>r</sub></sup> = 1 + r·σ(r<sup>e<sub>r</sub>−1</sup>) is ≡ 1 modulo r but not modulo r², so lifting the exponent gives r<sup>e<sub>r</sub>−1</sup> dividing k + 1;</li>
+<li>k is odd, so 2∏ r<sup>e<sub>r</sub>−1</sup> divides k + 1;</li>
+<li>conservation at q gives k = Σ c<sub>r</sub>;</li>
+<li>a size comparison: with t<sub>r</sub> = r<sup>e<sub>r</sub>−1</sup>, q<sup>c<sub>r</sub></sup> = σ(r<sup>e<sub>r</sub></sup>) &lt; r<sup>e<sub>r</sub>+1</sup> ≤ t<sub>r</sub>³ ≤ 5<sup>t<sub>r</sub></sup> ≤ q<sup>t<sub>r</sub></sup>, so c<sub>r</sub> &lt; t<sub>r</sub>;</li>
+<li>so k + 1 ≤ 1 + Σ (t<sub>r</sub> − 1) ≤ ∏ t<sub>r</sub>, while step 3 gives ∏ t<sub>r</sub> ≤ (k + 1)/2: contradiction.</li>
+</ol>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">not_all_components_special_powers</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hpow : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → <span class="k"><span class="k">∃</span></span> c : <span class="t"><span class="t">ℕ</span></span>, σ 1 (p ^ N.factorization p) = q ^ c) :
+  False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.not_all_components_special_powers">OddPerfect.not_all_components_special_powers</a> in <a href="reference.html#mod-ClosedLoop">OddPerfect.ClosedLoop</a></p>
+<p>This is the engine behind Steuerwald's theorem when 3 does not divide N (every σ(p²) is then a power of q), its prime length generalization, and the bound 3q<sup>k</sup> &lt; 2m².</p>
+
+<h2 id="primitive">Primitive divisors and exponent caps</h2>
+<p><b>How it works.</b> For a base a ≥ 3 and n ≥ 3 the library constructs a <a href="background.html#primitive">primitive prime divisor</a> through the cyclotomic value Φ<sub>n</sub>(a). If p has exponent e in N and d ≥ 3 divides e + 1, the primitive prime of order d divides σ(p<sup>e</sup>), hence N, and is ≡ 1 (mod d). Different d give different primes. This caps exponents by the largest prime factor and bounds the number of divisors of e + 1 by ω(N).</p>
+<p><b>Instance.</b> If 3 has exponent 4, take d = 5: σ(3⁴) = 121 = 11², and 3 has order 5 modulo 11, so 11 divides N, and 11 = 2·4 + 3 meets the cap 2e + 3 ≤ R exactly.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_primeFactor_modEq_one</span> {N p d : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hp : p ∈ N.primeFactors) (hd3 : 3 ≤ d) (hd : d ∣ N.factorization p + 1) :
+  <span class="k"><span class="k">∃</span></span> q ∈ N.primeFactors, orderOf (p : ZMod q) = d ∧ q % d = 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_primeFactor_modEq_one">OddPerfect.exists_primeFactor_modEq_one</a> in <a href="reference.html#mod-Zsigmondy">OddPerfect.Zsigmondy</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_mul_factorization_add_three_le</span> (h : OddPerfect N) {p R : <span class="t"><span class="t">ℕ</span></span>}
+  (hp : p ∈ N.primeFactors) (hR : <span class="k"><span class="k">∀</span></span> r ∈ N.primeFactors, r ≤ R) :
+  2 * N.factorization p + 3 ≤ R</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_mul_factorization_add_three_le">OddPerfect.two_mul_factorization_add_three_le</a> in <a href="reference.html#mod-ExponentCap">OddPerfect.ExponentCap</a></p>
+
+<h2 id="kernel">Finite kernel computations over explicit supports</h2>
+<p><b>How it works.</b> When the theory reduces a statement to finitely many cases, the cases are encoded as a Boolean function whose value the Lean kernel computes with <code>decide +kernel</code> (see <a href="procedure.html#decide-kernel">Procedure</a>). A soundness lemma, proved once, says what a <code>true</code> value means.</p>
+<p><b>Instance.</b> For ω(N) = 4, abundancy bounds leave 104 explicit supports: {3, 5, r, s} with 17 ≤ r ≤ 31 and s &lt; 256 (70 supports), {3, 7, r, s} with r ∈ {11, 13} and s ≤ 26 (6), {3, 5, 11, s} with s ≤ 100 (20) and {3, 5, 13, s} with s ≤ 46 (8). For a support S and a prime x in it, the candidate exponents e come from Euler's form and primitive divisors: e = 1 if x ≡ 1 (mod 4), or e + 1 = d ≥ 3 with d dividing y − 1 for some y in S. The function <code>checkX</code> tests that σ(x<sup>e</sup>) does not divide (2∏S)<sup>(e+1)x</sup>, which, because σ(x<sup>e</sup>) &lt; x<sup>e+1</sup> &lt; 2<sup>(e+1)x</sup> bounds every exponent in σ(x<sup>e</sup>), means that σ(x<sup>e</sup>) has a prime factor outside S and 2. If some x of S admits no exponent, S carries no odd perfect number. The tables are four statements of the form below, each closed by <code>decide +kernel</code>.</p>
+<pre class="lean"><code>private <span class="k">theorem</span> <span class="n">tab13</span> : <span class="k">∀</span> s &lt; 47, 13 &lt; s → isPrimeB s = true →
+    checkSupport [3, 5, 13, s] = true := <span class="k">by</span>
+  decide +kernel</code></pre>
+<p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/OmegaFive.lean">OddPerfect/OmegaFive.lean</a></p>
+<p>The McDaniel module uses the same idea as a finite forcing tree: from 3 and 13 it branches on whether each forced prime (13, 61, 97, 3169, 3348577, 3737657091169) is special, and each of the leaves has an abundant divisor, for example 3²·5²·13²·31 with abundancy about 2.00205.</p>
+
+<h2 id="certificates">Verified certificate checking</h2>
+<p><b>How it works.</b> An untrusted program searches for a proof and writes it down as a certificate, a tree of rules. The library contains a checker <code>check : List Fact → Cert → Bool</code> and one soundness theorem: if the checker accepts a certificate for a state, no odd perfect number satisfies all facts of the state. The kernel only has to evaluate <code>check</code>; it never has to trust the search program.</p>
+<p><b>Scope.</b> An accepted certificate excludes every odd perfect number that matches its root facts, and nothing more. No family of root facts used in the library is proved to cover every odd perfect number, so the certificates give restricted exclusions, not a general one.</p>
+<p>A <em>state</em> is a list of facts about the unknown N, each one of <code>exact p e</code> (the exponent of p is exactly e), <code>powDvd p e</code> (p<sup>e</sup> divides N) or <code>notDvd p</code> (p does not divide N). Primality inside the checker is a trial division test <code>isPrimeB</code>, proved sound. The rules and why each is sound:</p>
+<dl class="terms">
+<dt><code>force p e a q next</code> (step)</dt>
+<dd>Requires <code>exact p e</code> in the state, p and q prime, q ≠ 2, a + 1 dividing e + 1, and q dividing 1 + p + ⋯ + p<sup>a</sup>. Then σ(p<sup>a</sup>) divides σ(p<sup>e</sup>), which divides 2N, so the odd prime q divides N; checking continues with <code>powDvd q 1</code> added.</dd>
+<dt><code>split p e atExact atMore</code> (step)</dt>
+<dd>Requires p prime and p<sup>e</sup> dividing N recorded (directly or through an exact exponent). The two cases "the exponent is exactly e" and "p<sup>e+1</sup> divides N" are exhaustive, and both subcertificates must be accepted.</dd>
+<dt><code>abundant ps</code> (closing)</dt>
+<dd>A list of distinct primes p with recorded p<sup>e</sup> dividing N, and 2∏p<sup>e</sup> &lt; ∏σ(p<sup>e</sup>). The product d of the p<sup>e</sup> divides N, its divisor sum is the product of the component sums, and d is abundant, so N would be abundant.</dd>
+<dt><code>notDvd p e</code> (closing)</dt>
+<dd>p<sup>e</sup> with e ≥ 1 divides N while the state says p does not divide N.</dd>
+<dt><code>exactPow p e e'</code> (closing)</dt>
+<dd>The state says the exponent of p is exactly e, and p<sup>e'</sup> divides N with e &lt; e'.</dd>
+<dt><code>parityTwo p e q f</code> (closing)</dt>
+<dd>Two distinct primes with odd exact exponents e and f contradict Euler's form, which allows only one.</dd>
+<dt><code>paritySpecial p e</code> (closing)</dt>
+<dd>An odd exact exponent e at p with p ≢ 1 or e ≢ 1 (mod 4) contradicts Euler's form, since such a p would be the special prime.</dd>
+<dt><code>overflow q e ps</code> (closing)</dt>
+<dd>The state says the exponent of the odd prime q is exactly e, and the listed distinct primes p, each with recorded exact exponent f ≥ 1, have q<sup>k</sup> dividing σ(p<sup>f</sup>) with the claimed k adding up to more than e. This contradicts the q-adic ledger.</dd>
+</dl>
+<p><b>Instance.</b> Exponent exactly 2 at both 3 and 5: force 13 from σ(3²) and 31 from σ(5²), then split on the exponent of 13. If it is 1, σ(13) = 14 forces 7, and 3²·5²·13·7 is abundant; otherwise 3²·5²·13²·31 is abundant.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exclude_three_sq_five_sq</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (h3 : N.factorization 3 = 2) (h5 : N.factorization 5 = 2) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.Cert.exclude_three_sq_five_sq">OddPerfect.Cert.exclude_three_sq_five_sq</a> in <a href="reference.html#mod-Certificate">OddPerfect.Certificate</a></p>
+<pre class="lean"><code>check_sound (s := [.exact 3 2, .exact 5 2])
+  (c := .force 3 2 2 13 &lt;| .force 5 2 2 31 &lt;|
+    .split 13 1
+      (.force 13 1 1 7 &lt;| .abundant [(3, 2), (5, 2), (13, 1), (7, 1)])
+      (.abundant [(3, 2), (5, 2), (13, 2), (31, 1)]))
+  (<span class="k">by</span> decide +kernel) N h (<span class="k">by</span> simp [State.Holds, Fact.Holds, h3, h5])</code></pre>
+<p class="src-link">The proof term, from <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Certificate.lean">OddPerfect/Certificate.lean</a></p>
+
+<h2 id="pratt">Pratt primality certificates</h2>
+<p><b>How it works.</b> A prime p is certified by a number a whose order modulo p is exactly p − 1: a<sup>p−1</sup> ≡ 1 (mod p), and a<sup>(p−1)/f</sup> ≢ 1 (mod p) for each prime factor f of p − 1. That requires the factorization of p − 1 and the primality of its factors, so the certificate is a flat list of entries (p, a, fs) in dependency order, where fs lists the prime factors of p − 1 with multiplicity. The checker verifies, for each entry, that the product of fs is p − 1, that every element of fs is an earlier entry or passes trial division, and the power conditions, using binary modular exponentiation written with structural recursion so that the kernel can evaluate it. mathlib's <code>lucas_primality</code> turns an accepted entry into a proof of primality.</p>
+<p><b>Instance.</b> 1093 = σ(3⁶) appears in the exponent six chains. Its certificate is the single entry (1093, 5, [2, 2, 3, 7, 13]): 2·2·3·7·13 = 1092, 5<sup>1092</sup> ≡ 1 (mod 1093), and 5<sup>1092/f</sup> ≢ 1 for f = 2, 3, 7, 13.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">prime_1093</span> : Nat.Prime 1093</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.Pratt.prime_1093">OddPerfect.Pratt.prime_1093</a> in <a href="reference.html#mod-Pratt">OddPerfect.Pratt</a></p>
+<pre class="lean"><code><span class="k">theorem</span> <span class="n">prime_1093</span> : Nat.Prime 1093 :=
+  prime_of_checkPrime (c := [(1093, 5, [2, 2, 3, 7, 13])]) (<span class="k">by</span> decide +kernel)</code></pre>
+
+<h2 id="residues">Quadratic residue constraints</h2>
+<p><b>How it works.</b> σ(p<sup>a</sup>) ≡ 1 (mod p), so its <a href="background.html#legendre">Legendre symbol</a> modulo p is 1, and expanding over its factorization gives a sign identity at every vertex of the network. In the other direction, if e is even and r divides σ(p<sup>e</sup>), then p<sup>e+1</sup> ≡ 1 (mod r) with e + 1 odd, so p is a square modulo r.</p>
+<p><b>Instance.</b> The special prime q receives weight from some ordinary p, so p is a square modulo q; since q ≡ 1 (mod 4), reciprocity makes q a square modulo p. This is <code>exists_mutual_quadratic_residues</code>, tagged <span class="tag unver">novelty unverified</span>.</p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>

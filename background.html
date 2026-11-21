@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Background and glossary: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="The number theory behind the library, for readers with undergraduate background: divisor sums, abundancy, valuations, orders, cyclotomic factors, Euler&#x27;s form, residue symbols and spoofs, each with a checked example.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html" aria-current="page">Background</a></li>
+<li><a href="network.html">Network</a></li>
+<li><a href="methods.html">Methods</a></li>
+<li><a href="theorems.html">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap with-toc">
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#divisor-sums">Divisor sums</a></li><li class="l3"><a href="#divisor-sum">Divisor sum σ</a></li><li class="l3"><a href="#perfect">Perfect, abundant and deficient numbers</a></li><li class="l3"><a href="#abundancy">Abundancy</a></li><li class="l3"><a href="#component">Prime power component and exact exponent</a></li><li class="l2"><a href="#valuations-orders">Valuations and orders</a></li><li class="l3"><a href="#valuation">p-adic valuation</a></li><li class="l3"><a href="#order">Multiplicative order</a></li><li class="l3"><a href="#cyclotomic">Cyclotomic factorization of σ(pa)</a></li><li class="l3"><a href="#lte">Lifting the exponent</a></li><li class="l3"><a href="#primitive">Primitive prime divisor</a></li><li class="l2"><a href="#shape">The shape of an odd perfect number</a></li><li class="l3"><a href="#euler-form">Euler's form and the special prime</a></li><li class="l3"><a href="#ordinary">Ordinary primes</a></li><li class="l3"><a href="#omega">ω and Ω</a></li><li class="l2"><a href="#residues">Quadratic residues</a></li><li class="l3"><a href="#legendre">Legendre and Jacobi symbols</a></li><li class="l2"><a href="#countermodels">Countermodels</a></li><li class="l3"><a href="#spoof">Spoof factorization</a></li></ul></nav></details></aside>
+<main id="content" tabindex="-1">
+<h1>Background and glossary</h1>
+<p class="lead">The terms used across this site, each with a precise definition, a small example, and a link to where the library uses it. Every example on this page was recomputed with exact integer arithmetic before publication.</p>
+<p class="sub">Notation: N is a hypothetical odd perfect number, p, q, r are primes, and a | b means that a divides b. Lean writes the divisor sum of n as <code>σ 1 n</code> and the exponent of p in n as <code>n.factorization p</code> or <code>padicValNat p n</code>.</p>
+<nav aria-label="Glossary index" class="callout"><p><strong>Glossary:</strong>
+<a href="#divisor-sum">divisor sum</a> ·
+<a href="#perfect">perfect, abundant, deficient</a> ·
+<a href="#abundancy">abundancy</a> ·
+<a href="#component">component</a> ·
+<a href="#valuation">p-adic valuation</a> ·
+<a href="#order">multiplicative order</a> ·
+<a href="#cyclotomic">cyclotomic factorization</a> ·
+<a href="#lte">lifting the exponent</a> ·
+<a href="#primitive">primitive prime divisor</a> ·
+<a href="#euler-form">Euler's form and the special prime</a> ·
+<a href="#ordinary">ordinary primes</a> ·
+<a href="#omega">ω and Ω</a> ·
+<a href="#legendre">Legendre and Jacobi symbols</a> ·
+<a href="#spoof">spoof factorization</a></p></nav>
+
+<h2 id="divisor-sums">Divisor sums</h2>
+
+<h3 id="divisor-sum">Divisor sum σ</h3>
+<p><b>Definition.</b> σ(n) is the sum of all positive divisors of n, including 1 and n. It is multiplicative: σ(ab) = σ(a)σ(b) whenever a and b are coprime. For a prime power, σ(p<sup>a</sup>) = 1 + p + p² + ⋯ + p<sup>a</sup>.</p>
+<p><b>Example.</b> σ(12) = 1 + 2 + 3 + 4 + 6 + 12 = 28. With 45 = 3²·5: σ(45) = σ(3²)σ(5) = 13·6 = 78.</p>
+<p><b>In the library.</b> mathlib's <code>ArithmeticFunction.sigma</code>; the multiplicativity is used through <code>isMultiplicative_sigma</code> in almost every module, starting with <a href="reference.html#mod-Seed.Starter"><code>Seed.Starter</code></a>.</p>
+
+<h3 id="perfect">Perfect, abundant and deficient numbers</h3>
+<p><b>Definition.</b> n is perfect when σ(n) = 2n, abundant when σ(n) &gt; 2n, and deficient when σ(n) &lt; 2n. Every multiple of an abundant number is abundant, so <em>a perfect number has no abundant divisor</em>. This is the most used closing argument in the library.</p>
+<p><b>Example.</b> 6 and 28 are perfect: σ(6) = 12 and σ(28) = 56. 12 is abundant (28 &gt; 24) and 8 is deficient (15 &lt; 16). The smallest odd abundant number is 945, with σ(945) = 1920 &gt; 1890.</p>
+<p><b>In the library.</b> <code>Nat.Perfect</code> from mathlib; <a href="reference.html#not_perfect_of_dvd_of_two_lt_abundancy"><code>not_perfect_of_dvd_of_two_lt_abundancy</code></a>.</p>
+
+<h3 id="abundancy">Abundancy</h3>
+<p><b>Definition.</b> The abundancy of n is the rational number σ(n)/n. It is multiplicative on coprime arguments, n is perfect exactly when its abundancy is 2, and for a prime power it is a geometric sum in 1/p that stays strictly below p/(p − 1). Hence the abundancy of n is below the product of p/(p − 1) over its prime factors, and a perfect N needs that product to exceed 2.</p>
+<p><b>Example.</b> abundancy(45) = 78/45 = 26/15, which equals abundancy(9)·abundancy(5) = (13/9)(6/5). abundancy(945) = 1920/945 = 128/63, a little above 2.</p>
+<p><b>In the library.</b> <a href="reference.html#mod-Abundancy"><code>Abundancy</code></a> defines <code>abundancy n</code> as an exact rational; <a href="reference.html#OddPerfect.two_lt_prod_primeFactors"><code>two_lt_prod_primeFactors</code></a> is the product bound.</p>
+
+<h3 id="component">Prime power component and exact exponent</h3>
+<p><b>Definition.</b> For a prime p dividing N, the exact exponent is the largest e with p<sup>e</sup> dividing N, and p<sup>e</sup> is the p component of N. Because σ is multiplicative, σ(N) is the product of the component sums σ(p<sup>e</sup>), and each σ(p<sup>e</sup>) divides σ(N) = 2N. So <em>every odd prime dividing σ(p<sup>e</sup>) divides N</em>: the forcing step. The exponent must be exact: σ(3²) = 13 but σ(3⁴) = 121 = 11².</p>
+<p><b>Example.</b> If 3 divides an odd perfect number exactly to the power 2, then σ(3²) = 13 divides 2N, so 13 divides N.</p>
+<p><b>In the library.</b> <a href="reference.html#OPNStarter.force_prime"><code>OPNStarter.force_prime</code></a> and <a href="reference.html#OPNStarter.thirteen_dvd_of_three_sq"><code>thirteen_dvd_of_three_sq</code></a>.</p>
+
+<h2 id="valuations-orders">Valuations and orders</h2>
+
+<h3 id="valuation">p-adic valuation</h3>
+<p><b>Definition.</b> v<sub>p</sub>(n) is the exponent of the prime p in n, so v<sub>p</sub>(ab) = v<sub>p</sub>(a) + v<sub>p</sub>(b). Taking v<sub>q</sub> of σ(N) = 2N gives one linear equation per prime q: the exponents of q in the component sums add up to v<sub>q</sub>(N), plus 1 when q = 2. These equations are the ledgers of the <a href="methods.html#ledger">Methods</a> page.</p>
+<p><b>Example.</b> σ(13²) = 183 = 3·61, so v₃(σ(13²)) = 1. σ(5) = 6 has v₂ = 1, while σ(3) = 4 has v₂ = 2.</p>
+<p><b>In the library.</b> <a href="reference.html#OPNStarter.valuation_balance"><code>OPNStarter.valuation_balance</code></a>; exact formulas in <a href="reference.html#mod-Valuation"><code>Valuation</code></a>.</p>
+
+<h3 id="order">Multiplicative order</h3>
+<p><b>Definition.</b> For a prime q not dividing a, the order of a modulo q is the least d ≥ 1 with a<sup>d</sup> ≡ 1 (mod q). It divides q − 1, the number of nonzero residues modulo q, and a<sup>n</sup> ≡ 1 (mod q) exactly when d divides n.</p>
+<p><b>Example.</b> 3³ = 27 = 2·13 + 1, so 3 has order 3 modulo 13, and 3 divides 13 − 1 = 12. 3⁵ = 243 = 22·11 + 1, so 3 has order 5 modulo 11.</p>
+<p><b>In the library.</b> mathlib's <code>orderOf (p : ZMod q)</code>; see <a href="reference.html#OddPerfect.prime_dvd_sigma_prime_pow"><code>prime_dvd_sigma_prime_pow</code></a>.</p>
+
+<h3 id="cyclotomic">Cyclotomic factorization of σ(p<sup>a</sup>)</h3>
+<p><b>Definition.</b> σ(p<sup>a</sup>) = (p<sup>a+1</sup> − 1)/(p − 1), and x<sup>n</sup> − 1 is the product of the cyclotomic polynomials Φ<sub>d</sub>(x) over the divisors d of n. Hence σ(p<sup>a</sup>) is the product of Φ<sub>d</sub>(p) over the divisors d &gt; 1 of a + 1. The order dichotomy follows: a prime q dividing σ(p<sup>a</sup>) is not p, and either p ≡ 1 (mod q) with q dividing a + 1, or the order of p modulo q is greater than 1 and divides both a + 1 and q − 1.</p>
+<p><b>Example.</b> σ(3⁵) = (3⁶ − 1)/2 = 364, and Φ₂(3)Φ₃(3)Φ₆(3) = (3 + 1)(9 + 3 + 1)(9 − 3 + 1) = 4·13·7 = 364. The prime 13 is a divisor of Φ₃(3), and 3 has order 3 modulo 13.</p>
+<p><b>In the library.</b> <a href="reference.html#OddPerfect.sigma_prime_pow_eq_prod_cyclotomic"><code>sigma_prime_pow_eq_prod_cyclotomic</code></a> in <a href="reference.html#mod-Cyclotomic"><code>Cyclotomic</code></a>.</p>
+
+<h3 id="lte">Lifting the exponent</h3>
+<p><b>Definition.</b> For an odd prime q dividing x − y (and not dividing xy), v<sub>q</sub>(x<sup>n</sup> − y<sup>n</sup>) = v<sub>q</sub>(x − y) + v<sub>q</sub>(n). Applied to σ(p<sup>a</sup>)(p − 1) = p<sup>a+1</sup> − 1 with q dividing p − 1, it gives v<sub>q</sub>(σ(p<sup>a</sup>)) = v<sub>q</sub>(a + 1).</p>
+<p><b>Example.</b> p = 7 and q = 3 (3 divides 6). σ(7²) = 57 = 3·19 has v₃ = 1 = v₃(3); σ(7⁵) has v₃ = v₃(6) = 1; σ(7⁸) has v₃ = v₃(9) = 2.</p>
+<p><b>In the library.</b> <a href="reference.html#OddPerfect.padicValNat_sigma_prime_pow_of_dvd_pred"><code>padicValNat_sigma_prime_pow_of_dvd_pred</code></a>, built on mathlib's <code>padicValNat.pow_sub_pow</code>.</p>
+
+<h3 id="primitive">Primitive prime divisor</h3>
+<p><b>Definition.</b> A prime q is a primitive prime divisor of a<sup>n</sup> − 1 when a has order exactly n modulo q: q divides a<sup>n</sup> − 1 but no a<sup>k</sup> − 1 with k &lt; n. Then n divides q − 1. The library proves that for every base a ≥ 3 and every n ≥ 3 such a prime exists. If p has exact exponent e in N and d ≥ 3 divides e + 1, the primitive prime of order d divides σ(p<sup>d−1</sup>), which divides σ(p<sup>e</sup>), so it is a prime factor of N that is ≡ 1 (mod d).</p>
+<p><b>Example.</b> 3⁴ − 1 = 80 = 2⁴·5, and 5 divides none of 3 − 1, 3² − 1, 3³ − 1 (that is 2, 8, 26), so 5 is primitive for n = 4, and 4 divides 5 − 1.</p>
+<p><b>In the library.</b> <a href="reference.html#OddPerfect.exists_prime_orderOf_eq"><code>exists_prime_orderOf_eq</code></a> and <a href="reference.html#OddPerfect.exists_primeFactor_modEq_one"><code>exists_primeFactor_modEq_one</code></a> in <a href="reference.html#mod-Zsigmondy"><code>Zsigmondy</code></a>.</p>
+
+<h2 id="shape">The shape of an odd perfect number</h2>
+
+<h3 id="euler-form">Euler's form and the special prime</h3>
+<p><b>Definition.</b> Every odd perfect number can be written N = q<sup>k</sup>m² with q prime, q not dividing m, and q ≡ k ≡ 1 (mod 4). The prime q is the <em>special prime</em>: it is the only prime with an odd exponent. The reason is the 2-adic ledger: σ(N) = 2N has exactly one factor 2, and for odd p the sum σ(p<sup>e</sup>) of e + 1 odd terms is even exactly when e is odd.</p>
+<p><b>Example.</b> The pair (q, k) = (5, 1) is allowed: σ(5) = 6 has exactly one factor 2. The pair (3, 1) is not: σ(3) = 4 has two. Neither is (5, 3): σ(5³) = 156 = 4·39.</p>
+<p><b>In the library.</b> <a href="reference.html#OddPerfect.exists_euler_form"><code>exists_euler_form</code></a> and <a href="reference.html#OddPerfect.exists_special_prime"><code>exists_special_prime</code></a> in <a href="reference.html#mod-Euler"><code>Euler</code></a>.</p>
+
+<h3 id="ordinary">Ordinary primes</h3>
+<p><b>Definition.</b> The prime factors of N other than the special prime. Their exponents are even, hence at least 2. Exponent patterns such as "all ordinary exponents equal 2" are statements about these primes.</p>
+<p><b>Example.</b> 7 ≡ 3 (mod 4), so 7 can never be the special prime: if 7 divides N, then 7² divides N.</p>
+<p><b>In the library.</b> <a href="reference.html#OddPerfect.sq_dvd_of_prime_dvd_of_mod_four_eq_three"><code>sq_dvd_of_prime_dvd_of_mod_four_eq_three</code></a>, <a href="reference.html#OddPerfect.even_factorization_of_ne"><code>even_factorization_of_ne</code></a>.</p>
+
+<h3 id="omega">ω and Ω</h3>
+<p><b>Definition.</b> ω(N) is the number of distinct prime factors and Ω(N) the number of prime factors counted with multiplicity, that is the sum of the exponents. Since every ordinary exponent is at least 2, 2ω ≤ Ω + 1 for an odd perfect number.</p>
+<p><b>Example.</b> 4455 = 3⁴·5·11 has ω = 3 and Ω = 6.</p>
+<p><b>In the library.</b> <code>ω N</code> and <code>Ω N</code> from mathlib, or <code>N.primeFactors.card</code>; see <a href="reference.html#mod-Counting"><code>Counting</code></a>.</p>
+
+<h2 id="residues">Quadratic residues</h2>
+
+<h3 id="legendre">Legendre and Jacobi symbols</h3>
+<p><b>Definition.</b> For an odd prime p, the Legendre symbol (a/p) is 1 if a is a nonzero square modulo p, −1 if it is not a square, and 0 if p divides a. It is multiplicative in a. The Jacobi symbol (a/n) for odd n is the product of the Legendre symbols over the prime factors of n with multiplicity. Quadratic reciprocity: for distinct odd primes p and r, (p/r)(r/p) = −1 exactly when p ≡ r ≡ 3 (mod 4).</p>
+<p><b>Example.</b> (2/7) = 1 because 3² = 9 ≡ 2 (mod 7), and (3/7) = −1 because the nonzero squares modulo 7 are 1, 2, 4. The Jacobi symbol (2/15) = (2/3)(2/5) = (−1)(−1) = 1, although 2 is not a square modulo 15: for composite n a Jacobi symbol 1 does not mean a square. The library applies <code>jacobiSym</code> only at primes, where it is the Legendre symbol.</p>
+<p><b>In the library.</b> <a href="reference.html#mod-Reciprocity"><code>Reciprocity</code></a>, after Wallace (arXiv 1610.00544).</p>
+
+<h2 id="countermodels">Countermodels</h2>
+
+<h3 id="spoof">Spoof factorization</h3>
+<p><b>Definition.</b> A list of bases and exponents, treated as if every base were prime: its value is the product of b<sup>e</sup> and its formal divisor sum is the product of 1 + b + ⋯ + b<sup>e</sup>. A spoof odd perfect number has formal divisor sum equal to twice its value, together with the side conditions recorded in <code>IsSpoofOddPerfect</code> (odd bases at least 3, pairwise coprime, positive exponents, Euler's parity pattern). If every base is prime, the spoof is a genuine odd perfect number.</p>
+<p><b>Example.</b> The Descartes spoof 3²·7²·11²·13²·22021 has formal divisor sum 13·57·133·183·22022 = 2·198585576189, twice its value. But 22021 = 19²·61 is not prime: the number 198585576189 has six distinct prime factors, and its true divisor sum 426027470778 is not twice the number, 397171152378.</p>
+<p><b>In the library.</b> <a href="reference.html#mod-Spoof"><code>Spoof</code></a>; see also the <a href="network.html#spoof-network">diagram of its network</a> and <a href="obstacles.html">Why it is hard</a>.</p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>

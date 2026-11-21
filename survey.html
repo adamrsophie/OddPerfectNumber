@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Literature and code survey: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="Aggregate results of the survey of papers and public repositories on odd perfect numbers that feeds the list of formalization targets.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html">Background</a></li>
+<li><a href="network.html">Network</a></li>
+<li><a href="methods.html">Methods</a></li>
+<li><a href="theorems.html">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html" aria-current="page">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap no-toc">
+
+<main id="content" tabindex="-1">
+<h1>Literature and code survey</h1>
+<p class="lead">The survey feeds the list of targets and guards against repeating known mistakes. Only aggregate numbers are reported here.</p>
+<div class="grid">
+<div class="card"><h3>Papers</h3><p>287 arXiv papers on perfect numbers and related topics were screened by title and abstract. 131 were graded as directly relevant or transferable and read in full from their sources, each with a written note.</p></div>
+<div class="card"><h3>Repositories</h3><p>101 public repositories matching the topic were reviewed by reading only. A handful contain useful certificates or lemma statements, which were reproved here rather than copied.</p></div>
+<div class="card"><h3>Claimed proofs</h3><p>Sixteen papers that claim to settle the conjecture or a related open statement were read as a referee would. In each case our reading found a step that does not follow. These readings have not been externally reviewed.</p></div>
+<div class="card"><h3>What the survey produced</h3><p>Target statements for the modules of the library, a list of results still missing from it, and the countermodel checklist used to test new ideas (see <a href="obstacles.html">Why it is hard</a>).</p></div>
+</div>
+<p class="sub">The per paper register and the reading notes are not published in the repository, so these counts cannot be reproduced from the repository alone.</p>
+<p class="sub">Papers and third party code are read as data only: nothing from them is executed or copied into the library, and every borrowed statement is proved again in Lean (see the <a href="procedure.html#trust">trust policy</a>).</p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>

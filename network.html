@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The valuation network: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="The divisor sum network of a perfect number, its conservation laws and strong connectivity, and the exact reformulation of the odd perfect number conjecture as the nonexistence of a balanced candidate.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html">Background</a></li>
+<li><a href="network.html" aria-current="page">Network</a></li>
+<li><a href="methods.html">Methods</a></li>
+<li><a href="theorems.html">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap with-toc">
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#nodes-weights">Nodes and weights</a></li><li class="l2"><a href="#conservation">Conservation</a></li><li class="l2"><a href="#connectivity">Strong connectivity</a></li><li class="l2"><a href="#candidates">Candidates and balance</a></li><li class="l2"><a href="#reduction">The reduction</a></li><li class="l2"><a href="#spoof-network">Example: the network of a spoof</a></li></ul></nav></details></aside>
+<main id="content" tabindex="-1">
+<h1>The valuation network</h1>
+<p class="lead">Perfection, σ(N) = 2N, can be read prime by prime. The result is a weighted directed graph on the prime factors of N with an exact conservation law at every vertex. The library proves that the conjecture is equivalent to the statement that no finite graph of this kind balances.</p>
+
+<h2 id="nodes-weights">Nodes and weights</h2>
+<p>The nodes are the prime power <a href="background.html#component">components</a> p<sup>e<sub>p</sub></sup> of N, where e<sub>p</sub> is the exact exponent of p. The weight of the edge from p to a prime r is the <a href="background.html#valuation">r-adic valuation</a> of the component divisor sum:</p>
+<p class="formula">w(p, r) = v<sub>r</sub>(σ(p<sup>e<sub>p</sub></sup>))</p>
+<p>So p sends to r as many factors of r as σ(p<sup>e<sub>p</sub></sup>) contains. There is an edge p → r between prime factors exactly when this weight is nonzero.</p>
+<pre class="lean"><code><code><span class="k">def</span> <span class="n">sigmaWeight</span> (N p q : <span class="t"><span class="t">ℕ</span></span>) : <span class="t"><span class="t">ℕ</span></span> := (σ 1 (p ^ N.factorization p)).factorization q</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Network.lean">OddPerfect/Network.lean</a></p>
+<pre class="lean"><code><code><span class="k">def</span> <span class="n">SigmaEdge</span> (N p q : <span class="t"><span class="t">ℕ</span></span>) : <span class="k"><span class="k">Prop</span></span> :=
+  p ∈ N.primeFactors ∧ q ∈ N.primeFactors ∧ q ∣ σ 1 (p ^ N.factorization p)</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Network.lean">OddPerfect/Network.lean</a></p>
+
+<h2 id="conservation">Conservation</h2>
+<p>Since σ is multiplicative, σ(N) is the product of the component sums, so v<sub>r</sub>(σ(N)) is the sum of the weights into r. Comparing with v<sub>r</sub>(2N) gives one exact equation per prime:</p>
+<ul>
+<li>for every odd prime r, the incoming weights add up to e<sub>r</sub>, the exponent of r in N (zero if r does not divide N);</li>
+<li>at r = 2 the incoming weights add up to exactly 1, because N is odd and 2N has a single factor 2.</li>
+</ul>
+<p>Two further facts: no prime divides its own component sum, since σ(p<sup>e</sup>) ≡ 1 (mod p), so there are no self loops; and no weight leaves the prime factors of N except the single unit into 2, by the forcing step.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sigmaWeight_sum_eq</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (hN : N.Perfect) (hq : q.Prime) (hq2 : q ≠ 2) :
+  <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, sigmaWeight N p q = N.factorization q</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sigmaWeight_sum_eq">OddPerfect.sigmaWeight_sum_eq</a> in <a href="reference.html#mod-Network">OddPerfect.Network</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sigmaWeight_sum_two</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
+  <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, sigmaWeight N p 2 = 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sigmaWeight_sum_two">OddPerfect.sigmaWeight_sum_two</a> in <a href="reference.html#mod-Network">OddPerfect.Network</a></p>
+<p>The 2-adic equation is already strong: it is how the library proves <a href="background.html#euler-form">Euler's form</a>. The special prime q is the unique node sending weight to 2, and it sends exactly 1.</p>
+
+<h2 id="connectivity">Strong connectivity</h2>
+<p>Every prime factor of N reaches every other along edges. The proof uses a cut lemma for any perfect number: if N = ab with a, b &gt; 1 coprime, some prime of a divides σ(b). Otherwise a would divide σ(a), so σ(a) ≥ 2a, and σ(a)σ(b) ≥ 2aσ(b) &gt; 2ab, contradicting σ(a)σ(b) = 2ab. Given a nonempty proper set S of prime factors, take a to be the part of N over S and b the rest: some component outside S sends an edge into S. Applied to the set of primes that reach a fixed prime q, this shows that the set cannot be proper, so everything reaches q.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sigmaEdge_reflTransGen</span> {N : <span class="t"><span class="t">ℕ</span></span>} (hN : N.Perfect) {p q : <span class="t"><span class="t">ℕ</span></span>}
+  (hp : p ∈ N.primeFactors) (hq : q ∈ N.primeFactors) :
+  Relation.ReflTransGen (SigmaEdge N) p q</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sigmaEdge_reflTransGen">OddPerfect.sigmaEdge_reflTransGen</a> in <a href="reference.html#mod-Network">OddPerfect.Network</a></p>
+
+<h2 id="candidates">Candidates and balance</h2>
+<p>To state the reformulation, the library forgets N and keeps only an exponent function. A <code>Candidate</code> is a finitely supported function p ↦ e<sub>p</sub> from the natural numbers to the natural numbers. Its support is the set where e<sub>p</sub> &gt; 0, its value is ∏ p<sup>e<sub>p</sub></sup>, and its weights are defined exactly as above from σ(p<sup>e<sub>p</sub></sup>).</p>
+<pre class="lean"><code><code><span class="k">structure</span> <span class="n">Candidate</span> <span class="k"><span class="k">where</span></span>
+  exponent : <span class="t"><span class="t">ℕ</span></span> →₀ <span class="t"><span class="t">ℕ</span></span></code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Reduction.lean">OddPerfect/Reduction.lean</a></p>
+<p>A candidate is <code>Balanced</code> when four local conditions hold:</p>
+<ol>
+<li>every element of the support is prime;</li>
+<li>2 is not in the support;</li>
+<li>for every odd prime q, the weights into q from the support add up to e<sub>q</sub>; for a prime outside the support this says they add up to 0;</li>
+<li>the weights into 2 add up to exactly 1.</li>
+</ol>
+<pre class="lean"><code><code><span class="k">structure</span> <span class="n">Balanced</span> (C : Candidate) : <span class="k"><span class="k">Prop</span></span> <span class="k"><span class="k">where</span></span>
+  /-- Every element of the support is prime. -/
+  prime : <span class="k"><span class="k">∀</span></span> p ∈ C.support, p.Prime
+  /-- No element of the support is 2. -/
+  ne_two : <span class="k"><span class="k">∀</span></span> p ∈ C.support, p ≠ 2
+  /-- Conservation at every odd prime. -/
+  balance_odd : <span class="k"><span class="k">∀</span></span> q : <span class="t"><span class="t">ℕ</span></span>, q.Prime → q ≠ 2 → <span class="k"><span class="k">∑</span></span> p ∈ C.support, C.weight p q = C.exponent q
+  /-- The weights into 2 add up to exactly one. -/
+  balance_two : <span class="k"><span class="k">∑</span></span> p ∈ C.support, C.weight p 2 = 1</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Reduction.lean">OddPerfect/Reduction.lean</a></p>
+<p>Note what is not in the definition: strong connectivity, Euler's form and other properties are <em>consequences</em> of balance, collected in the structure <code>Candidate.Necessary</code> and proved for every balanced candidate by <code>Balanced.necessary</code>. <code>Candidate.Necessary</code> is not a weaker problem. Its Touchard field makes the value odd and positive, and its field <code>abundancy_eq_two</code> makes that value perfect, so it follows from the fields that a candidate satisfying <code>Candidate.Necessary</code> exists if and only if an odd perfect number exists.</p>
+
+<h2 id="reduction">The reduction</h2>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">conjecture_iff_no_balanced</span> : OddPerfectConjecture ↔ ¬ <span class="k"><span class="k">∃</span></span> C : Candidate, C.Balanced</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.conjecture_iff_no_balanced">OddPerfect.conjecture_iff_no_balanced</a> in <a href="reference.html#mod-Reduction">OddPerfect.Reduction</a></p>
+<p><b>Proof idea.</b> An odd perfect number gives a balanced candidate: its own factorization, by the conservation laws above. Conversely, for a balanced candidate, compare the exponent of each prime q in σ(value) and in 2·value. Multiplicativity turns the first into the sum of the weights into q; balance makes that equal to e<sub>q</sub> for odd q and to 1 for q = 2, which is the exponent of q in 2·value; at a non prime both sides are 0. Two numbers with the same factorization are equal, so σ(value) = 2·value, and the value is odd because 2 is not in the support.</p>
+<div class="callout"><p><strong>This is a reformulation, not progress toward a proof.</strong> The open problem is exactly whether a balanced candidate exists. Nothing in the library decides that, and nothing assumes the conjecture.</p></div>
+
+<h2 id="spoof-network">Example: the network of a spoof</h2>
+<p>No odd perfect number is known, so the picture below uses the <a href="background.html#spoof">Descartes spoof</a> 3²·7²·11²·13²·22021, which is <strong>not</strong> an odd perfect number. Its formal divisor sums are σ(3²) = 13, σ(7²) = 57 = 3·19, σ(11²) = 133 = 7·19, σ(13²) = 183 = 3·61, and, treating 22021 as prime, 1 + 22021 = 22022 = 2·7·11²·13.</p>
+<figure class="diagram"><svg viewBox="40 20 680 400" role="img" aria-labelledby="dg-t dg-d"><title id="dg-t">Formal divisor sum network of the Descartes spoof</title><desc id="dg-d">Nodes 3 squared, 7 squared, 11 squared, 13 squared, the fake prime 22021 to the first power, and the prime 2. Arrows from a node point to the primes of its formal divisor sum, labeled by the prime they carry. 3 squared sends 13 to 13 squared; 13 squared sends 3 to 3 squared and 61 to the fake node; 7 squared sends 3 to 3 squared and 19 to the fake node; 11 squared sends 7 to 7 squared and 19 to the fake node; the fake node sends 2, 7, 13 once each and 11 twice.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs><path class="e" d="M153.6,95.1 Q330.0,122.0 500.5,96.0" marker-end="url(#arrow)"/><text class="elab" x="330.0" y="122.0" text-anchor="middle">13</text><path class="e" d="M506.4,84.9 Q330.0,58.0 159.5,84.0" marker-end="url(#arrow)"/><text class="elab" x="330.0" y="66.0" text-anchor="middle">3</text><path class="e" d="M120.0,316.0 Q120.0,220.0 120.0,130.0" marker-end="url(#arrow)"/><text class="elab" x="132.0" y="224.0" text-anchor="middle">3</text><path class="e" d="M506.0,350.0 Q330.0,350.0 160.0,350.0" marker-end="url(#arrow)"/><text class="elab" x="330.0" y="342.0" text-anchor="middle">7</text><path class="e-spoof" d="M144.6,326.5 Q211.3,262.9 292.4,233.6" marker-end="url(#arrow)"/><text class="elab" x="211.8" y="267.7" text-anchor="middle">19</text><path class="e-spoof" d="M305.4,243.5 Q238.7,307.1 157.6,336.4" marker-end="url(#arrow)"/><text class="elab" x="238.2" y="310.3" text-anchor="middle">7</text><path class="e-spoof" d="M515.4,326.5 Q448.7,262.9 367.6,233.6" marker-end="url(#arrow)"/><text class="elab" x="448.2" y="267.7" text-anchor="middle">19</text><path class="e-spoof" d="M354.6,243.5 Q421.3,307.1 502.4,336.4" marker-end="url(#arrow)"/><text class="elab" x="421.8" y="310.3" text-anchor="middle">11 ×2</text><path class="e-spoof" d="M515.4,113.5 Q448.7,177.1 367.6,206.4" marker-end="url(#arrow)"/><text class="elab" x="448.2" y="180.3" text-anchor="middle">61</text><path class="e-spoof" d="M354.6,196.5 Q421.3,132.9 502.4,103.6" marker-end="url(#arrow)"/><text class="elab" x="421.8" y="137.7" text-anchor="middle">13</text><path class="e-two" d="M364.0,220.0 Q485.0,220.0 600.0,220.0" marker-end="url(#arrow)"/><text class="elab" x="485.0" y="236.0" text-anchor="middle">2</text><circle class="n" cx="120" cy="90" r="34"/><text class="nlab" x="120" y="96" text-anchor="middle">3²</text><circle class="n" cx="540" cy="90" r="34"/><text class="nlab" x="540" y="96" text-anchor="middle">13²</text><circle class="n" cx="120" cy="350" r="34"/><text class="nlab" x="120" y="356" text-anchor="middle">7²</text><circle class="n" cx="540" cy="350" r="34"/><text class="nlab" x="540" y="356" text-anchor="middle">11²</text><circle class="n-spoof" cx="330" cy="220" r="34"/><text class="nlab" x="330" y="226" text-anchor="middle">22021¹</text><circle class="n-two" cx="640" cy="220" r="34"/><text class="nlab" x="640" y="226" text-anchor="middle">2</text><text class="note" x="330" y="276" text-anchor="middle">fake prime 19²·61</text><text class="note" x="640" y="276" text-anchor="middle">outside N</text></svg><figcaption>The Descartes spoof 3²·7²·11²·13²·22021 is <strong>not</strong> an odd perfect number: 22021 = 19²·61 is composite. Each arrow points to a prime factor of the formal divisor sum of its source, and the label names that prime, with ×2 for a square. Every genuine prime 3, 7, 11, 13 receives exactly its exponent 2, and 2 receives exactly 1. The two factors 19 and the factor 61 land on the fake node, whose value 19²·61 = 22021 they reproduce. This is the formal bookkeeping of <code>OddPerfect.Spoof.valuation_balance_descartes</code>.</figcaption></figure>
+<p>Reading off the weights: 3 receives 1 from 7² and 1 from 13², total 2; 7 receives 1 from 11² and 1 from 22021, total 2; 11 receives 2 from 22021; 13 receives 1 from 3² and 1 from 22021, total 2; and 2 receives exactly 1, from 22021, which plays the role of the special prime (22021 ≡ 1 mod 4, exponent 1). The bookkeeping balances only because the factors 19, 19 and 61, which are not nodes, are absorbed by the fake node 22021 = 19²·61. For a genuine balanced candidate every node must be prime, and this is where the spoof fails.</p>
+<p class="note">All numbers above were recomputed with exact integer arithmetic. The library records this example in <a href="reference.html#mod-Spoof"><code>Spoof</code></a>, including formal conservation at every prime (<code>valuation_balance_descartes</code>).</p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>

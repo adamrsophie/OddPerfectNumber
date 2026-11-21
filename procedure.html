@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procedure and trust policy: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="How results are drafted by AI coding agents, checked by the Lean kernel and verified before commit; the pinned toolchain, the three standard axioms, the forbidden constructs, and how to reproduce the build.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html">Background</a></li>
+<li><a href="network.html">Network</a></li>
+<li><a href="methods.html">Methods</a></li>
+<li><a href="theorems.html">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html" aria-current="page">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap with-toc">
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#pipeline">The pipeline</a></li><li class="l2"><a href="#trust">Trust policy</a></li><li class="l2"><a href="#seed">Provenance of the seed</a></li><li class="l2"><a href="#axiom-coverage">Axiom report coverage</a></li><li class="l3"><a href="#ci">Continuous integration</a></li><li class="l2"><a href="#toolchain">Toolchain</a></li><li class="l2"><a href="#axioms">The three standard axioms</a></li><li class="l2"><a href="#forbidden">Forbidden constructs</a></li><li class="l2"><a href="#decide-kernel">What decide +kernel does</a></li><li class="l2"><a href="#print-axioms">How #print axioms works</a></li><li class="l2"><a href="#verification">Verification steps for each module</a></li><li class="l2"><a href="#reproduce">Reproduce the build</a></li></ul></nav></details></aside>
+<main id="content" tabindex="-1">
+<h1>Procedure and trust policy</h1>
+<p class="lead">The work is organized as a pipeline in which drafting is cheap and trust comes only from the Lean kernel. Proof drafts are written by AI coding agents working in parallel. A supervising session verifies each result before it enters the repository.</p>
+
+<h2 id="pipeline">The pipeline</h2>
+<ol class="steps">
+<li><b>Fix the statement.</b>The definitions of an odd perfect number and of the conjecture are written first and kept minimal, so that every later theorem can be read against them.</li>
+<li><b>Survey the literature and existing code.</b>Papers and public repositories are screened, the relevant ones are read in full, and each gets a note: the method, the lemmas worth formalizing, and any step that does not hold up. See the <a href="survey.html">survey</a>.</li>
+<li><b>Assign one module per agent.</b>Each agent receives a precise target statement, the proof standards, and pointers to the existing library. Agents write new proofs on top of the existing library, test claims numerically with exact arithmetic before formalizing them, and may only check their own file.</li>
+<li><b>Report deviations.</b>An agent must say exactly what it proved, what it could not prove, and where it changed a statement. Statements found to be false are corrected and the counterexample is recorded.</li>
+<li><b>Verify independently.</b>For every returned module the supervising session scans for forbidden constructs, runs a full build of the whole library, parses every axiom report printed by the build, and reads the headline statements against their intended meaning. The <a href="#verification">verification steps</a> are listed below.</li>
+<li><b>Commit only verified work.</b>A module is committed and pushed only after the full build succeeds and every axiom report is clean.</li>
+<li><b>Test ideas against countermodels.</b>Objects that satisfy most of the constraints without being odd perfect numbers, such as <a href="background.html#spoof">spoof factorizations</a>, are kept as formal test cases. A proposed global argument that these objects also satisfy cannot be a proof. See <a href="obstacles.html">Why it is hard</a>.</li>
+<li><b>Steer the next wave.</b>A review of the library, the notes, and the countermodels produces a ranked list of next targets, and the cycle repeats. See the <a href="roadmap.html">roadmap</a>.</li>
+</ol>
+
+<h2 id="trust">Trust policy</h2>
+<p class="sub">A reader should need to trust only the Lean kernel, mathlib, and the statements themselves.</p>
+<div class="grid">
+<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>d9b08f3</code> is 0.</p></div>
+<div class="card"><h3>Three axioms only</h3><p>The modules end with <code>#print axioms</code> lines for their theorems, and every report must list at most <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>. The exceptions are listed under <a href="#axiom-coverage">axiom report coverage</a> below.</p></div>
+<div class="card"><h3>Computation inside the kernel</h3><p>Finite case analyses are run by verified checkers and evaluated with kernel reduction (<code>decide +kernel</code>). Primality of large numbers uses Pratt certificates checked the same way, or primality witnesses checked through mathlib's <code>lucas_primality</code>.</p></div>
+<div class="card"><h3>Pinned environment</h3><p>leanprover/lean4:v4.33.1 with mathlib pinned to a fixed commit. The whole library is rebuilt before every commit.</p></div>
+<div class="card"><h3>Untrusted inputs</h3><p>Papers and third party code are read as data only. Nothing from them is executed or copied into the library, and every borrowed statement is proved again in Lean.</p></div>
+<div class="card"><h3>Honest naming</h3><p>Partial results carry their exact hypotheses in the statement. A theorem is never weakened silently to make a proof go through.</p></div>
+</div>
+
+<h2 id="seed">Provenance of the seed</h2>
+<p>The eight modules under <code>OddPerfect/Seed/</code> are the project's own earlier starter code, imported at the start of the repository. Everything else in the library was written on top of them.</p>
+
+<h2 id="axiom-coverage">Axiom report coverage</h2>
+<p>10 public theorems on the main branch have no matching <code>#print axioms</code> line, computed by the site generator:</p><ul><li><code>OddPerfect/Basic.lean</code>: 6 (<code>OddPerfect.odd</code>, <code>OddPerfect.perfect</code>, <code>OddPerfect.pos</code>, <code>OddPerfect.ne_zero</code>, <code>OddPerfect.sigma_eq</code>, <code>OddPerfect.not_two_dvd</code>)</li><li><code>OddPerfect/Seed/Example.lean</code>: 2 (<code>OPNExample.geom_sum_dvd_geom_sum</code>, <code>OPNExample.sigma_prime_pow_dvd</code>)</li><li><code>OddPerfect/Seed/Numeric.lean</code>: 2 (<code>OPNNumeric.linear_times_pow_le_one</code>, <code>OPNNumeric.block_bound</code>)</li></ul><p>They are still checked by the kernel during the build; only their axiom report is not printed.</p>
+<h3 id="ci">Continuous integration</h3>
+<p>The main branch contains no continuous integration workflow; the build and the axiom check run only as part of the <a href="#verification">verification steps</a> below.</p>
+
+<h2 id="toolchain">Toolchain</h2>
+<p>Read from the files on the main branch by the site generator:</p>
+<dl class="terms">
+<dt>Lean</dt><dd><code>leanprover/lean4:v4.33.1</code>, from <code>lean-toolchain</code>. The elan tool installs exactly this version when the project is opened.</dd>
+<dt>mathlib</dt><dd>Commit <code>0df444a360eaa60ab8c11dca51a86af692955474</code>, pinned by <code>rev</code> in <code>lakefile.toml</code> and recorded in <code>lake-manifest.json</code>.</dd>
+<dt>Build tool</dt><dd>Lake, Lean's build system, with the single library target <code>OddPerfect</code>.</dd>
+</dl>
+
+<h2 id="axioms">The three standard axioms</h2>
+<p>Lean's kernel checks proofs in a small type theory. A handful of axioms are added by the core library, and mathlib uses three of them throughout. A theorem that depends only on these is proved in ordinary classical mathematics.</p>
+<dl class="terms">
+<dt><code>propext</code></dt><dd>Propositional extensionality: two propositions that imply each other are equal. It lets a proof rewrite a statement by an equivalent one.</dd>
+<dt><code>Classical.choice</code></dt><dd>The axiom of choice in type form: from a proof that a type is nonempty it produces an element of it. Together with the other two it implies the law of excluded middle, so proofs by contradiction and case splits on any proposition are allowed.</dd>
+<dt><code>Quot.sound</code></dt><dd>Soundness of quotients: elements related by a relation become equal in the quotient type. Function extensionality (functions that agree everywhere are equal) is derived from it.</dd>
+</dl>
+
+<h2 id="forbidden">Forbidden constructs</h2>
+<dl class="terms">
+<dt><code>sorry</code> and <code>admit</code></dt><dd>Placeholders that close any goal without a proof. They elaborate to the axiom <code>sorryAx</code>, which would appear in every axiom report downstream.</dd>
+<dt><code>axiom</code></dt><dd>A declaration that asserts a statement without proof. Any added axiom could be false, and then everything would follow from it.</dd>
+<dt><code>native_decide</code></dt><dd>Decides a computable proposition by compiling the decision procedure to native code and running it. The kernel then trusts the compiler and the runtime instead of checking the computation itself; the proof depends on extra axioms such as <code>Lean.ofReduceBool</code>.</dd>
+<dt><code>unsafe</code>, <code>implemented_by</code>, <code>@[extern]</code></dt><dd>Ways to give a definition code that the kernel does not check, or to replace its compiled behavior with other code. They are excluded so that what is evaluated is exactly what is proved about.</dd>
+</dl>
+
+<h2 id="decide-kernel">What <code>decide +kernel</code> does</h2>
+<p>For a proposition with a <code>Decidable</code> instance, <code>decide</code> proves it by evaluating the instance to <code>true</code>. With the <code>+kernel</code> option the evaluation is done by the kernel's own definitional reduction rather than by the elaborator, and the resulting proof term is checked by the kernel like any other. No axiom is added and no compiled code is trusted. The price is speed, which is why the checkers in the library (<code>Cert.check</code>, <code>Pratt.check</code>, <code>checkSupport</code>) are written with structural recursion and simple arithmetic, so that the kernel can reduce them.</p>
+
+<h2 id="print-axioms">How <code>#print axioms</code> works</h2>
+<p>The command <code>#print axioms T</code> walks through every declaration that the proof of <code>T</code> uses, transitively, and lists the axioms it reaches. During a build each such line prints a message of the form <code>'OddPerfect.steuerwald' depends on axioms: [propext, Classical.choice, Quot.sound]</code>. A theorem that used <code>sorry</code> would list <code>sorryAx</code>, and one that used <code>native_decide</code> would list an extra axiom such as <code>Lean.ofReduceBool</code>.</p>
+
+<h2 id="verification">Verification steps for each module</h2>
+<ol class="steps">
+<li><b>Scan.</b>The new file is scanned for <code>sorry</code>, <code>admit</code>, <code>axiom</code>, <code>native_decide</code>, <code>unsafe</code>, <code>implemented_by</code> and <code>extern</code>.</li>
+<li><b>Full build.</b><code>lake build</code> of the whole library, not only the new file, so that every import and every downstream module is checked together.</li>
+<li><b>Axiom reports.</b>Every "depends on axioms" line in the build output is parsed, and the module is rejected if any line lists an axiom outside <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>.</li>
+<li><b>Read the statements.</b>The headline theorems are read against their intended meaning: the hypotheses, the conclusion, and whether a statement was weakened.</li>
+<li><b>Commit and push.</b>Only then is the module committed and pushed to the main branch.</li>
+</ol>
+
+<h2 id="reproduce">Reproduce the build</h2>
+<p>Install elan, the Lean version manager, then:</p>
+<pre><code>git clone https://github.com/adamrsophie/OddPerfectNumber.git
+cd OddPerfectNumber
+lake exe cache get
+lake build</code></pre>
+<p><code>lake exe cache get</code> downloads the prebuilt mathlib files for the pinned commit, so that only this library is compiled. The build prints the axiom report of every theorem listed in a <code>#print axioms</code> line.</p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>

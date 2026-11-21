@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highlighted theorems: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="Selected theorems of the library in plain language, with their exact Lean statements, tags for what is known and what is of unverified novelty, and proof ideas.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html">Background</a></li>
+<li><a href="network.html">Network</a></li>
+<li><a href="methods.html">Methods</a></li>
+<li><a href="theorems.html" aria-current="page">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap with-toc">
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#euler-form">Euler's form</a></li><li class="l2"><a href="#touchard">Touchard's congruence, refined</a></li><li class="l2"><a href="#five-primes">At least five prime factors</a></li><li class="l2"><a href="#upper-bound">Upper bound</a></li><li class="l2"><a href="#patterns">Equal exponent patterns</a></li><li class="l2"><a href="#small-primes">Small primes cannot all be present</a></li><li class="l2"><a href="#counting">Counting inequalities</a></li><li class="l2"><a href="#special-small">The special prime power is small</a></li><li class="l2"><a href="#one-exception">One exception forces 3</a></li><li class="l2"><a href="#mutual-residues">Mutual quadratic residues</a></li><li class="l2"><a href="#exponent-cap">Exponents are capped by the largest prime</a></li><li class="l2"><a href="#checker">Certificate checker</a></li></ul></nav></details></aside>
+<main id="content" tabindex="-1">
+<h1>Highlighted theorems</h1>
+<p class="lead">A selection from the library. Throughout, N is an odd perfect number, q is its <a href="background.html#euler-form">special prime</a> (the one prime with an odd exponent), and the other primes are called <a href="background.html#ordinary">ordinary</a>. <a href="background.html#omega">ω counts distinct prime factors and Ω counts prime factors with multiplicity</a>. Statements are copied from the source by the site generator; names are the Lean identifiers.</p>
+<p class="sub">Classes: <span class="cls known">known result formalized</span> a known result, proved again in Lean. <span class="cls restricted">restricted exclusion or bound checked</span> a new or sharpened statement under restrictive hypotheses. <span class="cls general">changes the general case</span> a result that constrains every odd perfect number in a way that moves toward a resolution; nothing in the library is in this class beyond classical theorems, which are counted as known results. Tags: <span class="tag unver">novelty unverified</span> proved here and not located in the literature by us; no priority is claimed. <span class="tag tool">tool</span> infrastructure used by other proofs, without a class.</p>
+
+<h2 id="euler-form">Euler's form</h2>
+<span class="cls known">known result formalized</span>
+<p>N = q<sup>k</sup>m² with q prime, q not dividing m, and q ≡ k ≡ 1 (mod 4).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_euler_form</span> (h : OddPerfect N) :
+  <span class="k"><span class="k">∃</span></span> q k m : <span class="t"><span class="t">ℕ</span></span>, q.Prime ∧ N = q ^ k * m ^ 2 ∧ ¬ q ∣ m ∧ q % 4 = 1 ∧ k % 4 = 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_euler_form">OddPerfect.exists_euler_form</a> in <a href="reference.html#mod-Euler">OddPerfect.Euler</a></p>
+<p class="idea"><strong>Proof idea.</strong> The 2-adic ledger. N is odd, so σ(N) = 2N has exactly one factor 2, shared among the components σ(p<sup>e</sup>). For odd p, σ(p<sup>e</sup>) has e + 1 odd terms, so it is even exactly when e is odd: one prime q has odd exponent k, and v₂(σ(q<sup>k</sup>)) = 1. If q ≡ 3 (mod 4), pairing consecutive terms puts q + 1, a multiple of 4, into σ(q<sup>k</sup>). So q ≡ 1 (mod 4), then σ(q<sup>k</sup>) ≡ k + 1 (mod 4) forces k ≡ 1 (mod 4).</p>
+
+<h2 id="touchard">Touchard's congruence, refined</h2>
+<span class="cls known">known result formalized</span>
+<p>N ≡ 1 (mod 12), or N ≡ 117 (mod 468), or N ≡ 81 (mod 324).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">mod_refined</span> (h : OddPerfect N) :
+  N % 12 = 1 ∨ N % 468 = 117 ∨ N % 324 = 81</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.mod_refined">OddPerfect.mod_refined</a> in <a href="reference.html#mod-SpecialPrime">OddPerfect.SpecialPrime</a></p>
+<p class="idea"><strong>Proof idea.</strong> From N ≡ 1 (mod 4) and Touchard's N ≡ 1 (mod 12) or N ≡ 9 (mod 36). If 3 divides N, its exponent is even. If it is exactly 2, then σ(3²) = 13 divides N, and N is a multiple of 9·13 = 117 that is ≡ 1 (mod 4), so N ≡ 117 (mod 468). Otherwise 3⁴ divides N and N ≡ 81 (mod 324).</p>
+
+<h2 id="five-primes">At least five prime factors</h2>
+<span class="cls known">known result formalized</span>
+<p>ω(N) ≥ 5. Without the prime 3 at least seven, and without 3 and 5 at least fifteen.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">five_le_card_primeFactors</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 5 ≤ N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.five_le_card_primeFactors">OddPerfect.five_le_card_primeFactors</a> in <a href="reference.html#mod-OmegaFive">OddPerfect.OmegaFive</a></p>
+<p class="idea"><strong>Proof idea.</strong> With four prime factors the product bound 2 &lt; ∏ p/(p − 1) leaves 104 explicit supports. For each one a kernel computation lists the possible exponents of each prime and shows that some σ(x<sup>e</sup>) always has a prime factor outside the support.</p>
+<p>Also <a href="reference.html#OddPerfect.seven_le_card_primeFactors_of_not_three_dvd"><code>seven_le_card_primeFactors_of_not_three_dvd</code></a> and <a href="reference.html#OddPerfect.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd"><code>fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd</code></a>.</p>
+
+<h2 id="upper-bound">Upper bound</h2>
+<span class="cls known">known result formalized</span>
+<p>N is smaller than 2 to the power 4<sup>ω(N)</sup>. Hence there are finitely many candidates for each ω.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">lt_two_pow_four_pow</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
+  N &lt; 2 ^ (4 ^ N.primeFactors.card)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.lt_two_pow_four_pow">OddPerfect.lt_two_pow_four_pow</a> in <a href="reference.html#mod-UpperBound">OddPerfect.UpperBound</a></p>
+<p class="idea"><strong>Proof idea.</strong> An induction on the number of prime factors, driven by a lemma on products of (1 − 1/x) over increasing integers: at each step a coprime factor V of N is split off and the cofactor still has rational abundancy, with a controlled denominator.</p>
+
+<h2 id="patterns">Equal exponent patterns</h2>
+<span class="cls known">known result formalized</span>
+<p>The ordinary exponents cannot all be 2, all be 4, all be 6, or all be congruent to 2 modulo 3. The first is Steuerwald's theorem, the last McDaniel's.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">steuerwald</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 2) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.steuerwald">OddPerfect.steuerwald</a> in <a href="reference.html#mod-Steuerwald">OddPerfect.Steuerwald</a></p>
+<p class="idea"><strong>Proof idea.</strong> If 3 does not divide N, every σ(p²) of an ordinary p is a power of the special prime, which the closed loop argument excludes. If 3 divides N, the 3-adic budget is exactly 2, and a forcing chain from σ(3²) = 13 produces three ordinary primes ≡ 1 (mod 3), each adding a factor 3.</p>
+<p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a> and <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
+
+<h2 id="small-primes">Small primes cannot all be present</h2>
+<span class="cls known">known result formalized</span>
+<p>105 does not divide N. The smallest prime factor p satisfies 3p &lt; 2ω + 6.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">not_105_dvd</span> (h : OddPerfect N) : ¬ 105 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.not_105_dvd">OddPerfect.not_105_dvd</a> in <a href="reference.html#mod-SpecialPrime">OddPerfect.SpecialPrime</a></p>
+<p class="idea"><strong>Proof idea.</strong> The primes 3 and 7 are ≡ 3 (mod 4), so they cannot be special and appear at least squared. Then 3²·5·7² divides N, and σ(3²·5·7²) = 13·6·57 = 4446 exceeds 2·2205 = 4410: an abundant divisor, impossible for a perfect number.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_mul_minFac_lt</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
+  3 * N.minFac &lt; 2 * N.primeFactors.card + 6</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_mul_minFac_lt">OddPerfect.three_mul_minFac_lt</a> in <a href="reference.html#mod-SmallestPrime">OddPerfect.SmallestPrime</a></p>
+<p class="idea"><strong>Proof idea.</strong> The product of p/(p − 1) over the prime factors exceeds 2. Over odd numbers at least p₁, its square telescopes to at most 1 + 2ω/(p₁ − 2). So 4 &lt; 1 + 2ω/(p₁ − 2), which rearranges to 3p₁ &lt; 2ω + 6.</p>
+
+<h2 id="counting">Counting inequalities</h2>
+<span class="cls known">known result formalized</span>
+<p>Total and distinct prime factor counts are linked, after Zelinsky (arXiv 1706.07009): 8ω ≤ 3Ω + 7 when 3 does not divide N, and 21ω ≤ 8Ω + 39 in general.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">eight_mul_omega_le_of_not_three_dvd</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (h3 : ¬ 3 ∣ N) :
+  8 * ω N ≤ 3 * Ω N + 7</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.eight_mul_omega_le_of_not_three_dvd">OddPerfect.eight_mul_omega_le_of_not_three_dvd</a> in <a href="reference.html#mod-CountingZelinsky">OddPerfect.CountingZelinsky</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">twentyone_mul_omega_le</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 21 * ω N ≤ 8 * Ω N + 39</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.twentyone_mul_omega_le">OddPerfect.twentyone_mul_omega_le</a> in <a href="reference.html#mod-CountingZelinsky">OddPerfect.CountingZelinsky</a></p>
+<p class="idea"><strong>Proof idea.</strong> A ledger of the exponent 2 primes and their divisor sums σ(p²), with conservation at the receiving primes, plus two injections: the largest prime factor of σ(p²), and the 3-free part of σ(p²) when it is prime, each determine p.</p>
+
+<h2 id="special-small">The special prime power is small</h2>
+<span class="cls known">known result formalized</span>
+<p>In Euler's form, 3q<sup>k</sup> &lt; 2m².</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">special_pow_lt_sq</span> {N q k m : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) (hk : Odd k) : 3 * q ^ k &lt; 2 * m ^ 2</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.special_pow_lt_sq">OddPerfect.special_pow_lt_sq</a> in <a href="reference.html#mod-ClosedLoop">OddPerfect.ClosedLoop</a></p>
+<p class="idea"><strong>Proof idea.</strong> From σ(q<sup>k</sup>)σ(m²) = 2q<sup>k</sup>m² and q not dividing σ(q<sup>k</sup>), write σ(m²) = q<sup>k</sup>t, so σ(q<sup>k</sup>)t = 2m². Here t is odd (σ(q<sup>k</sup>) is even and m is odd), and t ≠ 1 because σ(m²) = q<sup>k</sup> is excluded by the closed loop argument. So t ≥ 3 and 3q<sup>k</sup> &lt; 3σ(q<sup>k</sup>) ≤ 2m².</p>
+
+<h2 id="one-exception">One exception forces 3</h2>
+<span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
+<p>If every prime other than q and one further prime r has exponent exactly 2, then 3 divides N. The proof uses only abundancy bounds. The setting is that of Ochem and Zelinsky (arXiv 2607.19746). Whether this route is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_one_exception</span> {N q r : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) : 3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_one_exception">OddPerfect.three_dvd_of_one_exception</a> in <a href="reference.html#mod-ThreeFreeException">OddPerfect.ThreeFreeException</a></p>
+<p class="idea"><strong>Proof idea.</strong> Assume 3 does not divide N. Then q ≡ 1 (mod 12), and for every other ordinary p, σ(p²) = q<sup>a</sup>r<sup>b</sup>. Size comparisons on these values, split by whether r divides some σ(p²), bound the abundancy below 2. No computer search is used.</p>
+
+<h2 id="mutual-residues">Mutual quadratic residues</h2>
+<span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
+<p>N always has two prime factors that are <a href="background.html#legendre">quadratic residues</a> of each other. This removes a congruence hypothesis from a theorem of Wallace (arXiv 1610.00544). Whether the stronger form is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_mutual_quadratic_residues</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
+  <span class="k"><span class="k">∃</span></span> p ∈ N.primeFactors, <span class="k"><span class="k">∃</span></span> r ∈ N.primeFactors, p ≠ r ∧
+    jacobiSym p r = 1 ∧ jacobiSym r p = 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_mutual_quadratic_residues">OddPerfect.exists_mutual_quadratic_residues</a> in <a href="reference.html#mod-Reciprocity">OddPerfect.Reciprocity</a></p>
+<p class="idea"><strong>Proof idea.</strong> The special prime q has positive exponent, so by conservation some prime p ≠ q sends weight to q. Its exponent e is even, so p<sup>e+1</sup> ≡ 1 (mod q) with e + 1 odd, which makes p a square modulo q. Since q ≡ 1 (mod 4), quadratic reciprocity makes q a square modulo p.</p>
+
+<h2 id="exponent-cap">Exponents are capped by the largest prime</h2>
+<span class="cls known">known result formalized</span>
+<p>If every prime factor is at most R, then every exponent e satisfies 2e + 3 ≤ R.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_mul_factorization_add_three_le</span> (h : OddPerfect N) {p R : <span class="t"><span class="t">ℕ</span></span>}
+  (hp : p ∈ N.primeFactors) (hR : <span class="k"><span class="k">∀</span></span> r ∈ N.primeFactors, r ≤ R) :
+  2 * N.factorization p + 3 ≤ R</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_mul_factorization_add_three_le">OddPerfect.two_mul_factorization_add_three_le</a> in <a href="reference.html#mod-ExponentCap">OddPerfect.ExponentCap</a></p>
+<p class="idea"><strong>Proof idea.</strong> For an ordinary prime with exponent e, a primitive prime of order e + 1 divides σ(p<sup>e</sup>) and hence N, and it is ≡ 1 (mod 2(e + 1)), so it is at least 2e + 3. The special prime is handled with two primitive primes, of orders k + 1 and (k + 1)/2. Example: σ(3⁴) = 11², and 3 has order 5 modulo 11 = 2·4 + 3.</p>
+
+<h2 id="checker">Certificate checker</h2>
+<span class="tag tool">tool</span>
+<p>A small verified checker for factor chain arguments. A certificate that passes the check excludes every odd perfect number matching its root facts. No family of root facts is proved to cover every odd perfect number. The rules are described on the <a href="methods.html#certificates">Methods</a> page.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">check_sound</span> {s : List Fact} {c : Cert} (hc : check s c = true) :
+  <span class="k"><span class="k">∀</span></span> N : <span class="t"><span class="t">ℕ</span></span>, OddPerfect N → State.Holds s N → False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.Cert.check_sound">OddPerfect.Cert.check_sound</a> in <a href="reference.html#mod-Certificate">OddPerfect.Certificate</a></p>
+<p class="idea"><strong>Proof idea.</strong> Induction on the certificate tree. A step rule adds a fact that holds for every odd perfect number satisfying the state, or splits into two exhaustive cases; each closing rule derives a contradiction from facts recorded in the state. The conclusion covers only odd perfect numbers that satisfy the root facts of the state.</p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>
