@@ -71,3 +71,4 @@ import OddPerfect.OmegaSevenFermat
 import OddPerfect.EqualExponentChainMore
 import OddPerfect.ReciprocalLogTwo
 import OddPerfect.LargestPrimeCapacity
+import OddPerfect.KanoldFive
