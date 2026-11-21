@@ -37,5 +37,23 @@ jobs:
           lake build
           echo "lake build took $(( $(date +%s) - start )) s"
 
-      - name: Axiom gate
+      # Source coverage input: the library files tracked in this checkout. The gate fails
+      # if a tracked OddPerfect.lean or OddPerfect/**.lean is not imported, directly or
+      # transitively, by OddPerfect.lean, and conversely. Under CI the gate refuses to run
+      # without this list.
+      - name: List tracked library sources
+        run: |
+          git ls-files -- OddPerfect.lean OddPerfect > "$RUNNER_TEMP/tracked-files.txt"
+          wc -l < "$RUNNER_TEMP/tracked-files.txt"
+
+      - name: Axiom gate and source coverage
+        env:
+          AXIOM_GATE_TRACKED_FILES: ${{ runner.temp }}/tracked-files.txt
         run: lake env lean AxiomGate.lean
+
+      # Compiling the gate as a module for the controls runs it on the library once more,
+      # so this step needs the tracked file list too.
+      - name: Gate controls
+        env:
+          AXIOM_GATE_TRACKED_FILES: ${{ runner.temp }}/tracked-files.txt
+        run: sh GateControls/run.sh AxiomGate.lean

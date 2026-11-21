@@ -28,16 +28,30 @@ Checks, for every constant whose defining module is `OddPerfect` or `OddPerfect.
    traversal behind `#print axioms`).
 2. It is not an axiom, not `unsafe`, not `partial`, not `opaque`, and carries neither
    `@[implemented_by]` nor `@[extern]`. The one exemption is the compiler auxiliary
-   `f._unsafe_rec`, which is `partial` but harmless when `f` is a safe definition.
+   `f._unsafe_rec`, which is `partial` but harmless when `f` is a safe definition. It is
+   exempt only when it has exactly the shape the elaborator produces (see `helperProblems`);
+   the complete inventory of exempted helpers is printed.
 3. `OddPerfectConjecture` is a definition of type `Prop`, and no project constant has a
    statement that is syntactically `OddPerfectConjecture`, its unfolded body, or the
    negation of either, unless its name ends in `oddPerfectConjecture`; such a theorem is
    printed prominently with its axioms instead.
+4. Coverage of the library. Every constant stored in a module `OddPerfect` or `OddPerfect.*`
+   of the import closure was checked (cross-checked against the environment's own map from
+   constants to modules), and every such module other than the umbrella `OddPerfect` stores
+   at least one constant. When the environment variable `AXIOM_GATE_TRACKED_FILES` names a
+   file listing the tracked files of the checkout, one path per line (the continuous
+   integration passes the output of `git ls-files`), every listed `OddPerfect.lean` or
+   `OddPerfect/**.lean` must be a module of the import closure and conversely. When the
+   variable is unset this check is skipped with a note, except under continuous integration
+   (`CI=true`), where a missing list is an error.
 
 Not detectable from the environment: a declaration added with `debug.skipKernelTC` (the
 kernel never checked it; replaying the environment with a checker such as `lean4checker`
 covers that), and custom elaborators or macros in project files (they leave no trace in
 `ConstantInfo` beyond the declarations they produce, which are checked).
+
+The controls in `GateControls/` import this file as a module and run `run` with
+`controlConfig`, which checks the declarations of the control file itself.
 -/
 
 open Lean Elab Command
@@ -51,8 +65,14 @@ def allowedAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]
 structure Config where
   /-- Modules whose constants are checked. -/
   modulePred : Name → Bool := fun m => m == `OddPerfect || (`OddPerfect).isPrefixOf m
-  /-- Also check the declarations of the file being elaborated (used by the tests). -/
+  /-- Also check the declarations of the file being elaborated (used by the controls). -/
   includeCurrent : Bool := false
+  /-- Root module of the library for the coverage checks (check 4); `none` disables them. -/
+  libraryRoot? : Option Name := some `OddPerfect
+
+/-- Configuration for the controls: check only the declarations of the current file. -/
+def controlConfig : Config :=
+  { modulePred := fun _ => false, includeCurrent := true, libraryRoot? := none }
 
 /-- Constants referenced directly by a constant, following the cases of `Lean.collectAxioms`. -/
 def directDeps (ci : ConstantInfo) : Array Name :=
@@ -95,6 +115,51 @@ def negated? (e : Expr) : Option Expr :=
   | .forallE _ p (.const ``False _) _ => if p.hasLooseBVars then none else some p
   | _ => none
 
+/-- For a constant whose name has the compiler helper form `f._unsafe_rec`, the base `f` and
+the exemption conditions it fails; `none` when the name does not have that form.
+
+The elaborator (`Lean.Elab.addAndCompilePartialRec`, Lean 4.33) adds the helper for each
+function of a structurally, well founded, or partial fixpoint recursive definition that is
+compiled (not `noncomputable`), as a `partial` definition with the name `Compiler.mkUnsafeRecName f`, the same type
+and universe parameters as `f`, in the same module, with mutual block the helper names of the
+block of `f`. All those recursion strategies tag `f` with `Meta.recExt`. A `partial def f`
+itself is never exempt here, because `f` is then an opaque constant, not a safe definition. -/
+def helperProblems (env : Environment) (ci : ConstantInfo) : Option (Name × Array String) := do
+  let base ← Compiler.isUnsafeRecName? ci.name
+  let mut bad : Array String := #[]
+  unless Compiler.mkUnsafeRecName base == ci.name do
+    bad := bad.push "name is not mkUnsafeRecName of the base"
+  unless ci matches .defnInfo { safety := .partial, .. } do
+    bad := bad.push "helper is not a partial definition"
+  match env.find? base with
+  | some (.defnInfo v) =>
+    unless v.safety == .safe do bad := bad.push "base is not a safe definition"
+    unless Meta.recExt.isTagged env base do
+      bad := bad.push "base is not a recursive definition"
+    -- The elaborator generates no helper for a `noncomputable` base. The tag can also be
+    -- added after compilation fails inside a `noncomputable section`, where a real helper
+    -- exists; such a helper is then rejected, which errs on the safe side.
+    if isNoncomputable env base then bad := bad.push "base is noncomputable"
+    unless env.getModuleIdxFor? base == env.getModuleIdxFor? ci.name do
+      bad := bad.push "base is defined in another module"
+    unless v.type == ci.type do bad := bad.push "types differ"
+    unless v.levelParams == ci.levelParams do bad := bad.push "universe parameters differ"
+    unless ci.all == v.all.map Compiler.mkUnsafeRecName do
+      bad := bad.push "mutual block does not match the base"
+  | some _ => bad := bad.push "base is not a definition"
+  | none => bad := bad.push "base does not exist"
+  return (base, bad)
+
+/-- Library module names for the files in a list of tracked paths: `OddPerfect.lean` and
+`OddPerfect/**.lean` relative to the repository root. -/
+def trackedModules (root : Name) (paths : List String) : List Name :=
+  let rootStr := root.toString
+  paths.filterMap fun line =>
+    let p := line.trimAscii.toString
+    if p == rootStr ++ ".lean" || (p.startsWith (rootStr ++ "/") && p.endsWith ".lean") then
+      some <| ((p.dropEnd 5).toString.splitOn "/").foldl Name.str .anonymous
+    else none
+
 /-- Run every check. Throws an error listing all offenders, or logs one summary line. -/
 def run (cfg : Config := {}) : CommandElabM Unit := do
   let t0 ← IO.monoMsNow
@@ -114,23 +179,69 @@ def run (cfg : Config := {}) : CommandElabM Unit := do
   if cfg.includeCurrent then
     consts := env.constants.foldStage2 (fun acc _ ci => acc.push ci) consts
   let mut errors : Array MessageData := #[]
+  let mut notes : Array MessageData := #[]
+  -- Check 4: coverage of the library.
+  if let some root := cfg.libraryRoot? then
+    let libModules := (List.range names.size).filter fun i => root.isPrefixOf names[i]!
+    if libModules.isEmpty then errors := errors.push m!"no module {root} or {root}.* imported"
+    for i in libModules do
+      let cn := env.header.moduleData[i]!.constNames
+      let missed := cn.filter (!listed.contains ·)
+      unless missed.isEmpty do
+        errors := errors.push
+          m!"module {names[i]!} skipped: {missed.size} of its constants were not checked"
+      if cn.isEmpty && names[i]! != root then
+        errors := errors.push m!"module {names[i]!} defines no checked constant"
+    -- Cross-check the enumeration against the environment's map from constants to modules.
+    let libIdx : List Nat := libModules
+    let unlisted := env.constants.map₁.fold (init := (0 : Nat)) fun k n _ =>
+      match env.getModuleIdxFor? n with
+      | some j => if libIdx.contains j.toNat && !listed.contains n then k + 1 else k
+      | none => k
+    unless unlisted == 0 do
+      errors := errors.push m!"{unlisted} library constants missing from the enumeration"
+    -- Tracked source files.
+    match ← IO.getEnv "AXIOM_GATE_TRACKED_FILES" with
+    | some path =>
+      let tracked := trackedModules root (← IO.FS.lines path).toList
+      let loaded := libModules.map (names[·]!)
+      let before := errors.size
+      if tracked.isEmpty then errors := errors.push m!"source coverage: no library file in {path}"
+      for m in tracked do
+        unless loaded.contains m do
+          errors := errors.push m!"source coverage: {m} is tracked but not imported by {root}"
+      for m in loaded do
+        unless tracked.contains m do
+          errors := errors.push m!"source coverage: {m} is imported but not tracked"
+      if errors.size == before then
+        notes := notes.push
+          m!"source coverage OK: {tracked.length} tracked library files, all imported by {root}"
+    | none =>
+      if (← IO.getEnv "CI") == some "true" then
+        errors := errors.push m!"source coverage: AXIOM_GATE_TRACKED_FILES is unset under CI"
+      else
+        notes := notes.push m!"source coverage not checked: AXIOM_GATE_TRACKED_FILES is unset"
   -- Check 2: forbidden kinds of declarations.
+  let mut helpers : Array MessageData := #[]
   for ci in consts do
     let n := ci.name
     let mut bad : Array String := #[]
     if ci matches .axiomInfo _ then bad := bad.push "is an axiom"
     if ci.isUnsafe then bad := bad.push "is unsafe"
-    -- The compiler adds a `partial` auxiliary `f._unsafe_rec` for code generation even for
+    -- The compiler adds a `partial` auxiliary `f._unsafe_rec` for code generation of
     -- ordinary recursive definitions. It is harmless when `f` itself is a safe kernel
-    -- definition: the kernel never lets a safe constant refer to a partial one. A genuine
-    -- `partial def f` is still rejected, because `f` itself is then an opaque constant.
-    let compilerAux := match n with
-      | .str p "_unsafe_rec" =>
-        match env.find? p with
-        | some (.defnInfo v) => v.safety == .safe
-        | _ => false
-      | _ => false
-    if ci.isPartial && !compilerAux then bad := bad.push "is partial"
+    -- definition: the kernel never lets a safe constant refer to a partial one. It is exempt
+    -- only when it has exactly the shape the elaborator produces.
+    if ci.isPartial then
+      match helperProblems env ci with
+      | some (base, #[]) =>
+        let mod := match env.getModuleIdxFor? n with
+          | some j => names[j.toNat]!
+          | none => env.mainModule
+        helpers := helpers.push m!"{n} (base {base}, module {mod})"
+      | some (_, why) =>
+        bad := bad.push s!"is partial (not a compiler helper: {", ".intercalate why.toList})"
+      | none => bad := bad.push "is partial"
     if ci matches .opaqueInfo _ then bad := bad.push "is opaque"
     if (Compiler.implementedByAttr.getParam? env n).isSome then
       bad := bad.push "has @[implemented_by]"
@@ -171,9 +282,9 @@ def run (cfg : Config := {}) : CommandElabM Unit := do
         continue
       let ty := ci.type
       let kind? : Option String :=
-        if isConj ty then some "OddPerfectConjecture"
+        if isConj ty then some (toString conj)
         else match negated? ty with
-          | some p => if isConj p then some "the negation of OddPerfectConjecture" else none
+          | some p => if isConj p then some s!"the negation of {conj}" else none
           | none => none
       if let some kind := kind? then
         if ci.name matches .str _ "oddPerfectConjecture" then
@@ -184,6 +295,9 @@ def run (cfg : Config := {}) : CommandElabM Unit := do
           errors := errors.push m!"{ci.name}: states {kind} but is not named oddPerfectConjecture"
   | some _ => errors := errors.push m!"{conj} is not a definition"
   | none => errors := errors.push m!"{conj} not found"
+  logInfo (m!"exempted compiler helpers ({helpers.size}):\n" ++
+    MessageData.joinSep helpers.toList "\n")
+  for r in notes do logInfo r
   for r in resolutions do logInfo r
   unless errors.isEmpty do
     throwError m!"axiom gate FAILED ({errors.size} problems):\n" ++
