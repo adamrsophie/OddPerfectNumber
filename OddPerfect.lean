@@ -75,3 +75,4 @@ import OddPerfect.KanoldFive
 import OddPerfect.SecondLargestPrime
 import OddPerfect.EulerIndexPrimePower
 import OddPerfect.KanoldSquare
+import OddPerfect.ExponentTwentyFour
