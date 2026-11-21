@@ -10,11 +10,11 @@ for every odd perfect number `N`, and `(51/19) ω(N) - 46/19 ≤ Ω(N)` when `3 
 The primes of `S` (exponent exactly `2`, other than `3`) are sorted by `Ω(p ^ 2 + p + 1)` and
 by `p mod 3`. Each inequality of the ledger `ch_ledger` is its own lemma, and the ledger is
 closed by `omega`. The paper's rows (5.9) to (5.13) and (5.18), (5.19) are used in a merged
-form that gives the same linear program optimum. The paper's Lemma "Semi-linked S22/S31",
-whose proof uses Factorization2 without its hypotheses, is replaced by the direct lemmas
-`ch_sum_S22_S31` and `ch_small_S22_not_S31`; the no triple threat lemma of Hare and Nielsen is
-proved here as `no_triple_threat` by unique factorization in `ℤ[ω]`, done by hand on integer
-pairs.
+form that gives the same linear program optimum. The paper's Lemma "Semi-linked S22/S31"
+is proved here through the direct lemmas `ch_sum_S22_S31` and `ch_small_S22_not_S31`, which do
+not use the paper's Factorization2 lemma; the no triple threat proposition of Hansen and
+Nielsen is proved here as `no_triple_threat` for odd primes by unique factorization in `ℤ[ω]`,
+done by hand on integer pairs.
 -/
 
 open ArithmeticFunction
@@ -93,11 +93,12 @@ private theorem no_sol_mod3 {x y z : ℤ} (hx : x % 3 = 2) (hy : y % 3 = 2) (hz 
   have := congrArg (· % 3) h
   simp [Int.add_emod, Int.mul_emod, hx, hy, hz] at this
 
-/-- No triple threat (Hansen and Nielsen, arXiv 2204.08971, Proposition 4.2, in the form
-needed): for primes `a, b, c ≡ 2 (mod 3)` with `a ^ 2 + a + 1`, `b ^ 2 + b + 1`,
+/-- No triple threat (Hansen and Nielsen, arXiv 2204.08971, Proposition 4.3, in the form
+needed): for odd primes `a, b, c ≡ 2 (mod 3)` with `a ^ 2 + a + 1`, `b ^ 2 + b + 1`,
 `c ^ 2 + c + 1` prime, no `x` satisfies
 `x ^ 2 + x + 1 = (a ^ 2 + a + 1)(b ^ 2 + b + 1)(c ^ 2 + c + 1)`. Repetitions among `a, b, c`
-are allowed. The proof is an explicit descent in `ℤ[ω]` written on integer pairs. -/
+are allowed. The prime `2` has to be excluded:
+`18 ^ 2 + 18 + 1 = 343 = (2 ^ 2 + 2 + 1) ^ 3`. The proof is an explicit descent in `ℤ[ω]` written on integer pairs. -/
 theorem no_triple_threat {x a b c : ℕ} (ha : a.Prime) (hb : b.Prime) (hc : c.Prime)
     (ha2 : a ≠ 2) (hb2 : b ≠ 2) (hc2 : c ≠ 2)
     (ha3 : a % 3 = 2) (hb3 : b % 3 = 2) (hc3 : c % 3 = 2) (hA : (phi3 a).Prime)
@@ -204,8 +205,8 @@ theorem ch_uniqueness {a₁ b₁ c₁ a₂ b₂ c₂ d : ℕ} (hc₁ : c₁.Prim
     · omega
   omega
 
-/-- Repair of Clayton and Hansen's Lemma "Semi-linked between S22 and S31"
-(arXiv 2303.11974), whose printed proof applies Factorization2 without its size hypotheses.
+/-- Direct proof of Clayton and Hansen's Lemma "Semi-linked between S22 and S31"
+(arXiv 2303.11974), which does not use the paper's Factorization2 lemma.
 If `d` is prime, `a ^ 2 + a + 1 = 3 d e` with `e ≤ d`, `c ^ 2 + c + 1 = d g` with `g < d`, and
 `a ≠ c` are odd, then `d = a + c + 1`. Two elements of `S_{3,1}` with largest prime `d`
 therefore coincide when an element of `S_{2,2}` also has largest prime `d`. -/
@@ -1195,7 +1196,7 @@ theorem chLink_ne_S31 {N a b : ℕ} (h : OddPerfect N) (ha : a ∈ chS1 N ∪ ch
     rw [chLink_of_not_S22 (by omega), hb1] at hl
     exact ch_unique_S21_S31 hbp hd (by omega) hde (by rw [hpq, hl, hlb]) hed
 
-/-- Clayton and Hansen, Lemma "LinkAlmostInjective" (arXiv 2303.11974), with the repaired
+/-- Clayton and Hansen, Lemma "LinkAlmostInjective" (arXiv 2303.11974), with the direct
 lemmas `ch_sum_S22_S31` and `ch_small_S22_not_S31`: every fiber of the linking map on
 `S_{2,2} ∪ S_{3,1}` has at most two elements. -/
 theorem chLink_fiber_le_two {N : ℕ} (h : OddPerfect N) (x : ℕ) :

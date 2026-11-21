@@ -9,7 +9,10 @@ prime factor outside `E ∪ {q}` has exponent exactly 2. `OddPerfect/AttackSize.
 of which is a prime divisor of some `σ(p ^ 2)`, `p ∉ E ∪ {q}`. Here the thresholds become 29
 and 5.
 
-Assume `3 ∤ N`. Then every exponent two prime `p ∉ E ∪ {q}` is *pure*: `σ(p ^ 2) = q ^ a`
+Assume `3 ∤ N` and that no prime of `E` divides any `σ(p ^ 2)` with `p ∉ E ∪ {q}` (this
+holds under either of the two conditions on `E` above; without it an exponent two prime
+can feed a prime of `E`, as in `σ(5 ^ 2) = 31`). Then every exponent two prime
+`p ∉ E ∪ {q}` is *pure*: `σ(p ^ 2) = q ^ a`
 with `a` odd, `p ≡ 11 (mod 12)` and `p ≥ 59`; two pure primes `s < t` satisfy `13 s ≤ t`.
 
 * **Sharper pure product.** If all pure primes are at least `m ≥ 5`, their abundancies have
