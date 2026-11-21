@@ -23,3 +23,5 @@ import OddPerfect.Zsigmondy
 import OddPerfect.Counting
 import OddPerfect.Reduction
 import OddPerfect.SmallestPrime
+import OddPerfect.McDaniel
+import OddPerfect.Steuerwald
