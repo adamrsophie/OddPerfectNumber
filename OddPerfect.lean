@@ -76,3 +76,4 @@ import OddPerfect.SecondLargestPrime
 import OddPerfect.EulerIndexPrimePower
 import OddPerfect.KanoldSquare
 import OddPerfect.ExponentTwentyFour
+import OddPerfect.CommonPrimeChain
