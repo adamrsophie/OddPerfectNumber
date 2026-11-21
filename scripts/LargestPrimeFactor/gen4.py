@@ -2,7 +2,9 @@
 # Mirror of LPF.search in OddPerfect/LargestPrimeFactor.lean (lower bound leaf, upper bound
 # leaf, at most one odd exponent). Emits the prime list P, M = 2 * prod P, D = prod (q - 1)
 # and the row table T for a bound B, either as the final theorem (mode thm) or as a test
-# file of five kernel checks (mode test).
+# file of five kernel checks (mode test): one example per verification argument of
+# LPF.exists_primeFactor_gt_of_search; it has no import and ends with "end OddPerfect", so
+# it is meant to follow the LPF definitions inside namespace OddPerfect.
 # Used by: OddPerfect/LargestPrimeFactor.lean (the P, M, D and T arguments of
 # exists_primeFactor_gt, B = 10000).
 # Run: python3 gen4.py 10000 thm
