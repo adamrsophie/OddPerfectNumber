@@ -35,7 +35,7 @@
 <aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#foundations">Foundations</a></li><li class="l2"><a href="#euler">Euler's form and the special prime</a></li><li class="l2"><a href="#counting">Prime factor counts, size and exponents</a></li><li class="l2"><a href="#patterns">Exponent patterns</a></li><li class="l2"><a href="#collisions">Collisions of x² + x + 1</a></li><li class="l2"><a href="#tools">Tools and countermodels</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Reference</h1>
-<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>16059e7</code>: 80 modules imported by the root file <code>OddPerfect.lean</code>, 963 public theorems. Private and protected theorems are omitted.</p>
+<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>22de64e</code>: 81 modules imported by the root file <code>OddPerfect.lean</code>, 966 public theorems. Private and protected theorems are omitted.</p>
 <p class="sub">Docstrings are shown when present, with attributions and comparative remarks removed; a <b>Proof idea</b> is shown where it was written from the Lean source. <span class="tag unver">novelty unverified</span> and <span class="tag tool">tool</span> are explained on the <a href="theorems.html">Highlights</a> page.</p>
 <div class="filter" hidden><label for="filter">Filter modules and theorems</label>
 <input id="filter" type="search" placeholder="for example steuerwald, abundancy, 105" autocomplete="off" spellcheck="false">
@@ -2661,6 +2661,21 @@
   (hexp : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → N.factorization p = E) : False</code></pre><p class="doc">The ordinary exponents of an odd perfect number cannot all equal one <code>E</code> with <code>35 ∣ E + 1</code>.</p></div>
 </div></details>
 </section>
+<section class="module" id="mod-ForcingClosedBoundTwo" data-module>
+<h3><code>OddPerfect.ForcingClosedBoundTwo</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/ForcingClosedBoundTwo.lean">OddPerfect/ForcingClosedBoundTwo.lean</a> · 250 lines · 3 public theorems · imports <a href="#mod-ForcingClosedBound">ForcingClosedBound</a> </p>
+<p class="summary">Every forcing closed configuration has a node above 2000, up from 1000 in <code>ForcingClosedBound</code>. As there, this uses only parity and closure under forcing, and none of the size information of an odd perfect number.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The same greatest fixed point iteration: start from the odd numbers up to 2000 that pass a cheap sieve and repeatedly delete every entry with no move inside the current list. The step is faster: an ordinary move of length l at p needs a node r with r ≡ 1 (mod l) and p<sup>l</sup> ≡ 1 (mod r), so the expensive smoothness test of a row runs only when such an r is present. The list empties in ten rounds, one kernel check per round.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.ForcingClosedBoundTwo.step_eq" data-decl><h4><a class="anchor" href="#OddPerfect.ForcingClosedBoundTwo.step_eq"><code>OddPerfect.ForcingClosedBoundTwo.step_eq</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">step_eq</span> {P0 M : <span class="t">ℕ</span>} {A B Ls : List <span class="t">ℕ</span>} {T : List (<span class="t">ℕ</span> × List <span class="t">ℕ</span>)}
+  (hL : lengths P0 = Ls) (hM : 2 * A.prod = M) (hT : table Ls A = T)
+  (h : A.filter (keepB M T) = B) : step P0 A = B</code></pre><p class="doc">A round evaluated with its product, its lengths and its table given as literals.</p></div>
+<div class="decl" id="OddPerfect.ForcingClosedBoundTwo.exists_gt_of_iterate" data-decl><h4><a class="anchor" href="#OddPerfect.ForcingClosedBoundTwo.exists_gt_of_iterate"><code>OddPerfect.ForcingClosedBoundTwo.exists_gt_of_iterate</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">exists_gt_of_iterate</span> {P0 k : <span class="t">ℕ</span>} (hk : (step P0)^[k] (initial P0) = [])
+  (hF : ForcingClosed S e) : <span class="k">∃</span> s ∈ S, P0 &lt; s</code></pre><p class="doc"><strong>The criterion.</strong> If the iteration from <code>initial P0</code> reaches <code>[]</code>, then every forcing closed configuration has a node above <code>P0</code>.</p></div>
+<div class="decl" id="OddPerfect.ForcingClosed.exists_gt_two_thousand" data-decl><h4><a class="anchor" href="#OddPerfect.ForcingClosed.exists_gt_two_thousand"><code>OddPerfect.ForcingClosed.exists_gt_two_thousand</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">ForcingClosed.exists_gt_two_thousand</span> {S : Finset <span class="t">ℕ</span>} {e : <span class="t">ℕ</span> → <span class="t">ℕ</span>}
+  (hF : ForcingClosed S e) : <span class="k">∃</span> s ∈ S, 2000 &lt; s</code></pre></div>
+</div></details>
+</section>
 </section>
 <section class="ref-group" data-group><h2 id="collisions">Collisions of x² + x + 1</h2>
 <p class="sub">Partial results on questions from Ochem and Zelinsky (arXiv 2607.19746) about values of x² + x + 1, and numerical checks.</p>
@@ -3136,7 +3151,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>16059e7</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>22de64e</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
