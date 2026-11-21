@@ -45,3 +45,4 @@ import OddPerfect.AttackPrimality
 import OddPerfect.Phi3Algebra
 import OddPerfect.AttackSize
 import OddPerfect.LargePrimes
+import OddPerfect.VietaPairs
