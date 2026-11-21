@@ -66,3 +66,4 @@ import OddPerfect.ReciprocalSum
 import OddPerfect.ThreeFreeTwo
 import OddPerfect.LowerBound
 import OddPerfect.ForcingClosedBound
+import OddPerfect.OmegaSeven
