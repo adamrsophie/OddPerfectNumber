@@ -48,3 +48,4 @@ import OddPerfect.LargePrimes
 import OddPerfect.VietaPairs
 import OddPerfect.ExponentTenTwelve
 import OddPerfect.UniformExponents
+import OddPerfect.ForcingClosed
