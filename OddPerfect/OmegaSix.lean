@@ -253,7 +253,9 @@ private theorem nextValid_le {p k f : ℕ} (hk : k < f) (hf : valid p f = true) 
     · omega
     · exact absurd (show f = k + 1 by omega ▸ hf) h
 
-private theorem kmin_le (h : OddPerfect N) {q : ℕ} (hq : q ∈ N.primeFactors) :
+/-- The exponent of a prime factor `q` is at least `kmin q`: at least 1 when `q ≡ 1 (mod 4)`,
+at least 2 otherwise. -/
+theorem kmin_le (h : OddPerfect N) {q : ℕ} (hq : q ∈ N.primeFactors) :
     kmin q ≤ N.factorization q := by
   have hqp := Nat.prime_of_mem_primeFactors hq
   have h1 : 1 ≤ N.factorization q :=
@@ -613,7 +615,10 @@ private theorem div_sub_one_le' {c x : ℕ} (hc : 2 ≤ c) (hx : c ≤ x) :
   rw [div_le_div_iff₀ (by linarith) (by linarith)]
   nlinarith
 
-private theorem enum_sound {l : List Ent} {j m : ℕ} (H : Holds N l j m) (hj : j ≠ 0)
+/-- Enumeration step: in a state with `j ≠ 0` further primes and a nonempty list of bounds,
+the smallest unlisted prime factor `q` lies in the window from `lowB` to `minB`, and the state
+extended by `q` with exponent at least `kmin q` holds. -/
+theorem enum_sound {l : List Ent} {j m : ℕ} (H : Holds N l j m) (hj : j ≠ 0)
     (hb : bounds l j m ≠ []) :
     ∃ q, lowB l j m ≤ q ∧ q ≤ minB (bounds l j m) ∧ isPrimeQ q = true ∧
       Holds N (l ++ [⟨q, kmin q, false⟩]) (j - 1) q := by
@@ -818,6 +823,8 @@ theorem six_le_card_primeFactors {N : ℕ} (h : OddPerfect N) : 6 ≤ N.primeFac
 
 end OddPerfect
 
+#print axioms OddPerfect.OmegaSixSearch.kmin_le
+#print axioms OddPerfect.OmegaSixSearch.enum_sound
 #print axioms OddPerfect.OmegaSixSearch.solve_sound
 #print axioms OddPerfect.OmegaSixSearch.search_four
 #print axioms OddPerfect.OmegaSixSearch.search_five
