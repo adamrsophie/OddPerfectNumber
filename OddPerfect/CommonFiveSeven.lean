@@ -24,40 +24,52 @@ namespace OddPerfect
 namespace FamInst
 
 open OddPerfect.EqChain (gm gm_eq)
-open OddPerfect.CommonChain (rowsOK maskOf testBit_maskOf)
+open OddPerfect.CommonChain (maskOf testBit_maskOf)
 open OddPerfect.CommonFam (geomS pPow pSig expL not_perfect_of_pSig)
 
 /-! ## Trial division up to the square root -/
 
-/-- `tdiv q f m` checks with fuel `f` that no `k ≥ m` with `k * k ≤ q` divides `q`. -/
+/-- `tdiv q f m` checks with fuel `f` that no `k ≥ m` of the parity of `m` with `k * k ≤ q`
+divides `q`. -/
 def tdiv (q : ℕ) : ℕ → ℕ → Bool
   | 0, _ => false
-  | f + 1, m => decide (q < m * m) || (q % m != 0 && tdiv q f (m + 1))
+  | f + 1, m => decide (q < m * m) || (q % m != 0 && tdiv q f (m + 2))
 
 /-- Soundness of `tdiv`. -/
-theorem tdiv_sound {q : ℕ} : ∀ f m, tdiv q f m = true → ∀ k, m ≤ k → k * k ≤ q → q % k ≠ 0
+theorem tdiv_sound {q : ℕ} : ∀ f m, tdiv q f m = true →
+    ∀ k, m ≤ k → k % 2 = m % 2 → k * k ≤ q → q % k ≠ 0
   | 0, _, h => by simp [tdiv] at h
   | f + 1, m, h => by
-    intro k hmk hkq
+    intro k hmk hpar hkq
     simp only [tdiv, Bool.or_eq_true, decide_eq_true_eq, Bool.and_eq_true, bne_iff_ne,
       ne_eq] at h
     rcases h with h | ⟨h1, h2⟩
     · exact absurd (lt_of_lt_of_le h (Nat.mul_le_mul hmk hmk)) (not_lt.mpr hkq)
     · rcases Nat.eq_or_lt_of_le hmk with rfl | hlt
       · exact h1
-      · exact tdiv_sound f (m + 1) h2 k hlt hkq
+      · exact tdiv_sound f (m + 2) h2 k (by omega) (by omega) hkq
 
-/-- Primality by trial division up to the square root. -/
-def sqPrime (q : ℕ) : Bool := decide (2 ≤ q) && tdiv q q 2
+/-- Primality by trial division over odd numbers up to the square root. -/
+def sqPrime (q : ℕ) : Bool := decide (2 ≤ q) && (q == 2 || (q % 2 != 0 && tdiv q q 3))
 
 /-- Soundness of `sqPrime`. -/
 theorem sqPrime_sound {q : ℕ} (h : sqPrime q = true) : q.Prime := by
-  simp only [sqPrime, Bool.and_eq_true, decide_eq_true_eq] at h
+  simp only [sqPrime, Bool.and_eq_true, decide_eq_true_eq, Bool.or_eq_true, beq_iff_eq,
+    bne_iff_ne, ne_eq] at h
+  rcases h with ⟨h2, rfl | ⟨hodd, ht⟩⟩
+  · exact Nat.prime_two
   by_contra hp
   have hm := Nat.minFac_prime (show q ≠ 1 by omega)
   have hsq := Nat.minFac_sq_le_self (by omega) hp
-  exact tdiv_sound q 2 h.2 _ hm.two_le (by simpa [pow_two] using hsq)
-    (Nat.mod_eq_zero_of_dvd (Nat.minFac_dvd q))
+  have hdvd := Nat.minFac_dvd q
+  have hm2 : q.minFac % 2 = 1 := by
+    rcases hm.eq_two_or_odd with h' | h'
+    · rw [h'] at hdvd
+      exact absurd (Nat.mod_eq_zero_of_dvd hdvd) hodd
+    · exact h'
+  have hm3 : 3 ≤ q.minFac := by have := hm.two_le; omega
+  exact tdiv_sound q 3 ht _ hm3 (by omega) (by simpa [pow_two] using hsq)
+    (Nat.mod_eq_zero_of_dvd hdvd)
 
 /-- Primality: listed in an accepted Pratt certificate, or trial division up to the square
 root. -/
@@ -84,10 +96,10 @@ def fpass (b : ℕ) : ℕ → List ℕ → List (List ℕ) → ℕ → ℕ
     if M.testBit i && x != b then fpass b (i + 1) xs rs (M ||| maskOf row)
     else fpass b (i + 1) xs rs M
 
-/-- `n` passes over the table. -/
-def fiter (b : ℕ) (nodes : List ℕ) (rows : List (List ℕ)) : ℕ → ℕ → ℕ
+/-- At most `n` passes over the table, stopping once every bit of `tm` is set. -/
+def fiter (b : ℕ) (nodes : List ℕ) (rows : List (List ℕ)) (tm : ℕ) : ℕ → ℕ → ℕ
   | 0, M => M
-  | n + 1, M => fiter b nodes rows n (fpass b 0 nodes rows M)
+  | n + 1, M => if M &&& tm == tm then M else fiter b nodes rows tm n (fpass b 0 nodes rows M)
 
 /-- Reading the head of a suffix. -/
 theorem drop_facts {nodes xs : List ℕ} {i x : ℕ} (hd : nodes.drop i = x :: xs) :
@@ -143,33 +155,59 @@ theorem fpass_good {N r b : ℕ} {nodes : List ℕ} {rows : List (List ℕ)}
     · exact fpass_good hstep hgm0 xs rs (i + 1) _ hd' hr' hz' hM
 
 /-- `fiter` preserves the same property. -/
-theorem fiter_good {N r b : ℕ} {nodes : List ℕ} {rows : List (List ℕ)}
+theorem fiter_good {N r b tm : ℕ} {nodes : List ℕ} {rows : List (List ℕ)}
     (hstep : ∀ x ∈ nodes.take rows.length, x ∣ N → x ≠ b → ∀ t ∈ nodes, gm x t r = 0 → t ∣ N)
     (hgm0 : ∀ x ∈ nodes, gm x 0 r ≠ 0)
     (hz : ∀ e ∈ nodes.zip rows, ∀ j ∈ e.2, gm e.1 (nodes.getD j 0) r = 0) :
     ∀ (n M : ℕ), (∀ k, M.testBit k = true → nodes.getD k 0 ∣ N) →
-      ∀ k, (fiter b nodes rows n M).testBit k = true → nodes.getD k 0 ∣ N
+      ∀ k, (fiter b nodes rows tm n M).testBit k = true → nodes.getD k 0 ∣ N
   | 0, _, hM => hM
-  | n + 1, M, hM => fiter_good hstep hgm0 hz n _
-      (fpass_good hstep hgm0 nodes rows 0 M List.drop_zero List.drop_zero hz hM)
+  | n + 1, M, hM => by
+    rw [fiter]
+    split_ifs
+    · exact hM
+    · exact fiter_good hstep hgm0 hz n _
+        (fpass_good hstep hgm0 nodes rows 0 M List.drop_zero List.drop_zero hz hM)
 
-/-- All targets (bit mask `tm`) are reached from the seeds (the first `ns` nodes) by `passes`
-in order passes, when the rows whose source equals `b` are never used. -/
+/-- All bits of the target mask `tm` are reached from the seeds (the first `ns` nodes) by
+`passes` in order passes, when the rows whose source equals `b` are never used. -/
 def reach (nodes : List ℕ) (rows : List (List ℕ)) (ns tm passes b : ℕ) : Bool :=
-  fiter b nodes rows passes (2 ^ ns - 1) &&& tm == tm
+  fiter b nodes rows tm passes (2 ^ ns - 1) &&& tm == tm
 
-/-- The structural part of the checker: `d ≥ 1`, no node equals `2`, and every receiver `t` of
-the row of `s` divides `1 + s + ... + s ^ (d - 1)`. -/
-def baseOK (d : ℕ) (nodes : List ℕ) (rows : List (List ℕ)) : Bool :=
-  decide (1 ≤ d) && nodes.all (fun t => t != 2) && rowsOK d nodes rows
+/-- The divisibility check of the rows: every receiver `t` of the row of `s` divides
+`1 + s + ... + s ^ (d - 1)`. -/
+def rowChk (d : ℕ) (nodes : List ℕ) (e : ℕ × List ℕ) : Bool :=
+  e.2.all fun j => gm e.1 (nodes.getD j 0) d == 0
 
 /-- A Boolean statement over a list follows from the same statement over its parts. -/
-theorem all_of_parts {L : List ℕ} {f : ℕ → Bool} (parts : List (List ℕ))
+theorem all_of_parts {α : Type} {L : List α} {f : α → Bool} (parts : List (List α))
     (hL : L = parts.flatten) (hp : ∀ c ∈ parts, c.all f = true) : ∀ b ∈ L, f b = true := by
   subst hL
   intro b hb
   obtain ⟨c, hc, hbc⟩ := List.mem_flatten.mp hb
   exact List.all_eq_true.mp (hp c hc) b hbc
+
+/-- Distinctness by a bit mask of the values seen so far. -/
+def ndM : List ℕ → ℕ → Bool
+  | [], _ => true
+  | a :: l, M => !M.testBit a && ndM l (M ||| 2 ^ a)
+
+/-- Soundness of `ndM`. -/
+theorem nodup_of_ndM : ∀ {l : List ℕ} {M : ℕ}, ndM l M = true →
+    l.Nodup ∧ ∀ x ∈ l, M.testBit x = false
+  | [], _, _ => ⟨List.nodup_nil, fun _ hx => absurd hx List.not_mem_nil⟩
+  | a :: l, M, h => by
+    simp only [ndM, Bool.and_eq_true, Bool.not_eq_true'] at h
+    obtain ⟨hnd, hl⟩ := nodup_of_ndM h.2
+    have hl' : ∀ x ∈ l, x ≠ a ∧ M.testBit x = false := by
+      intro x hx
+      have := hl x hx
+      rw [Nat.testBit_lor, Bool.or_eq_false_iff, Nat.testBit_two_pow] at this
+      exact ⟨fun hxa => by simp [hxa] at this, this.1⟩
+    refine ⟨List.nodup_cons.mpr ⟨fun ha => (hl' a ha).1 rfl, hnd⟩, fun x hx => ?_⟩
+    rcases List.mem_cons.mp hx with rfl | hx
+    · exact h.1
+    · exact (hl' x hx).2
 
 /-! ## The abundance checker -/
 
@@ -222,45 +260,40 @@ end FamInst
 
 open FamInst CommonChain EqChain in
 /-- Soundness of the reach checks. Let `N` be an odd perfect number and `q` a number such that
-`d ∣ v_p(N) + 1` for every prime factor `p ≠ q`, with `cand q`. Take a table with prime nodes
-`nodes`, whose first `ns` nodes divide `N` (with `ns` at most the number of nodes), that passes
-`baseOK`, and whose target mask is `tm`. If all targets are reached for every blocked source node `b` (one of the first
-`rows.length` nodes) with `cand b`, and for the blocked value `0`, then every target node
-divides `N`. -/
-theorem dvd_of_reach {N q d ns passes tm : ℕ} {cand : ℕ → Bool} {nodes targets : List ℕ}
+`d ∣ v_p(N) + 1` for every prime factor `p ≠ q`, where `d ≥ 1`, with `cand q`. Take a table with
+odd prime nodes `nodes`, whose first `ns` nodes divide `N` (with `ns` at most the number of
+nodes), and whose rows pass `rowChk`. If all bits of `tm` are reached for every blocked source
+node `b` (one of the first `rows.length` nodes) with `cand b`, and for the blocked value `0`,
+then every node whose index is a bit of `tm` divides `N`. -/
+theorem dvd_of_reach {N q d ns passes tm : ℕ} {cand : ℕ → Bool} {nodes : List ℕ}
     {rows : List (List ℕ)} (h : OddPerfect N)
-    (hexp : ∀ p ∈ N.primeFactors, p ≠ q → d ∣ N.factorization p + 1) (hcq : cand q = true)
-    (hP : ∀ t ∈ nodes, t.Prime) (hseed : ∀ t ∈ nodes.take ns, t ∣ N)
-    (hns : ns ≤ nodes.length) (hbase : baseOK d nodes rows = true)
-    (htm : maskOf targets = tm)
+    (hexp : ∀ p ∈ N.primeFactors, p ≠ q → d ∣ N.factorization p + 1) (hd : 1 ≤ d)
+    (hcq : cand q = true) (hP : ∀ t ∈ nodes, t.Prime) (h2 : ∀ t ∈ nodes, t ≠ 2)
+    (hseed : ∀ t ∈ nodes.take ns, t ∣ N) (hns : ns ≤ nodes.length)
+    (hrows : ∀ e ∈ nodes.zip rows, rowChk d nodes e = true)
     (hcand : ∀ b ∈ nodes.take rows.length, cand b = true →
       reach nodes rows ns tm passes b = true)
     (h0 : reach nodes rows ns tm passes 0 = true) :
-    ∀ j ∈ targets, nodes.getD j 0 ∣ N := by
-  rw [baseOK] at hbase
-  simp only [Bool.and_eq_true, decide_eq_true_eq] at hbase
-  obtain ⟨⟨hd, h2⟩, hrows⟩ := hbase
-  have hnodes : ∀ y ∈ nodes, y.Prime ∧ y ≠ 2 := fun y hy =>
-    ⟨hP y hy, by simpa using (List.all_eq_true.mp h2) y hy⟩
+    ∀ k, tm.testBit k = true → nodes.getD k 0 ∣ N := by
   have hmem : ∀ {p : ℕ}, p.Prime → p ∣ N → p ∈ N.primeFactors := fun hp hpN =>
     Nat.mem_primeFactors.mpr ⟨hp, hpN, h.ne_zero⟩
   have key : ∀ b, (∀ y ∈ nodes.take rows.length, y ≠ b → y ≠ q) →
-      reach nodes rows ns tm passes b = true → ∀ j ∈ targets, nodes.getD j 0 ∣ N := by
+      reach nodes rows ns tm passes b = true → ∀ k, tm.testBit k = true → nodes.getD k 0 ∣ N := by
     intro b hb hr
     have hstep : ∀ x ∈ nodes.take rows.length, x ∣ N → x ≠ b → ∀ t ∈ nodes, gm x t d = 0 →
         t ∣ N := by
       intro x hx hxN hxb t ht hg
-      have hxp := (hnodes x (List.mem_of_mem_take hx)).1
+      have hxp := hP x (List.mem_of_mem_take hx)
       exact dvd_of_dvd_geom_sum_of_dvd_succ h hxp hd (hexp x (hmem hxp hxN) (hb x hx hxb))
-        (hnodes t ht).1 (hnodes t ht).2 (Nat.dvd_of_mod_eq_zero (by rw [← gm_eq]; exact hg))
+        (hP t ht) (h2 t ht) (Nat.dvd_of_mod_eq_zero (by rw [← gm_eq]; exact hg))
     have hgm0 : ∀ x ∈ nodes, gm x 0 d ≠ 0 := by
       intro x hx
       rw [gm_eq, Nat.mod_zero]
-      exact (Finset.sum_pos (fun i _ => pow_pos (hnodes x hx).1.pos i)
+      exact (Finset.sum_pos (fun i _ => pow_pos (hP x hx).pos i)
         (Finset.nonempty_range_iff.mpr (by omega))).ne'
     have hz : ∀ e ∈ nodes.zip rows, ∀ j ∈ e.2, gm e.1 (nodes.getD j 0) d = 0 := by
       intro e he j hj
-      have := List.all_eq_true.mp (List.all_eq_true.mp hrows e he) j hj
+      have := List.all_eq_true.mp (hrows e he) j hj
       simpa using this
     have h1 : ∀ k, (2 ^ ns - 1).testBit k = true → nodes.getD k 0 ∣ N := by
       intro k hk
@@ -271,13 +304,12 @@ theorem dvd_of_reach {N q d ns passes tm : ℕ} {cand : ℕ → Bool} {nodes tar
       have : nodes[k] = (nodes.take ns)[k] := by simp
       rw [this]
       exact hseed _ (List.getElem_mem hkt)
-    have hgood := fiter_good hstep hgm0 hz passes _ h1
-    intro j hj
+    have hgood := fiter_good (tm := tm) hstep hgm0 hz passes _ h1
+    intro k hk
     simp only [reach, beq_iff_eq] at hr
-    apply hgood j
-    have hj' : (maskOf targets).testBit j = true := (testBit_maskOf j targets).mpr hj
-    rw [htm, ← hr, Nat.testBit_land, Bool.and_eq_true] at hj'
-    exact hj'.1
+    apply hgood k
+    rw [← hr, Nat.testBit_land, Bool.and_eq_true] at hk
+    exact hk.1
   by_cases hqn : q ∈ nodes.take rows.length
   · exact key q (fun _ _ hy => hy) (hcand q hqn hcq)
   · exact key 0 (fun y hy _ hyq => hqn (hyq ▸ hy)) h0
@@ -322,32 +354,29 @@ theorem FamInst.abOK2_sound {N q P G : ℕ} {cand : ℕ → Bool} (hN : N.Perfec
 open FamInst CommonFam CommonChain in
 /-- The combined closer. Let `N` be an odd perfect number and `q` a number with `cand q` and
 `cand' q`, such that `d ∣ v_p(N) + 1` for every prime factor `p ≠ q`, where `d ≥ 5`. A table as
-in `dvd_of_reach` whose target primes `vals` pass `abOK2` with `cand'` gives a
-contradiction. -/
+in `dvd_of_reach`, whose selected target primes `vals` (the nodes whose index is a bit of `tm`)
+pass `abOK2` with `cand'`, gives a contradiction. -/
 theorem false_of_reach {N q d ns passes tm P G : ℕ} {cand cand' : ℕ → Bool}
-    {nodes targets vals : List ℕ} {rows : List (List ℕ)} (h : OddPerfect N)
+    {nodes vals : List ℕ} {rows : List (List ℕ)} (h : OddPerfect N)
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q → d ∣ N.factorization p + 1) (hd : 5 ≤ d)
     (hcq : cand q = true) (hcq' : cand' q = true) (hP : ∀ t ∈ nodes, t.Prime)
-    (hseed : ∀ t ∈ nodes.take ns, t ∣ N) (hns : ns ≤ nodes.length)
-    (hbase : baseOK d nodes rows = true) (htm : maskOf targets = tm)
+    (h2 : ∀ t ∈ nodes, t ≠ 2) (hseed : ∀ t ∈ nodes.take ns, t ∣ N) (hns : ns ≤ nodes.length)
+    (hrows : ∀ e ∈ nodes.zip rows, rowChk d nodes e = true)
     (hcand : ∀ b ∈ nodes.take rows.length, cand b = true →
       reach nodes rows ns tm passes b = true)
-    (h0 : reach nodes rows ns tm passes 0 = true)
-    (hv : targets.map (nodes.getD · 0) = vals) (hlen : targets.all (· < nodes.length) = true)
+    (h0 : reach nodes rows ns tm passes 0 = true) (hv : sel 0 tm 0 nodes = vals)
     (hnd : vals.Nodup) (hPG : pPow (expL vals 0) = P ∧ pSig (expL vals 0) = G)
     (hab : abOK2 vals cand' P G = true) : False := by
-  have hT := dvd_of_reach h hexp hcq hP hseed hns hbase htm hcand h0
+  have hT := dvd_of_reach h hexp (by omega) hcq hP h2 hseed hns hrows hcand h0
   have hS : ∀ t ∈ vals, t ∣ N := by
     rw [← hv]
     intro t ht
-    obtain ⟨j, hj, rfl⟩ := List.mem_map.mp ht
-    exact hT j hj
+    obtain ⟨-, k, hk, rfl⟩ := mem_sel nodes 0 List.drop_zero t ht
+    exact hT k hk
   have hPS : ∀ t ∈ vals, t.Prime := by
     rw [← hv]
     intro t ht
-    obtain ⟨j, hj, rfl⟩ := List.mem_map.mp ht
-    refine hP _ (List.getD_eq_getElem _ _ ?_ ▸ List.getElem_mem _)
-    simpa using (List.all_eq_true.mp hlen) j hj
+    exact hP t ((sel_sublist 0 tm 0 nodes).subset ht)
   have h4 : ∀ t ∈ vals, t ≠ q → t ^ 4 ∣ N := by
     intro t ht htq
     have hp := hPS t ht
@@ -726,15 +755,11 @@ def rows57 : List (List ℕ) :=
    [357],
    [416]]
 
-/-- The target indices of the `d = 5` table. -/
-def targets57 : List ℕ :=
-  [0, 1, 2, 3, 4, 5, 6, 12, 13, 15, 16, 19, 25, 36, 45, 57, 58, 59, 64, 67, 70, 73, 76, 81, 87, 89, 93, 102, 104, 109, 112, 127, 137, 141, 142, 145, 155, 170, 171, 198, 202, 203, 209, 211, 219, 227, 264, 273, 295, 301, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417]
-
-/-- The target primes of the `d = 5` table. -/
+/-- The target primes of the `d = 5` table, in node order. -/
 def vals57 : List ℕ :=
   [5, 7, 11, 71, 211, 2221, 1361, 191, 1021, 421, 1871, 181, 3001, 101, 1381, 1091, 401, 1931, 2621, 431, 2411, 3911, 1231, 631, 2531, 3761, 3491, 1721, 751, 281, 1601, 271, 1531, 131, 3041, 1571, 881, 2311, 1151, 2671, 1901, 3691, 1291, 571, 821, 971, 2851, 1811, 1471, 691, 31, 41, 61, 151, 241, 251, 311, 331, 461, 491, 521, 541, 601, 641, 661, 701, 761, 811, 911, 941, 991, 1031, 1051, 1061, 1171, 1201, 1301, 1321, 1451, 1481, 1511, 1801, 1831, 1861, 1951, 2011, 2081, 2131, 2161, 2251, 2351, 2371, 2381, 2441, 2521, 2551, 2591, 2711, 2741, 2801, 2971, 3011, 3221, 3301, 3371, 3391, 3511, 3571, 3581, 3631]
 
-/-- The bit mask of the target indices. -/
+/-- The target mask: bit `j` is set when node `j` is a target. -/
 def tm57 : ℕ :=
   676921312041214564739625629732099241949645588294258069794817872507308209331449246912790033839785597649382479551140155569582207
 
@@ -1053,43 +1078,86 @@ def pc57 : List (ℕ × ℕ × List ℕ) :=
    (4849651, 3, [2, 3, 3, 5, 5, 13, 829]),
    (2729, 3, [2, 2, 2, 11, 31]),
    (2920031, 7, [2, 5, 107, 2729])]
+/-- Rows with their sources, part 0. -/
+def zp57_0 : List (ℕ × List ℕ) := ((nodes57.zip rows57).drop 0).take 100
 
-/-- The target mask. -/
-theorem tm57_eq : maskOf targets57 = tm57 := by decide +kernel
+/-- Rows with their sources, part 1. -/
+def zp57_1 : List (ℕ × List ℕ) := ((nodes57.zip rows57).drop 100).take 100
 
-/-- The structural checks of the `d = 5` table. -/
-theorem base57 : baseOK 5 nodes57 rows57 = true := by decide +kernel
+/-- Rows with their sources, part 2. -/
+def zp57_2 : List (ℕ × List ℕ) := ((nodes57.zip rows57).drop 200).take 100
+
+/-- Rows with their sources, part 3. -/
+def zp57_3 : List (ℕ × List ℕ) := ((nodes57.zip rows57).drop 300).take 100
+
+/-- The rows with their sources in parts. -/
+theorem zp57_eq : nodes57.zip rows57 =
+    [zp57_0, zp57_1, zp57_2, zp57_3].flatten := by
+  decide +kernel
+
+/-- The divisibility checks of the rows, part 0. -/
+theorem rows57_0 : zp57_0.all (rowChk 5 nodes57) = true := by decide +kernel
+
+/-- The divisibility checks of the rows, part 1. -/
+theorem rows57_1 : zp57_1.all (rowChk 5 nodes57) = true := by decide +kernel
+
+/-- The divisibility checks of the rows, part 2. -/
+theorem rows57_2 : zp57_2.all (rowChk 5 nodes57) = true := by decide +kernel
+
+/-- The divisibility checks of the rows, part 3. -/
+theorem rows57_3 : zp57_3.all (rowChk 5 nodes57) = true := by decide +kernel
+
+/-- The divisibility checks of all rows. -/
+theorem hrows57 : ∀ e ∈ nodes57.zip rows57, rowChk 5 nodes57 e = true :=
+  all_of_parts _ zp57_eq (by
+    intro c hc
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hc
+    rcases hc with rfl | rfl | rfl | rfl
+    exacts [rows57_0, rows57_1, rows57_2, rows57_3])
+
+/-- No node is `2`. -/
+theorem nodes57_ne2 : ∀ t ∈ nodes57, t ≠ 2 := by
+  have : nodes57.all (· != 2) = true := by decide +kernel
+  intro t ht
+  simpa using List.all_eq_true.mp this t ht
 
 /-- The source nodes in parts. -/
-theorem src57_eq : nodes57.take rows57.length = [src57_0, src57_1, src57_2].flatten := by decide +kernel
+theorem src57_eq : nodes57.take rows57.length =
+    [src57_0, src57_1, src57_2].flatten := by
+  decide +kernel
 
 /-- The nodes in parts. -/
-theorem nd57_eq : nodes57 = [nd57_0, nd57_1, nd57_2, nd57_3].flatten := by decide +kernel
+theorem nd57_eq : nodes57 =
+    [nd57_0, nd57_1, nd57_2, nd57_3].flatten := by
+  decide +kernel
+
+/-- The blocked candidates. -/
+def cand57 (b : ℕ) : Bool := b % 12 == 1
 
 /-- Reach checks for the blocked source nodes, part 0. -/
 theorem reach57_0 :
-    src57_0.all (fun b => !(fun b : ℕ => b % 12 == 1) b || reach nodes57 rows57 2 tm57 3 b) = true := by
+    src57_0.all (fun b => !cand57 b || reach nodes57 rows57 2 tm57 3 b) = true := by
   decide +kernel
 
 /-- Reach checks for the blocked source nodes, part 1. -/
 theorem reach57_1 :
-    src57_1.all (fun b => !(fun b : ℕ => b % 12 == 1) b || reach nodes57 rows57 2 tm57 3 b) = true := by
+    src57_1.all (fun b => !cand57 b || reach nodes57 rows57 2 tm57 3 b) = true := by
   decide +kernel
 
 /-- Reach checks for the blocked source nodes, part 2. -/
 theorem reach57_2 :
-    src57_2.all (fun b => !(fun b : ℕ => b % 12 == 1) b || reach nodes57 rows57 2 tm57 3 b) = true := by
+    src57_2.all (fun b => !cand57 b || reach nodes57 rows57 2 tm57 3 b) = true := by
   decide +kernel
 
 /-- Reach check with no source blocked. -/
 theorem reach57_none : reach nodes57 rows57 2 tm57 3 0 = true := by decide +kernel
 
 /-- Every blocked source node passes the reach check. -/
-theorem hcand57 : ∀ b ∈ nodes57.take rows57.length, (fun b : ℕ => b % 12 == 1) b = true →
+theorem hcand57 : ∀ b ∈ nodes57.take rows57.length, cand57 b = true →
     reach nodes57 rows57 2 tm57 3 b = true := by
   intro b hb hcb
-  have := all_of_parts (f := fun b => !(fun b : ℕ => b % 12 == 1) b || reach nodes57 rows57 2 tm57 3 b)
-    [src57_0, src57_1, src57_2] src57_eq (by
+  have := all_of_parts (f := fun b => !cand57 b || reach nodes57 rows57 2 tm57 3 b)
+    _ src57_eq (by
     intro c hc
     simp only [List.mem_cons, List.not_mem_nil, or_false] at hc
     rcases hc with rfl | rfl | rfl
@@ -1113,20 +1181,18 @@ theorem nd57_3_isPS : nd57_3.all (isPS pc57) = true := by decide +kernel
 
 /-- The nodes of the `d = 5` table are prime. -/
 theorem nodes57_prime : ∀ t ∈ nodes57, t.Prime := fun t ht =>
-  isPS_sound pc57_check (all_of_parts [nd57_0, nd57_1, nd57_2, nd57_3] nd57_eq (by
+  isPS_sound pc57_check (all_of_parts _ nd57_eq (by
     intro c hc
     simp only [List.mem_cons, List.not_mem_nil, or_false] at hc
     rcases hc with rfl | rfl | rfl | rfl
     exacts [nd57_0_isPS, nd57_1_isPS, nd57_2_isPS, nd57_3_isPS]) t ht)
 
-/-- The target indices name the target primes. -/
-theorem targets57_vals : targets57.map (nodes57.getD · 0) = vals57 := by decide +kernel
-
-/-- The target indices are in range. -/
-theorem targets57_lt : targets57.all (· < nodes57.length) = true := by decide +kernel
+/-- The target primes are the nodes selected by the target mask. -/
+theorem vals57_sel : CommonChain.sel 0 tm57 0 nodes57 = vals57 := by decide +kernel
 
 /-- The target primes are distinct. -/
-theorem vals57_nodup : vals57.Nodup := by decide +kernel
+theorem vals57_nodup : vals57.Nodup :=
+  (nodup_of_ndM (M := 0) (by decide +kernel)).1
 
 /-- The two full products over the target primes. -/
 theorem PG57 : pPow (expL vals57 0) = P57 ∧ pSig (expL vals57 0) = G57 := by
@@ -1149,8 +1215,9 @@ theorem not_seven_dvd_of_common_five {N q : ℕ} (h : OddPerfect N) (hq : q.Prim
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q → 5 ∣ N.factorization p + 1) : ¬ 7 ∣ N := by
   intro h7N
   have h5N := (five_dvd_and_ne_special_of_common h hq hodd hexp).1
-  have hcq : (fun b : ℕ => b % 12 == 1) q = true := by
-    simp [special_mod_twelve_of_common_five h hq hodd hexp]
+  have hq12 := special_mod_twelve_of_common_five h hq hodd hexp
+  have hcq : cand57 q = true := by simp [cand57, hq12]
+  have hcq' : (fun b : ℕ => b % 12 == 1) q = true := by simp [hq12]
   have hseed : ∀ t ∈ nodes57.take 2, t ∣ N := by
     intro t ht
     have : nodes57.take 2 = [5, 7] := by decide +kernel
@@ -1159,9 +1226,8 @@ theorem not_seven_dvd_of_common_five {N q : ℕ} (h : OddPerfect N) (hq : q.Prim
     rcases ht with rfl | rfl
     · exact h5N
     · exact h7N
-  exact false_of_reach (cand := fun b : ℕ => b % 12 == 1) h hexp le_rfl hcq hcq nodes57_prime
-    hseed (by decide +kernel) base57 tm57_eq hcand57 reach57_none targets57_vals targets57_lt
-    vals57_nodup PG57 ab57
+  exact false_of_reach h hexp le_rfl hcq hcq' nodes57_prime nodes57_ne2 hseed
+    (by decide +kernel) hrows57 hcand57 reach57_none vals57_sel vals57_nodup PG57 ab57
 
 end OddPerfect
 
@@ -1172,14 +1238,20 @@ end OddPerfect
 #print axioms OddPerfect.FamInst.fpass_good
 #print axioms OddPerfect.FamInst.fiter_good
 #print axioms OddPerfect.FamInst.all_of_parts
+#print axioms OddPerfect.FamInst.nodup_of_ndM
 #print axioms OddPerfect.FamInst.expL_cons
 #print axioms OddPerfect.FamInst.expL_eq_of_forall_ne
 #print axioms OddPerfect.FamInst.pPow_pSig_split
 #print axioms OddPerfect.dvd_of_reach
 #print axioms OddPerfect.FamInst.abOK2_sound
 #print axioms OddPerfect.false_of_reach
-#print axioms OddPerfect.FamInst.tm57_eq
-#print axioms OddPerfect.FamInst.base57
+#print axioms OddPerfect.FamInst.zp57_eq
+#print axioms OddPerfect.FamInst.rows57_0
+#print axioms OddPerfect.FamInst.rows57_1
+#print axioms OddPerfect.FamInst.rows57_2
+#print axioms OddPerfect.FamInst.rows57_3
+#print axioms OddPerfect.FamInst.hrows57
+#print axioms OddPerfect.FamInst.nodes57_ne2
 #print axioms OddPerfect.FamInst.src57_eq
 #print axioms OddPerfect.FamInst.nd57_eq
 #print axioms OddPerfect.FamInst.reach57_0
@@ -1193,8 +1265,7 @@ end OddPerfect
 #print axioms OddPerfect.FamInst.nd57_2_isPS
 #print axioms OddPerfect.FamInst.nd57_3_isPS
 #print axioms OddPerfect.FamInst.nodes57_prime
-#print axioms OddPerfect.FamInst.targets57_vals
-#print axioms OddPerfect.FamInst.targets57_lt
+#print axioms OddPerfect.FamInst.vals57_sel
 #print axioms OddPerfect.FamInst.vals57_nodup
 #print axioms OddPerfect.FamInst.PG57
 #print axioms OddPerfect.FamInst.ab57

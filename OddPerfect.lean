@@ -80,3 +80,5 @@ import OddPerfect.CommonPrimeChain
 import OddPerfect.CommonFamily
 import OddPerfect.ForcingClosedBoundTwo
 import OddPerfect.CommonFiveSeven
+import OddPerfect.CommonSixtyFive
+import OddPerfect.CommonFiftyFive
