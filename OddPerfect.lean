@@ -7,3 +7,7 @@ import OddPerfect.Seed.Numeric
 import OddPerfect.Seed.Squarefull
 import OddPerfect.Seed.Gap
 import OddPerfect.Basic
+import OddPerfect.Euler
+import OddPerfect.Cyclotomic
+import OddPerfect.Network
+import OddPerfect.Abundancy
