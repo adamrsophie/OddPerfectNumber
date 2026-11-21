@@ -62,3 +62,4 @@ import OddPerfect.LargestPrimeOrder
 import OddPerfect.SupportBridges
 import OddPerfect.OmegaSix
 import OddPerfect.LargestPrimeFactor
+import OddPerfect.ReciprocalSum
