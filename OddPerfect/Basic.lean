@@ -34,3 +34,10 @@ theorem sigma_eq (h : OddPerfect N) : σ 1 N = 2 * N := OPNStarter.sigma_eq_two_
 theorem not_two_dvd (h : OddPerfect N) : ¬ 2 ∣ N := h.odd.not_two_dvd_nat
 
 end OddPerfect
+
+#print axioms OddPerfect.odd
+#print axioms OddPerfect.perfect
+#print axioms OddPerfect.pos
+#print axioms OddPerfect.ne_zero
+#print axioms OddPerfect.sigma_eq
+#print axioms OddPerfect.not_two_dvd

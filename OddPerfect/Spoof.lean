@@ -6,9 +6,16 @@ import Mathlib.Data.ZMod.Defs
 /-!
 # Spoof odd perfect numbers and local counterexamples
 
-Kernel checked adversarial examples. A spoof factorization satisfies every structural
-condition known for an odd perfect number except primality of the bases; Descartes' example
-shows these conditions are satisfiable. The second part records small local phenomena that
+Kernel checked adversarial examples. A spoof factorization (`IsSpoofOddPerfect`) satisfies
+the following conditions, with no primality requirement on the bases: bases odd, at least 3,
+and pairwise coprime; exponents positive; formal divisor sum equal to twice the value; exactly
+one odd exponent, at a base congruent to 1 mod 4, with exponent congruent to 1 mod 4. For
+Descartes' spoof the file proves `IsSpoofOddPerfect`, Touchard's congruence, the congruence
+`value ≡ 1 (mod 4)`, at least three bases, and formal valuation conservation at every `q`;
+so these conditions are satisfiable. It is not a claim that the spoof meets every condition
+known for odd perfect numbers. The integer `198585576189 = 3^2 7^2 11^2 13^2 22021` itself has
+six distinct prime factors, since `22021 = 19^2 · 61` is composite, and it is not perfect; the
+spoof presentation treats `22021` as if it were prime. The second part records small local phenomena that
 defeat naive arguments. This file is a regression suite for future arguments.
 -/
 
@@ -38,8 +45,8 @@ def value (l : List (ℕ × ℕ)) : ℕ := (l.map fun x => x.1 ^ x.2).prod
 /-- Formal divisor sum `∏ (1 + b + ... + b ^ e)`, pretending every base is prime. -/
 def formalSigma (l : List (ℕ × ℕ)) : ℕ := (l.map fun x => geom x.1 x.2).prod
 
-/-- All conditions that the known structure theory imposes on the shape of an odd perfect
-number, except primality of the bases: bases odd, at least 3, pairwise coprime; exponents
+/-- A selection of conditions on the shape of an odd perfect number, without primality of
+the bases: bases odd, at least 3, pairwise coprime; exponents
 positive; formal divisor sum equal to twice the value; exactly one odd exponent, at a base
 congruent to 1 mod 4 with exponent congruent to 1 mod 4. "Exactly one" is expressed as: some
 entry has odd exponent and every entry with odd exponent equals it (entries are distinct
@@ -57,7 +64,15 @@ instance (l : List (ℕ × ℕ)) : Decidable (IsSpoofOddPerfect l) := by
 /-- Descartes' spoof `3^2 7^2 11^2 13^2 22021`, with `22021 = 19^2 * 61` treated as prime. -/
 def descartes : List (ℕ × ℕ) := [(3, 2), (7, 2), (11, 2), (13, 2), (22021, 1)]
 
-/-- The Descartes spoof satisfies every structural condition (kernel checked by `decide`). -/
+/-- The Descartes spoof satisfies `IsSpoofOddPerfect` (kernel checked by `decide`): bases odd,
+at least 3, and pairwise coprime; exponents positive; formal divisor sum equal to twice the
+value; exactly one odd exponent, at the base `22021 ≡ 1 (mod 4)` with exponent 1. Further facts
+proved below are Touchard's congruence (`touchard_descartes`), `value ≡ 1 (mod 4)`
+(`value_descartes_mod_four`), at least three bases (`three_le_length_descartes`), and formal
+valuation conservation (`valuation_balance_descartes`). The positive integer
+`198585576189 = value descartes` has six distinct prime factors, since `22021 = 19^2 · 61` is
+composite (`eq_22021`), and it is not perfect (`not_perfect_value_descartes`); the spoof
+presentation treats `22021` as if it were prime. -/
 theorem isSpoofOddPerfect_descartes : IsSpoofOddPerfect descartes := by decide
 
 /-- If every base is prime and the bases are pairwise distinct, the formal divisor sum is the
@@ -142,8 +157,8 @@ theorem exists_spoof_of_oddPerfect {N : ℕ} (h : OddPerfect N) :
       exact absurd hyo (by rw [Nat.even_iff] at this; omega)
     exact Prod.ext hyq (by rw [hy2, hyq])
 
-/-- The structural conditions without primality are satisfiable. Any proof that no odd
-perfect number exists must use the primality of every base. -/
+/-- The conditions of `IsSpoofOddPerfect` are satisfiable without primality of the bases, so
+these conditions alone do not imply a contradiction. -/
 theorem exists_spoof : ∃ l, IsSpoofOddPerfect l := ⟨descartes, isSpoofOddPerfect_descartes⟩
 
 /-- The last Descartes base is not prime. -/

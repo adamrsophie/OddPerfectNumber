@@ -39,8 +39,15 @@ theorem cross_multiplied :
     4 * 6000000 * 1000 * (216171986291 - 435000000 : ℕ)^100 := by
   decide +kernel
 
-/-- If a nonnegative product from the sieve admits the stated upper bound,
-the resulting upper bound for abundancy is strictly smaller than two. -/
+/-- For every rational `A` with `A ≤ 1.089`, the product
+`(3/2) · (1 + 1/6000000) · A · (1 + 1/216171986291)^43500000000` is strictly smaller
+than two.
+
+The bound `A ≤ 1.089` is a hypothesis of this theorem, not a result of this file. The
+file does not reconstruct the sieve of Ochem and Zelinsky that is meant to produce such a
+bound, does not prove that the sieve's survivor list is exhaustive, and does not identify
+any computed product with `A`. The theorem is only the final arithmetic step, valid for
+whatever `A` satisfies the hypothesis. -/
 theorem restrained_tail {A : ℚ} (hA : A ≤ 1089 / 1000) :
     (3/2 : ℚ) * (1+1/6000000) * A * (1+1/216171986291)^43500000000 < 2 := by
   let x : ℚ := 1 / 216171986291
@@ -65,6 +72,8 @@ theorem squarefull_factor_identity :
       7^3 * 43^2 * 3416683^2 * 12353161^2 * 1401752363863729^2 := by
   decide +kernel
 
+#print axioms linear_times_pow_le_one
+#print axioms block_bound
 #print axioms cross_multiplied
 #print axioms restrained_tail
 #print axioms squarefull_factor_identity

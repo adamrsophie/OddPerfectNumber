@@ -12,8 +12,19 @@ balanced candidates are exactly the factorizations of odd perfect numbers, so
 
 This equivalence is a reformulation, not progress toward a proof. The open problem is
 exactly whether a balanced candidate exists; nothing here decides that, and nothing here
-assumes the conjecture. We also collect, in `Candidate.Necessary`, every necessary
-condition proved in this project, transported to the language of candidates.
+assumes the conjecture. We also collect, in `Candidate.Necessary`, a fixed selection of
+necessary conditions, transported to the language of candidates: at least three primes in
+the support, Euler's form, exactly one odd exponent, Touchard's congruence, no self loops,
+strong connectivity of the edge relation, abundancy exactly two, and `2 < ∏ p/(p-1)` over
+the support. Later modules prove further conditions (for example five distinct primes, the
+refined Touchard congruence, and counting inequalities) that are not fields of
+`Candidate.Necessary`.
+
+`Candidate.Necessary` is not a relaxation at the level of existence. Its Touchard field
+forces the value to be odd and positive, and its abundancy field then makes the value
+perfect, so `Candidate.Necessary.oddPerfect` gives an odd perfect number and
+`exists_necessary_iff_exists_oddPerfect` holds. Refuting the existence of a candidate
+satisfying `Candidate.Necessary` is therefore exactly as hard as the conjecture.
 -/
 
 open ArithmeticFunction
@@ -135,9 +146,18 @@ namespace Candidate
 /-- The edge relation of a candidate: `p → q` between support primes with nonzero weight. -/
 def Edge (C : Candidate) (p q : ℕ) : Prop := p ∈ C.support ∧ q ∈ C.support ∧ C.weight p q ≠ 0
 
-/-- All necessary conditions proved in this project for a balanced candidate. These are
-consequences of balance, not a solution: no combination of them is known to be
-contradictory, and the open problem remains whether a balanced candidate exists. -/
+/-- A fixed selection of necessary conditions for a balanced candidate: at least three
+support primes, Euler's form, exactly one odd exponent, Touchard's congruence, no self
+loops, strong connectivity, abundancy of the value exactly two, and `2 < ∏ p/(p-1)` over
+the support. It is not the list of all conditions proved in this project; later modules
+prove more (five distinct primes, the refined Touchard congruence, counting inequalities)
+that are not fields here.
+
+These conditions are not a relaxation: the Touchard field makes the value odd and
+positive, and the abundancy field then makes it perfect (`Necessary.oddPerfect`). So a
+candidate satisfying `Necessary` exists exactly when an odd perfect number exists
+(`exists_necessary_iff_exists_oddPerfect`), and refuting such a candidate is exactly as
+hard as the conjecture. -/
 structure Necessary (C : Candidate) : Prop where
   /-- At least three primes (Abundancy). -/
   three_le_card : 3 ≤ C.support.card
@@ -160,8 +180,7 @@ structure Necessary (C : Candidate) : Prop where
 
 variable {C : Candidate}
 
-/-- Every necessary condition proved in this project holds for a balanced candidate. Each
-is obtained from the corresponding theorem about odd perfect numbers through
+/-- Every field of `Necessary` holds for a balanced candidate. Each is obtained from the corresponding theorem about odd perfect numbers through
 `Balanced.oddPerfect`. -/
 theorem Balanced.necessary (hC : C.Balanced) : C.Necessary := by
   have h := hC.oddPerfect
@@ -208,7 +227,27 @@ theorem Balanced.necessary (hC : C.Balanced) : C.Necessary := by
     rw [(perfect_iff_abundancy_eq_two h.pos).mp h.perfect, hpf] at this
     exact this
 
+/-- A candidate satisfying `Necessary` has an odd perfect value. Touchard's field gives
+`value % 12 = 1` or `value % 36 = 9`, so the value is odd and positive; the abundancy
+field then makes it perfect. -/
+theorem Necessary.oddPerfect (hC : C.Necessary) : OddPerfect C.value := by
+  have hodd : C.value % 2 = 1 := by rcases hC.touchard with h | h <;> omega
+  have hpos : 0 < C.value := by omega
+  exact ⟨Nat.odd_iff.mpr hodd, (perfect_iff_abundancy_eq_two hpos).mpr hC.abundancy_eq_two⟩
+
 end Candidate
+
+/-- A candidate satisfying `Candidate.Necessary` exists exactly when an odd perfect number
+exists. Refuting the existence of such a candidate is therefore exactly as hard as the
+conjecture. -/
+theorem exists_necessary_iff_exists_oddPerfect :
+    (∃ C : Candidate, C.Necessary) ↔ ∃ N, OddPerfect N := by
+  constructor
+  · rintro ⟨C, hC⟩
+    exact ⟨C.value, hC.oddPerfect⟩
+  · rintro ⟨N, hN⟩
+    obtain ⟨C, hC, -⟩ := exists_balanced hN
+    exact ⟨C, hC.necessary⟩
 
 end OddPerfect
 
@@ -220,3 +259,5 @@ end OddPerfect
 #print axioms OddPerfect.exists_balanced
 #print axioms OddPerfect.conjecture_iff_no_balanced
 #print axioms OddPerfect.Candidate.Balanced.necessary
+#print axioms OddPerfect.Candidate.Necessary.oddPerfect
+#print axioms OddPerfect.exists_necessary_iff_exists_oddPerfect

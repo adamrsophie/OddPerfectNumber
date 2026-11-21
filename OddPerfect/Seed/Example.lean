@@ -85,4 +85,6 @@ theorem exclude_three_and_five_exponents {n : ℕ} (hn : n.Perfect)
 
 end OPNExample
 
+#print axioms OPNExample.geom_sum_dvd_geom_sum
+#print axioms OPNExample.sigma_prime_pow_dvd
 #print axioms OPNExample.exclude_three_and_five_exponents

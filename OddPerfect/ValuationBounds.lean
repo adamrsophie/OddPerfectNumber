@@ -13,8 +13,10 @@ distinct divisors `≥ 3` of `e_p + 1` when `q ^ j ∣ e_p + 1`, so the fan boun
 
 * `sum_padicValNat_sigma_le_factorization`: budget overshoot in lower bound form; any set of
   components supplies at most `v_q(N)`.
-* `factorization_le_sq_add_sum_orderWeight`: Thackeray's Corollary 6 for odd perfect numbers,
-  `v_q(N) ≤ (k - 1) ^ 2 + ∑_{p ≠ q} orderWeight q p e_p`.
+* `factorization_le_sq_add_sum_orderWeight`: an analogue of Thackeray's Corollary 6, proved
+  here directly for odd perfect numbers, `v_q(N) ≤ (k - 1) ^ 2 + ∑_{p ≠ q} orderWeight q p e_p`.
+  Thackeray's corollary concerns an odd square with prescribed valuations, so its hypotheses
+  differ; this theorem is proved independently and does not rely on it.
 * `mod_eq_one_of_dvd_sigma_of_even`: for `q - 1` a power of two, an even exponent component
   divisible by `q` has `p ≡ 1 (mod q)` (Nielsen).
 * `factorization_le_of_fermat`: for `q - 1` a power of two,
@@ -130,7 +132,9 @@ theorem padicValNat_sigma_le_card_sub_one_add (h : OddPerfect N) {p q : ℕ}
       rw [padicValNat_sigma_prime_pow_of_not_orderOf_dvd hpp hq hnd]
       omega
 
-/-- Thackeray's Corollary 6 for odd perfect numbers: for every prime `q`,
+/-- An analogue of Thackeray's Corollary 6, proved here directly for odd perfect numbers
+(Thackeray's corollary concerns an odd square with prescribed valuations and has different
+hypotheses): for every prime `q`,
 `v_q(N) ≤ (ω(N) - 1) ^ 2 + ∑_{p ≠ q} orderWeight q p v_p(N)`. -/
 theorem factorization_le_sq_add_sum_orderWeight (h : OddPerfect N) {q : ℕ} (hq : q.Prime) :
     N.factorization q ≤ (N.primeFactors.card - 1) ^ 2 +

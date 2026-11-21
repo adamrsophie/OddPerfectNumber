@@ -15,9 +15,11 @@ consequences of that fact which depend on the relative size of `p` and `r`.
 * `three_le_orderOf_of_lt`: an upward edge `p → r` with `p < r` (both odd primes) has order
   `d ≥ 3`, so `e_p ≥ 2` and `r ≡ 1 (mod d)`. Orders `1` and `2` would force `r ∣ p - 1` or
   `r ∣ p + 1`, impossible for `r > p` odd.
-* `odd_orderOf_of_even`: a sender with even exponent has odd order at every receiver; so a
-  receiver `r` with `r - 1` a power of two only receives from senders `p ≡ 1 (mod r)` with
-  `r ∣ e_p + 1` (`eq_one_of_fermat_receiver`).
+* `odd_orderOf_of_even`: a sender with even exponent has odd order at every receiver; so if
+  `r` is a prime with `r - 1` a power of two and `p ≠ r` is a prime sender with even exponent
+  `e_p` and `r ∣ σ(p ^ e_p)`, then `p ≡ 1 (mod r)` and `r ∣ e_p + 1`
+  (`eq_one_of_fermat_receiver`). The even exponent hypothesis is needed: `17 ∣ σ(67) = 68`
+  while `67 ≡ -1 (mod 17)`, with exponent 1.
 * `exists_upward_edge_into_largest`: the largest prime factor `P` of an odd perfect number
   receives an edge from a smaller prime `p` with order `d ≥ 3`, `d ∣ e_p + 1`, `P ≡ 1 (mod d)`
   and `e_p ≥ 2`. In particular the special component with exponent `1` never feeds `P`.
@@ -131,7 +133,8 @@ theorem odd_orderOf_of_even {p r e : ℕ} (hp : p.Prime) (hr : r.Prime) (hpr : p
   · exact (he.add_one).of_dvd_nat h2
 
 /-- Fermat type receivers. If `r` is a prime with `r - 1 = 2 ^ j`, `p ≠ r` is a prime, `e`
-is even and `r ∣ σ(p ^ e)`, then `p ≡ 1 (mod r)` and `r ∣ e + 1`. -/
+is even and `r ∣ σ(p ^ e)`, then `p ≡ 1 (mod r)` and `r ∣ e + 1`. The hypothesis that `e` is
+even is needed: `17 ∣ σ(67) = 68` while `67 ≡ -1 (mod 17)`, with exponent 1. -/
 theorem eq_one_of_fermat_receiver {p r e j : ℕ} (hp : p.Prime) (hr : r.Prime)
     (hrj : r - 1 = 2 ^ j) (hpr : p ≠ r) (he : Even e) (hd : r ∣ σ 1 (p ^ e)) :
     (p : ZMod r) = 1 ∧ r ∣ e + 1 := by
@@ -284,7 +287,10 @@ theorem special_receiver_dichotomy (h : OddPerfect N) {q p : ℕ} (hq : q.Prime)
 /-- Formal version of `exists_upward_edge_into_largest` for a finite set `S` of bases with
 exponents `e`, phrased with `Spoof.geom` and powers so that it is decidable: the largest base
 `P` divides `geom b (e b)` for some smaller base `b` with `e b ≥ 2`, and some divisor
-`d ≥ 3` of `e b + 1` has `P ≡ 1 (mod d)` and `b ^ d ≡ 1 (mod P)`. -/
+`d ≥ 3` of `e b + 1` has `P ≡ 1 (mod d)` and `b ^ d ≡ 1 (mod P)`. It asks only for
+`b ^ d ≡ 1 (mod P)`, not that `d` be the exact multiplicative order of `b` modulo `P`; so it is
+implied by, and weaker than, the exact order statement of `exists_upward_edge_into_largest`.
+The implication from genuine odd perfect numbers (`maxReceives_of_oddPerfect`) stays valid. -/
 def MaxReceives (S : Finset ℕ) (e : ℕ → ℕ) : Prop :=
   ∀ P ∈ S, (∀ r ∈ S, r ≤ P) → ∃ b ∈ S, b < P ∧ P ∣ Spoof.geom b (e b) ∧ 2 ≤ e b ∧
     ∃ d ∈ (e b + 1).divisors, 3 ≤ d ∧ P % d = 1 ∧ b ^ d % P = 1

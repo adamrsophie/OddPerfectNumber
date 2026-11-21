@@ -10,6 +10,11 @@ An untrusted program produces a `Cert`; `check` is a computable Boolean function
 kernel evaluates with `decide +kernel`; `check_sound` says that a certificate accepted for a
 state rules out every odd perfect number satisfying all facts of that state.
 
+Scope: an accepted certificate excludes exactly the odd perfect numbers matching the supplied
+root facts, and nothing more. No family of root states is proved exhaustive over all odd
+perfect numbers in this file; any claim that a family of accepted certificates covers every
+odd perfect number has to come from a separate theorem proving that coverage.
+
 Step rules: `force` and `split`. Closing rules: `abundant`, `notDvd`, `exactPow`,
 `parityTwo`, `paritySpecial`, `overflow`.
 -/
@@ -230,7 +235,9 @@ theorem overflow_sum {s : List Fact} {N q : ℕ} (hs : State.Holds s N) (hN : N 
 /-! ## Soundness -/
 
 /-- Soundness: a certificate accepted for the state `s` excludes every odd perfect number
-satisfying all facts of `s`. -/
+satisfying all facts of `s`. That is its whole scope: it says nothing about odd perfect
+numbers that fail some fact of `s`. This file proves no family of root states exhaustive
+over all odd perfect numbers; coverage has to come from a separate theorem. -/
 theorem check_sound {s : List Fact} {c : Cert} (hc : check s c = true) :
     ∀ N : ℕ, OddPerfect N → State.Holds s N → False := by
   intro N h hs
