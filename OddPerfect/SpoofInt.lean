@@ -16,9 +16,17 @@ Main contents.
 
 * Voight's spoof `3^4 7^2 11^2 19^2 (-127)^1`, with one theorem per structural condition it
   passes or fails.
-* The near perfect link (`nearPerfect_iff_isSpoofPerfect`): for prime factorizations `m` and
-  `k > 0`, `k ∣ m ∧ σ(m) = 2m + m/k` holds iff `m * (-(2k+1))^1` is a spoof. Johnson's odd near
-  perfect number `173369889 = 3^4 7^2 11^2 19^2` with `k = 63` gives Voight's spoof.
+* Euler's pattern counts list positions: with odd bases, `2 ^ c` divides the formal divisor
+  sum, `c` the number of positions of odd exponent (`two_pow_countP_dvd_formalSigma`), so a
+  spoof with odd bases has at most one such position (`countP_odd_exponent_le_one`).
+* The arithmetic identity (`sigma_eq_two_mul_add_div_iff_isSpoofPerfect`): for prime
+  factorizations `m` and `k > 0`, `k ∣ m ∧ σ(m) = 2m + m/k` holds iff `m * (-(2k+1))^1` is a
+  spoof. Near perfect numbers (Pollack and Shevelev: `σ(m) = 2m + d` with `d` a proper divisor,
+  `IsNearPerfectWith`, `IsNearPerfect`) correspond to the case `1 < k`
+  (`isNearPerfectWith_iff_isSpoofPerfect`, `isNearPerfect_iff_exists_isSpoofPerfect`). At
+  `k = 1` the identity holds for `m = 120`, but `120` is not near perfect
+  (`not_isNearPerfect_120`). Johnson's odd near perfect number `173369889 = 3^4 7^2 11^2 19^2`
+  with `k = 63` (`isNearPerfectWith_johnson`) gives Voight's spoof.
 * Formal conservation (`valuation_balance`): every spoof satisfies the analog of
   `OPNStarter.valuation_balance` at every `q`, for the absolute values of the component sums.
 * Positivity: genuine components have abundancy in `(1, p/(p-1))`; the formal factor of
@@ -94,14 +102,17 @@ def PairwiseCoprime (l : List (ℤ × ℕ)) : Prop := l.Pairwise fun x y => Int.
 /-- Every base is positive. -/
 def BasesPos (l : List (ℤ × ℕ)) : Prop := ∀ x ∈ l, 0 < x.1
 
-/-- Euler's pattern for signed bases: exactly one odd exponent, at a base `≡ 1 (mod 4)`
-(as an integer, `%` being the nonnegative remainder) with exponent `≡ 1 (mod 4)`. -/
+/-- Euler's pattern for signed bases: exactly one position of the list carries an odd
+exponent (the sublist of odd exponent entries is `[x]`, so a repeated entry counts twice),
+and that entry has base `≡ 1 (mod 4)` (as an integer, `%` being the nonnegative remainder)
+and exponent `≡ 1 (mod 4)`. -/
 def EulerPattern (l : List (ℤ × ℕ)) : Prop :=
-  ∃ x ∈ l, x.2 % 2 = 1 ∧ x.1 % 4 = 1 ∧ x.2 % 4 = 1 ∧ ∀ y ∈ l, y.2 % 2 = 1 → y = x
+  ∃ x ∈ l, x.1 % 4 = 1 ∧ x.2 % 4 = 1 ∧ l.filter (fun y => y.2 % 2 = 1) = [x]
 
-/-- Euler's pattern read on absolute values of the bases. -/
+/-- Euler's pattern read on absolute values of the bases: exactly one position of the list
+carries an odd exponent, and that entry has `|b| ≡ 1 (mod 4)` and exponent `≡ 1 (mod 4)`. -/
 def EulerPatternAbs (l : List (ℤ × ℕ)) : Prop :=
-  ∃ x ∈ l, x.2 % 2 = 1 ∧ x.1.natAbs % 4 = 1 ∧ x.2 % 4 = 1 ∧ ∀ y ∈ l, y.2 % 2 = 1 → y = x
+  ∃ x ∈ l, x.1.natAbs % 4 = 1 ∧ x.2 % 4 = 1 ∧ l.filter (fun y => y.2 % 2 = 1) = [x]
 
 instance (l : List (ℤ × ℕ)) : Decidable (IsSpoofPerfect l) := by
   unfold IsSpoofPerfect; infer_instance
@@ -181,8 +192,9 @@ theorem prime_natAbs_voight : ∀ x ∈ voight, x.1.natAbs.Prime := by
   simp only [voight, List.mem_cons, List.not_mem_nil, or_false]
   rintro x (rfl | rfl | rfl | rfl | rfl) <;> norm_num
 
-/-- Voight's spoof is not positive: the base `-127` is negative. Among the side conditions
-defined here this is the only one it fails. -/
+/-- Voight's spoof is not positive: the base `-127` is negative. Of the predicates
+`BasesOdd`, `BasesNontrivial`, `ExponentsPos`, `PairwiseCoprime`, `BasesPos`, `EulerPattern`
+it fails only `BasesPos`; it also fails `EulerPatternAbs` (`not_eulerPatternAbs_voight`). -/
 theorem not_basesPos_voight : ¬ BasesPos voight := by decide
 
 /-- Euler's pattern holds for the signed base: the unique odd exponent is `1`, at the base
@@ -191,6 +203,69 @@ theorem eulerPattern_voight : EulerPattern voight := by decide
 
 /-- Euler's pattern fails on absolute values: `127 ≡ 3 (mod 4)`. -/
 theorem not_eulerPatternAbs_voight : ¬ EulerPatternAbs voight := by decide
+
+/-! Regression checks: the Euler patterns count list positions, not distinct entries. -/
+
+example : ¬ EulerPattern [(5, 1), (5, 1)] := by decide
+example : ¬ EulerPatternAbs [(5, 1), (5, 1)] := by decide
+example : EulerPattern [(5, 1)] := by decide
+example : EulerPatternAbs [(5, 1)] := by decide
+example : ¬ EulerPattern [(5, 1), (13, 1)] := by decide
+example : ¬ EulerPatternAbs [(5, 1), (13, 1)] := by decide
+
+/-- For an odd base, `1 + b + ... + b ^ e` is even exactly when `e` is odd. -/
+theorem even_geom_iff {b : ℤ} (hb : Odd b) (e : ℕ) : Even (geom b e) ↔ Odd e := by
+  induction e with
+  | zero => simp [geom]
+  | succ e ih =>
+    rw [geom, Int.even_add, ih, Nat.odd_add_one]
+    have : ¬ Even (b ^ (e + 1)) := Int.not_even_iff_odd.mpr hb.pow
+    tauto
+
+/-- For odd bases, `2 ^ c` divides the formal divisor sum, where `c` is the number of list
+positions carrying an odd exponent. -/
+theorem two_pow_countP_dvd_formalSigma {l : List (ℤ × ℕ)} (hl : BasesOdd l) :
+    2 ^ l.countP (fun y => y.2 % 2 = 1) ∣ formalSigma l := by
+  induction l with
+  | nil => simp [formalSigma]
+  | cons x l ih =>
+    have hx : Odd x.1 := Int.odd_iff.mpr (hl x (List.mem_cons_self ..))
+    have ih := ih fun y hy => hl y (List.mem_cons_of_mem _ hy)
+    have hf : formalSigma (x :: l) = geom x.1 x.2 * formalSigma l := by simp [formalSigma]
+    rw [hf, List.countP_cons]
+    by_cases he : x.2 % 2 = 1
+    · have h2 : (2 : ℤ) ∣ geom x.1 x.2 :=
+        even_iff_two_dvd.mp ((even_geom_iff hx _).mpr (Nat.odd_iff.mpr he))
+      simpa [he, pow_succ, mul_comm] using mul_dvd_mul h2 ih
+    · simpa [he] using dvd_mul_of_dvd_right ih _
+
+
+/-- For odd bases, the value is odd. -/
+theorem odd_value {l : List (ℤ × ℕ)} (hl : BasesOdd l) : Odd (value l) := by
+  induction l with
+  | nil => simp [value]
+  | cons x l ih =>
+    have hx : Odd x.1 := Int.odd_iff.mpr (hl x (List.mem_cons_self ..))
+    have : value (x :: l) = x.1 ^ x.2 * value l := by simp [value]
+    rw [this]
+    exact (hx.pow).mul (ih fun y hy => hl y (List.mem_cons_of_mem _ hy))
+
+/-- With odd bases and at least two list positions of odd exponent (equal entries counted
+separately), the formal divisor sum is divisible by `4`. -/
+theorem four_dvd_formalSigma {l : List (ℤ × ℕ)} (hl : BasesOdd l)
+    (h2 : 2 ≤ l.countP (fun y => y.2 % 2 = 1)) : (4 : ℤ) ∣ formalSigma l :=
+  (pow_dvd_pow 2 h2).trans (two_pow_countP_dvd_formalSigma hl)
+
+/-- A spoof with odd bases has at most one list position of odd exponent: otherwise
+`4 ∣ formalSigma l = 2 * value l` with `value l` odd. -/
+theorem countP_odd_exponent_le_one {l : List (ℤ × ℕ)} (hl : BasesOdd l)
+    (h : IsSpoofPerfect l) : l.countP (fun y => y.2 % 2 = 1) ≤ 1 := by
+  by_contra hc
+  have h4 := four_dvd_formalSigma hl (by omega)
+  rw [h] at h4
+  obtain ⟨j, hj⟩ := odd_value hl
+  rw [hj] at h4
+  omega
 
 /-- `mod_four` passes for the signed value: `value ≡ 1 (mod 4)`. -/
 theorem value_voight_mod_four : value voight % 4 = 1 := by decide
@@ -344,13 +419,15 @@ theorem isSpoofPerfect_append_iff (l : List (ℤ × ℕ)) (c : ℤ) :
   rw [IsSpoofPerfect, formalSigma_append, value_append, geom_one, pow_one]
   constructor <;> intro h <;> linarith
 
-/-- The near perfect link. For a factorization `l` with distinct prime bases and value `m`,
-and `k > 0`: `k ∣ m` and `σ(m) = 2m + m/k` iff `m * (-(2k+1))^1` is a spoof. Neither
-coprimality of `2k+1` with `m` nor oddness of `m` is needed for the equivalence (coprimality
-is only a side condition for the extended spoof); `k ∣ m` is automatic on the spoof side
-since `gcd(k, 2k+1) = 1`. -/
-theorem nearPerfect_iff_isSpoofPerfect {l : List (ℕ × ℕ)} (hp : ∀ x ∈ l, x.1.Prime)
-    (hd : (l.map Prod.fst).Nodup) {k : ℕ} (hk : 0 < k) :
+/-- Arithmetic identity behind the near perfect link. For a factorization `l` with distinct
+prime bases and value `m`, and `k > 0`: `k ∣ m` and `σ(m) = 2m + m/k` iff `m * (-(2k+1))^1`
+is a spoof. This is not a classification of near perfect numbers: at `k = 1` the amount
+`m / k = m` is not a proper divisor (see `isNearPerfectWith_iff_isSpoofPerfect` for `1 < k`).
+Neither coprimality of `2k+1` with `m` nor oddness of `m` is needed (coprimality is only a
+side condition for the extended spoof); `k ∣ m` is automatic on the spoof side since
+`gcd(k, 2k+1) = 1`. -/
+theorem sigma_eq_two_mul_add_div_iff_isSpoofPerfect {l : List (ℕ × ℕ)}
+    (hp : ∀ x ∈ l, x.1.Prime) (hd : (l.map Prod.fst).Nodup) {k : ℕ} (hk : 0 < k) :
     (k ∣ Spoof.value l ∧ σ 1 (Spoof.value l) = 2 * Spoof.value l + Spoof.value l / k) ↔
       IsSpoofPerfect (ofNat l ++ [(-(2 * (k : ℤ) + 1), 1)]) := by
   rw [isSpoofPerfect_append_iff, formalSigma_ofNat, value_ofNat,
@@ -373,6 +450,37 @@ theorem nearPerfect_iff_isSpoofPerfect {l : List (ℕ × ℕ)} (hp : ∀ x ∈ l
     have : k * s = k * ((2 * k + 1) * j) := by rw [h]; ring
     rw [Nat.eq_of_mul_eq_mul_left hk this]; ring
 
+/-- Near perfect with omitted divisor `d` (Pollack and Shevelev): `d` is a proper divisor of
+`m` (`d ∣ m`, `d < m`) and `σ(m) = 2m + d`, that is, `m` is the sum of its proper divisors
+other than `d`. -/
+def IsNearPerfectWith (m d : ℕ) : Prop := d ∣ m ∧ d < m ∧ σ 1 m = 2 * m + d
+
+/-- `m` is near perfect: `IsNearPerfectWith m d` for some `d`. -/
+def IsNearPerfect (m : ℕ) : Prop := ∃ d, IsNearPerfectWith m d
+
+/-- For `0 < m` and `0 < k`, the amount `m / k` is less than `m` exactly when `1 < k`. -/
+theorem div_lt_self_iff_one_lt {m k : ℕ} (hm : 0 < m) (hk : 0 < k) : m / k < m ↔ 1 < k := by
+  refine ⟨fun h => ?_, Nat.div_lt_self hm⟩
+  by_contra hk1
+  rw [show k = 1 by omega, Nat.div_one] at h
+  exact lt_irrefl _ h
+
+/-- The near perfect link. For a factorization `l` with distinct prime bases and value `m`,
+and `1 < k`: `k ∣ m` and `m` is near perfect with omitted proper divisor `m / k` iff
+`m * (-(2k+1))^1` is a spoof. -/
+theorem isNearPerfectWith_iff_isSpoofPerfect {l : List (ℕ × ℕ)} (hp : ∀ x ∈ l, x.1.Prime)
+    (hd : (l.map Prod.fst).Nodup) {k : ℕ} (hk : 1 < k) :
+    (k ∣ Spoof.value l ∧ IsNearPerfectWith (Spoof.value l) (Spoof.value l / k)) ↔
+      IsSpoofPerfect (ofNat l ++ [(-(2 * (k : ℤ) + 1), 1)]) := by
+  rw [← sigma_eq_two_mul_add_div_iff_isSpoofPerfect hp hd (by omega)]
+  have hm : 0 < Spoof.value l := List.prod_pos fun a ha => by
+    obtain ⟨x, hx, rfl⟩ := List.mem_map.mp ha
+    exact pow_pos (hp x hx).pos _
+  constructor
+  · rintro ⟨h1, -, -, h2⟩; exact ⟨h1, h2⟩
+  · rintro ⟨h1, h2⟩
+    exact ⟨h1, Nat.div_dvd_of_dvd h1, (div_lt_self_iff_one_lt hm (by omega)).mpr hk, h2⟩
+
 /-- The natural factorization `3^4 7^2 11^2 19^2` of Johnson's near perfect number. -/
 def johnson : List (ℕ × ℕ) := [(3, 4), (7, 2), (11, 2), (19, 2)]
 
@@ -381,13 +489,22 @@ theorem prime_johnson : ∀ x ∈ johnson, x.1.Prime := by
   simp only [johnson, List.mem_cons, List.not_mem_nil, or_false]
   rintro x (rfl | rfl | rfl | rfl) <;> norm_num
 
-/-- Johnson's odd near perfect number: `σ(173369889) = 2 * 173369889 + 173369889 / 63`, with
+/-- Johnson's identity: `σ(173369889) = 2 * 173369889 + 173369889 / 63`, with
 `63 ∣ 173369889`. -/
 theorem nearPerfect_johnson :
     Spoof.value johnson = 173369889 ∧ 63 ∣ Spoof.value johnson ∧
       σ 1 (Spoof.value johnson) = 2 * Spoof.value johnson + Spoof.value johnson / 63 := by
   rw [← Spoof.formalSigma_eq_sigma johnson prime_johnson (by decide)]
   decide
+
+/-- Johnson's number is near perfect in the strict sense, with `k = 63`: the omitted divisor
+`173369889 / 63 = 2751903` is a proper divisor. -/
+theorem isNearPerfectWith_johnson :
+    63 ∣ Spoof.value johnson ∧ IsNearPerfectWith (Spoof.value johnson) (Spoof.value johnson / 63) ∧
+      Spoof.value johnson / 63 = 2751903 := by
+  obtain ⟨hv, h63, hs⟩ := nearPerfect_johnson
+  refine ⟨h63, ⟨Nat.div_dvd_of_dvd h63, ?_, hs⟩, by rw [hv]⟩
+  rw [hv]; decide
 
 /-- Voight's spoof is Johnson's near perfect number with the extra base `-(2 * 63 + 1)`. -/
 theorem voight_eq_johnson : voight = ofNat johnson ++ [(-(2 * (63 : ℕ) + 1 : ℤ), 1)] := by
@@ -396,12 +513,13 @@ theorem voight_eq_johnson : voight = ofNat johnson ++ [(-(2 * (63 : ℕ) + 1 : �
 /-- Voight's spoof recovered through the near perfect link. -/
 theorem isSpoofPerfect_voight_of_johnson : IsSpoofPerfect voight := by
   rw [voight_eq_johnson]
-  exact (nearPerfect_iff_isSpoofPerfect prime_johnson (by decide) (by norm_num)).mp
-    nearPerfect_johnson.2
+  exact (sigma_eq_two_mul_add_div_iff_isSpoofPerfect prime_johnson (by decide)
+    (by norm_num)).mp nearPerfect_johnson.2
 
-/-- The near perfect link stated for a natural number `m ≠ 0` through its prime
-factorization list. -/
-theorem nearPerfect_iff_isSpoofPerfect_nat {m k : ℕ} (hm : m ≠ 0) (hk : 0 < k) :
+/-- The arithmetic identity `sigma_eq_two_mul_add_div_iff_isSpoofPerfect` stated for a natural
+number `m ≠ 0` through its prime factorization list, for `0 < k`. At `k = 1` the amount
+`m / k = m` is not a proper divisor. -/
+theorem sigma_eq_two_mul_add_div_iff_isSpoofPerfect_nat {m k : ℕ} (hm : m ≠ 0) (hk : 0 < k) :
     (k ∣ m ∧ σ 1 m = 2 * m + m / k) ↔
       IsSpoofPerfect (ofNat (m.primeFactors.toList.map fun p => (p, m.factorization p)) ++
         [(-(2 * (k : ℤ) + 1), 1)]) := by
@@ -417,7 +535,62 @@ theorem nearPerfect_iff_isSpoofPerfect_nat {m k : ℕ} (hm : m ≠ 0) (hk : 0 < 
     rw [Spoof.value, hl, List.map_map, Finset.prod_map_toList]
     conv_rhs => rw [← Nat.prod_factorization_pow_eq_self hm]
     rfl
-  rw [← nearPerfect_iff_isSpoofPerfect hp hd hk, hv]
+  rw [← sigma_eq_two_mul_add_div_iff_isSpoofPerfect hp hd hk, hv]
+
+/-- The near perfect link for a natural number `m ≠ 0` and `1 < k`: `k ∣ m` and `m` is near
+perfect with omitted proper divisor `m / k` iff `m * (-(2k+1))^1` is a spoof, with `m`
+written through its prime factorization list. -/
+theorem isNearPerfectWith_iff_isSpoofPerfect_nat {m k : ℕ} (hm : m ≠ 0) (hk : 1 < k) :
+    (k ∣ m ∧ IsNearPerfectWith m (m / k)) ↔
+      IsSpoofPerfect (ofNat (m.primeFactors.toList.map fun p => (p, m.factorization p)) ++
+        [(-(2 * (k : ℤ) + 1), 1)]) := by
+  rw [← sigma_eq_two_mul_add_div_iff_isSpoofPerfect_nat hm (by omega)]
+  constructor
+  · rintro ⟨h1, -, -, h2⟩; exact ⟨h1, h2⟩
+  · rintro ⟨h1, h2⟩
+    exact ⟨h1, Nat.div_dvd_of_dvd h1,
+      (div_lt_self_iff_one_lt (Nat.pos_of_ne_zero hm) (by omega)).mpr hk, h2⟩
+
+/-- Every near perfect number `m ≠ 0` arises from the link: with omitted divisor `d`, the
+cofactor `k = m / d` satisfies `1 < k`, and the extension by `-(2k+1)` is a spoof. -/
+theorem isNearPerfect_iff_exists_isSpoofPerfect {m : ℕ} (hm : m ≠ 0) :
+    IsNearPerfect m ↔ ∃ k : ℕ, 1 < k ∧
+      IsSpoofPerfect (ofNat (m.primeFactors.toList.map fun p => (p, m.factorization p)) ++
+        [(-(2 * (k : ℤ) + 1), 1)]) := by
+  constructor
+  · rintro ⟨d, hdm, hlt, hs⟩
+    obtain ⟨k, rfl⟩ := hdm
+    have hd0 : 0 < d := Nat.pos_of_ne_zero fun h => by simp [h] at hm
+    have hk : 1 < k := by
+      by_contra h
+      interval_cases k <;> simp_all
+    refine ⟨k, hk, (isNearPerfectWith_iff_isSpoofPerfect_nat hm hk).mp ⟨dvd_mul_left _ _, ?_⟩⟩
+    rw [Nat.mul_div_cancel _ (by omega)]
+    exact ⟨dvd_mul_right _ _, hlt, hs⟩
+  · rintro ⟨k, hk, h⟩
+    exact ⟨_, ((isNearPerfectWith_iff_isSpoofPerfect_nat hm hk).mpr h).2⟩
+
+/-- `σ(120) = 360`. -/
+theorem sigma_120 : σ 1 120 = 360 := by
+  have h := Spoof.formalSigma_eq_sigma [(2, 3), (3, 1), (5, 1)] (by
+    simp only [List.mem_cons, List.not_mem_nil, or_false]
+    rintro x (rfl | rfl | rfl) <;> norm_num) (by decide)
+  rw [show Spoof.value [(2, 3), (3, 1), (5, 1)] = 120 by decide] at h
+  rw [← h]; decide
+
+/-- The arithmetic identity holds at `m = 120`, `k = 1`: `σ(120) = 2 * 120 + 120 / 1`. -/
+theorem sigma_eq_two_mul_add_div_120 : 1 ∣ 120 ∧ σ 1 120 = 2 * 120 + 120 / 1 := by
+  rw [sigma_120]; decide
+
+/-- The omitted amount `120` at `k = 1` is not a proper divisor of `120`. -/
+theorem not_isNearPerfectWith_120_120 : ¬ IsNearPerfectWith 120 120 := fun h =>
+  lt_irrefl _ h.2.1
+
+/-- `120` is not near perfect: `σ(120) = 2 * 120 + d` forces `d = 120`, which is not proper. -/
+theorem not_isNearPerfect_120 : ¬ IsNearPerfect 120 := by
+  rintro ⟨d, -, hlt, hs⟩
+  rw [sigma_120] at hs
+  omega
 
 /-! ## Positivity -/
 
@@ -534,6 +707,11 @@ end OddPerfect.SpoofInt
 #print axioms OddPerfect.SpoofInt.not_basesPos_voight
 #print axioms OddPerfect.SpoofInt.eulerPattern_voight
 #print axioms OddPerfect.SpoofInt.not_eulerPatternAbs_voight
+#print axioms OddPerfect.SpoofInt.even_geom_iff
+#print axioms OddPerfect.SpoofInt.two_pow_countP_dvd_formalSigma
+#print axioms OddPerfect.SpoofInt.odd_value
+#print axioms OddPerfect.SpoofInt.four_dvd_formalSigma
+#print axioms OddPerfect.SpoofInt.countP_odd_exponent_le_one
 #print axioms OddPerfect.SpoofInt.value_voight_mod_four
 #print axioms OddPerfect.SpoofInt.natAbs_value_voight_mod_four
 #print axioms OddPerfect.SpoofInt.touchard_voight
@@ -557,12 +735,21 @@ end OddPerfect.SpoofInt
 #print axioms OddPerfect.SpoofInt.valuation_balance
 #print axioms OddPerfect.SpoofInt.valuation_balance_voight
 #print axioms OddPerfect.SpoofInt.isSpoofPerfect_append_iff
-#print axioms OddPerfect.SpoofInt.nearPerfect_iff_isSpoofPerfect
+#print axioms OddPerfect.SpoofInt.sigma_eq_two_mul_add_div_iff_isSpoofPerfect
+#print axioms OddPerfect.SpoofInt.div_lt_self_iff_one_lt
+#print axioms OddPerfect.SpoofInt.isNearPerfectWith_iff_isSpoofPerfect
 #print axioms OddPerfect.SpoofInt.prime_johnson
 #print axioms OddPerfect.SpoofInt.nearPerfect_johnson
+#print axioms OddPerfect.SpoofInt.isNearPerfectWith_johnson
 #print axioms OddPerfect.SpoofInt.voight_eq_johnson
 #print axioms OddPerfect.SpoofInt.isSpoofPerfect_voight_of_johnson
-#print axioms OddPerfect.SpoofInt.nearPerfect_iff_isSpoofPerfect_nat
+#print axioms OddPerfect.SpoofInt.sigma_eq_two_mul_add_div_iff_isSpoofPerfect_nat
+#print axioms OddPerfect.SpoofInt.isNearPerfectWith_iff_isSpoofPerfect_nat
+#print axioms OddPerfect.SpoofInt.isNearPerfect_iff_exists_isSpoofPerfect
+#print axioms OddPerfect.SpoofInt.sigma_120
+#print axioms OddPerfect.SpoofInt.sigma_eq_two_mul_add_div_120
+#print axioms OddPerfect.SpoofInt.not_isNearPerfectWith_120_120
+#print axioms OddPerfect.SpoofInt.not_isNearPerfect_120
 #print axioms OddPerfect.SpoofInt.abundancy_prime_pow_bounds
 #print axioms OddPerfect.SpoofInt.formalFactor_neg_lt_one
 #print axioms OddPerfect.SpoofInt.formalFactor_voight_lt_one
