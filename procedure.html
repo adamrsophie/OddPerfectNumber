@@ -52,7 +52,7 @@
 <h2 id="trust">Trust policy</h2>
 <p class="sub">A reader should need to trust only the Lean kernel, mathlib, and the statements themselves.</p>
 <div class="grid">
-<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>d9b08f3</code> is 0.</p></div>
+<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>2f2eb21</code> is 0.</p></div>
 <div class="card"><h3>Three axioms only</h3><p>The modules end with <code>#print axioms</code> lines for their theorems, and every report must list at most <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>. The exceptions are listed under <a href="#axiom-coverage">axiom report coverage</a> below.</p></div>
 <div class="card"><h3>Computation inside the kernel</h3><p>Finite case analyses are run by verified checkers and evaluated with kernel reduction (<code>decide +kernel</code>). Primality of large numbers uses Pratt certificates checked the same way, or primality witnesses checked through mathlib's <code>lucas_primality</code>.</p></div>
 <div class="card"><h3>Pinned environment</h3><p>leanprover/lean4:v4.33.1 with mathlib pinned to a fixed commit. The whole library is rebuilt before every commit.</p></div>
@@ -64,7 +64,7 @@
 <p>The eight modules under <code>OddPerfect/Seed/</code> are the project's own earlier starter code, imported at the start of the repository. Everything else in the library was written on top of them.</p>
 
 <h2 id="axiom-coverage">Axiom report coverage</h2>
-<p>10 public theorems on the main branch have no matching <code>#print axioms</code> line, computed by the site generator:</p><ul><li><code>OddPerfect/Basic.lean</code>: 6 (<code>OddPerfect.odd</code>, <code>OddPerfect.perfect</code>, <code>OddPerfect.pos</code>, <code>OddPerfect.ne_zero</code>, <code>OddPerfect.sigma_eq</code>, <code>OddPerfect.not_two_dvd</code>)</li><li><code>OddPerfect/Seed/Example.lean</code>: 2 (<code>OPNExample.geom_sum_dvd_geom_sum</code>, <code>OPNExample.sigma_prime_pow_dvd</code>)</li><li><code>OddPerfect/Seed/Numeric.lean</code>: 2 (<code>OPNNumeric.linear_times_pow_le_one</code>, <code>OPNNumeric.block_bound</code>)</li></ul><p>They are still checked by the kernel during the build; only their axiom report is not printed.</p>
+<p>Every public theorem on the main branch has a matching <code>#print axioms</code> line.</p>
 <h3 id="ci">Continuous integration</h3>
 <p>The main branch contains no continuous integration workflow; the build and the axiom check run only as part of the <a href="#verification">verification steps</a> below.</p>
 
@@ -119,7 +119,7 @@ lake build</code></pre>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>2f2eb21</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

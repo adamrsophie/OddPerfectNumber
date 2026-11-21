@@ -68,12 +68,12 @@
 
 <h2 id="patterns">Equal exponent patterns</h2>
 <span class="cls known">known result formalized</span>
-<p>The ordinary exponents cannot all be 2, all be 4, all be 6, or all be congruent to 2 modulo 3. The first is Steuerwald's theorem, the last McDaniel's.</p>
+<p>The ordinary exponents cannot all be 2, all be 4, all be 6, all be 10, all be 12, or all be congruent to 2 modulo 3. The first is Steuerwald's theorem, the last McDaniel's. More generally, if t divides e + 1 for every ordinary exponent e, then t⁴ divides N.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">steuerwald</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 2) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.steuerwald">OddPerfect.steuerwald</a> in <a href="reference.html#mod-Steuerwald">OddPerfect.Steuerwald</a></p>
 <p class="idea"><strong>Proof idea.</strong> If 3 does not divide N, every σ(p²) of an ordinary p is a power of the special prime, which the closed loop argument excludes. If 3 divides N, the 3-adic budget is exactly 2, and a forcing chain from σ(3²) = 13 produces three ordinary primes ≡ 1 (mod 3), each adding a factor 3.</p>
-<p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a> and <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
+<p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_ten"><code>not_all_exponents_ten</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_twelve"><code>not_all_exponents_twelve</code></a> and <a href="reference.html#OddPerfect.pow_four_dvd_of_dvd_succ"><code>pow_four_dvd_of_dvd_succ</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
 
 <h2 id="small-primes">Small primes cannot all be present</h2>
 <span class="cls known">known result formalized</span>
@@ -91,6 +91,10 @@
   8 * ω N ≤ 3 * Ω N + 7</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.eight_mul_omega_le_of_not_three_dvd">OddPerfect.eight_mul_omega_le_of_not_three_dvd</a> in <a href="reference.html#mod-CountingZelinsky">OddPerfect.CountingZelinsky</a></p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">twentyone_mul_omega_le</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 21 * ω N ≤ 8 * Ω N + 39</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.twentyone_mul_omega_le">OddPerfect.twentyone_mul_omega_le</a> in <a href="reference.html#mod-CountingZelinsky">OddPerfect.CountingZelinsky</a></p>
 <p class="idea"><strong>Proof idea.</strong> A ledger of the exponent 2 primes and their divisor sums σ(p²), with conservation at the receiving primes, plus two injections: the largest prime factor of σ(p²), and the 3-free part of σ(p²) when it is prime, each determine p.</p>
+<p>The sharper inequalities of Clayton and Hansen (arXiv 2303.11974) are also proved: 99ω ≤ 37Ω + 187 in general, and 51ω ≤ 19Ω + 46 when 3 does not divide N. The proof is outlined in the module <a href="reference.html#mod-CountingClaytonHansen"><code>CountingClaytonHansen</code></a>.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">ninetynine_mul_omega_le</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 99 * ω N ≤ 37 * Ω N + 187</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.ninetynine_mul_omega_le">OddPerfect.ninetynine_mul_omega_le</a> in <a href="reference.html#mod-CountingClaytonHansen">OddPerfect.CountingClaytonHansen</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">fiftyone_mul_omega_le_of_not_three_dvd</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (h3 : ¬ 3 ∣ N) :
+  51 * ω N ≤ 19 * Ω N + 46</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.fiftyone_mul_omega_le_of_not_three_dvd">OddPerfect.fiftyone_mul_omega_le_of_not_three_dvd</a> in <a href="reference.html#mod-CountingClaytonHansen">OddPerfect.CountingClaytonHansen</a></p>
 
 <h2 id="special-small">The special prime power is small</h2>
 <span class="cls known">known result formalized</span>
@@ -101,7 +105,7 @@
 
 <h2 id="one-exception">One exception forces 3</h2>
 <span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
-<p>If every prime other than q and one further prime r has exponent exactly 2, then 3 divides N. The proof uses only abundancy bounds. The setting is that of Ochem and Zelinsky (arXiv 2607.19746). Whether this route is new has not been checked.</p>
+<p>If every prime other than q and one further prime r has exponent exactly 2, then 3 divides N. The proof uses elementary arithmetic and abundancy bounds, without a Diophantine classification or an external search. The setting is that of Ochem and Zelinsky (arXiv 2607.19746). Whether this route is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_one_exception</span> {N q r : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) : 3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_one_exception">OddPerfect.three_dvd_of_one_exception</a> in <a href="reference.html#mod-ThreeFreeException">OddPerfect.ThreeFreeException</a></p>
@@ -134,7 +138,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>2f2eb21</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

@@ -39,7 +39,7 @@
 <h1 id="hero-title">Does an odd perfect number exist?</h1>
 <p class="lead">A Lean 4 project that formalizes what is known about odd perfect numbers, with every theorem checked by the Lean kernel, and that searches for a way to settle the question.</p>
 <div class="banner" role="note"><strong>The conjecture is open. This project does not claim a proof.</strong>
-Everything listed here is a necessary condition that any odd perfect number would have to satisfy. Almost all of it is known mathematics, now machine checked. A small number of statements are marked as novelty unverified.</div>
+The listed theorems are necessary conditions that any odd perfect number would have to satisfy, or verified supporting tools. Almost all of it is known mathematics, now machine checked. A small number of statements are marked as novelty unverified.</div>
 <p class="formula">σ(N) = 2N, with N odd</p>
 <p class="sub">A number is <a href="background.html#perfect">perfect</a> when the sum of its divisors equals twice the number. The even perfect numbers were described by Euclid and Euler. Whether an odd one exists has been open for centuries.</p>
 </section>
@@ -51,14 +51,14 @@ Everything listed here is a necessary condition that any odd perfect number woul
 <span class="k">def</span> <span class="n">OddPerfectConjecture</span> : <span class="k">Prop</span> := <span class="k">∀</span> N : <span class="t">ℕ</span>, ¬ OddPerfect N</code></pre>
 
 <div class="stats" aria-label="Library statistics">
-<div class="stat"><b>49</b><small>Lean files on the main branch (48 modules and the root import file)</small></div>
-<div class="stat"><b>15,639</b><small>lines of Lean</small></div>
-<div class="stat"><b>535</b><small>public theorems</small></div>
+<div class="stat"><b>54</b><small>Lean files on the main branch (53 modules and the root import file)</small></div>
+<div class="stat"><b>19,900</b><small>lines of Lean</small></div>
+<div class="stat"><b>659</b><small>public theorems</small></div>
 <div class="stat"><b>0</b><small>uses of sorry, admit, native_decide or added axioms</small></div>
 <div class="stat"><b>287</b><small>papers screened</small></div>
 <div class="stat"><b>101</b><small>repositories reviewed</small></div>
 </div>
-<p class="note">These numbers measure the size of the library and say little about the distance to a proof. Library counts are computed from commit <code>d9b08f3</code> on the main branch (20 November 2026) by the site generator. The survey counts are fixed numbers from the survey.</p>
+<p class="note">These numbers measure the size of the library and say little about the distance to a proof. Library counts are computed from commit <code>2f2eb21</code> on the main branch (21 November 2026) by the site generator. The survey counts are fixed numbers from the survey. The library is free software under the GNU General Public License, version 3.</p>
 
 <h2 id="status">What is and is not proved</h2>
 <div class="grid">
@@ -78,19 +78,19 @@ Everything listed here is a necessary condition that any odd perfect number woul
 </div>
 
 <h2 id="latest">Latest milestones</h2>
-<p class="sub">Each entry is a verified commit on the main branch. Times are local (UTC−5). The <a href="milestones.html">full timeline</a> has 21 entries.</p>
+<p class="sub">Each entry is a verified commit on the main branch. Times are local (UTC−5). The <a href="milestones.html">full timeline</a> has 29 entries.</p>
 <ol class="timeline" reversed>
-<li class="event"><time datetime="2026-11-20T22:57">20 November 2026, 22:57</time><p class="ev-title"><b>Mutually dividing pairs for x² + x + 1.</b> <span class="cls known">known result formalized</span> Pairs with p | q² + q + 1 and q | p² + p + 1 are consecutive terms of one sequence.</p></li>
-<li class="event"><time datetime="2026-11-20T22:45">22:45</time><p class="ev-title"><b>Upper bounds for prime factors.</b> <span class="cls restricted">restricted exclusion or bound checked</span> Every prime factor p satisfies p³ &lt; 3N; two prime factors satisfy (pq)⁴ &lt; 6N².</p></li>
-<li class="event"><time datetime="2026-11-20T22:35">22:35</time><p class="ev-title"><b>Size bounds and restricted exceptions.</b> <span class="cls restricted">restricted exclusion or bound checked</span> Large prime factors bound N from below; exceptions ≡ 2 (mod 3) force 3.</p></li>
-<li class="event"><time datetime="2026-11-20T22:24">22:24</time><p class="ev-title"><b>Algebra of x² + x + 1.</b> <span class="cls known">known result formalized</span> Factorization identities and root counting for x² + x + 1.</p></li>
+<li class="event minor"><time datetime="2026-11-21T00:49">21 November 2026, 00:49</time><p class="ev-title"><b>Docstring corrections and axiom reports.</b>  Docstrings now state exact hypotheses; the candidate filter is linked to the definition.</p></li>
+<li class="event"><time datetime="2026-11-21T00:47">00:47</time><p class="ev-title"><b>99ω ≤ 37Ω + 187.</b> <span class="cls known">known result formalized</span> The counting inequality of Clayton and Hansen, with 51ω ≤ 19Ω + 46 when 3 does not divide N.</p></li>
+<li class="event minor"><time datetime="2026-11-21T00:39">00:39</time><p class="ev-title"><b>Corrections to the signed spoof module.</b>  Euler's pattern for signed lists now counts entries; near perfect numbers have their own predicate.</p></li>
+<li class="event"><time datetime="2026-11-21T00:39">00:39</time><p class="ev-title"><b>Common divisors of the exponents plus one.</b> <span class="cls known">known result formalized</span> If t divides every ordinary e + 1, then t⁴ divides N.</p></li>
 </ol>
 
 </main>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>2f2eb21</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

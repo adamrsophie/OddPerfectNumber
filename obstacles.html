@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Why it is hard: Odd Perfect Numbers in Lean</title>
-<meta name="description" content="Countermodels that satisfy almost every known constraint without being odd perfect numbers, what kinds of argument they rule out, and the working conclusion of the project.">
+<meta name="description" content="Countermodels that satisfy stated relaxations of the problem without being odd perfect numbers, which implications they refute, and the working direction of the project.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/style.css">
@@ -35,21 +35,21 @@
 
 <main id="content" tabindex="-1">
 <h1>Why the problem resists</h1>
-<p class="lead">Some objects satisfy almost every known constraint without being odd perfect numbers. They show which kinds of argument cannot succeed.</p>
+<p class="lead">Some objects satisfy a precisely stated relaxation of the problem without being odd perfect numbers. Each one refutes a specific implication: the relaxed assumptions alone do not give a contradiction. None of them is a statement about every possible proof.</p>
 <p class="sub">The Descartes spoof is in the library as a formal test (<a href="reference.html#mod-Spoof"><code>Spoof</code></a>), and the signed spoof is in <a href="reference.html#mod-SpoofInt"><code>SpoofInt</code></a>. Both are tagged as tools: they are test cases, not results about odd perfect numbers.</p>
 <div class="tablewrap"><table>
-<caption class="note" style="text-align:left;padding:10px 14px">Countermodels and the arguments they defeat</caption>
-<thead><tr><th scope="col">Countermodel</th><th scope="col">What it satisfies</th><th scope="col">What it rules out</th></tr></thead>
+<caption class="note" style="text-align:left;padding:10px 14px">Countermodels and the implications they refute</caption>
+<thead><tr><th scope="col">Countermodel</th><th scope="col">What it satisfies</th><th scope="col">What it shows</th></tr></thead>
 <tbody>
-<tr><td>Descartes spoof<br>3²·7²·11²·13²·22021</td><td>The formal equation holds if 22021 is treated as a prime, together with the predicates listed for <code>IsSpoofOddPerfect</code> in <a href="reference.html#mod-Spoof"><code>Spoof</code></a>. In fact 22021 = 19²·61, so the integer 198585576189 has six distinct prime factors and is not perfect: σ(N) = 426027470778 while 2N = 397171152378. Its network is drawn on the <a href="network.html#spoof-network">Network</a> page.</td><td>Any argument that works for pairwise coprime odd bases without using that each base is prime.</td></tr>
-<tr><td>Signed spoof<br>3⁴·7²·11²·19²·(−127)</td><td>All bases are prime in absolute value and the formal equation holds with a negative base. Residues depend on the reading: Euler's pattern holds for the signed base −127 ≡ 1 (mod 4) and fails for its absolute value 127 ≡ 3 (mod 4); Touchard's congruence holds for the signed value and fails for its absolute value.</td><td>Any purely algebraic argument on valuations, orders, and congruences that does not use positivity.</td></tr>
-<tr><td>Even perfect numbers</td><td>Every lemma that uses perfection alone.</td><td>Any argument that never uses oddness, that is, the exact 2-adic budget.</td></tr>
-<tr><td>Near misses in abundancy</td><td>σ(n)/n arbitrarily close to 2.</td><td>Density and approximation arguments. A proof must use exact equality.</td></tr>
+<tr><td>Descartes spoof<br>3²·7²·11²·13²·22021</td><td>The formal equation holds if 22021 is treated as a prime, together with the predicates listed for <code>IsSpoofOddPerfect</code> in <a href="reference.html#mod-Spoof"><code>Spoof</code></a>. In fact 22021 = 19²·61, so the integer 198585576189 has six distinct prime factors and is not perfect: σ(N) = 426027470778 while 2N = 397171152378. Its network is drawn on the <a href="network.html#spoof-network">Network</a> page.</td><td>The predicates of <code>IsSpoofOddPerfect</code> alone do not imply a contradiction. The spoof does not meet every known restriction: all its ordinary exponents are 2, while the library proves that an odd perfect number has an ordinary exponent of at least 4.</td></tr>
+<tr><td>Signed spoof<br>3⁴·7²·11²·19²·(−127)</td><td>All bases are prime in absolute value and the formal equation holds with a negative base. Residues depend on the reading: Euler's pattern holds for the signed base −127 ≡ 1 (mod 4) and fails for its absolute value 127 ≡ 3 (mod 4); Touchard's congruence holds for the signed value and fails for its absolute value.</td><td>The signed relaxation of the formal equation is satisfiable, so positivity or another excluding condition matters for that relaxation. A lemma extended to signed bases has to be rechecked with its actual hypotheses.</td></tr>
+<tr><td>Even perfect numbers</td><td>Every lemma that uses perfection alone.</td><td>A contradiction derived from perfection alone would contradict the known even perfect numbers.</td></tr>
+<tr><td>Near misses in abundancy</td><td>σ(n)/n arbitrarily close to 2.</td><td>Approximate agreement does not certify exact perfectness, and a uniform separation argument needs its own justification. This does not rule out analytic methods on a more constrained class.</td></tr>
 </tbody>
 </table></div>
 <p class="note">Both spoof identities were recomputed with exact integer arithmetic: the formal divisor sums 13·57·133·183·22022 and 121·57·133·381·(−126) are twice the respective values.</p>
 
-<h2 id="tests">Tests every proposed argument must survive</h2>
+<h2 id="tests">Controls for a proposed argument</h2>
 <p>A proposed proof of nonexistence is checked against each of these controls. An argument that also applies to one of them proves too much.</p>
 <ol>
 <li><b>Descartes' spoof</b> 3²·7²·11²·13²·22021. Exposes a hidden assumption that every base is prime.</li>
@@ -57,18 +57,18 @@
 <li><b>The genuine prime two cycle 13 ↔ 61 for x² + x + 1.</b> 61 divides 13² + 13 + 1 = 183 = 3·61 and 13 divides 61² + 61 + 1 = 3783 = 3·13·97. So no potential can strictly increase along every edge of the network.</li>
 <li><b>σ(3⁴) = 121 = 11².</b> One edge can carry weight two.</li>
 <li><b>P = 19 receives from both 7 and 11 with order three.</b> σ(7²) = 57 = 3·19 and σ(11²) = 133 = 7·19, and both 7 and 11 have order 3 modulo 19. Primitive prime witnesses are therefore not injective across rows.</li>
-<li><b>A feasible integer assignment to the exported counting constraints</b> with ω = 119 and Ω = 315 in the case 3 ∤ N. It shows that the exported linear constraints alone cannot give the sharper counting inequality of Clayton and Hansen. It is an assignment to the constraints, not a number N.</li>
+<li><b>A feasible integer assignment to the exported counting constraints</b> with ω = 119 and Ω = 315 in the case 3 ∤ N. It shows that the exported linear constraints alone cannot give the sharper counting inequality of Clayton and Hansen. It is an assignment to the constraints, not a number N. The inequality itself is now proved in <code>CountingClaytonHansen</code>, with further relations.</li>
 </ol>
-<p><b>The global quantifier.</b> A proof must cover arbitrary finite supports and unbounded exponents jointly. Results at fixed ω, at a fixed largest prime, or up to a finite cutoff do not settle the conjecture, however many cases they close.</p>
+<p><b>The global quantifier.</b> The conjecture quantifies over arbitrary finite supports and unbounded exponents jointly. Results at fixed ω, at a fixed largest prime, or up to a finite cutoff do not settle the conjecture, however many cases they close.</p>
 
-<h2 id="conclusion">The working conclusion</h2>
-<p>A proof of nonexistence must combine primality of every node of the <a href="network.html">network</a>, positivity and size, the 2-adic budget, finiteness of the support, and exact equality in one global step. No known result does this. The theorems that combine exact structure with inequalities, such as the <a href="theorems.html#one-exception">one exception theorem</a>, are small instances of that shape.</p>
+<h2 id="conclusion">The working direction</h2>
+<p>This project investigates arguments that combine primality of every node of the <a href="network.html">network</a>, positivity and size, the 2-adic budget, finiteness of the support, and exact equality. The examples above show why certain simpler relaxations are insufficient. This is a research preference, not a theorem about the shape of every proof: a proof could proceed through several intermediate contradictions or through a different invariant. The theorems that combine exact structure with inequalities, such as the <a href="theorems.html#one-exception">one exception theorem</a>, are small instances of that shape.</p>
 
 </main>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 20 November 2026, from commit <code>d9b08f3</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>2f2eb21</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
