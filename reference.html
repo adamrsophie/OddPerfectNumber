@@ -2673,7 +2673,7 @@
 <div class="decl" id="OddPerfect.ForcingClosedBoundTwo.exists_gt_of_iterate" data-decl><h4><a class="anchor" href="#OddPerfect.ForcingClosedBoundTwo.exists_gt_of_iterate"><code>OddPerfect.ForcingClosedBoundTwo.exists_gt_of_iterate</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">exists_gt_of_iterate</span> {P0 k : <span class="t">ℕ</span>} (hk : (step P0)^[k] (initial P0) = [])
   (hF : ForcingClosed S e) : <span class="k">∃</span> s ∈ S, P0 &lt; s</code></pre><p class="doc"><strong>The criterion.</strong> If the iteration from <code>initial P0</code> reaches <code>[]</code>, then every forcing closed configuration has a node above <code>P0</code>.</p></div>
 <div class="decl" id="OddPerfect.ForcingClosed.exists_gt_two_thousand" data-decl><h4><a class="anchor" href="#OddPerfect.ForcingClosed.exists_gt_two_thousand"><code>OddPerfect.ForcingClosed.exists_gt_two_thousand</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">ForcingClosed.exists_gt_two_thousand</span> {S : Finset <span class="t">ℕ</span>} {e : <span class="t">ℕ</span> → <span class="t">ℕ</span>}
-  (hF : ForcingClosed S e) : <span class="k">∃</span> s ∈ S, 2000 &lt; s</code></pre></div>
+  (hF : ForcingClosed S e) : <span class="k">∃</span> s ∈ S, 2000 &lt; s</code></pre><p class="doc">Every forcing closed configuration has a node above 2000. The proof reruns a greatest fixed point iteration in the kernel; the iteration empties in ten rounds.</p></div>
 </div></details>
 </section>
 </section>
