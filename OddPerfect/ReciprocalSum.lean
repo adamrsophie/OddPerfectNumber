@@ -15,7 +15,13 @@ For an odd perfect number `N` we bound `∑_{p ∣ N} 1/p` over the reals.
   `∑ 1/p ≤ log 2 + 1/q - log(1 + 1/q)`, and in general
   `∑ 1/p < log 2 + 1/29 - log(30/29) < 347/500`.
 
-Bounds of this kind are classical; the constants here are the ones proved in this file.
+Bounds of this kind are classical. The inequality `∑ 1/p < log 2` is due to D. Suryanarayana
+(On odd perfect numbers II, Proc. Amer. Math. Soc. 14 (1963), 896 to 904), who also gave lower
+and upper bounds by cases on whether 3 and 5 divide `N`; sharper constants are in
+D. Suryanarayana and P. Hagis (Fibonacci Quart. 8 (1970), 337 to 346), and a short proof with a
+further improvement is in G. L. Cohen (On odd perfect numbers, Fibonacci Quart. 16 (1978)). The
+constants here are the ones proved in this file; they are weaker than the published case by
+case constants.
 -/
 
 open ArithmeticFunction Finset
