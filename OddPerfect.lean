@@ -83,3 +83,5 @@ import OddPerfect.CommonFiveSeven
 import OddPerfect.CommonSixtyFive
 import OddPerfect.CommonFiftyFive
 import OddPerfect.CommonEightyFive
+import OddPerfect.OmegaSevenEngine
+import OddPerfect.OmegaSevenPilot
