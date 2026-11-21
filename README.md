@@ -27,6 +27,8 @@ The toolchain is Lean 4.33.1. Mathlib is pinned to commit `0df444a360eaa60ab8c11
 | `OddPerfect/Seed/` | The project's earlier starter modules: exact component forcing, valuation balance, coprime cuts, exponent pattern exclusions, third cyclotomic collisions, numeric checks. |
 | `OddPerfect/*.lean` | The main library, one topic per module. |
 | `OddPerfect.lean` | The root file that imports every module. |
+| `AxiomGate.lean` | A check over every constant of the library: axioms, unsafe or opaque declarations, and the statement of the conjecture. Run with `lake env lean AxiomGate.lean` after the build. |
+| `scripts/` | The search and generator programs that found the certificates, trees and tables checked in the library. Nothing there is trusted; see `scripts/README.md`. |
 
 The module list changes often. The project site lists every module and every public theorem at a stated commit: <https://adamrsophie.github.io/OddPerfectNumber/>.
 
