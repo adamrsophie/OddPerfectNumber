@@ -112,6 +112,11 @@
   (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) : 3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_one_exception">OddPerfect.three_dvd_of_one_exception</a> in <a href="reference.html#mod-ThreeFreeException">OddPerfect.ThreeFreeException</a></p>
 <p class="idea"><strong>Proof idea.</strong> Assume 3 does not divide N. Then q ≡ 1 (mod 12), and for every other ordinary p, σ(p²) = q<sup>a</sup>r<sup>b</sup>. Size comparisons on these values, split by whether r divides some σ(p²), bound the abundancy below 2. No computer search is used.</p>
+<p>The same conclusion holds with two exceptional primes r₁ and r₂, with no condition on them (module <a href="reference.html#mod-ThreeFreeTwo"><code>ThreeFreeTwo</code></a>). Whether this statement is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_two_exceptions</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+  3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_two_exceptions">OddPerfect.three_dvd_of_two_exceptions</a> in <a href="reference.html#mod-ThreeFreeTwo">OddPerfect.ThreeFreeTwo</a></p>
 
 <h2 id="mutual-residues">Mutual quadratic residues</h2>
 <span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
@@ -130,6 +135,8 @@
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">largest_prime_sub_one_ne_two_pow</span> (h : OddPerfect N) {P : <span class="t"><span class="t">ℕ</span></span>}
   (hP : P ∈ N.primeFactors) (hmax : <span class="k"><span class="k">∀</span></span> r ∈ N.primeFactors, r ≤ P) (j : <span class="t"><span class="t">ℕ</span></span>) :
   P - 1 ≠ 2 ^ j</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.largest_prime_sub_one_ne_two_pow">OddPerfect.largest_prime_sub_one_ne_two_pow</a> in <a href="reference.html#mod-LargestPrimeOrder">OddPerfect.LargestPrimeOrder</a></p>
+<p>Every odd perfect number exceeds 10<sup>79</sup> (module <a href="reference.html#mod-LowerBound"><code>LowerBound</code></a>); much larger bounds are known in the literature.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">lower_bound</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 10 ^ 79 &lt; N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.LowerBound.lower_bound">OddPerfect.LowerBound.lower_bound</a> in <a href="reference.html#mod-LowerBound">OddPerfect.LowerBound</a></p>
 <p>Separately, some prime factor exceeds 2000. This is a known type of result, and much larger bounds are in the literature; here a search with a soundness proof is run by the kernel (module <a href="reference.html#mod-LargestPrimeFactor"><code>LargestPrimeFactor</code></a>).</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_primeFactor_gt</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : <span class="k"><span class="k">∃</span></span> p ∈ N.primeFactors, 2000 &lt; p</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_primeFactor_gt">OddPerfect.exists_primeFactor_gt</a> in <a href="reference.html#mod-LargestPrimeFactor">OddPerfect.LargestPrimeFactor</a></p>
 <p>The sum of the reciprocals of the prime factors lies strictly between 23/40 and 347/500 (module <a href="reference.html#mod-ReciprocalSum"><code>ReciprocalSum</code></a>).</p>
@@ -157,7 +164,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>cce2541</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>09c05a9</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

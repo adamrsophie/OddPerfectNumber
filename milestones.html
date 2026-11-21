@@ -81,6 +81,9 @@
 <li class="event minor"><time datetime="2026-11-21T05:52">05:52</time><p class="ev-title"><b>A whole library axiom check.</b> <code class="hash">80c6d53</code> </p><p>The file <code>AxiomGate.lean</code> checks every constant defined in the library, private ones included: it fails if any depends on an axiom outside the three standard ones, or is unsafe, partial or opaque, or states the conjecture under another name. A workflow builds the library from a clean checkout and runs the check.</p></li>
 <li class="event"><time datetime="2026-11-21T06:03">06:03</time><p class="ev-title"><b>A prime factor above 2000.</b> <code class="hash">7dd6ecb</code> <span class="cls known">known result formalized</span></p><p>The new module <code>LargestPrimeFactor</code> proves a lower bound for the largest prime factor by a verified search over forced prime factors, run in the kernel. Much larger bounds are known in the literature; this is the range the kernel checks here.</p></li>
 <li class="event"><time datetime="2026-11-21T06:10">06:10</time><p class="ev-title"><b>Reciprocals of the prime factors.</b> <code class="hash">cce2541</code> <span class="cls known">known result formalized</span></p><p>The new module <code>ReciprocalSum</code> bounds the sum of the reciprocals of the prime factors of an odd perfect number from both sides, over the real numbers, with explicit rational constants. Bounds of this kind are classical.</p></li>
+<li class="event"><time datetime="2026-11-21T07:38">07:38</time><p class="ev-title"><b>Two exceptions force 3.</b> <code class="hash">80e4f82</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The new module <code>ThreeFreeTwo</code> proves that if every prime factor other than the special prime and two further primes has exponent exactly 2, then 3 divides N, with no condition on the two exceptions. The proof is elementary with exact rational arithmetic.</p></li>
+<li class="event"><time datetime="2026-11-21T07:47">07:47</time><p class="ev-title"><b>N exceeds 10⁷⁹.</b> <code class="hash">76cf7e6</code> <span class="cls known">known result formalized</span></p><p>The new module <code>LowerBound</code> proves a lower bound for N by proof trees that the kernel checks (7049 instructions, 2131 table primes). Much larger bounds are known in the literature; this is the range the kernel checks here. Trees for larger bounds were generated and pass an outside checker, but they are not checked in Lean and are not claimed.</p></li>
+<li class="event minor"><time datetime="2026-11-21T07:48">07:48</time><p class="ev-title"><b>Search programs published.</b> <code class="hash">09c05a9</code> </p><p>The folder <code>scripts/</code> holds the search and generator programs for the certificates, trees and tables checked in the library, with a table that says for each program whether its output was rerun and compared with the Lean file. Nothing in the folder is trusted; the kernel checks every certificate again.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -94,7 +97,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>cce2541</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>09c05a9</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
