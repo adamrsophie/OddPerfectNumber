@@ -60,3 +60,4 @@ import OddPerfect.RadicalDefect
 import OddPerfect.Restrained
 import OddPerfect.LargestPrimeOrder
 import OddPerfect.SupportBridges
+import OddPerfect.OmegaSix
