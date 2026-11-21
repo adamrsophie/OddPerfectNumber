@@ -11,7 +11,7 @@ excludes the normal form for `q ≥ 13`, first with Kanold's obstruction `Kanold
 as an explicit hypothesis, and assembles the fifth power theorem `t ^ 5 ∣ N`. The hypothesis is
 then discharged, so the final theorems are unconditional. This is known mathematics: the
 theorem is due to H.-J. Kanold (fourth power) and T. Yamada (fifth power, arXiv 2312.17059),
-whose argument for the last case this file follows with two bounds repaired.
+whose argument for the last case this file follows, with two size bounds derived differently.
 
 Notation: `kC q j s = 1 + Y + ... + Y ^ (q - 1)` with `Y = s ^ q ^ j`. For a member `s` of the
 set `S` of prime factors `≡ 1 (mod q)` with `q ^ (j + 1) ∣ e_s + 1`, the number `kC q j s` is

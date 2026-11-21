@@ -4,7 +4,9 @@ import OddPerfect.SpecialPrime
 /-!
 # Odd perfect numbers with exactly six prime factors
 
-This file works toward Hagis (1980) and Chein (1979): an odd perfect number has at least seven
+This file works toward the theorem of
+C. Pomerance (Odd perfect numbers are divisible by at least seven distinct primes, Acta Arith. 25
+(1973/74), 265 to 300): an odd perfect number has at least seven
 distinct prime factors. It runs the verified branch and bound search `OmegaSixSearch.solve` of
 `OddPerfect/OmegaSix.lean` (Gradshtein and Kühnel), with its soundness theorem `solve_sound`,
 from new root states.

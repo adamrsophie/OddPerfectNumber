@@ -4,7 +4,10 @@ import OddPerfect.OmegaSevenPilot
 /-!
 # Odd perfect numbers have at least seven distinct prime factors
 
-This is the theorem of Hagis (1980) and Chein (1979). With `six_le_card_primeFactors`
+This is the theorem of
+C. Pomerance (Odd perfect numbers are divisible by at least seven distinct primes, Acta Arith. 25
+(1973/74), 265 to 300). (The bound eight is due to Chein 1979 and Hagis 1980 and is not proved
+here.) With `six_le_card_primeFactors`
 (`OddPerfect/OmegaSix.lean`) and `exists_prime_dvd_of_card_eq_six` (`OddPerfect/OmegaSeven.lean`),
 an odd perfect number with exactly six prime factors has `3, 5` as its two smallest prime factors,
 and every other prime factor exceeds `7` (since `105 ∤ N`). The state `[3, 5]` with four further
@@ -101,7 +104,7 @@ private theorem holds_root35 {N : ℕ} (h : OddPerfect N) (h3 : 3 ∈ N.primeFac
       List.not_mem_nil, or_false, not_or] at hn
     exact hm q hq hn.1 hn.2
 
-/-- An odd perfect number has at least seven distinct prime factors (Hagis 1980, Chein 1979). -/
+/-- An odd perfect number has at least seven distinct prime factors (Pomerance 1974). -/
 theorem seven_le_card_primeFactors {N : ℕ} (h : OddPerfect N) : 7 ≤ N.primeFactors.card := by
   by_contra hlt
   have h6 : N.primeFactors.card = 6 := by have := six_le_card_primeFactors h; omega
