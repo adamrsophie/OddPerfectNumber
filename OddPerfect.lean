@@ -57,3 +57,4 @@ import OddPerfect.FixedSupport
 import OddPerfect.ExceptionCount
 import OddPerfect.EqualExponentChain
 import OddPerfect.RadicalDefect
+import OddPerfect.Restrained
