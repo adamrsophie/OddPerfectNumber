@@ -26,3 +26,4 @@ import OddPerfect.SmallestPrime
 import OddPerfect.McDaniel
 import OddPerfect.Steuerwald
 import OddPerfect.CollisionGap
+import OddPerfect.UpperBound
