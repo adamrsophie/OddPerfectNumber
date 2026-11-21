@@ -36,3 +36,7 @@ import OddPerfect.KanoldFour
 import OddPerfect.CountingZelinsky
 import OddPerfect.Reciprocity
 import OddPerfect.ExponentSix
+import OddPerfect.SpoofInt
+import OddPerfect.EqualExponents
+import OddPerfect.EulerPart
+import OddPerfect.RadicalBound
