@@ -58,3 +58,4 @@ import OddPerfect.ExceptionCount
 import OddPerfect.EqualExponentChain
 import OddPerfect.RadicalDefect
 import OddPerfect.Restrained
+import OddPerfect.LargestPrimeOrder
