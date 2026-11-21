@@ -74,3 +74,4 @@ import OddPerfect.LargestPrimeCapacity
 import OddPerfect.KanoldFive
 import OddPerfect.SecondLargestPrime
 import OddPerfect.EulerIndexPrimePower
+import OddPerfect.KanoldSquare
