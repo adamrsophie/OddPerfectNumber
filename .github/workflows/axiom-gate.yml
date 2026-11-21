@@ -28,6 +28,12 @@ jobs:
       - name: Build
         run: |
           start=$(date +%s)
+          # One module at a time, in the order of the root file. A plain lake build
+          # compiles independent modules at once; the runner was shut down during
+          # builds that compiled several of the heaviest proofs together.
+          for m in $(sed -n 's/^import \(OddPerfect\.[A-Za-z0-9_.]*\)$/\1/p' OddPerfect.lean); do
+            lake build "$m"
+          done
           lake build
           echo "lake build took $(( $(date +%s) - start )) s"
 
