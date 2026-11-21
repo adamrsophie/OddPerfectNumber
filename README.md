@@ -23,5 +23,13 @@ The toolchain is Lean 4.33.1. Mathlib is pinned to commit `0df444a360eaa60ab8c11
 
 | Path | Content |
 | --- | --- |
-| `OddPerfect/Seed/` | Starting modules: exact-component forcing, valuation balance, coprime cuts, exponent-pattern exclusions, third cyclotomic collisions, numeric checks. |
-| `OddPerfect/Basic.lean` | The predicate `OddPerfect` and the open conjecture as a definition. |
+| `OddPerfect/Basic.lean` | The predicate `OddPerfect` and the open conjecture, stated as a definition and never assumed. |
+| `OddPerfect/Seed/` | The project's earlier starter modules: exact component forcing, valuation balance, coprime cuts, exponent pattern exclusions, third cyclotomic collisions, numeric checks. |
+| `OddPerfect/*.lean` | The main library, one topic per module. |
+| `OddPerfect.lean` | The root file that imports every module. |
+
+The module list changes often. The project site lists every module and every public theorem at a stated commit: <https://adamrsophie.github.io/OddPerfectNumber/>.
+
+## License
+
+GNU General Public License, version 3. See `LICENSE`.
