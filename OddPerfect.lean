@@ -46,3 +46,4 @@ import OddPerfect.Phi3Algebra
 import OddPerfect.AttackSize
 import OddPerfect.LargePrimes
 import OddPerfect.VietaPairs
+import OddPerfect.ExponentTenTwelve
