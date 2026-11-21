@@ -1,0 +1,35 @@
+name: Axiom gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Installs elan and the toolchain pinned in lean-toolchain and restores the
+      # mathlib cache with lake exe cache get. The build runs in the timed step below.
+      - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee # v1.7.1
+        with:
+          use-mathlib-cache: true
+          build: false
+          test: false
+          lint: false
+
+      - name: Toolchain version
+        run: lean --version && lake --version
+
+      - name: Build
+        run: |
+          start=$(date +%s)
+          lake build
+          echo "lake build took $(( $(date +%s) - start )) s"
+
+      - name: Axiom gate
+        run: lake env lean AxiomGate.lean
