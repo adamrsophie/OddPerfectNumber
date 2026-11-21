@@ -40,3 +40,5 @@ import OddPerfect.SpoofInt
 import OddPerfect.EqualExponents
 import OddPerfect.EulerPart
 import OddPerfect.RadicalBound
+import OddPerfect.ValuationBounds
+import OddPerfect.AttackPrimality
