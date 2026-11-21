@@ -73,3 +73,4 @@ import OddPerfect.ReciprocalLogTwo
 import OddPerfect.LargestPrimeCapacity
 import OddPerfect.KanoldFive
 import OddPerfect.SecondLargestPrime
+import OddPerfect.EulerIndexPrimePower
