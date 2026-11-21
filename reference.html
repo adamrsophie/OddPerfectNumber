@@ -35,7 +35,7 @@
 <aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#foundations">Foundations</a></li><li class="l2"><a href="#euler">Euler's form and the special prime</a></li><li class="l2"><a href="#counting">Prime factor counts, size and exponents</a></li><li class="l2"><a href="#patterns">Exponent patterns</a></li><li class="l2"><a href="#collisions">Collisions of x² + x + 1</a></li><li class="l2"><a href="#tools">Tools and countermodels</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Reference</h1>
-<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>191fb6d</code>: 76 modules imported by the root file <code>OddPerfect.lean</code>, 912 public theorems. Private and protected theorems are omitted.</p>
+<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>9635a46</code>: 78 modules imported by the root file <code>OddPerfect.lean</code>, 916 public theorems. Private and protected theorems are omitted.</p>
 <p class="sub">Docstrings are shown when present, with attributions and comparative remarks removed; a <b>Proof idea</b> is shown where it was written from the Lean source. <span class="tag unver">novelty unverified</span> and <span class="tag tool">tool</span> are explained on the <a href="theorems.html">Highlights</a> page.</p>
 <div class="filter" hidden><label for="filter">Filter modules and theorems</label>
 <input id="filter" type="search" placeholder="for example steuerwald, abundancy, 105" autocomplete="off" spellcheck="false">
@@ -2482,6 +2482,50 @@
   5 ^ 13 ∣ N</code></pre><p class="doc">The fifth power for the special prime <code>5</code> and <code>a = 2</code>: if <code>5</code> is the special prime of the odd perfect number <code>N</code> and <code>25 ∣ e + 1</code> for every ordinary exponent <code>e</code>, then <code>5 ^ 13 ∣ N</code>, in particular <code>5 ^ (5 * 2) ∣ N</code>.</p></div>
 </div></details>
 </section>
+<section class="module" id="mod-KanoldSquare" data-module>
+<h3><code>OddPerfect.KanoldSquare</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/KanoldSquare.lean">OddPerfect/KanoldSquare.lean</a> · 316 lines · 3 public theorems · imports <a href="#mod-KanoldFive">KanoldFive</a> </p>
+<p class="summary">The one case of the fifth power theorem not proved in the library, reduced to a normal form. Let q be the special prime and let q² divide e + 1 for every ordinary exponent e. Then q¹⁰ divides N, or the exponent of q is 9 and: only primes ≡ 1 (mod q) contribute to the power of q, exactly four prime factors are ≡ 1 (mod q), three of them have e + 1 = q² and one has e + 1 = q³. The known proof excludes this configuration with a further Diophantine argument, which is not formalized here.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The exponent 9 of q is the sum of the powers of q in σ(p<sup>e</sup>) over the other primes. A contributing prime outside the class ≡ 1 (mod q) would bring four primes of the class through the orders q, q², dq, dq², for a total of at least 11. So the class carries all 9, with at least 2 from each member. A member with q<sup>b</sup> dividing e + 1 forces b + 1 members, which leaves only four members with powers 3, 2, 2, 2. A further prime factor of a length e + 1 would bring a fifth member.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.card_le_card_erase_of_dvd_succ" data-decl><h4><a class="anchor" href="#OddPerfect.card_le_card_erase_of_dvd_succ"><code>OddPerfect.card_le_card_erase_of_dvd_succ</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">card_le_card_erase_of_dvd_succ</span> {N q s : <span class="t">ℕ</span>} (h : OddPerfect N) (hq2 : 2 ≤ q)
+  (hs : s ∈ N.primeFactors) (D : Finset <span class="t">ℕ</span>) (hD3 : <span class="k">∀</span> d ∈ D, 3 ≤ d) (hDq : <span class="k">∀</span> d ∈ D, q ∣ d)
+  (hDe : <span class="k">∀</span> d ∈ D, d ∣ N.factorization s + 1) :
+  D.card ≤ ((N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1)).erase s).card</code></pre><p class="doc">Primitive receivers. Let <code>s</code> be a prime factor of the odd perfect number <code>N</code>, <code>2 ≤ q</code>, and <code>D</code> a finite set of numbers <code>d ≥ 3</code>, each divisible by <code>q</code> and dividing <code>v_s(N) + 1</code>. Then the prime factors of <code>N</code> that are <code>≡ 1 (mod q)</code>, other than <code>s</code>, number at least <code>|D|</code>.</p></div>
+<div class="decl" id="OddPerfect.kanold_square_normal_form" data-decl><h4><a class="anchor" href="#OddPerfect.kanold_square_normal_form"><code>OddPerfect.kanold_square_normal_form</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">kanold_square_normal_form</span> {N q : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hexp : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → q ^ 2 ∣ N.factorization p + 1)
+  (h9 : N.factorization q = 9) :
+  (<span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → q ∣ σ 1 (p ^ N.factorization p) →
+      p ∈ N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1)) ∧
+    (N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1)).card = 4 ∧
+    <span class="k">∃</span> r ∈ N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1), N.factorization r + 1 = q ^ 3 ∧
+      <span class="k">∀</span> s ∈ N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1), s ≠ r →
+        N.factorization s + 1 = q ^ 2</code></pre><p class="doc">The normal form of the square case with exponent <code>9</code>. Let <code>N</code> be an odd perfect number with special prime <code>q</code>, suppose <code>q ^ 2 ∣ e_p + 1</code> for every ordinary prime <code>p</code>, and <code>v_q(N) = 9</code>. Let <code>S</code> be the set of prime factors <code>≡ 1 (mod q)</code>. Then (a) every ordinary prime <code>p</code> with <code>q ∣ σ(p ^ e_p)</code> lies in <code>S</code>; (b) <code>|S| = 4</code>; (c) one member <code>r</code> of <code>S</code> has <code>e_r + 1 = q ^ 3</code> and every other member <code>s</code> has <code>e_s + 1 = q ^ 2</code>. This is the normal form preceding the last step of the known proof of the fifth power theorem <code>q ^ 10 ∣ N</code>; that last step is not formalized here.</p></div>
+<div class="decl" id="OddPerfect.pow_ten_dvd_or_normal_form" data-decl><h4><a class="anchor" href="#OddPerfect.pow_ten_dvd_or_normal_form"><code>OddPerfect.pow_ten_dvd_or_normal_form</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">pow_ten_dvd_or_normal_form</span> {N q : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hexp : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → q ^ 2 ∣ N.factorization p + 1) :
+  q ^ 10 ∣ N ∨
+    (N.factorization q = 9 ∧
+      (<span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → q ∣ σ 1 (p ^ N.factorization p) →
+          p ∈ N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1)) ∧
+        (N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1)).card = 4 ∧
+        <span class="k">∃</span> r ∈ N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1), N.factorization r + 1 = q ^ 3 ∧
+          <span class="k">∀</span> s ∈ N.primeFactors.filter (<span class="k">fun</span> p =&gt; p % q = 1), s ≠ r →
+            N.factorization s + 1 = q ^ 2)</code></pre><p class="doc">The remaining gap in the square case of the fifth power theorem. Let <code>N</code> be an odd perfect number with special prime <code>q</code> and <code>q ^ 2 ∣ e_p + 1</code> for every ordinary prime <code>p</code>. Then either <code>q ^ 10 ∣ N</code>, or <code>v_q(N) = 9</code> and the normal form of <code>kanold_square_normal_form</code> holds. The known proof excludes the second alternative by a further Diophantine step that is not formalized here.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-ExponentTwentyFour" data-module>
+<h3><code>OddPerfect.ExponentTwentyFour</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/ExponentTwentyFour.lean">OddPerfect/ExponentTwentyFour.lean</a> · 180 lines · 1 public theorem · imports <a href="#mod-KanoldFive">KanoldFive</a> </p>
+<p class="summary">The ordinary prime factors of an odd perfect number cannot all have exponent 24. This is a known result. The checker of <code>EqualExponentChain</code> needs a prime length and 25 is not prime, so this case has its own short proof.</p>
+<div class="idea"><p><strong>Proof idea.</strong> Since 25 divides every ordinary e + 1, the fourth power theorem gives 5 ∣ N. If 5 is ordinary, σ(5²⁴) has the prime factors 11, 71, 101, 251, 401 and 9384251, and the values 1 + p + p² + p³ + p⁴ at 11, 71, 251, 9384251 and 211 give eight more, fourteen primes ≡ 1 (mod 5) in all. At most one is special, and each ordinary one contributes exactly 2 to the power of 5 in σ(N), so that power is at least 26, above 24. If 5 is special, its exponent is at least 13, 3 divides 5 + 1 and 11 divides σ(3²⁴), and 3⁴·5⁵·11² is an abundant divisor of N.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.not_all_exponents_eq_twenty_four" data-decl><h4><a class="anchor" href="#OddPerfect.not_all_exponents_eq_twenty_four"><code>OddPerfect.not_all_exponents_eq_twenty_four</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">not_all_exponents_eq_twenty_four</span> {N q : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hexp : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 24) : False</code></pre><p class="doc">The ordinary exponents of an odd perfect number cannot all equal <code>24</code>. Let <code>N</code> be an odd perfect number with special prime <code>q</code>. If <code>v_p(N) = 24</code> for every prime factor <code>p ≠ q</code>, then <code>False</code>.</p></div>
+</div></details>
+</section>
 </section>
 <section class="ref-group" data-group><h2 id="collisions">Collisions of x² + x + 1</h2>
 <p class="sub">Partial results on questions from Ochem and Zelinsky (arXiv 2607.19746) about values of x² + x + 1, and numerical checks.</p>
@@ -2957,7 +3001,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>191fb6d</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>9635a46</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
