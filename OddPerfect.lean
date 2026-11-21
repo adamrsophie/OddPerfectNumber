@@ -96,3 +96,4 @@ import OddPerfect.OmegaSevenRootsD
 import OddPerfect.OmegaSevenFinal
 import OddPerfect.KanoldObstruction
 import OddPerfect.ReciprocalSumTwo
+import OddPerfect.KanoldSquareFinal
