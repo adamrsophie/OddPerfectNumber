@@ -32,3 +32,4 @@ import OddPerfect.ThreeFreeCert
 import OddPerfect.Valuation
 import OddPerfect.ThreeFreeException
 import OddPerfect.ExponentCap
+import OddPerfect.KanoldFour
