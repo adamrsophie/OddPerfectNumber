@@ -65,3 +65,4 @@ import OddPerfect.LargestPrimeFactor
 import OddPerfect.ReciprocalSum
 import OddPerfect.ThreeFreeTwo
 import OddPerfect.LowerBound
+import OddPerfect.ForcingClosedBound
