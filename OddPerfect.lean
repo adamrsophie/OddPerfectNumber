@@ -88,3 +88,9 @@ import OddPerfect.OmegaSevenPilot
 import OddPerfect.CommonOneFifteenData
 import OddPerfect.CommonOneFifteenPrime
 import OddPerfect.CommonOneFifteen
+import OddPerfect.OmegaSevenSplit
+import OddPerfect.OmegaSevenRootsA
+import OddPerfect.OmegaSevenRootsB
+import OddPerfect.OmegaSevenRootsC
+import OddPerfect.OmegaSevenRootsD
+import OddPerfect.OmegaSevenFinal
