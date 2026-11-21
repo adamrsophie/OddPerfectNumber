@@ -35,7 +35,7 @@
 <aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#foundations">Foundations</a></li><li class="l2"><a href="#euler">Euler's form and the special prime</a></li><li class="l2"><a href="#counting">Prime factor counts, size and exponents</a></li><li class="l2"><a href="#patterns">Exponent patterns</a></li><li class="l2"><a href="#collisions">Collisions of x² + x + 1</a></li><li class="l2"><a href="#tools">Tools and countermodels</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Reference</h1>
-<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>8cf24b9</code>: 85 modules imported by the root file <code>OddPerfect.lean</code>, 1141 public theorems. Private and protected theorems are omitted.</p>
+<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>b4e119a</code>: 87 modules imported by the root file <code>OddPerfect.lean</code>, 1149 public theorems. Private and protected theorems are omitted.</p>
 <p class="sub">Docstrings are shown when present, with attributions and comparative remarks removed; a <b>Proof idea</b> is shown where it was written from the Lean source. <span class="tag unver">novelty unverified</span> and <span class="tag tool">tool</span> are explained on the <a href="theorems.html">Highlights</a> page.</p>
 <div class="filter" hidden><label for="filter">Filter modules and theorems</label>
 <input id="filter" type="search" placeholder="for example steuerwald, abundancy, 105" autocomplete="off" spellcheck="false">
@@ -1773,6 +1773,36 @@
   <span class="k">∃</span> p ∈ N.primeFactors, <span class="k">∃</span> r ∈ N.primeFactors, p ≠ r ∧ 58 &lt; p ∧ 58 &lt; r</code></pre><p class="doc">An odd perfect number has two distinct prime factors above <code>58</code>.</p></div>
 </div></details>
 </section>
+<section class="module" id="mod-OmegaSevenEngine" data-module>
+<h3><code>OddPerfect.OmegaSevenEngine</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/OmegaSevenEngine.lean">OddPerfect/OmegaSevenEngine.lean</a> · 1296 lines · 7 public theorems · imports <a href="#mod-OmegaSeven">OmegaSeven</a> </p>
+<p class="summary">A second verified search engine for odd perfect numbers with exactly six distinct prime factors, with a soundness theorem against the same states as <code>OmegaSix</code>. It needs far fewer search nodes than the first engine and each node is cheaper for the kernel. It is the tool for the theorem that an odd perfect number has at least seven distinct prime factors, which is not proved in this module.</p>
+<div class="idea"><p><strong>Proof idea.</strong> A state lists some prime factors with exact or minimal exponents and says how many further prime factors there are, all above a bound. New rules: if an exponent is exact, the part of σ(p<sup>k</sup>) not made of listed primes consists of unlisted prime factors of N, so the state dies when that part has a small prime factor or is itself below the bound, and when that part must be prime it is added to the list; the next unlisted prime is bounded from below for any number of missing primes; small exponents are split before the next prime is enumerated; exact exponents that fail a local test are skipped. The definitions use structural recursors and closed forms for the geometric sums, which the kernel evaluates several times faster.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.OmegaSevenEngine.solve_sound'" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.solve_sound'"><code>OddPerfect.OmegaSevenEngine.solve_sound'</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">solve_sound'</span> {lad : List (<span class="t">ℕ</span> × <span class="t">ℕ</span>)} {Y Q : <span class="t">ℕ</span>} (hlad : LadGood lad) (hQ : QGood Y Q)
+  (T : <span class="t">ℕ</span>) : <span class="k">∀</span> (f : <span class="t">ℕ</span>) (l : List Ent) (j m : <span class="t">ℕ</span>), solve lad Y Q T f l j m = true →
+    <span class="k">∀</span> N, ¬ Holds N l j m</code></pre><p class="doc">Soundness of the search: if it returns <code>true</code> on a state, no number satisfies the state.</p></div>
+<div class="decl" id="OddPerfect.OmegaSevenEngine.entGood_one" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.entGood_one"><code>OddPerfect.OmegaSevenEngine.entGood_one</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">entGood_one</span> : EntGood 1 1</code></pre></div>
+<div class="decl" id="OddPerfect.OmegaSevenEngine.entGood_step" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.entGood_step"><code>OddPerfect.OmegaSevenEngine.entGood_step</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">entGood_step</span> {Y Py X P : <span class="t">ℕ</span>} (hY : EntGood Y Py) (hYX : Y ≤ X)
+  (h : Nat.beq (sieveR (X - Y) (Y + 1) Py) P = true) : EntGood X P</code></pre><p class="doc">A sieve step from a certified entry <code>(Y, Py)</code> certifies <code>(X, P)</code>.</p></div>
+<div class="decl" id="OddPerfect.OmegaSevenEngine.ladT_good" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.ladT_good"><code>OddPerfect.OmegaSevenEngine.ladT_good</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">ladT_good</span> : LadGood ladT</code></pre><p class="doc">Every ladder entry is certified.</p></div>
+<div class="decl" id="OddPerfect.OmegaSevenEngine.Q4_good" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.Q4_good"><code>OddPerfect.OmegaSevenEngine.Q4_good</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">Q4_good</span> : QGood 10000 Q4</code></pre><p class="doc">Every prime up to <code>10000</code> divides <code>Q4</code>.</p></div>
+<div class="decl" id="OddPerfect.OmegaSevenEngine.run_sound" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.run_sound"><code>OddPerfect.OmegaSevenEngine.run_sound</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">run_sound</span> (f : <span class="t">ℕ</span>) (l : List Ent) (j m : <span class="t">ℕ</span>) (h : run f l j m = true) {N : <span class="t">ℕ</span>} :
+  ¬ Holds N l j m</code></pre><p class="doc">Soundness of <code>run</code>, in the shape of <code>OmegaSixSearch.solve_sound</code>.</p></div>
+<div class="decl" id="OddPerfect.OmegaSevenEngine.closed_of_run" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.closed_of_run"><code>OddPerfect.OmegaSevenEngine.closed_of_run</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">closed_of_run</span> {f : <span class="t">ℕ</span>} {l : List Ent} {j m : <span class="t">ℕ</span>} (h : run f l j m = true) :
+  OmegaSevenSearch.Closed l j m</code></pre><p class="doc">An accepted state is closed.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-OmegaSevenPilot" data-module>
+<h3><code>OddPerfect.OmegaSevenPilot</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/OmegaSevenPilot.lean">OddPerfect/OmegaSevenPilot.lean</a> · 26 lines · 1 public theorem · imports <a href="#mod-OmegaSevenEngine">OmegaSevenEngine</a> </p>
+<p class="summary">One kernel run of the new engine: an odd perfect number with exactly six distinct prime factors cannot have 3, 5 and 13 as its three smallest prime factors.</p>
+<div class="idea"><p><strong>Proof idea.</strong> A single <code>decide +kernel</code> on the state with 3, 5, 13 listed and three further primes above 13. The search visits about 4400 nodes.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.OmegaSevenEngine.closed_3_5_13" data-decl><h4><a class="anchor" href="#OddPerfect.OmegaSevenEngine.closed_3_5_13"><code>OddPerfect.OmegaSevenEngine.closed_3_5_13</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">closed_3_5_13</span> :
+  OmegaSevenSearch.Closed ([⟨3, 2, false⟩, ⟨5, 1, false⟩] ++ [⟨13, kmin 13, false⟩]) (4 - 1) 13</code></pre><p class="doc">Six prime factors with <code>3, 5, 13</code> the three smallest is impossible.</p></div>
+</div></details>
+</section>
 </section>
 <section class="ref-group" data-group><h2 id="patterns">Exponent patterns</h2>
 <p class="sub">Exclusions of families of exponent patterns for the ordinary primes.</p>
@@ -3470,7 +3500,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>8cf24b9</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>b4e119a</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
