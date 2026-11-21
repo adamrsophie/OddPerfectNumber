@@ -34,3 +34,5 @@ import OddPerfect.ThreeFreeException
 import OddPerfect.ExponentCap
 import OddPerfect.KanoldFour
 import OddPerfect.CountingZelinsky
+import OddPerfect.Reciprocity
+import OddPerfect.ExponentSix
