@@ -30,3 +30,4 @@ import OddPerfect.UpperBound
 import OddPerfect.OmegaFive
 import OddPerfect.ThreeFreeCert
 import OddPerfect.Valuation
+import OddPerfect.ThreeFreeException
