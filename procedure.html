@@ -52,7 +52,7 @@
 <h2 id="trust">Trust policy</h2>
 <p class="sub">A reader should need to trust only the Lean kernel, mathlib, and the statements themselves.</p>
 <div class="grid">
-<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>2f2eb21</code> is 0.</p></div>
+<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>cce2541</code> is 0.</p></div>
 <div class="card"><h3>Three axioms only</h3><p>The modules end with <code>#print axioms</code> lines for their theorems, and every report must list at most <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>. The exceptions are listed under <a href="#axiom-coverage">axiom report coverage</a> below.</p></div>
 <div class="card"><h3>Computation inside the kernel</h3><p>Finite case analyses are run by verified checkers and evaluated with kernel reduction (<code>decide +kernel</code>). Primality of large numbers uses Pratt certificates checked the same way, or primality witnesses checked through mathlib's <code>lucas_primality</code>.</p></div>
 <div class="card"><h3>Pinned environment</h3><p>leanprover/lean4:v4.33.1 with mathlib pinned to a fixed commit. The whole library is rebuilt before every commit.</p></div>
@@ -66,7 +66,7 @@
 <h2 id="axiom-coverage">Axiom report coverage</h2>
 <p>Every public theorem on the main branch has a matching <code>#print axioms</code> line.</p>
 <h3 id="ci">Continuous integration</h3>
-<p>The main branch contains no continuous integration workflow; the build and the axiom check run only as part of the <a href="#verification">verification steps</a> below.</p>
+<p>The main branch contains a continuous integration workflow (<code>.github/workflows/axiom-gate.yml</code>). A whole library axiom check file is present: <code>AxiomGate.lean</code>.</p>
 
 <h2 id="toolchain">Toolchain</h2>
 <p>Read from the files on the main branch by the site generator:</p>
@@ -112,14 +112,15 @@
 <pre><code>git clone https://github.com/adamrsophie/OddPerfectNumber.git
 cd OddPerfectNumber
 lake exe cache get
-lake build</code></pre>
-<p><code>lake exe cache get</code> downloads the prebuilt mathlib files for the pinned commit, so that only this library is compiled. The build prints the axiom report of every theorem listed in a <code>#print axioms</code> line.</p>
+lake build
+lake env lean AxiomGate.lean</code></pre>
+<p><code>lake exe cache get</code> downloads the prebuilt mathlib files for the pinned commit, so that only this library is compiled. The build prints the axiom report of every theorem listed in a <code>#print axioms</code> line. The last command runs the whole library axiom check: it inspects every constant defined in the library, private ones included, and fails if any depends on an axiom outside the three standard ones.</p>
 
 </main>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>2f2eb21</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>cce2541</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

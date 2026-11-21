@@ -32,7 +32,7 @@
 </header>
 <div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
 <div class="page wrap with-toc">
-<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#euler-form">Euler's form</a></li><li class="l2"><a href="#touchard">Touchard's congruence, refined</a></li><li class="l2"><a href="#five-primes">At least five prime factors</a></li><li class="l2"><a href="#upper-bound">Upper bound</a></li><li class="l2"><a href="#patterns">Equal exponent patterns</a></li><li class="l2"><a href="#small-primes">Small primes cannot all be present</a></li><li class="l2"><a href="#counting">Counting inequalities</a></li><li class="l2"><a href="#special-small">The special prime power is small</a></li><li class="l2"><a href="#one-exception">One exception forces 3</a></li><li class="l2"><a href="#mutual-residues">Mutual quadratic residues</a></li><li class="l2"><a href="#exponent-cap">Exponents are capped by the largest prime</a></li><li class="l2"><a href="#checker">Certificate checker</a></li></ul></nav></details></aside>
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#euler-form">Euler's form</a></li><li class="l2"><a href="#touchard">Touchard's congruence, refined</a></li><li class="l2"><a href="#five-primes">At least six prime factors</a></li><li class="l2"><a href="#upper-bound">Upper bound</a></li><li class="l2"><a href="#patterns">Equal exponent patterns</a></li><li class="l2"><a href="#small-primes">Small primes cannot all be present</a></li><li class="l2"><a href="#counting">Counting inequalities</a></li><li class="l2"><a href="#special-small">The special prime power is small</a></li><li class="l2"><a href="#one-exception">One exception forces 3</a></li><li class="l2"><a href="#mutual-residues">Mutual quadratic residues</a></li><li class="l2"><a href="#largest-prime">The largest prime factor</a></li><li class="l2"><a href="#exponent-cap">Exponents are capped by the largest prime</a></li><li class="l2"><a href="#checker">Certificate checker</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Highlighted theorems</h1>
 <p class="lead">A selection from the library. Throughout, N is an odd perfect number, q is its <a href="background.html#euler-form">special prime</a> (the one prime with an odd exponent), and the other primes are called <a href="background.html#ordinary">ordinary</a>. <a href="background.html#omega">ω counts distinct prime factors and Ω counts prime factors with multiplicity</a>. Statements are copied from the source by the site generator; names are the Lean identifiers.</p>
@@ -52,12 +52,14 @@
   N % 12 = 1 ∨ N % 468 = 117 ∨ N % 324 = 81</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.mod_refined">OddPerfect.mod_refined</a> in <a href="reference.html#mod-SpecialPrime">OddPerfect.SpecialPrime</a></p>
 <p class="idea"><strong>Proof idea.</strong> From N ≡ 1 (mod 4) and Touchard's N ≡ 1 (mod 12) or N ≡ 9 (mod 36). If 3 divides N, its exponent is even. If it is exactly 2, then σ(3²) = 13 divides N, and N is a multiple of 9·13 = 117 that is ≡ 1 (mod 4), so N ≡ 117 (mod 468). Otherwise 3⁴ divides N and N ≡ 81 (mod 324).</p>
 
-<h2 id="five-primes">At least five prime factors</h2>
+<h2 id="five-primes">At least six prime factors</h2>
 <span class="cls known">known result formalized</span>
-<p>ω(N) ≥ 5. Without the prime 3 at least seven, and without 3 and 5 at least fifteen.</p>
+<p>ω(N) ≥ 6. Without the prime 3 at least eight, and without 3 and 5 at least fifteen. The step from five to six is a search over the prime factors in increasing order, run by the kernel with a soundness proof; it is described in the module <a href="reference.html#mod-OmegaSix"><code>OmegaSix</code></a>.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">six_le_card_primeFactors</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 6 ≤ N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.six_le_card_primeFactors">OddPerfect.six_le_card_primeFactors</a> in <a href="reference.html#mod-OmegaSix">OddPerfect.OmegaSix</a></p>
+<p>The earlier bound ω(N) ≥ 5 has a separate proof:</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">five_le_card_primeFactors</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 5 ≤ N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.five_le_card_primeFactors">OddPerfect.five_le_card_primeFactors</a> in <a href="reference.html#mod-OmegaFive">OddPerfect.OmegaFive</a></p>
 <p class="idea"><strong>Proof idea.</strong> With four prime factors the product bound 2 &lt; ∏ p/(p − 1) leaves 104 explicit supports. For each one a kernel computation lists the possible exponents of each prime and shows that some σ(x<sup>e</sup>) always has a prime factor outside the support.</p>
-<p>Also <a href="reference.html#OddPerfect.seven_le_card_primeFactors_of_not_three_dvd"><code>seven_le_card_primeFactors_of_not_three_dvd</code></a> and <a href="reference.html#OddPerfect.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd"><code>fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd</code></a>.</p>
+<p>Also <a href="reference.html#OddPerfect.eight_le_card_primeFactors_of_not_three_dvd"><code>eight_le_card_primeFactors_of_not_three_dvd</code></a> and <a href="reference.html#OddPerfect.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd"><code>fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd</code></a>.</p>
 
 <h2 id="upper-bound">Upper bound</h2>
 <span class="cls known">known result formalized</span>
@@ -68,12 +70,12 @@
 
 <h2 id="patterns">Equal exponent patterns</h2>
 <span class="cls known">known result formalized</span>
-<p>The ordinary exponents cannot all be 2, all be 4, all be 6, all be 10, all be 12, or all be congruent to 2 modulo 3. The first is Steuerwald's theorem, the last McDaniel's. More generally, if t divides e + 1 for every ordinary exponent e, then t⁴ divides N.</p>
+<p>The ordinary exponents cannot all be 2, all be 4, 6, 10, 12, 16, 22 or 28, or all be congruent to 2 modulo 3. The first is Steuerwald's theorem, the last McDaniel's. The library also excludes the common exponent 18, for which we did not find a published proof (<span class="tag unver">novelty unverified</span>; an independent computer assisted claim by another author exists and is not peer reviewed). More generally, if t divides e + 1 for every ordinary exponent e, then t⁴ divides N.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">steuerwald</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 2) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.steuerwald">OddPerfect.steuerwald</a> in <a href="reference.html#mod-Steuerwald">OddPerfect.Steuerwald</a></p>
 <p class="idea"><strong>Proof idea.</strong> If 3 does not divide N, every σ(p²) of an ordinary p is a power of the special prime, which the closed loop argument excludes. If 3 divides N, the 3-adic budget is exactly 2, and a forcing chain from σ(3²) = 13 produces three ordinary primes ≡ 1 (mod 3), each adding a factor 3.</p>
-<p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_ten"><code>not_all_exponents_ten</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_twelve"><code>not_all_exponents_twelve</code></a> and <a href="reference.html#OddPerfect.pow_four_dvd_of_dvd_succ"><code>pow_four_dvd_of_dvd_succ</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
+<p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_ten"><code>not_all_exponents_ten</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_twelve"><code>not_all_exponents_twelve</code></a>, the certificate checker of <a href="reference.html#mod-EqualExponentChain"><code>EqualExponentChain</code></a> for the exponents up to 28, and <a href="reference.html#OddPerfect.pow_four_dvd_of_dvd_succ"><code>pow_four_dvd_of_dvd_succ</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
 
 <h2 id="small-primes">Small primes cannot all be present</h2>
 <span class="cls known">known result formalized</span>
@@ -119,6 +121,23 @@
     jacobiSym p r = 1 ∧ jacobiSym r p = 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_mutual_quadratic_residues">OddPerfect.exists_mutual_quadratic_residues</a> in <a href="reference.html#mod-Reciprocity">OddPerfect.Reciprocity</a></p>
 <p class="idea"><strong>Proof idea.</strong> The special prime q has positive exponent, so by conservation some prime p ≠ q sends weight to q. Its exponent e is even, so p<sup>e+1</sup> ≡ 1 (mod q) with e + 1 odd, which makes p a square modulo q. Since q ≡ 1 (mod 4), quadratic reciprocity makes q a square modulo p.</p>
 
+<h2 id="largest-prime">The largest prime factor</h2>
+<span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
+<p>The largest prime factor P is not of the form 3·4<sup>t</sup> + 1 with t ≥ 2, and P − 1 is not a power of 2. The first statement covers every t ≥ 2 at once. The proof looks at the multiplicative orders of the primes that send a factor P; it is outlined in the module <a href="reference.html#mod-LargestPrimeOrder"><code>LargestPrimeOrder</code></a>. Whether these exclusions are new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">largest_prime_ne_three_mul_four_pow</span> {N P t : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hP : P ∈ N.primeFactors) (hmax : <span class="k"><span class="k">∀</span></span> r ∈ N.primeFactors, r ≤ P) (ht : 2 ≤ t) :
+  P ≠ 3 * 4 ^ t + 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.largest_prime_ne_three_mul_four_pow">OddPerfect.largest_prime_ne_three_mul_four_pow</a> in <a href="reference.html#mod-LargestPrimeOrder">OddPerfect.LargestPrimeOrder</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">largest_prime_sub_one_ne_two_pow</span> (h : OddPerfect N) {P : <span class="t"><span class="t">ℕ</span></span>}
+  (hP : P ∈ N.primeFactors) (hmax : <span class="k"><span class="k">∀</span></span> r ∈ N.primeFactors, r ≤ P) (j : <span class="t"><span class="t">ℕ</span></span>) :
+  P - 1 ≠ 2 ^ j</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.largest_prime_sub_one_ne_two_pow">OddPerfect.largest_prime_sub_one_ne_two_pow</a> in <a href="reference.html#mod-LargestPrimeOrder">OddPerfect.LargestPrimeOrder</a></p>
+<p>Separately, some prime factor exceeds 2000. This is a known type of result, and much larger bounds are in the literature; here a search with a soundness proof is run by the kernel (module <a href="reference.html#mod-LargestPrimeFactor"><code>LargestPrimeFactor</code></a>).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_primeFactor_gt</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : <span class="k"><span class="k">∃</span></span> p ∈ N.primeFactors, 2000 &lt; p</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_primeFactor_gt">OddPerfect.exists_primeFactor_gt</a> in <a href="reference.html#mod-LargestPrimeFactor">OddPerfect.LargestPrimeFactor</a></p>
+<p>The sum of the reciprocals of the prime factors lies strictly between 23/40 and 347/500 (module <a href="reference.html#mod-ReciprocalSum"><code>ReciprocalSum</code></a>).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">twentythree_fortieths_lt_sum_inv</span> (h : OddPerfect N) :
+  (23 / 40 : ℝ) &lt; <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, 1 / (p : ℝ)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.twentythree_fortieths_lt_sum_inv">OddPerfect.twentythree_fortieths_lt_sum_inv</a> in <a href="reference.html#mod-ReciprocalSum">OddPerfect.ReciprocalSum</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sum_inv_lt_347_div_500</span> (h : OddPerfect N) :
+  <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, 1 / (p : ℝ) &lt; 347 / 500</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sum_inv_lt_347_div_500">OddPerfect.sum_inv_lt_347_div_500</a> in <a href="reference.html#mod-ReciprocalSum">OddPerfect.ReciprocalSum</a></p>
+
 <h2 id="exponent-cap">Exponents are capped by the largest prime</h2>
 <span class="cls known">known result formalized</span>
 <p>If every prime factor is at most R, then every exponent e satisfies 2e + 3 ≤ R.</p>
@@ -138,7 +157,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>2f2eb21</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>cce2541</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
