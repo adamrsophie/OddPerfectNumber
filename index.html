@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odd Perfect Numbers in Lean 4</title>
+<meta name="description" content="A kernel checked Lean 4 library of results on odd perfect numbers: procedure, trust policy, milestones, and open directions. The conjecture is open and no proof is claimed.">
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --ink: #1c1b19; --muted: #615d55; --line: #e4dfd5;
+  --accent: #8a3b12; --accent-soft: #f4e6dc; --ok: #22663f; --ok-soft: #e2f1e8;
+  --warn: #7a5a00; --warn-soft: #fbf0cf; --code: #f3f0e9;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15140f; --panel: #1d1c17; --ink: #ece8df; --muted: #a8a294; --line: #34322a;
+    --accent: #e39a6b; --accent-soft: #3a2619; --ok: #7fcf9f; --ok-soft: #17301f;
+    --warn: #e6c766; --warn-soft: #3a3012; --code: #24231d;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; font-size: 17px; }
+a { color: var(--accent); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+nav { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+nav .wrap { display: flex; gap: 18px; align-items: center; overflow-x: auto; white-space: nowrap; padding-top: 10px; padding-bottom: 10px; font-size: 15px; }
+nav a { text-decoration: none; color: var(--muted); }
+nav a:hover { color: var(--accent); }
+nav .brand { font-family: var(--serif); font-weight: 700; color: var(--ink); margin-right: 8px; }
+header { padding: 64px 0 40px; }
+h1 { font-family: var(--serif); font-size: clamp(34px, 6vw, 56px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -0.01em; }
+h2 { font-family: var(--serif); font-size: 30px; margin: 0 0 8px; }
+h3 { font-size: 18px; margin: 0 0 6px; }
+.lead { font-size: 20px; color: var(--muted); max-width: 760px; margin: 0 0 24px; }
+section { padding: 44px 0; border-top: 1px solid var(--line); }
+.sub { color: var(--muted); max-width: 760px; margin: 0 0 24px; }
+.banner { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); border-radius: 10px; padding: 14px 18px; max-width: 760px; font-weight: 600; }
+.banner span { display: block; font-weight: 400; color: var(--ink); margin-top: 4px; }
+.formula { font-family: var(--serif); font-size: 26px; margin: 26px 0 6px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 28px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.stat b { display: block; font-family: var(--serif); font-size: 30px; line-height: 1.1; }
+.stat small { color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.card p { margin: 0 0 8px; }
+.card p:last-child { margin-bottom: 0; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; }
+.tag.known { background: var(--ok-soft); color: var(--ok); }
+.tag.unver { background: var(--warn-soft); color: var(--warn); }
+.tag.tool { background: var(--accent-soft); color: var(--accent); }
+code, pre { font-family: var(--mono); font-size: 13.5px; }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; margin: 8px 0 0; line-height: 1.45; }
+pre code { background: none; padding: 0; }
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 12px; }
+ol.steps li { counter-increment: s; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px 14px 62px; position: relative; }
+ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--bg); font-weight: 700; display: grid; place-items: center; }
+ol.steps li b { display: block; }
+.timeline { border-left: 2px solid var(--line); margin-left: 8px; padding-left: 22px; display: grid; gap: 16px; }
+.event { position: relative; }
+.event::before { content: ""; position: absolute; left: -29px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--ok); border: 2px solid var(--bg); }
+.event.pending::before { background: var(--warn); }
+.event time { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.event p { margin: 2px 0 0; }
+table { border-collapse: collapse; width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 15.5px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; }
+tr:last-child td { border-bottom: 0; }
+.tablewrap { overflow-x: auto; }
+ul.plain { padding-left: 20px; margin: 0; }
+ul.plain li { margin-bottom: 6px; }
+footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="brand">Odd Perfect Numbers in Lean</span>
+  <a href="#status">Status</a>
+  <a href="#procedure">Procedure</a>
+  <a href="#trust">Trust policy</a>
+  <a href="#milestones">Milestones</a>
+  <a href="#theorems">Theorems</a>
+  <a href="#obstacles">Obstacles</a>
+  <a href="#literature">Literature</a>
+  <a href="#next">In progress</a>
+  <a href="https://github.com/adamrsophie/OddPerfectNumber">Source</a>
+</div></nav>
+
+<header><div class="wrap">
+  <h1>Does an odd perfect number exist?</h1>
+  <p class="lead">A Lean 4 project that formalizes what is known about odd perfect numbers, with every theorem checked by the Lean kernel, and that searches for a way to settle the question.</p>
+  <div class="banner">The conjecture is open. This project does not claim a proof.
+    <span>Everything listed here is a necessary condition that any odd perfect number would have to satisfy. Almost all of it is known mathematics, now machine checked. A small number of statements are marked as novelty unverified.</span>
+  </div>
+  <p class="formula">σ(N) = 2N, with N odd</p>
+  <p class="sub">A number is perfect when the sum of its divisors equals twice the number. The even perfect numbers were described by Euclid and Euler. Whether an odd one exists has been open for centuries.</p>
+  <div class="stats">
+    <div class="stat"><b>39</b><small>Lean modules on the main branch</small></div>
+    <div class="stat"><b>9,825</b><small>lines of Lean</small></div>
+    <div class="stat"><b>296</b><small>public theorems</small></div>
+    <div class="stat"><b>0</b><small>uses of sorry or extra axioms</small></div>
+    <div class="stat"><b>287</b><small>papers screened</small></div>
+    <div class="stat"><b>101</b><small>repositories reviewed</small></div>
+  </div>
+  <p class="sub" style="margin-top:14px">Counts refer to commit <code>fa5d60b</code> on the main branch, 20 November 2026.</p>
+</div></header>
+
+<section id="status"><div class="wrap">
+  <h2>Status</h2>
+  <p class="sub">The target is stated once, as a proposition, and is never assumed anywhere in the library.</p>
+<pre><code>def OddPerfect (N : ℕ) : Prop := Odd N ∧ N.Perfect
+
+def OddPerfectConjecture : Prop := ∀ N : ℕ, ¬ OddPerfect N</code></pre>
+  <div class="grid" style="margin-top:18px">
+    <div class="card"><h3>What is proved</h3><p>Structural theorems about a hypothetical odd perfect number N: its shape, congruences, bounds on its prime factors and exponents, exclusion of whole families of exponent patterns, and finiteness statements.</p></div>
+    <div class="card"><h3>What is not proved</h3><p>The conjecture itself. The project will report a resolution only if a theorem of type <code>OddPerfectConjecture</code>, or its negation, compiles with the three standard axioms of Lean and mathlib.</p></div>
+    <div class="card"><h3>An exact reformulation</h3><p>The library proves that the conjecture is equivalent to the nonexistence of a finite, balanced network of prime powers (<code>conjecture_iff_no_balanced</code>). All later work is phrased against that network.</p></div>
+  </div>
+</div></section>
+
+<section id="procedure"><div class="wrap">
+  <h2>Procedure</h2>
+  <p class="sub">The work is organized as a pipeline in which drafting is cheap and trust comes only from the Lean kernel. Proof drafts are written by AI coding agents working in parallel. A supervising session verifies each result before it enters the repository.</p>
+  <ol class="steps">
+    <li><b>Fix the statement.</b>The definitions of an odd perfect number and of the conjecture are written first and kept minimal, so that every later theorem can be read against them.</li>
+    <li><b>Survey the literature and existing code.</b>Papers and public repositories are screened, the relevant ones are read in full, and each gets a note: the method, the lemmas worth formalizing, and any step that does not hold up.</li>
+    <li><b>Assign one module per agent.</b>Each agent receives a precise target statement, the proof standards, and pointers to the existing library. Agents write proofs from scratch, test claims numerically with exact arithmetic before formalizing them, and may only check their own file.</li>
+    <li><b>Report deviations.</b>An agent must say exactly what it proved, what it could not prove, and where it changed a statement. Statements found to be false are corrected and the counterexample is recorded.</li>
+    <li><b>Verify independently.</b>For every returned module the supervising session scans for forbidden constructs, runs a full build of the whole library, parses every axiom report printed by the build, and reads the headline statements against their intended meaning.</li>
+    <li><b>Commit only verified work.</b>A module is committed and pushed only after the full build succeeds and every axiom report is clean.</li>
+    <li><b>Test ideas against countermodels.</b>Objects that satisfy most of the constraints without being odd perfect numbers, such as spoof factorizations, are kept as formal test cases. A proposed global argument that these objects also satisfy cannot be a proof.</li>
+    <li><b>Steer the next wave.</b>A review of the library, the notes, and the countermodels produces a ranked list of next targets, and the cycle repeats.</li>
+  </ol>
+</div></section>
+
+<section id="trust"><div class="wrap">
+  <h2>Trust policy</h2>
+  <p class="sub">A reader should need to trust only the Lean kernel, mathlib, and the statements themselves.</p>
+  <div class="grid">
+    <div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations.</p></div>
+    <div class="card"><h3>Three axioms only</h3><p>Every file ends with <code>#print axioms</code> lines. Each public theorem depends on at most <code>propext</code>, <code>Classical.choice</code>, and <code>Quot.sound</code>.</p></div>
+    <div class="card"><h3>Computation inside the kernel</h3><p>Finite case analyses are run by verified checkers and evaluated with kernel reduction (<code>decide +kernel</code>). Primality of large numbers uses Pratt certificates checked the same way.</p></div>
+    <div class="card"><h3>Pinned environment</h3><p>Lean 4.33.1 with a pinned mathlib revision. The whole library is rebuilt before every commit.</p></div>
+    <div class="card"><h3>Untrusted inputs</h3><p>Papers and third party code are read as data only. Nothing from them is executed or copied into the library, and every borrowed statement is proved again from scratch.</p></div>
+    <div class="card"><h3>Honest naming</h3><p>Partial results carry their exact hypotheses in the statement. A theorem is never weakened silently to make a proof go through.</p></div>
+  </div>
+</div></section>
+
+<section id="milestones"><div class="wrap">
+  <h2>Milestones</h2>
+  <p class="sub">Each entry is a verified commit on the main branch. Times are local, 20 November 2026.</p>
+  <div class="timeline">
+    <div class="event"><time>20:08</time><p><b>Project setup.</b> Lean project with seed lemmas on the divisor sums σ(p<sup>a</sup>) of prime powers.</p></div>
+    <div class="event"><time>20:19</time><p><b>Foundations.</b> Euler's form N = q<sup>k</sup>m², Touchard's congruence, abundancy, the cyclotomic bridge with the order dichotomy, and the valuation network with conservation and strong connectivity.</p></div>
+    <div class="event"><time>20:42</time><p><b>First structural wave.</b> Closed loop exclusion, at least four distinct prime factors, primitive prime divisors for bases at least 3, a verified certificate checker, Pratt primality certificates, the Descartes spoof, and the reduction to a balanced network.</p></div>
+    <div class="event"><time>20:51</time><p><b>Exponent patterns.</b> The ordinary exponents cannot all equal 2, and cannot all be congruent to 2 modulo 3 (theorems attributed to Steuerwald and to McDaniel).</p></div>
+    <div class="event"><time>21:05</time><p><b>Upper bound.</b> N &lt; 2<sup>4<sup>k</sup></sup> for an odd perfect number with k distinct prime factors.</p></div>
+    <div class="event"><time>21:12</time><p><b>Five prime factors.</b> At least five distinct prime factors, closed by a kernel computation over 104 explicit supports.</p></div>
+    <div class="event"><time>21:16</time><p><b>Exact valuations.</b> Closed forms for the q-adic valuation of σ(p<sup>a</sup>) for every prime q, with the 2-adic and 3-adic ledgers of N.</p></div>
+    <div class="event"><time>21:17</time><p><b>One exception forces 3.</b> If all but one of the ordinary exponents equal 2, then 3 divides N. The proof is elementary.</p></div>
+    <div class="event"><time>21:21</time><p><b>Exponent caps and finiteness.</b> Every exponent e satisfies 2e + 3 ≤ R for the largest prime factor R. For each number of distinct prime factors, only finitely many odd perfect numbers can exist.</p></div>
+    <div class="event"><time>21:24</time><p><b>All exponents four.</b> The ordinary exponents cannot all equal 4.</p></div>
+    <div class="event"><time>21:34</time><p><b>Counting inequalities.</b> 8ω ≤ 3Ω + 7 when 3 does not divide N, and 21ω ≤ 8Ω + 39 in general.</p></div>
+    <div class="event"><time>21:54</time><p><b>Quadratic residues and exponent six.</b> Legendre symbol constraints on the prime network, and the ordinary exponents cannot all equal 6.</p></div>
+    <div class="event pending"><time>in verification</time><p>Signed spoof factorizations, counting bounds for equal exponents, identities for the Euler part, bounds through the radical, and valuation capacity bounds. These modules compile on their own and are waiting for the full build.</p></div>
+  </div>
+</div></section>
+
+<section id="theorems"><div class="wrap">
+  <h2>Selected theorems</h2>
+  <p class="sub">Throughout, N is an odd perfect number, q is its special prime (the one prime with an odd exponent), and the other primes are called ordinary. ω counts distinct prime factors and Ω counts prime factors with multiplicity. Names are the Lean identifiers.</p>
+  <div class="grid">
+    <div class="card"><span class="tag known">known, formalized</span><h3>Euler's form</h3><p>N = q<sup>k</sup>m² with q prime, q not dividing m, and q ≡ k ≡ 1 (mod 4).</p><pre><code>theorem exists_euler_form (h : OddPerfect N) :
+  ∃ q k m, q.Prime ∧ N = q ^ k * m ^ 2 ∧
+    ¬ q ∣ m ∧ q % 4 = 1 ∧ k % 4 = 1</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>Touchard's congruence, refined</h3><p>N ≡ 1 (mod 12), or N ≡ 117 (mod 468), or N ≡ 81 (mod 324).</p><pre><code>theorem mod_refined (h : OddPerfect N) :
+  N % 12 = 1 ∨ N % 468 = 117 ∨ N % 324 = 81</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>At least five prime factors</h3><p>ω(N) ≥ 5. Without the prime 3 at least seven, and without 3 and 5 at least fifteen.</p><pre><code>theorem five_le_card_primeFactors
+  (h : OddPerfect N) : 5 ≤ N.primeFactors.card</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>Upper bound</h3><p>N is smaller than 2 to the power 4<sup>ω(N)</sup>. Hence finitely many candidates for each ω.</p><pre><code>theorem lt_two_pow_four_pow (h : OddPerfect N) :
+  N &lt; 2 ^ (4 ^ N.primeFactors.card)</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>Equal exponent patterns</h3><p>The ordinary exponents cannot all be 2, all be 4, all be 6, or all be congruent to 2 modulo 3.</p><pre><code>theorem steuerwald (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hsq : ∀ p ∈ N.primeFactors, p ≠ q →
+    N.factorization p = 2) : False</code></pre><p style="margin-top:8px">Also <code>mcdaniel</code>, <code>not_all_exponents_four</code>, <code>not_all_exponents_six</code>.</p></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>Small primes cannot all be present</h3><p>105 does not divide N. The smallest prime factor p satisfies 3p &lt; 2ω + 6.</p><pre><code>theorem not_105_dvd (h : OddPerfect N) : ¬ 105 ∣ N
+theorem three_mul_minFac_lt (h : OddPerfect N) :
+  3 * N.minFac &lt; 2 * N.primeFactors.card + 6</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>Counting inequalities</h3><p>Total and distinct prime factor counts are linked, after Zelinsky (arXiv 1706.07009).</p><pre><code>theorem eight_mul_omega_le_of_not_three_dvd
+  (h : OddPerfect N) (h3 : ¬ 3 ∣ N) :
+  8 * ω N ≤ 3 * Ω N + 7
+theorem twentyone_mul_omega_le (h : OddPerfect N) :
+  21 * ω N ≤ 8 * Ω N + 39</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>The special prime power is small</h3><p>In Euler's form, 3q<sup>k</sup> &lt; 2m².</p><pre><code>theorem special_pow_lt_sq ... :
+  3 * q ^ k &lt; 2 * m ^ 2</code></pre></div>
+    <div class="card"><span class="tag unver">novelty unverified</span><h3>One exception forces 3</h3><p>If every prime other than q and one further prime r has exponent exactly 2, then 3 divides N. The proof uses only abundancy bounds. The setting is that of Ochem and Zelinsky (arXiv 2607.19746). Whether this route is new has not been checked.</p><pre><code>theorem three_dvd_of_one_exception
+  (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r →
+    N.factorization p = 2) : 3 ∣ N</code></pre></div>
+    <div class="card"><span class="tag unver">novelty unverified</span><h3>Mutual quadratic residues</h3><p>N always has two prime factors that are quadratic residues of each other. This removes a congruence hypothesis from a theorem of Wallace (arXiv 1610.00544). Whether the stronger form is new has not been checked.</p><pre><code>theorem exists_mutual_quadratic_residues
+  (h : OddPerfect N) :
+  ∃ p ∈ N.primeFactors, ∃ r ∈ N.primeFactors,
+    p ≠ r ∧ jacobiSym p r = 1 ∧ jacobiSym r p = 1</code></pre></div>
+    <div class="card"><span class="tag known">known, formalized</span><h3>Exponents are capped by the largest prime</h3><p>If every prime factor is at most R, then every exponent e satisfies 2e + 3 ≤ R.</p><pre><code>theorem two_mul_factorization_add_three_le
+  (h : OddPerfect N) (hp : p ∈ N.primeFactors)
+  (hR : ∀ r ∈ N.primeFactors, r ≤ R) :
+  2 * N.factorization p + 3 ≤ R</code></pre></div>
+    <div class="card"><span class="tag tool">tool</span><h3>Certificate checker</h3><p>A small verified checker for factor chain arguments. A certificate that passes the check excludes every odd perfect number matching the given exponent pattern.</p><pre><code>theorem check_sound (hc : check s c = true) :
+  ∀ N, OddPerfect N → State.Holds s N → False</code></pre></div>
+  </div>
+</div></section>
+
+<section id="obstacles"><div class="wrap">
+  <h2>Why the problem resists</h2>
+  <p class="sub">Some objects satisfy almost every known constraint without being odd perfect numbers. They show which kinds of argument cannot succeed. The Descartes spoof is in the library as a formal test, and the signed spoof module is in verification.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Countermodel</th><th>What it satisfies</th><th>What it rules out</th></tr>
+    <tr><td>Descartes spoof<br>3²·7²·11²·13²·22021</td><td>The equation σ = 2N holds formally if 22021 is treated as a prime. In fact 22021 = 19²·61. Checked in the kernel.</td><td>Any argument that works for pairwise coprime odd bases without using that each base is prime.</td></tr>
+    <tr><td>Signed spoof<br>3⁴·7²·11²·19²·(−127)</td><td>All bases are prime in absolute value and the formal equation holds with a negative base.</td><td>Any purely algebraic argument on valuations, orders, and congruences that does not use positivity.</td></tr>
+    <tr><td>Even perfect numbers</td><td>Every lemma that uses perfection alone.</td><td>Any argument that never uses oddness, that is, the exact 2-adic budget.</td></tr>
+    <tr><td>Near misses in abundancy</td><td>σ(n)/n arbitrarily close to 2.</td><td>Density and approximation arguments. A proof must use exact equality.</td></tr>
+  </table></div>
+  <p class="sub" style="margin-top:18px">The working conclusion: a proof of nonexistence must combine primality of every node of the network, positivity and size, the 2-adic budget, finiteness of the support, and exact equality in one global step. No known result does this. The theorems above that combine exact structure with inequalities, such as the one exception theorem, are small instances of that shape.</p>
+</div></section>
+
+<section id="literature"><div class="wrap">
+  <h2>Literature and code survey</h2>
+  <p class="sub">The survey feeds the list of targets and guards against repeating known mistakes.</p>
+  <div class="grid">
+    <div class="card"><h3>Papers</h3><p>287 arXiv papers on perfect numbers and related topics were screened by title and abstract. 131 were graded as directly relevant or transferable and read in full from their sources, each with a written note.</p></div>
+    <div class="card"><h3>Repositories</h3><p>101 public repositories matching the topic were reviewed by reading only. A handful contain useful certificates or lemma statements, which were reproved here rather than copied.</p></div>
+    <div class="card"><h3>Claimed proofs</h3><p>Sixteen papers that claim to settle the conjecture or a related open statement were read as a referee would. In each case our reading found a step that does not follow. These readings have not been externally reviewed.</p></div>
+    <div class="card"><h3>What the survey produced</h3><p>Target statements for the modules above, a list of results still missing from the library, and the countermodel checklist used to test new ideas.</p></div>
+  </div>
+</div></section>
+
+<section id="next"><div class="wrap">
+  <h2>In progress</h2>
+  <p class="sub">Work under way. Nothing in this section is verified yet, and some of it may fail.</p>
+  <div class="grid">
+    <div class="card"><h3>Known theorems being formalized</h3><ul class="plain">
+      <li>At least six distinct prime factors</li>
+      <li>A lower bound on N by factor chains</li>
+      <li>A lower bound on the largest prime factor</li>
+      <li>Size bounds on the largest primes in terms of N</li>
+      <li>Ordinary exponents all 10 or all 12</li>
+      <li>Algebra of x² + x + 1 behind the best Ω versus ω inequalities</li>
+    </ul></div>
+    <div class="card"><h3>Extensions of unverified novelty</h3><ul class="plain">
+      <li>Two exceptional exponents when 3 does not divide N</li>
+      <li>Bounds on the exponent of a prime in terms of ω</li>
+    </ul></div>
+    <div class="card"><h3>Open ended research</h3><ul class="plain">
+      <li>Arguments that mix exact arithmetic with size and positivity</li>
+      <li>Arguments that use primality of every node through multiplicative orders</li>
+    </ul><p style="margin-top:8px">These are attempts on an open problem. The expected outcome is new partial results, not a resolution.</p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+  <p>Last updated 20 November 2026.</p>
+</div></footer>
+
+</body>
+</html>
