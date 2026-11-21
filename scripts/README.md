@@ -6,6 +6,7 @@ These are programs that found certificates, proof trees, tables and primality wi
 
 * Python 3 (version 3.12.14 was used). Most scripts need only the standard library.
 * `ExponentTenTwelve/gen.py` and `ExponentTenTwelve/explore.py` need sympy (version 1.14.0 was used).
+* `LowerBound/gen.py` and `LowerBound/emit.py` use cypari2 (version 2.2.4 was used) for factoring; without it they fall back to Pollard rho and ECM and may produce a different tree.
 * A C compiler for `EqualExponentChain/osearch.c`: `cc -O2 -o osearch osearch.c`.
 
 Each script starts with a header that says what it computes, which Lean declaration uses the result, how to run it and roughly how long it takes. Scripts read and write their data files in the current folder and find their helper files next to themselves, so they can be run from any folder.
@@ -23,7 +24,10 @@ Verification status: "reproduces" means the published copy was run and its outpu
 | EqualExponentChain | `EqualExponentChain/emit.py`, `assemble.py` | Lean text from certificate JSON | instances section | reproduces the literal in `OddPerfect/EqualExponentChain.lean`: run on the eight files in `EqualExponentChain/certs/`, `assemble.py` reproduces the whole instances section |
 | EqualExponentChain | `EqualExponentChain/certs/cert_5.json` .. `cert_29.json` | the certificates used in the library (data, not a script) | `pc5` .. `pc29`, `ord5` .. `ord29`, `spec5` .. `spec29` | not rerun: data files; `checker.py` accepts all eight, and `assemble.py` turns them into the instances section |
 | EqualExponentChain | `EqualExponentChain/checker.py` | independent recheck of certificate JSON | mirror of `checkAll` | runs; output not compared: a checker, no literal to compare; accepts the fresh certificates for `l = 5, 7` and all eight original ones |
-| LargestPrimeFactor | `LargestPrimeFactor/gen2.py` | prime list `P`, product `M`, row table `T` | `exists_primeFactor_gt` (`B = 2000`) | reproduces the literal in `OddPerfect/LargestPrimeFactor.lean` |
+| LargestPrimeFactor | `LargestPrimeFactor/gen4.py` | prime list `P`, product `M`, product `D` of the `q - 1`, row table `T` | `exists_primeFactor_gt` (`B = 10000`) | reproduces the literal in `OddPerfect/LargestPrimeFactor.lean` (`python3 gen4.py 10000 thm`, about 3.5 minutes; replaces `gen2.py`, which produced the earlier table for `B = 2000` and no longer matches the Lean file) |
+| LowerBound | `LowerBound/emit.py` (helpers `gen.py`, `nt.py`, `pf.py`, `ecm.py`) | prime table and proof trees `tree3`, `tree5`, `tree7` | the section between "Generated trees (BEGIN)" and "(END)" (`table`, `table_ok`, `table_prime`, the tree parts) | reproduces the literal in `OddPerfect/LowerBound.lean` (`emit.py 79 trees.lean 3: 5:3 7:3,5` with cypari2, run with empty caches); the bound is a parameter of the script; not rerun without cypari2, where the fallback factoring may find fewer factors and build a different tree |
+| LowerBound | `LowerBound/mktail.py` | final section | `good3`, `good5`, `good7`, `card_primeFactors_of_no_prime_lt_11`, `lower_bound` | reproduces the literal in `OddPerfect/LowerBound.lean` (`mktail.py 79 11 tail.lean`) |
+| LowerBound | `LowerBound/check.py` | independent replay of `run` on the emitted definitions | mirror of `run` and of the table check | runs; output not compared: a checker, no literal to compare; accepts the table (2131 entries) and the three trees of `OddPerfect/LowerBound.lean` |
 | OmegaSix | `OmegaSix/mirror.py` | mirror of the Lean solver, choice of `W` and fuel | `search_four`, `search_five` (`W = 10`, fuel 30) | runs; output not compared: no literal to compare; the mirror closes both searches with these parameters |
 | OmegaFive | `OmegaFive/sup.py` (helper `pr.py`) | admissible supports | support ranges of `tab5`, `tab7`, `tab11`, `tab13` | runs; output not compared: the ranges in the Lean file are bounds chosen from this output |
 | OmegaFive | `OmegaFive/chk.py` | mirror of `checkSupport` over the tables | `tab5` .. `tab13` | runs; output not compared: reports 104 supports, no failures |
@@ -46,7 +50,7 @@ Verification status: "reproduces" means the published copy was run and its outpu
 
 ## Not included
 
-* `LowerBound`, `OmegaSeven` and `ForcingClosedBound`: work on these modules was still in progress when the folder was assembled.
+* `SecondLargestPrime`, `ForcingClosedBound`, `OmegaSeven`, `OmegaSevenFermat`, `EqualExponentChainMore`, `KanoldFive`, `CommonPrimeChain` and `ExponentTwentyFour`: their generator and check scripts are not yet published. For `EqualExponentChainMore`, the search for `l = 47` did not finish and has no certificate.
 * Modules whose data were chosen by hand or come from classical sources, with no program to publish: for example `Spoof`, `SpoofInt`, `KanoldFour`, `AttackPrimality`, `Certificate` and the constants in `Seed/`.
 * Modules that contain no data found by search.
 * Exploratory programs whose results are not used in the library.
