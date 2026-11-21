@@ -43,3 +43,4 @@ import OddPerfect.RadicalBound
 import OddPerfect.ValuationBounds
 import OddPerfect.AttackPrimality
 import OddPerfect.Phi3Algebra
+import OddPerfect.AttackSize
