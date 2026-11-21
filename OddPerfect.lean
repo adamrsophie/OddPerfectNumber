@@ -67,3 +67,4 @@ import OddPerfect.ThreeFreeTwo
 import OddPerfect.LowerBound
 import OddPerfect.ForcingClosedBound
 import OddPerfect.OmegaSeven
+import OddPerfect.OmegaSevenFermat
