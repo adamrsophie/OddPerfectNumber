@@ -157,6 +157,10 @@
   (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) :
   q &lt; m ∨ (k = 1 ∧ <span class="k"><span class="k">∃</span></span> p : <span class="t"><span class="t">ℕ</span></span>, p.Prime ∧ p ∣ m ∧ 2 * m ^ 2 = p ^ N.factorization p * (q + 1) ∧
     σ 1 (p ^ N.factorization p) = q ∧ σ 1 ((q + 1) / 2) = p ^ N.factorization p)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.special_lt_or_shape">OddPerfect.special_lt_or_shape</a> in <a href="reference.html#mod-SpecialBelow">OddPerfect.SpecialBelow</a></p>
+<p>In that exceptional shape the number of distinct prime factors of N is even (module <a href="reference.html#mod-SpecialBelowParity"><code>SpecialBelowParity</code></a>). So q &lt; m holds whenever N has an odd number of distinct prime factors. The shape itself is not excluded.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">even_card_primeFactors_of_special_ge</span> {N q k m : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) (hge : m ≤ q) :
+  Even N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.even_card_primeFactors_of_special_ge">OddPerfect.even_card_primeFactors_of_special_ge</a> in <a href="reference.html#mod-SpecialBelowParity">OddPerfect.SpecialBelowParity</a></p>
 
 <h2 id="one-exception">One exception forces 3</h2>
 <span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
@@ -193,6 +197,17 @@
   (hodd : Odd (N.factorization 5))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
   6 ≤ N.factorization 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_five_six_le_three">OddPerfect.two_exceptions_five_six_le_three</a> in <a href="reference.html#mod-TwoExceptionThreeB">OddPerfect.TwoExceptionThreeB</a></p>
+<p>More is true in this family (module <a href="reference.html#mod-TwoExceptionFiveIndex"><code>TwoExceptionFiveIndex</code></a>): the exceptions are 3 and a prime s ≡ 1 (mod 5) whose index is divisible by 5, the index of 3 has no prime factor up to 31, and the exponent of 3 is at least 36. The exponent of 3 remains unbounded. Whether these statements are new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_five_normal_form</span> {N r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hodd : Odd (N.factorization 5))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+  <span class="k"><span class="k">∃</span></span> s, s.Prime ∧ s ∈ N.primeFactors ∧ s % 5 = 1 ∧ 5 ∣ N.factorization s + 1 ∧
+    (<span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 → p ≠ 3 → p ≠ s → N.factorization p = 2) ∧
+    Nat.Coprime (N.factorization 3 + 1) 105</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_five_normal_form">OddPerfect.two_exceptions_five_normal_form</a> in <a href="reference.html#mod-TwoExceptionFiveIndex">OddPerfect.TwoExceptionFiveIndex</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_five_thirtysix_le_three</span> {N r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hodd : Odd (N.factorization 5))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+  36 ≤ N.factorization 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_five_thirtysix_le_three">OddPerfect.two_exceptions_five_thirtysix_le_three</a> in <a href="reference.html#mod-TwoExceptionFiveIndex">OddPerfect.TwoExceptionFiveIndex</a></p>
 <p>For a general special prime q (module <a href="reference.html#mod-TwoExceptionFour"><code>TwoExceptionFour</code></a>): the exponent of 3 is not 2 when q ≡ 2 (mod 3) and 9 divides σ of the special component, and exponent 4 at the prime 3 with q ≠ 5 forces the exceptions to be 3 and 11. The remaining cases are open here. Whether these statements are new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_three_ne_two_of_nine_dvd</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
   (hq : q.Prime) (hodd : Odd (N.factorization q)) (hq3 : q % 3 = 2)
@@ -333,7 +348,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>0f48a6e</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>a1a5a35</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
