@@ -86,6 +86,12 @@
   (hodd : Odd (N.factorization q))
   (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 2 * β) :
   N.primeFactors.card ≤ 4 * β ^ 2 + 2 * β + 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.card_primeFactors_le_of_equal_exponents">OddPerfect.card_primeFactors_le_of_equal_exponents</a> in <a href="reference.html#mod-EqualExponentsBound">OddPerfect.EqualExponentsBound</a></p>
+<p>The same count works when the ordinary exponents vary but every index e + 1 is a power of one odd prime l and e ≤ E (module <a href="reference.html#mod-PrimePowerIndexBound"><code>PrimePowerIndexBound</code></a>): at most E<sup>2</sup> + 2E + 3 prime factors. The statement has content for l ≥ 7. Whether it is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">card_primeFactors_le_of_prime_pow_index</span> {N q l E : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hq : q.Prime) (hodd : Odd (N.factorization q)) (hl : l.Prime) (hl2 : l ≠ 2)
+  (hidx : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → <span class="k"><span class="k">∃</span></span> γ, 1 ≤ γ ∧ N.factorization p + 1 = l ^ γ)
+  (hE : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p ≤ E) :
+  N.primeFactors.card ≤ E ^ 2 + 2 * E + 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.card_primeFactors_le_of_prime_pow_index">OddPerfect.card_primeFactors_le_of_prime_pow_index</a> in <a href="reference.html#mod-PrimePowerIndexBound">OddPerfect.PrimePowerIndexBound</a></p>
 <p>The fifth power theorem: if t divides e + 1 for every ordinary exponent e, then t<sup>5</sup> divides N. Kanold proved the fourth power and Yamada the fifth. The last case is in the module <a href="reference.html#mod-KanoldSquareFinal"><code>KanoldSquareFinal</code></a>, with the Diophantine input in <a href="reference.html#mod-KanoldObstruction"><code>KanoldObstruction</code></a>.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">pow_five_dvd_of_forall_dvd_succ</span> {N q t : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -320,7 +326,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>a02bd21</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>47ad980</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
