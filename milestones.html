@@ -129,6 +129,7 @@
 <li class="event minor"><time datetime="2026-11-21T23:54">23:54</time><p class="ev-title"><b>The workflow reuses earlier builds.</b> <code class="hash">c5974b1</code> <span class="cls known">known result formalized</span></p><p>The axiom gate workflow restores the compiled library of the most recent passing run on the main branch, and Lake rebuilds only the modules whose sources or imports changed. The axiom gate still inspects the whole library on every run. A weekly scheduled run and a manual run rebuild everything from an empty build folder.</p></li>
 <li class="event"><time datetime="2026-11-22T00:05">22 November 2026, 00:05</time><p class="ev-title"><b>Two prime factors above 72.</b> <code class="hash">6a2327b</code> <span class="cls known">known result formalized</span></p><p>The module <code>SecondLargestPrimeTwo</code> proves that an odd perfect number has two distinct prime factors above 72, with the engine of <code>SecondLargestPrime</code> and nine data modules. Much larger bounds are known in the literature; the search doubles with each new small prime, so this method stops here.</p></li>
 <li class="event"><time datetime="2026-11-22T00:24">00:24</time><p class="ev-title"><b>One restrained case closed.</b> <code class="hash">3260d8c</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The new module <code>RestrainedTwo</code> excludes the case r = 97 of the restrained family and shows that the case r = 61 needs q ≡ 1 (mod 3). Three cases remain when r ≠ 3: r = 13; q = 13 with r = 7; r = 61 with q ≡ 1 (mod 3). Novelty unverified.</p></li>
+<li class="event"><time datetime="2026-11-22T00:41">00:41</time><p class="ev-title"><b>A second restrained case closed.</b> <code class="hash">c6cce93</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The new module <code>RestrainedThree</code> excludes the case q = 13, r = 7 of the restrained family. Two cases remain when r ≠ 3: r = 13; r = 61 with q ≡ 1 (mod 3). Novelty unverified.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -142,7 +143,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>3260d8c</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>c6cce93</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
