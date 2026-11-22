@@ -81,6 +81,11 @@
   (hodd : Odd (N.factorization q))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 2) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.steuerwald">OddPerfect.steuerwald</a> in <a href="reference.html#mod-Steuerwald">OddPerfect.Steuerwald</a></p>
 <p class="idea"><strong>Proof idea.</strong> If 3 does not divide N, every σ(p²) of an ordinary p is a power of the special prime, which the closed loop argument excludes. If 3 divides N, the 3-adic budget is exactly 2, and a forcing chain from σ(3²) = 13 produces three ordinary primes ≡ 1 (mod 3), each adding a factor 3.</p>
+<p>For every common exponent 2β at once, the number of distinct prime factors is bounded (module <a href="reference.html#mod-EqualExponentsBound"><code>EqualExponentsBound</code></a>; Yamada, Colloq. Math. 103, 2005). This bounds the number of primes and excludes no exponent.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">card_primeFactors_le_of_equal_exponents</span> {N q β : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → N.factorization p = 2 * β) :
+  N.primeFactors.card ≤ 4 * β ^ 2 + 2 * β + 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.card_primeFactors_le_of_equal_exponents">OddPerfect.card_primeFactors_le_of_equal_exponents</a> in <a href="reference.html#mod-EqualExponentsBound">OddPerfect.EqualExponentsBound</a></p>
 <p>The fifth power theorem: if t divides e + 1 for every ordinary exponent e, then t<sup>5</sup> divides N. Kanold proved the fourth power and Yamada the fifth. The last case is in the module <a href="reference.html#mod-KanoldSquareFinal"><code>KanoldSquareFinal</code></a>, with the Diophantine input in <a href="reference.html#mod-KanoldObstruction"><code>KanoldObstruction</code></a>.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">pow_five_dvd_of_forall_dvd_succ</span> {N q t : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -91,12 +96,20 @@
   (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 →
     3 ∣ N.factorization p + 1 ∨ 5 ∣ N.factorization p + 1 ∨ 7 ∣ N.factorization p + 1) :
   False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.not_mixed_index_three_five_seven">OddPerfect.not_mixed_index_three_five_seven</a> in <a href="reference.html#mod-MixedIndex">OddPerfect.MixedIndex</a></p>
-<p>With any exponent at the special prime 5, the exponent of 3 is not 2 and the index of 3 is divisible neither by 3 nor by 5 (module <a href="reference.html#mod-MixedIndexTwo"><code>MixedIndexTwo</code></a>). The case where the index of 3 is divisible by 7 only is open.</p>
+<p>With any exponent at the special prime 5, the exponent of 3 is not 2 and the index of 3 is divisible neither by 3 nor by 5 (module <a href="reference.html#mod-MixedIndexTwo"><code>MixedIndexTwo</code></a>). The case where the index of 3 is divisible by 7 only is closed in <a href="reference.html#mod-MixedIndexThree"><code>MixedIndexThree</code></a>: with special prime 5, some other prime factor has an index prime to 105. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">not_mixed_index_special_five_of_three</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
   (h5o : Odd (N.factorization 5))
   (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 →
     3 ∣ N.factorization p + 1 ∨ 5 ∣ N.factorization p + 1 ∨ 7 ∣ N.factorization p + 1)
   (h3i : 3 ∣ N.factorization 3 + 1 ∨ 5 ∣ N.factorization 3 + 1) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.MixedIndexTwo.not_mixed_index_special_five_of_three">OddPerfect.MixedIndexTwo.not_mixed_index_special_five_of_three</a> in <a href="reference.html#mod-MixedIndexTwo">OddPerfect.MixedIndexTwo</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">not_mixed_index_special_five</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (h5o : Odd (N.factorization 5))
+  (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 →
+    3 ∣ N.factorization p + 1 ∨ 5 ∣ N.factorization p + 1 ∨ 7 ∣ N.factorization p + 1) :
+  False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.MixedIndexThree.not_mixed_index_special_five">OddPerfect.MixedIndexThree.not_mixed_index_special_five</a> in <a href="reference.html#mod-MixedIndexThree">OddPerfect.MixedIndexThree</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_index_coprime_105</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (h5o : Odd (N.factorization 5)) :
+  <span class="k"><span class="k">∃</span></span> p ∈ N.primeFactors, p ≠ 5 ∧ Nat.Coprime (N.factorization p + 1) 105</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.MixedIndexThree.exists_index_coprime_105">OddPerfect.MixedIndexThree.exists_index_coprime_105</a> in <a href="reference.html#mod-MixedIndexThree">OddPerfect.MixedIndexThree</a></p>
 <p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_ten"><code>not_all_exponents_ten</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_twelve"><code>not_all_exponents_twelve</code></a>, the certificate checker of <a href="reference.html#mod-EqualExponentChain"><code>EqualExponentChain</code></a> for the exponents listed above, and <a href="reference.html#OddPerfect.pow_four_dvd_of_dvd_succ"><code>pow_four_dvd_of_dvd_succ</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
 
 <h2 id="small-primes">Small primes cannot all be present</h2>
@@ -167,6 +180,18 @@
   (hodd : Odd (N.factorization 5))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
   6 ≤ N.factorization 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_five_six_le_three">OddPerfect.two_exceptions_five_six_le_three</a> in <a href="reference.html#mod-TwoExceptionThreeB">OddPerfect.TwoExceptionThreeB</a></p>
+<p>For a general special prime q (module <a href="reference.html#mod-TwoExceptionFour"><code>TwoExceptionFour</code></a>): the exponent of 3 is not 2 when q ≡ 2 (mod 3) and 9 divides σ of the special component, and exponent 4 at the prime 3 with q ≠ 5 forces the exceptions to be 3 and 11. The remaining cases are open here. Whether these statements are new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_three_ne_two_of_nine_dvd</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hq : q.Prime) (hodd : Odd (N.factorization q)) (hq3 : q % 3 = 2)
+  (h9 : 9 ∣ σ 1 (q ^ N.factorization q))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+  N.factorization 3 ≠ 2</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_ne_two_of_nine_dvd">OddPerfect.two_exceptions_three_ne_two_of_nine_dvd</a> in <a href="reference.html#mod-TwoExceptionFour">OddPerfect.TwoExceptionFour</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_three_pow_four</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hq5 : q ≠ 5) (h34 : N.factorization 3 = 4)
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+  ((r₁ = 3 ∧ r₂ = 11) ∨ (r₁ = 11 ∧ r₂ = 3)) ∧ Even (N.factorization 11) ∧
+    6 ≤ N.factorization 11 ∧ ¬ 3 ∣ N.factorization 11 + 1 ∧
+    ¬ 5 ∣ N.factorization 11 + 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_pow_four">OddPerfect.two_exceptions_three_pow_four</a> in <a href="reference.html#mod-TwoExceptionFour">OddPerfect.TwoExceptionFour</a></p>
 <p>It also holds with three exceptional primes r₁, r₂ and r₃, again with no condition on them (module <a href="reference.html#mod-ThreeFreeThree"><code>ThreeFreeThree</code></a>). The proof is a case analysis with 1223 leaves over 102 class triples, found by a search outside Lean and rechecked in the kernel by a checker that is proved sound. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_three_exceptions</span> {N q r₁ r₂ r₃ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -295,7 +320,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>03fb609</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>a02bd21</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
