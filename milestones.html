@@ -149,6 +149,7 @@
 <li class="event"><time datetime="2026-11-22T11:10">11:10</time><p class="ev-title"><b>Largest prime factor above 100000.</b> <code class="hash">21261ff</code> <span class="cls known">known result formalized</span></p><p><code>LargestPrimeFactorTwoFinal</code> proves that an odd perfect number has a prime factor above 100000. The search is the earlier one; new is a checker that accepts each row of its table from a certificate, which made the kernel work affordable (twelve modules, about 30 CPU minutes). The published bounds are far higher: 10<sup>6</sup> (Hagis and Cohen), 10<sup>7</sup> (Jenkins), 10<sup>8</sup> (Goto and Ohno). With the present certificates the bound 200000 was measured at more than 90 CPU minutes and is not claimed.</p></li>
 <li class="event"><time datetime="2026-11-22T11:17">11:17</time><p class="ev-title"><b>Restrained family: no prime factor from 5 to 132257.</b> <code class="hash">dae5347</code> <span class="cls known">known result formalized</span></p><p><code>RestrainedSeven</code> proves that in the restrained family no prime from 5 up to 132257 divides N, by 12342 exclusion trees checked in the kernel (about 6 CPU minutes). No novelty is claimed: Ochem and Zelinsky (2026) treat this family in depth and prove that the exponent of 3 is at least 23,000,000,000. An offline sweep to 3,000,000 is running; it is not part of the theorem.</p></li>
 <li class="event minor"><time datetime="2026-11-22T11:21">11:21</time><p class="ev-title"><b>Families of 55, 85 and 115: cheaper kernel checks.</b> <code class="hash">15a3ae7</code> <span class="cls known">known result formalized</span></p><p>The five modules of the families of 55, 85 and 115 now use the cheaper table checks of <code>CommonFastChecks</code>, as the family of 95 does. The public theorems are unchanged and no module is added or removed. Measured on the build server: 55 and 85 together 397 CPU seconds before and 64 after; the three modules of 115 together 851 before and 91 after. No new mathematics.</p></li>
+<li class="event minor"><time datetime="2026-11-22T11:40">11:40</time><p class="ev-title"><b>Second largest prime: cheaper kernel checks.</b> <code class="hash">35ed8d3</code> <span class="cls known">known result formalized</span></p><p>The search for two prime factors above 72 is now checked with a faster step function, proved equal to the original one in <code>SecondLargestPrimeFast</code>. The nine data modules are replaced by nine new ones; the public theorems are unchanged, and the bound 58 is now a corollary of the bound 72. Measured on the build server: data 2738 CPU seconds before and 938 after. No new mathematics.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -162,7 +163,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>15a3ae7</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>35ed8d3</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
