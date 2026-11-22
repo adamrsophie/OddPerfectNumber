@@ -212,3 +212,4 @@ import OddPerfect.RadicalExponentTwo
 import OddPerfect.TwoExceptionThreeACheck
 import OddPerfect.TwoExceptionThreeAData
 import OddPerfect.TwoExceptionThreeA
+import OddPerfect.ReciprocalSumSix

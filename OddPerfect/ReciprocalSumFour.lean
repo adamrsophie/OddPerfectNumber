@@ -11,10 +11,32 @@ statements by cases on whether `3` and `5` divide `N`:
 * `3 ∤ N` and `5 ∣ N`: `0.647648 < ∑ 1/p`;
 * `3 ∤ N` and `5 ∤ N`: `0.667363 < ∑ 1/p`.
 
-Comparison with the literature. Cohen (1980) gives the lower bound `0.596063` for the case
-`15 ∣ N` and as the overall minimum; the comparison of the constant `0.5960631` proved here with
-the literature was not verified. The constants of the three other cases were not compared with
-the published ones either (the comparison with the literature was not verified).
+Comparison with the literature. The rows are the four classes of `gcd(N, 15)`; the entries are
+lower bounds for `∑_{p ∣ N} 1/p`, read from the source.
+
+* `1970`: the bounds of Suryanarayana and Hagis (1970), as reprinted in Table 1 (page 370) of
+  G. L. Cohen, "On odd perfect numbers (II), multiperfect numbers and quasiperfect numbers",
+  J. Austral. Math. Soc. Ser. A 29 (1980), 369 to 384.
+* `1980`: Table 2 (page 370) of the same paper, Cohen's improved bounds.
+* `2024`: Proposition 1 (page 3) of J. Zelinsky, "The sum of the reciprocals of the prime
+  divisors of an odd perfect or odd primitive non-deficient number", arXiv:2402.14234 (version
+  5, 2025), which summarizes the results of Cohen, Hagis and Suryanarayana; its values are those
+  of the column `1970`.
+* `this file`: the constants proved here.
+
+| gcd(N, 15) | 1970     | 1980     | 2024     | this file |
+|------------|----------|----------|----------|-----------|
+| 15         | 0.596063 | 0.596063 | 0.596063 | 0.5960631 |
+| 3          | 0.603831 | 0.604707 | 0.603831 | 0.604706  |
+| 5          | 0.647387 | 0.647649 | 0.647387 | 0.647648  |
+| 1          | 0.667450 | 0.667472 | 0.667450 | 0.667363  |
+
+Against the printed six decimal values of Cohen (1980): tied in the class `15` (his bound there
+is `S₂(3, 5, 17, 257, 65537; 65539)` of Theorem 1 (iii), page 372, about `0.5960631721`, which is
+larger than `0.5960631`); behind in the classes `3`, `5` and `1`. Against the columns `1970` and
+`2024`: tied in the class `15`, ahead in the classes `3` and `5`, behind in the class `1`. The
+lower bounds of the classes `1`, `3` and `5` are improved in `OddPerfect.ReciprocalSumFive`
+(`0.66747288`) and `OddPerfect.ReciprocalSumSix` (`0.60470764` and `0.64764966`).
 
 The method. Let `H = {3, 5, ..., 43}` be the thirteen smallest odd primes, `T` the set of prime
 factors of `N` in `H` and `R` the other prime factors (all at least `47`).
@@ -449,8 +471,8 @@ theorem sum_inv_gt_667363_of_not_three_not_five {N : ℕ} (h : OddPerfect N) (h3
   norm_num at this ⊢
   linarith
 
-/-- For an odd perfect number, `0.5960631 < ∑_{p ∣ N} 1/p`. Cohen (1980) gives the bound
-`0.596063`; the comparison with the literature was not verified. -/
+/-- For an odd perfect number, `0.5960631 < ∑_{p ∣ N} 1/p`. Cohen (1980, Table 2, page 370)
+gives the bound `0.596063`. -/
 theorem sum_inv_gt_5960631_div_10000000 {N : ℕ} (h : OddPerfect N) :
     (5960631 / 10000000 : ℝ) < ∑ p ∈ N.primeFactors, 1 / (p : ℝ) := by
   by_cases h3 : 3 ∣ N <;> by_cases h5 : 5 ∣ N

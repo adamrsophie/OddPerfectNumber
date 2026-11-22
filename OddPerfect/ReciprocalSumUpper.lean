@@ -14,9 +14,28 @@ hence `∑_{p ∣ N} 1/p < 0.677637` whenever `3 ∣ N` or `5 ∣ N`. With the l
 `OddPerfect.ReciprocalSumFour` this gives a window for each class; in the class `3 ∤ N`,
 `5 ∤ N` the upper end stays the landed bound `log 2`.
 
-Comparison with the literature. Upper bounds of this kind, by the same four cases, are
-published (Suryanarayana 1963; Suryanarayana and Hagis 1970; Cohen 1978 and 1980); the
-comparison of the constants proved here with the published ones was not verified.
+Comparison with the literature. The rows are the four classes of `gcd(N, 15)`; the entries are
+upper bounds for `∑_{p ∣ N} 1/p`, read from the source (`0.693148` is `log 2` rounded up).
+
+* `1970`: the bounds of Suryanarayana and Hagis (1970), as reprinted in Table 1 (page 370) of
+  G. L. Cohen, "On odd perfect numbers (II), multiperfect numbers and quasiperfect numbers",
+  J. Austral. Math. Soc. Ser. A 29 (1980), 369 to 384.
+* `1980`: Table 2 (page 370) of the same paper, Cohen's improved bounds.
+* `2024`: Proposition 1 (page 3) of J. Zelinsky, "The sum of the reciprocals of the prime
+  divisors of an odd perfect or odd primitive non-deficient number", arXiv:2402.14234 (version
+  5, 2025), which summarizes the results of Cohen, Hagis and Suryanarayana; its values are those
+  of the column `1970`.
+* `this file`: the constants proved here.
+
+| gcd(N, 15) | 1970     | 1980     | 2024     | this file |
+|------------|----------|----------|----------|-----------|
+| 15         | 0.673770 | 0.673634 | 0.673770 | 0.673634  |
+| 3          | 0.657304 | 0.657304 | 0.657304 | 0.657304  |
+| 5          | 0.678036 | 0.677637 | 0.678036 | 0.677637  |
+| 1          | 0.693148 | 0.693148 | 0.693148 | log 2     |
+
+Against Cohen (1980): tied in all four classes, to six decimal places. Against the columns
+`1970` and `2024`: ahead in the classes `15` and `5`, tied in the classes `3` and `1`.
 
 The method. Write `A_p = σ(p^e)/p^e` for the exact exponent `e` of `p` in `N`, so that
 `∑_{p ∣ N} log A_p = log 2`, and let `q` be the special prime. For a set `P` of prime factors,
