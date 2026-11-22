@@ -1,0 +1,7 @@
+# A control for the source scan, not the project's lakefile: GateControls/run.sh scans it as a
+# lakefile. Each key below passes options or arguments to Lean and must be reported.
+name = "GateControl"
+moreLeanArgs = ["-Ddebug.skipKernelTC=true"]
+
+[leanOptions]
+maxHeartbeats = 0

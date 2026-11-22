@@ -92,6 +92,13 @@ jobs:
           PYTHON: ${{ runner.temp }}/venv/bin/python
         run: bash scripts/CommonFamilies/rebuild95.sh . "$RUNNER_TEMP/rebuild95"
 
+      # Constructs in the library sources that AxiomGate.lean cannot see in the compiled
+      # environment: debug options such as debug.skipKernelTC, commands that run code at
+      # elaboration time, new syntax, notation or elaborators, local instances, set_option
+      # outside the options the library uses, and Lean options in lakefile.toml (about a second).
+      - name: Source scan
+        run: python3 -I scripts/Controls/source_scan.py
+
       - name: Build
         run: |
           start=$(date +%s)
@@ -118,12 +125,20 @@ jobs:
           AXIOM_GATE_TRACKED_FILES: ${{ runner.temp }}/tracked-files.txt
         run: lake env lean AxiomGate.lean
 
+      # Restates the headline theorems with mathlib's definitions and the project's OddPerfect
+      # and proves each by reference to the library theorem; fails if a statement changed or
+      # mentions a project definition outside the file's allowed list (about 5 s).
+      - name: Statement gate
+        run: lake env lean StatementGate.lean
+
       # Compiling the gate as a module for the controls runs it on the library once more,
-      # so this step needs the tracked file list too.
+      # so this step needs the tracked file list too. The runner also compiles the statement
+      # gate as a module, runs the source scan on its control and replays one control module
+      # with leanchecker.
       - name: Gate controls
         env:
           AXIOM_GATE_TRACKED_FILES: ${{ runner.temp }}/tracked-files.txt
-        run: sh GateControls/run.sh AxiomGate.lean
+        run: sh GateControls/run.sh AxiomGate.lean StatementGate.lean
 
       # Values of the certificate checkers on tiny well formed and malformed inputs. The weekly
       # run also compiles the five generated checks of the largest prime factor search (about
