@@ -143,3 +143,4 @@ import OddPerfect.SecondLargestPrimeData8
 import OddPerfect.SecondLargestPrimeData9
 import OddPerfect.SecondLargestPrimeTwo
 import OddPerfect.RestrainedTwo
+import OddPerfect.RestrainedThree
