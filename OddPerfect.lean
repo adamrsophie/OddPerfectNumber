@@ -199,3 +199,6 @@ import OddPerfect.LowerBoundTwoTree2
 import OddPerfect.LowerBoundTwoTree3
 import OddPerfect.LowerBoundTwoTree4
 import OddPerfect.LowerBoundTwo
+import OddPerfect.MixedIndexTwoCheck
+import OddPerfect.MixedIndexTwoData
+import OddPerfect.MixedIndexTwo
