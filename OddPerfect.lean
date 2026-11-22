@@ -233,3 +233,4 @@ import OddPerfect.MixedIndexThree
 import OddPerfect.EqualExponentsSize
 import OddPerfect.PrimePowerIndexBound
 import OddPerfect.CommonIndexCapacity
+import OddPerfect.SpecialBelowParity
