@@ -118,3 +118,17 @@ import OddPerfect.CommonNinetyFiveReach5
 import OddPerfect.CommonNinetyFiveReach6
 import OddPerfect.CommonNinetyFiveReach7
 import OddPerfect.CommonNinetyFive
+import OddPerfect.ThreeFreeThreeCore
+import OddPerfect.ThreeFreeThreeChecker
+import OddPerfect.ThreeFreeThreeData01
+import OddPerfect.ThreeFreeThreeData02
+import OddPerfect.ThreeFreeThreeData03
+import OddPerfect.ThreeFreeThreeData04
+import OddPerfect.ThreeFreeThreeData05
+import OddPerfect.ThreeFreeThreeData06
+import OddPerfect.ThreeFreeThreeData07
+import OddPerfect.ThreeFreeThreeData08
+import OddPerfect.ThreeFreeThreeData09
+import OddPerfect.ThreeFreeThreeData10
+import OddPerfect.ThreeFreeThreeData11
+import OddPerfect.ThreeFreeThree
