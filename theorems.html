@@ -120,6 +120,11 @@
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">special_pow_lt_sq</span> {N q k m : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) (hk : Odd k) : 3 * q ^ k &lt; 2 * m ^ 2</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.special_pow_lt_sq">OddPerfect.special_pow_lt_sq</a> in <a href="reference.html#mod-ClosedLoop">OddPerfect.ClosedLoop</a></p>
 <p class="idea"><strong>Proof idea.</strong> From σ(q<sup>k</sup>)σ(m²) = 2q<sup>k</sup>m² and q not dividing σ(q<sup>k</sup>), write σ(m²) = q<sup>k</sup>t, so σ(q<sup>k</sup>)t = 2m². Here t is odd (σ(q<sup>k</sup>) is even and m is odd), and t ≠ 1 because σ(m²) = q<sup>k</sup> is excluded by the closed loop argument. So t ≥ 3 and 3q<sup>k</sup> &lt; 3σ(q<sup>k</sup>) ≤ 2m².</p>
+<p>The special prime itself against m: q &lt; m whenever k ≠ 1, and for k = 1 outside one exceptional shape, in which m &lt; q holds (module <a href="reference.html#mod-SpecialBelow"><code>SpecialBelow</code></a>). Whether that shape can occur is not decided here. The inequality q &lt; m is claimed in the literature; that claim is not used.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">special_lt_or_shape</span> {N q k m : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) :
+  q &lt; m ∨ (k = 1 ∧ <span class="k"><span class="k">∃</span></span> p : <span class="t"><span class="t">ℕ</span></span>, p.Prime ∧ p ∣ m ∧ 2 * m ^ 2 = p ^ N.factorization p * (q + 1) ∧
+    σ 1 (p ^ N.factorization p) = q ∧ σ 1 ((q + 1) / 2) = p ^ N.factorization p)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.special_lt_or_shape">OddPerfect.special_lt_or_shape</a> in <a href="reference.html#mod-SpecialBelow">OddPerfect.SpecialBelow</a></p>
 
 <h2 id="one-exception">One exception forces 3</h2>
 <span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
@@ -231,7 +236,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>3987e97</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>8daa82a</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
