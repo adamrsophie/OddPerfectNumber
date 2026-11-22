@@ -12,7 +12,8 @@ the library theorem. Run after `lake build` with
 
 The command fails (nonzero exit status) if a restatement no longer matches its library
 theorem up to definitional equality, or if the check at the end of the file finds a
-restatement that mentions a project definition outside `allowedDefinitions`.
+restatement that mentions a project definition outside `allowedDefinitions`, or finds that the
+restatements differ from the inventory `expected`.
 
 The file opens no namespace and uses no notation of the library. Every name is written in
 full; `_root_` is put in front of `OddPerfect` and `Nat.Prime`, so that a declaration of the
@@ -22,7 +23,11 @@ facts and states of the certificate checker. Nothing in the library imports this
 
 The check at the end looks at every theorem `StatementGate.*` of the environment: each
 constant in its statement must come from a module outside the library (`OddPerfect` and
-`OddPerfect.*`) and outside this file, or be one of `allowedDefinitions`.
+`OddPerfect.*`) and outside this file, or be one of `allowedDefinitions`. The theorems
+`StatementGate.*` must be exactly the names of the inventory `expected`, and each must be
+proved by the library theorem paired with it there, as the bare constant; no name occurs twice
+in the inventory. Deleting a restatement or adding one without its inventory entry therefore
+fails the check.
 -/
 
 /-! ## The project definitions -/
@@ -50,8 +55,8 @@ example (s : List OddPerfect.Cert.Fact) (N : ℕ) :
 /-! ## Size and number of prime factors -/
 
 theorem StatementGate.lower_bound :
-    ∀ {N : ℕ}, _root_.OddPerfect N → 10 ^ 79 < N :=
-  @OddPerfect.LowerBound.lower_bound
+    ∀ {N : ℕ}, _root_.OddPerfect N → 10 ^ 150 < N :=
+  @OddPerfect.LowerBoundTwo.lower_bound
 
 theorem StatementGate.lt_two_pow_four_pow :
     ∀ {N : ℕ}, _root_.OddPerfect N → N < 2 ^ 4 ^ (Nat.primeFactors N).card :=
@@ -108,6 +113,56 @@ theorem StatementGate.finite_setOf_equal_exponents :
       ∀ p ∈ Nat.primeFactors N, p ≠ q → Nat.factorization N p = 2 * β} :=
   @OddPerfect.finite_setOf_equal_exponents
 
+theorem StatementGate.card_primeFactors_le_of_prime_pow_index :
+    ∀ {N q l E : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → ∃ γ : ℕ, 1 ≤ γ ∧ Nat.factorization N p + 1 = l ^ γ) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → Nat.factorization N p ≤ E) →
+        (Nat.primeFactors N).card ≤ E ^ 2 + 2 * E + 3 :=
+  @OddPerfect.card_primeFactors_le_of_prime_pow_index
+
+theorem StatementGate.lt_two_pow_four_pow_of_prime_pow_index :
+    ∀ {N q l E : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → ∃ γ : ℕ, 1 ≤ γ ∧ Nat.factorization N p + 1 = l ^ γ) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → Nat.factorization N p ≤ E) →
+        N < 2 ^ 4 ^ (E ^ 2 + 2 * E + 3) :=
+  @OddPerfect.lt_two_pow_four_pow_of_prime_pow_index
+
+theorem StatementGate.card_primeFactors_le_of_prime_pow_index_receivers :
+    ∀ {N q l B : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → ∃ γ : ℕ, 1 ≤ γ ∧ Nat.factorization N p + 1 = l ^ γ) →
+      Nat.factorization N l ≤ B →
+      (∀ s ∈ Nat.primeFactors N, s ≠ q → s % l = 1 → Nat.factorization N s ≤ B) →
+        (Nat.primeFactors N).card ≤ B ^ 2 + 2 * B + 2 :=
+  @OddPerfect.card_primeFactors_le_of_prime_pow_index_receivers
+
+theorem StatementGate.card_primeFactors_le_of_common_index :
+    ∀ {N q l E : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 → q % l ≠ 1 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ Nat.factorization N p + 1) →
+      Nat.factorization N l ≤ E →
+      (∀ r ∈ Nat.primeFactors N, r % l = 1 → Nat.factorization N r ≤ E) →
+        (Nat.primeFactors N).card ≤ E ^ 2 + 1 :=
+  @OddPerfect.card_primeFactors_le_of_common_index
+
+theorem StatementGate.restrained_omega_ge :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        38049 ≤ ArithmeticFunction.cardDistinctFactors N :=
+  @OddPerfect.restrained_omega_ge
+
+theorem StatementGate.rad_pow_fourteen_lt :
+    ∀ {N : ℕ}, _root_.OddPerfect N →
+      (Finset.prod (Nat.primeFactors N) (fun p => p)) ^ 14 < 2 ^ 14 * N ^ 9 :=
+  @OddPerfect.rad_pow_fourteen_lt
+
+theorem StatementGate.rad_pow_twentysix_lt :
+    ∀ {N : ℕ}, _root_.OddPerfect N →
+      (Finset.prod (Nat.primeFactors N) (fun p => p)) ^ 26 < 2 ^ 26 * N ^ 17 :=
+  @OddPerfect.rad_pow_twentysix_lt
+
 theorem StatementGate.twentyone_mul_omega_le :
     ∀ {N : ℕ}, _root_.OddPerfect N →
       21 * ArithmeticFunction.cardDistinctFactors N ≤ 8 * ArithmeticFunction.cardFactors N + 39 :=
@@ -149,6 +204,11 @@ theorem StatementGate.special_lt_or_shape :
         ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p) = q ∧
         ArithmeticFunction.sigma 1 ((q + 1) / 2) = p ^ Nat.factorization N p) :=
   @OddPerfect.special_lt_or_shape
+
+theorem StatementGate.even_card_primeFactors_of_special_ge :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      m ≤ q → Even (Nat.primeFactors N).card :=
+  @OddPerfect.even_card_primeFactors_of_special_ge
 
 theorem StatementGate.mod_refined :
     ∀ {N : ℕ}, _root_.OddPerfect N → N % 12 = 1 ∨ N % 468 = 117 ∨ N % 324 = 81 :=
@@ -225,6 +285,28 @@ theorem StatementGate.sum_inv_lt_log_two_sub_of_seven_le :
         Finset.sum (Nat.primeFactors N) (fun p => (1 : ℝ) / (p : ℝ)) <
           Real.log 2 - 11 / (50 * (p₁ : ℝ) ^ 2) :=
   @OddPerfect.sum_inv_lt_log_two_sub_of_seven_le
+
+theorem StatementGate.sum_inv_gt_60470764_of_three_not_five :
+    ∀ {N : ℕ}, _root_.OddPerfect N → 3 ∣ N → ¬ 5 ∣ N →
+      (60470764 / 100000000 : ℝ) < Finset.sum (Nat.primeFactors N) (fun p => (1 : ℝ) / (p : ℝ)) :=
+  @OddPerfect.sum_inv_gt_60470764_of_three_not_five
+
+theorem StatementGate.sum_inv_gt_64764966_of_five_not_three :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ¬ 3 ∣ N → 5 ∣ N →
+      (64764966 / 100000000 : ℝ) < Finset.sum (Nat.primeFactors N) (fun p => (1 : ℝ) / (p : ℝ)) :=
+  @OddPerfect.sum_inv_gt_64764966_of_five_not_three
+
+theorem StatementGate.sum_inv_gt_66747288_of_not_three_not_five :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ¬ 3 ∣ N → ¬ 5 ∣ N →
+      (66747288 / 100000000 : ℝ) < Finset.sum (Nat.primeFactors N) (fun p => (1 : ℝ) / (p : ℝ)) :=
+  @OddPerfect.sum_inv_gt_66747288_of_not_three_not_five
+
+theorem StatementGate.prod_div_sub_one_le_two_add_of_seven_le :
+    ∀ {N p₁ : ℕ}, _root_.OddPerfect N → p₁ ∈ Nat.primeFactors N →
+      (∀ p ∈ Nat.primeFactors N, p₁ ≤ p) → 7 ≤ p₁ →
+        Finset.prod (Nat.primeFactors N) (fun p => (p : ℝ) / ((p : ℝ) - 1)) ≤
+          2 + 9 / (4 * (p₁ : ℝ) ^ 2) :=
+  @OddPerfect.prod_div_sub_one_le_two_add_of_seven_le
 
 /-! ## Exponent patterns: the special prime `q` with odd exponent and the others -/
 
@@ -320,6 +402,21 @@ theorem StatementGate.two_exceptions_five_six_le_three :
         6 ≤ Nat.factorization N 3 :=
   @OddPerfect.two_exceptions_five_six_le_three
 
+theorem StatementGate.two_exceptions_five_normal_form :
+    ∀ {N r₁ r₂ : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
+        ∃ s : ℕ, _root_.Nat.Prime s ∧ s ∈ Nat.primeFactors N ∧ s % 5 = 1 ∧
+          5 ∣ Nat.factorization N s + 1 ∧
+          (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ 3 → p ≠ s → Nat.factorization N p = 2) ∧
+          Nat.Coprime (Nat.factorization N 3 + 1) 105 :=
+  @OddPerfect.two_exceptions_five_normal_form
+
+theorem StatementGate.two_exceptions_five_thirtysix_le_three :
+    ∀ {N r₁ r₂ : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
+        36 ≤ Nat.factorization N 3 :=
+  @OddPerfect.two_exceptions_five_thirtysix_le_three
+
 theorem StatementGate.two_exceptions_three_ne_two_of_nine_dvd :
     ∀ {N q r₁ r₂ : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       q % 3 = 2 → 9 ∣ ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q) →
@@ -336,6 +433,25 @@ theorem StatementGate.two_exceptions_three_pow_four :
           ¬ 5 ∣ Nat.factorization N 11 + 1 :=
   @OddPerfect.two_exceptions_three_pow_four
 
+theorem StatementGate.two_exceptions_three_pow_four_special_mod_twelve :
+    ∀ {N q r₁ r₂ : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      Nat.factorization N 3 = 4 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
+        q % 12 = 1 :=
+  @OddPerfect.two_exceptions_three_pow_four_special_mod_twelve
+
+theorem StatementGate.two_exceptions_three_ne_four :
+    ∀ {N q r₁ r₂ : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
+        Nat.factorization N 3 ≠ 4 :=
+  @OddPerfect.two_exceptions_three_ne_four
+
+theorem StatementGate.two_exceptions_five_three_sq_thirteen_ne_two :
+    ∀ {N r₁ r₂ : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
+      Nat.factorization N 3 = 2 → Nat.factorization N 13 ≠ 2 :=
+  @OddPerfect.two_exceptions_five_three_sq_thirteen_ne_two
+
 theorem StatementGate.not_mixed_index_three_five_seven :
     ∀ {N : ℕ}, _root_.OddPerfect N → Nat.factorization N 3 = 2 → Nat.factorization N 5 = 1 →
       (∀ p ∈ Nat.primeFactors N, p ≠ 5 →
@@ -349,6 +465,14 @@ theorem StatementGate.not_mixed_index_special_five :
         3 ∣ Nat.factorization N p + 1 ∨ 5 ∣ Nat.factorization N p + 1 ∨
           7 ∣ Nat.factorization N p + 1) → False :=
   @OddPerfect.MixedIndexThree.not_mixed_index_special_five
+
+theorem StatementGate.not_mixed_index_special_five_of_three :
+    ∀ {N : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ 5 →
+        3 ∣ Nat.factorization N p + 1 ∨ 5 ∣ Nat.factorization N p + 1 ∨
+          7 ∣ Nat.factorization N p + 1) →
+      (3 ∣ Nat.factorization N 3 + 1 ∨ 5 ∣ Nat.factorization N 3 + 1) → False :=
+  @OddPerfect.MixedIndexTwo.not_mixed_index_special_five_of_three
 
 theorem StatementGate.exists_index_coprime_105 :
     ∀ {N : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
@@ -394,6 +518,27 @@ theorem StatementGate.five_le_card_exponents_of_sigma_prime :
       5 ≤ (Finset.image (fun p => Nat.factorization N p) ((Nat.primeFactors N).erase q)).card :=
   @OddPerfect.five_le_card_exponents_of_sigma_prime
 
+theorem StatementGate.eleven_le_card_exponents_of_sigma_prime :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q →
+        _root_.Nat.Prime (ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p))) →
+      11 ≤ (Finset.image (fun p => Nat.factorization N p) ((Nat.primeFactors N).erase q)).card :=
+  @OddPerfect.eleven_le_card_exponents_of_sigma_prime
+
+theorem StatementGate.exists_prime_sigma_collision :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q →
+        _root_.Nat.Prime (ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p))) →
+      ∃ s p r : ℕ, s ∈ Nat.primeFactors N ∧ s ≠ q ∧
+        ArithmeticFunction.sigma 1 (s ^ Nat.factorization N s) = q ∧
+        ¬ s ∣ ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q) ∧
+        Even (Nat.factorization N s) ∧ 2 ≤ Nat.factorization N s ∧
+        p ∈ Nat.primeFactors N ∧ p ≠ q ∧ r ∈ Nat.primeFactors N ∧ r ≠ q ∧ p ≠ r ∧
+        ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p) = s ∧
+        ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) = s ∧
+        Nat.factorization N p ≠ Nat.factorization N r :=
+  @OddPerfect.exists_prime_sigma_collision
+
 theorem StatementGate.restrained_not_dvd_of_lt :
     ∀ {N q r p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       _root_.Nat.Prime r → r ≠ q →
@@ -420,9 +565,135 @@ def allowedDefinitions : List Name :=
   [``OddPerfect, ``OddPerfectConjecture, ``OddPerfect.Cert.Fact,
     ``OddPerfect.Cert.Cert, ``OddPerfect.Cert.check, ``OddPerfect.Cert.State.Holds]
 
-/-- Checks every theorem `StatementGate.*` of the environment (see the module docstring).
-Throws an error listing every offending constant, or logs one summary line. -/
-def check : CommandElabM Unit := do
+/-- The inventory: every restatement of this file, paired with the library theorem that proves
+it. The check requires the theorems `StatementGate.*` to be exactly the first components, each
+proved by the second component alone; a restatement removed from the file, or added without
+an entry here, fails the check. -/
+def expected : List (Name × Name) :=
+  [(`StatementGate.lower_bound, ``OddPerfect.LowerBoundTwo.lower_bound),
+    (`StatementGate.lt_two_pow_four_pow, ``OddPerfect.lt_two_pow_four_pow),
+    (`StatementGate.five_le_card_primeFactors, ``OddPerfect.five_le_card_primeFactors),
+    (`StatementGate.six_le_card_primeFactors, ``OddPerfect.six_le_card_primeFactors),
+    (`StatementGate.seven_le_card_primeFactors, ``OddPerfect.seven_le_card_primeFactors),
+    (`StatementGate.exists_prime_dvd_of_card_eq_six, ``OddPerfect.exists_prime_dvd_of_card_eq_six),
+    (`StatementGate.ten_le_card_primeFactors_of_not_three_dvd,
+      ``OddPerfect.ten_le_card_primeFactors_of_not_three_dvd),
+    (`StatementGate.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd,
+      ``OddPerfect.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd),
+    (`StatementGate.sixteen_le_card_primeFactors_of_not_three_not_five,
+      ``OddPerfect.sixteen_le_card_primeFactors_of_not_three_not_five),
+    (`StatementGate.three_mul_minFac_lt, ``OddPerfect.three_mul_minFac_lt),
+    (`StatementGate.card_primeFactors_le_of_equal_exponents,
+      ``OddPerfect.card_primeFactors_le_of_equal_exponents),
+    (`StatementGate.lt_two_pow_four_pow_of_equal_exponents,
+      ``OddPerfect.lt_two_pow_four_pow_of_equal_exponents),
+    (`StatementGate.finite_setOf_equal_exponents, ``OddPerfect.finite_setOf_equal_exponents),
+    (`StatementGate.card_primeFactors_le_of_prime_pow_index,
+      ``OddPerfect.card_primeFactors_le_of_prime_pow_index),
+    (`StatementGate.lt_two_pow_four_pow_of_prime_pow_index,
+      ``OddPerfect.lt_two_pow_four_pow_of_prime_pow_index),
+    (`StatementGate.card_primeFactors_le_of_prime_pow_index_receivers,
+      ``OddPerfect.card_primeFactors_le_of_prime_pow_index_receivers),
+    (`StatementGate.card_primeFactors_le_of_common_index,
+      ``OddPerfect.card_primeFactors_le_of_common_index),
+    (`StatementGate.restrained_omega_ge, ``OddPerfect.restrained_omega_ge),
+    (`StatementGate.rad_pow_fourteen_lt, ``OddPerfect.rad_pow_fourteen_lt),
+    (`StatementGate.rad_pow_twentysix_lt, ``OddPerfect.rad_pow_twentysix_lt),
+    (`StatementGate.twentyone_mul_omega_le, ``OddPerfect.twentyone_mul_omega_le),
+    (`StatementGate.eight_mul_omega_le_of_not_three_dvd,
+      ``OddPerfect.eight_mul_omega_le_of_not_three_dvd),
+    (`StatementGate.ninetynine_mul_omega_le, ``OddPerfect.ninetynine_mul_omega_le),
+    (`StatementGate.fiftyone_mul_omega_le_of_not_three_dvd,
+      ``OddPerfect.fiftyone_mul_omega_le_of_not_three_dvd),
+    (`StatementGate.exists_euler_form, ``OddPerfect.exists_euler_form),
+    (`StatementGate.special_pow_lt_sq, ``OddPerfect.special_pow_lt_sq),
+    (`StatementGate.special_lt_or_shape, ``OddPerfect.special_lt_or_shape),
+    (`StatementGate.even_card_primeFactors_of_special_ge,
+      ``OddPerfect.even_card_primeFactors_of_special_ge),
+    (`StatementGate.mod_refined, ``OddPerfect.mod_refined),
+    (`StatementGate.not_105_dvd, ``OddPerfect.not_105_dvd),
+    (`StatementGate.exists_mutual_quadratic_residues,
+      ``OddPerfect.exists_mutual_quadratic_residues),
+    (`StatementGate.exists_primeFactor_gt_200000, ``OddPerfect.exists_primeFactor_gt_200000),
+    (`StatementGate.exists_two_primeFactors_gt_72, ``OddPerfect.exists_two_primeFactors_gt_72),
+    (`StatementGate.largest_primeFactor_ne_40961, ``OddPerfect.largest_primeFactor_ne_40961),
+    (`StatementGate.largest_prime_sub_one_ne_two_pow,
+      ``OddPerfect.largest_prime_sub_one_ne_two_pow),
+    (`StatementGate.largest_prime_ne_three_mul_four_pow,
+      ``OddPerfect.largest_prime_ne_three_mul_four_pow),
+    (`StatementGate.factorization_largest_le_sum_totient,
+      ``OddPerfect.factorization_largest_le_sum_totient),
+    (`StatementGate.two_mul_factorization_add_three_le,
+      ``OddPerfect.two_mul_factorization_add_three_le),
+    (`StatementGate.sum_inv_lt_log_two, ``OddPerfect.sum_inv_lt_log_two),
+    (`StatementGate.sum_inv_gt_5960631_div_10000000, ``OddPerfect.sum_inv_gt_5960631_div_10000000),
+    (`StatementGate.sum_inv_lt_677637_of_three_or_five,
+      ``OddPerfect.sum_inv_lt_677637_of_three_or_five),
+    (`StatementGate.sum_inv_lt_log_two_sub_of_seven_le,
+      ``OddPerfect.sum_inv_lt_log_two_sub_of_seven_le),
+    (`StatementGate.sum_inv_gt_60470764_of_three_not_five,
+      ``OddPerfect.sum_inv_gt_60470764_of_three_not_five),
+    (`StatementGate.sum_inv_gt_64764966_of_five_not_three,
+      ``OddPerfect.sum_inv_gt_64764966_of_five_not_three),
+    (`StatementGate.sum_inv_gt_66747288_of_not_three_not_five,
+      ``OddPerfect.sum_inv_gt_66747288_of_not_three_not_five),
+    (`StatementGate.prod_div_sub_one_le_two_add_of_seven_le,
+      ``OddPerfect.prod_div_sub_one_le_two_add_of_seven_le),
+    (`StatementGate.steuerwald, ``OddPerfect.steuerwald),
+    (`StatementGate.not_all_exponents_four, ``OddPerfect.not_all_exponents_four),
+    (`StatementGate.not_all_exponents_six, ``OddPerfect.not_all_exponents_six),
+    (`StatementGate.not_all_exponents_ten, ``OddPerfect.not_all_exponents_ten),
+    (`StatementGate.not_all_exponents_twelve, ``OddPerfect.not_all_exponents_twelve),
+    (`StatementGate.mcdaniel, ``OddPerfect.mcdaniel),
+    (`StatementGate.pow_four_dvd_of_dvd_succ, ``OddPerfect.pow_four_dvd_of_dvd_succ),
+    (`StatementGate.pow_five_dvd_of_forall_dvd_succ, ``OddPerfect.pow_five_dvd_of_forall_dvd_succ),
+    (`StatementGate.three_dvd_of_one_exception, ``OddPerfect.three_dvd_of_one_exception),
+    (`StatementGate.three_dvd_of_two_exceptions, ``OddPerfect.three_dvd_of_two_exceptions),
+    (`StatementGate.three_dvd_of_three_exceptions, ``OddPerfect.three_dvd_of_three_exceptions),
+    (`StatementGate.three_dvd_of_three_mod_exceptions,
+      ``OddPerfect.three_dvd_of_three_mod_exceptions),
+    (`StatementGate.four_le_card_mod_exceptions, ``OddPerfect.four_le_card_mod_exceptions),
+    (`StatementGate.five_le_card_mod_exceptions_of_thirteen,
+      ``OddPerfect.five_le_card_mod_exceptions_of_thirteen),
+    (`StatementGate.two_exceptions_five_three_cases, ``OddPerfect.two_exceptions_five_three_cases),
+    (`StatementGate.two_exceptions_five_six_le_three,
+      ``OddPerfect.two_exceptions_five_six_le_three),
+    (`StatementGate.two_exceptions_five_normal_form, ``OddPerfect.two_exceptions_five_normal_form),
+    (`StatementGate.two_exceptions_five_thirtysix_le_three,
+      ``OddPerfect.two_exceptions_five_thirtysix_le_three),
+    (`StatementGate.two_exceptions_three_ne_two_of_nine_dvd,
+      ``OddPerfect.two_exceptions_three_ne_two_of_nine_dvd),
+    (`StatementGate.two_exceptions_three_pow_four, ``OddPerfect.two_exceptions_three_pow_four),
+    (`StatementGate.two_exceptions_three_pow_four_special_mod_twelve,
+      ``OddPerfect.two_exceptions_three_pow_four_special_mod_twelve),
+    (`StatementGate.two_exceptions_three_ne_four, ``OddPerfect.two_exceptions_three_ne_four),
+    (`StatementGate.two_exceptions_five_three_sq_thirteen_ne_two,
+      ``OddPerfect.two_exceptions_five_three_sq_thirteen_ne_two),
+    (`StatementGate.not_mixed_index_three_five_seven,
+      ``OddPerfect.not_mixed_index_three_five_seven),
+    (`StatementGate.not_mixed_index_special_five,
+      ``OddPerfect.MixedIndexThree.not_mixed_index_special_five),
+    (`StatementGate.not_mixed_index_special_five_of_three,
+      ``OddPerfect.MixedIndexTwo.not_mixed_index_special_five_of_three),
+    (`StatementGate.exists_index_coprime_105,
+      ``OddPerfect.MixedIndexThree.exists_index_coprime_105),
+    (`StatementGate.three_mul_card_le, ``OddPerfect.three_mul_card_le),
+    (`StatementGate.isSquare_sigma_prime_pow_iff, ``OddPerfect.isSquare_sigma_prime_pow_iff),
+    (`StatementGate.three_dvd_of_thirtyone_exceptional_mod_three,
+      ``OddPerfect.three_dvd_of_thirtyone_exceptional_mod_three),
+    (`StatementGate.card_nine_dvd_le, ``OddPerfect.card_nine_dvd_le),
+    (`StatementGate.five_le_card_exponents_of_sigma_prime,
+      ``OddPerfect.five_le_card_exponents_of_sigma_prime),
+    (`StatementGate.eleven_le_card_exponents_of_sigma_prime,
+      ``OddPerfect.eleven_le_card_exponents_of_sigma_prime),
+    (`StatementGate.exists_prime_sigma_collision, ``OddPerfect.exists_prime_sigma_collision),
+    (`StatementGate.restrained_not_dvd_of_lt, ``OddPerfect.restrained_not_dvd_of_lt),
+    (`StatementGate.cert_check_sound, ``OddPerfect.Cert.check_sound)]
+
+/-- Checks every theorem `StatementGate.*` of the environment against the inventory `exp` and
+the allowed list (see the module docstring). Throws an error listing every problem, or logs one
+summary line. The controls in `GateControls/` call it with a changed inventory. -/
+def checkWith (exp : List (Name × Name)) : CommandElabM Unit := do
   let env := (← getEnv).setExporting false
   let names := env.header.moduleNames
   let fromLibraryOrHere (c : Name) : Bool :=
@@ -437,11 +708,32 @@ def check : CommandElabM Unit := do
     for c in ci.type.getUsedConstants do
       if fromLibraryOrHere c && !allowedDefinitions.contains c then
         errors := errors.push m!"{n}: mentions {c}, a project definition outside the allowed list"
+    unless exp.any (·.1 == n) do
+      errors := errors.push m!"{n}: restated but not in the expected list"
+  for n in (exp.map (·.1)).eraseDups do
+    if (exp.map (·.1)).count n > 1 then
+      errors := errors.push m!"{n}: occurs more than once in the expected list"
+  for n in (exp.map (·.2)).eraseDups do
+    if (exp.map (·.2)).count n > 1 then
+      errors := errors.push m!"{n}: paired with more than one restatement in the expected list"
+  for (g, l) in exp.eraseDups do
+    match env.find? g with
+    | some (.thmInfo v) =>
+      match v.value with
+      | .const c _ =>
+        unless c == l do
+          errors := errors.push m!"{g}: proved by {c}, expected {l}"
+      | _ => errors := errors.push m!"{g}: not proved by the library theorem {l} alone"
+    | _ => errors := errors.push m!"{g}: expected restatement of {l} is missing"
   unless errors.isEmpty do
     throwError m!"statement gate FAILED ({errors.size} problems):\n" ++
       MessageData.joinSep errors.toList "\n"
-  logInfo m!"statement gate OK: {count} restated theorems, project definitions mentioned \
-    only from {", ".intercalate (allowedDefinitions.map toString)}"
+  logInfo m!"statement gate OK: {count} restated theorems, exactly those of the expected list, \
+    each proved by its library theorem; project definitions mentioned only from \
+    {", ".intercalate (allowedDefinitions.map toString)}"
+
+/-- The check with the inventory of this file. -/
+def check : CommandElabM Unit := checkWith expected
 
 end StatementGate
 

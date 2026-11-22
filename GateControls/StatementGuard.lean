@@ -10,7 +10,9 @@ build never compiles it. Run it only through `GateControls/run.sh`, which compil
 The restatement below matches its theorem, but it is stated about the local definition
 `GateControls.OddPerfect` instead of `_root_.OddPerfect`. The check of `StatementGate.lean`
 looks at every theorem `StatementGate.*`, the restatements it imports included, and must
-reject this one.
+reject this one. The check runs with the inventory of the gate plus this restatement, so that
+the only problem is the definition outside the allowed list (the inventory has its own
+controls, `StatementMissing.lean`, `StatementExtra.lean` and `StatementRebound.lean`).
 
 Expected result: the file fails with exactly one problem, the line
 `StatementGate.shadowed: mentions GateControls.OddPerfect, a project definition outside the
@@ -32,4 +34,5 @@ theorem StatementGate.shadowed :
     ∀ {N : ℕ}, GateControls.OddPerfect N → 7 ≤ (Nat.primeFactors N).card :=
   @GateControls.seven_le_card_primeFactors
 
-run_cmd StatementGate.check
+run_cmd StatementGate.checkWith (StatementGate.expected ++
+  [(`StatementGate.shadowed, ``GateControls.seven_le_card_primeFactors)])

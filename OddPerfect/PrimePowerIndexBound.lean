@@ -15,7 +15,8 @@ The argument is Yamada's for equal exponents (Colloq. Math. 103 (2005), Theorem 
   prime. With `l ∣ N` (`dvd_of_succ_eq_pow`) the prime `l` is ordinary and `v_l(N) ≤ E`.
 * The ordinary primes `≡ 1 (mod l)` each contribute at least one factor `l` to `σ(N)`, so there
   are at most `E` of them; each receives from at most `E` senders (`card_feeders_le`).
-* Every other ordinary prime `p ≠ l` has `σ(p ^ e_p)` a power of `q`, the full power `p ^ e_p`
+* Every ordinary prime `p ≠ l` with `p ≢ 1 (mod l)` such that no ordinary prime `≡ 1 (mod l)`
+  divides `σ(p ^ e_p)` has `σ(p ^ e_p)` a power of `q`, the full power `p ^ e_p`
   divides `σ(q ^ α)`, and the lemma of Dandapat, Hunsucker and Pomerance with lifting the
   exponent gives `p ^ (l - 2) ∣ α + 1`. Counting divisors of `α + 1` (Bang's theorem at `q`)
   gives `2 ^ (u + 1) ≤ E ^ 2 + E + u + 3` for the number `u` of such primes, so `u ≤ E + 1`.

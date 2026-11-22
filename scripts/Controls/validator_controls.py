@@ -3,18 +3,23 @@
 # Permanent controls for the published validators EqualExponentChain/checker.py,
 # LowerBound/check.py, CommonFamilies/verify.py and CommonFamilies/est.py, and for the helpers
 # under ThreeFreeThree/ (check3.py, verify3.py, gen_lean.py, route3.py), SecondLargestPrimeFast/
-# (validate.py, knuth.py, reach.py, mkfast.py) and LedgerThreeFree/check.py: every archived valid
+# (validate.py, knuth.py, reach.py, mkfast.py), LedgerThreeFree/check.py, MixedIndex/verify.py,
+# MixedIndexThree/ (verify3.py, cert3.py), the process count argument of
+# LargestPrimeFactor/gen6.py, and Controls/ (source_scan.py, replay.sh): every archived valid
 # input must pass with exit status 0, and each mutated input must be rejected with the expected
 # nonzero status (1: a well formed input fails a check; 2: malformed input or usage), with no
-# Python traceback. The validators run as subprocesses with `sys.executable -I`, in normal and
+# Python traceback. The validators run as subprocesses with `sys.executable -I -B`, in normal and
 # in optimized (-O) mode, so a check written as an `assert` would show up as a failure.
 # Mutated inputs are built from the archived certificates in a temporary folder; nothing is
 # written inside the repository.
 # Run: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]
-# With --stdlib-only the controls of CommonFamilies/verify.py, which needs sympy, are skipped
-# (each is listed as SKIP); without it a missing sympy is a failure.
-# Requires: Python 3 standard library (sympy for the verify.py controls). Running time: about
-# two minutes.
+# With --stdlib-only the controls that need sympy (CommonFamilies/verify.py, LedgerThreeFree,
+# MixedIndex and MixedIndexThree) are skipped (each is listed as SKIP); without it a missing sympy
+# is a failure. The controls of replay.sh run it with a stand in for lake on PATH, so they need
+# neither the toolchain nor a build; they need sh and a python3 on PATH with tomllib (3.11 or
+# later), which the source scan imports.
+# Requires: Python 3.11 or later (tomllib, for the source scan controls), sympy for the controls
+# named above. Running time: about two minutes.
 # Exit status: 0 when every control behaves as expected, 1 otherwise, 2 for a usage error.
 # License: GPL 3, same as the repository.
 
@@ -36,6 +41,14 @@ TF = os.path.join(SC, 'ThreeFreeThree')
 SLP = os.path.join(SC, 'SecondLargestPrimeFast')
 SLP_VALIDATE = os.path.join(SLP, 'validate.py')
 LEDGER = os.path.join(SC, 'LedgerThreeFree', 'check.py')
+MIX = os.path.join(SC, 'MixedIndex')
+MIX_VERIFY = os.path.join(MIX, 'verify.py')
+MIX3 = os.path.join(SC, 'MixedIndexThree')
+MIX3_VERIFY = os.path.join(MIX3, 'verify3.py')
+MIX3_CERT = os.path.join(MIX3, 'cert3.py')
+GEN6 = os.path.join(SC, 'LargestPrimeFactor', 'gen6.py')
+SCAN = os.path.join(SC, 'Controls', 'source_scan.py')
+REPLAY = os.path.join(SC, 'Controls', 'replay.sh')
 TF_CERT = os.path.join(TF, 'cert3_final.json.xz')
 EQ_CERTS = sorted(os.path.join(SC, f, 'certs', n) for f in ('EqualExponentChain', 'EqualExponentChainMore')
                   for n in os.listdir(os.path.join(SC, f, 'certs')) if n.endswith('.json'))
@@ -54,10 +67,12 @@ def report(verdict, name, detail=''):
     print(f'{verdict} {name}' + (f': {detail}' if detail else ''), flush=True)
 
 
-def control(name, script, args, want, modes=('', '-O'), cwd=None, timeout=60):
-    """Runs the script in each mode and requires exit status `want` and no traceback."""
+def control(name, script, args, want, modes=('', '-O'), cwd=None, timeout=60, expect=None):
+    """Runs the script in each mode and requires exit status `want`, no traceback, and the
+    line fragment `expect` (if given) in its output."""
     for mode in modes:
-        cmd = [sys.executable, '-I'] + ([mode] if mode else []) + [script] + args
+        # -B: no __pycache__ folders next to the scripts that the validators import
+        cmd = [sys.executable, '-I', '-B'] + ([mode] if mode else []) + [script] + args
         label = f'{name} [{"python -O" if mode else "python"}]'
         try:
             p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
@@ -68,6 +83,8 @@ def control(name, script, args, want, modes=('', '-O'), cwd=None, timeout=60):
             report('FAIL', label, 'traceback: ' + p.stderr.strip().splitlines()[-1])
         elif p.returncode != want:
             report('FAIL', label, f'exit status {p.returncode}, expected {want}')
+        elif expect is not None and expect not in p.stdout + p.stderr:
+            report('FAIL', label, f'no line with {expect!r}')
         else:
             report('PASS', label, f'exit status {want}')
 
@@ -100,7 +117,8 @@ def mutate_text(src, dst, old, new):
 
 def no_asserts():
     """The validators and this script must not rely on `assert`, which python -O removes."""
-    for path in (CHECKER, LBCHECK, VERIFY, EST, SLP_VALIDATE, LEDGER, os.path.abspath(__file__)):
+    for path in (CHECKER, LBCHECK, VERIFY, EST, SLP_VALIDATE, LEDGER, MIX_VERIFY, MIX3_VERIFY,
+                 os.path.abspath(__file__)):
         with open(path) as f:
             tree = ast.parse(f.read(), path)
         lines = [n.lineno for n in ast.walk(tree) if isinstance(n, ast.Assert)]
@@ -304,6 +322,14 @@ def second_largest_prime(t):
     control('mkfast.py: zero fuel', os.path.join(SLP, 'mkfast.py'), ['72', '0', '10001', '9', f'{t}/mk0'], 2, modes=('',))
     control('mkfast.py: zero modules', os.path.join(SLP, 'mkfast.py'), ['72', '500', '10001', '0', f'{t}/mk1'], 2,
             modes=('',))
+    # Argument checks that end the run before any search starts, so both modes are cheap.
+    control('knuth.py: zero probes', os.path.join(SLP, 'knuth.py'), ['60', '0'], 2)
+    control('knuth.py: no probe count', os.path.join(SLP, 'knuth.py'), ['60'], 2)
+    control('reach.py: zero chunk size', os.path.join(SLP, 'reach.py'), ['72', '10001', '10', '0'], 2)
+    control('reach.py: six arguments', os.path.join(SLP, 'reach.py'), ['72', '10001', '10', '500', '1000', '1'], 2)
+    control('mkfast.py: lower bound above 10001', os.path.join(SLP, 'mkfast.py'),
+            ['72', '500', '10002', '9', f'{t}/mk2'], 2)
+    control('mkfast.py: no output folder', os.path.join(SLP, 'mkfast.py'), ['72', '500', '10001', '9'], 2)
 
 
 def ledger_three_free(t, stdlib_only):
@@ -335,6 +361,224 @@ def ledger_three_free(t, stdlib_only):
     control(names[4], mutant('ledger_surv', '491: 603791}, "survivor map")', '491: 603793}, "survivor map")', 1), [], 1)
 
 
+def first_force(node):
+    """The first branch (in key order, depth first) whose forced list has two primes."""
+    for k in sorted(node.get('br', {})):
+        c = node['br'][k]
+        if len(c.get('force', [])) >= 2:
+            return c
+        if 'next' in c:
+            found = first_force(c['next'])
+            if found is not None:
+                return found
+    return None
+
+
+def forced_variants(cert):
+    """Copies of a certificate with its first forced prime made negative, a float, and composite."""
+    out = []
+    for tag, change in (('negative', lambda r: [-r[0]] + r[1:]), ('float', lambda r: [float(r[0])] + r[1:]),
+                        ('composite', lambda r: [r[0] * r[1]] + r[2:])):
+        doc = json.loads(json.dumps(cert))
+        c = first_force(doc)
+        if c is None:
+            raise SystemExit('control setup: no forced list with two primes in the certificate')
+        c['force'] = change(c['force'])
+        out.append((tag, doc))
+    return out
+
+
+def mixed_index(t, stdlib_only):
+    """MixedIndex/verify.py and MixedIndexThree/verify3.py must decide by explicit checks (python -O
+    keeps them), reject a duplicated base component and malformed forced primes; cert3.py must
+    report an unfinished search by its exit status."""
+    names = ['verify.py (MixedIndex) accepts cert.json', 'verify.py (MixedIndex): empty abundance set at the root',
+             'verify.py (MixedIndex): forced prime negative', 'verify.py (MixedIndex): forced prime float',
+             'verify.py (MixedIndex): forced prime composite', 'verify.py (MixedIndex): no certificate given',
+             'verify3.py (MixedIndexThree) accepts g1', 'verify3.py (MixedIndexThree) accepts g9',
+             'verify3.py (MixedIndexThree): empty abundance set at the root',
+             'verify3.py (MixedIndexThree): duplicated base component',
+             'verify3.py (MixedIndexThree): forced prime negative', 'verify3.py (MixedIndexThree): forced prime float',
+             'verify3.py (MixedIndexThree): forced prime composite', 'verify3.py (MixedIndexThree): no tag given',
+             'cert3.py: node limit 0 is not closure']
+    if stdlib_only:
+        for n in names:
+            skip(n)
+        return
+    if importlib.util.find_spec('sympy') is None:
+        report('FAIL', 'MixedIndex controls', 'sympy is not installed (use --stdlib-only to skip them)')
+        return
+    # verify.py writes cert_primes.json into its working folder, cert3.py a factor cache.
+    d1 = f'{t}/mix1'
+    os.mkdir(d1)
+    cert = load(os.path.join(MIX, 'cert.json'))
+    empty = write_json(f'{d1}/empty.json', {'close': 'abund', 'set': []})
+    control(names[0], MIX_VERIFY, [os.path.join(MIX, 'cert.json')], 0, cwd=d1, expect='ACCEPTED')
+    control(names[1], MIX_VERIFY, [empty], 1, cwd=d1, expect='not abundant')
+    for i, (tag, doc) in enumerate(forced_variants(cert)):
+        control(names[2 + i], MIX_VERIFY, [write_json(f'{d1}/force_{tag}.json', doc)], 1, cwd=d1)
+    control(names[5], MIX_VERIFY, [], 2, cwd=d1)
+    # verify3.py reads cfg_TAG.json and cert_TAG.json from its working folder and writes nothing.
+    control(names[6], MIX3_VERIFY, ['g1'], 0, cwd=MIX3, expect='g1 ACCEPTED')
+    control(names[7], MIX3_VERIFY, ['g9'], 0, cwd=MIX3, expect='g9 ACCEPTED')
+    d3 = f'{t}/mix3'
+    os.mkdir(d3)
+    cfg = load(os.path.join(MIX3, 'cfg_g1.json'))
+
+    def case(tag, c, doc):
+        write_json(f'{d3}/cfg_{tag}.json', c)
+        write_json(f'{d3}/cert_{tag}.json', doc)
+        return tag
+
+    control(names[8], MIX3_VERIFY, [case('empty', cfg, {'close': 'abund', 'set': []})], 1, cwd=d3,
+            expect='not abundant')
+    if [3, 6] not in cfg['base']:
+        raise SystemExit('control setup: cfg_g1.json no longer has the base component [3, 6]')
+    dup = dict(cfg, base=cfg['base'] + [[3, 6]])  # 3^6 counted twice makes the root abundant
+    control(names[9], MIX3_VERIFY, [case('dup', dup, {'close': 'abund', 'set': []})], 1, cwd=d3,
+            expect='duplicate base prime')
+    for i, (tag, doc) in enumerate(forced_variants(load(os.path.join(MIX3, 'cert_g1.json')))):
+        control(names[10 + i], MIX3_VERIFY, [case(tag, cfg, doc)], 1, cwd=d3)
+    control(names[13], MIX3_VERIFY, [], 2, cwd=d3)
+    d4 = f'{t}/cert3'
+    os.mkdir(d4)
+    control(names[14], MIX3_CERT, [os.path.join(MIX3, 'cfg_g1.json'), 'min', f'{d4}/out.json', '0'], 1, cwd=d4,
+            expect='"closed": false')
+    if os.path.exists(f'{d4}/out.json'):
+        report('FAIL', 'cert3.py: unfinished search writes no tree', 'out.json was written')
+    else:
+        report('PASS', 'cert3.py: unfinished search writes no tree')
+
+
+def gen6_jobs_argument(t):
+    """gen6.py reads its process count J only after the whole search, so a run cannot show where
+    it looks for J in seconds. This control evaluates the assignment of `jobs_at` in the source,
+    for both modes, against the place of [J] in the usage lines of the file header; a copy with
+    the former index 7 must fail the same comparison."""
+    def check(path):
+        with open(path) as f:
+            text = f.read()
+        tree = ast.parse(text, path)
+        exprs = [n.value for n in ast.walk(tree) if isinstance(n, ast.Assign)
+                 and [getattr(x, 'id', None) for x in n.targets] == ['jobs_at']]
+        if len(exprs) != 1:
+            return f'{len(exprs)} assignments of jobs_at'
+        code = compile(ast.Expression(exprs[0]), path, 'eval')
+        usages = [line.lstrip('# ').split()[2:] for line in text.splitlines()
+                  if line.lstrip('# ').startswith('python3 -I gen6.py ') and '[J]' in line.split()]
+        if sorted(u[2] for u in usages) != ['lean', 'mirror']:
+            return f'usage lines with [J] in the header: {usages}'
+        # u is sys.argv of the documented command: u[0] the script, u[2] the mode
+        bad = [' '.join(u[:u.index('[J]') + 1]) for u in usages
+               if eval(code, {'__builtins__': {}}, {'mode': u[2]}) != u.index('[J]')]
+        return ', '.join(bad) or None
+
+    problem = check(GEN6)
+    report('FAIL' if problem else 'PASS', 'gen6.py: process count read at the place of [J] in both modes',
+           problem or '')
+    old = mutate_text(GEN6, f'{t}/gen6_old.py', "jobs_at = 3 if mode == 'mirror' else 6",
+                      "jobs_at = 3 if mode == 'mirror' else 7")
+    problem = check(old)
+    report('PASS' if problem else 'FAIL', 'gen6.py: the former index 7 is detected', problem or 'not detected')
+
+
+def source_scan(t):
+    """The source scan must reject a quoted attribute name, an interpolated string with a tactic
+    block, an escaped lakefile key and an unreadable lakefile, and accept ordinary strings and
+    comments that mention the same words."""
+    d = f'{t}/scan'
+    os.mkdir(d)
+
+    def put(name, text):
+        with open(f'{d}/{name}', 'w', encoding='utf-8') as f:
+            f.write(text)
+        return f'{d}/{name}'
+
+    control('source_scan.py: attribute named by a quoted identifier', SCAN,
+            [put('quoted.lean', '@[\u00abcommand_elab\u00bb Lean.Parser.Command.check]\ndef f : Nat := 1\n')], 1,
+            expect='quoted.lean:1: attribute that runs code')
+    control('source_scan.py: tactic block inside an interpolated string', SCAN,
+            [put('interp.lean', 'def s : String := s!"{(by exact 0 : Nat)}"\n')], 1,
+            expect='interp.lean:1: interpolated string syntax s!')
+    control('source_scan.py: lakefile key written with Unicode escapes', SCAN,
+            [put('escaped.toml', '[package]\nname = "x"\n\n[[lean_lib]]\nname = "X"\n'
+                 '"more\\u004cean\\u0041rgs" = ["-DmaxHeartbeats=0"]\n')], 1,
+            expect='escaped.toml:6: lakefile option moreLeanArgs')
+    control('source_scan.py: unreadable lakefile', SCAN, [put('broken.toml', '[package\nname =\n')], 1,
+            expect='invalid TOML')
+    control('source_scan.py: the same words in comments and ordinary strings', SCAN,
+            [put('words.lean', '/-- Mentions command_elab, run_cmd, s!"{by exact 0}" and \u00abtactic\u00bb. -/\n'
+                 'def w : String := "run_cmd, @[command_elab], \u00abtactic\u00bb and s! in a string"\n'
+                 '-- s!"{by exact 0}" in a line comment\ntheorem w_eq : w = w := rfl\n')], 0,
+            expect='source scan OK: 1 files')
+    control('source_scan.py: the same words in a lakefile comment and value', SCAN,
+            [put('words.toml', '[package]\nname = "x"\n# moreLeanArgs in a comment\n'
+                 'description = "moreLeanArgs in a value"\n')], 0, expect='source scan OK: 1 files')
+
+
+def replay_list(t):
+    """replay.sh with a stand in for lake: the default module list must be every library file,
+    an import written with two spaces must still be listed, a file missing from the root file and
+    an empty explicit selection must end with exit status 2."""
+    stub = f'{t}/stub'
+    os.makedirs(f'{stub}/bin')
+    os.makedirs(f'{stub}/prefix/bin')
+    with open(f'{stub}/bin/lake', 'w') as f:
+        f.write('#!/bin/sh\n# stand in: lake env lean --print-prefix, lake env CHECKER MODULE\n'
+                '[ "$1" = env ] || exit 3\nshift\n'
+                'if [ "$1" = lean ] && [ "$2" = --print-prefix ]; then echo "$STUB_PREFIX"; exit 0; fi\n'
+                'echo "$2" >> "$STUB_LOG"\n')
+    with open(f'{stub}/prefix/bin/leanchecker', 'w') as f:
+        f.write('#!/bin/sh\nexit 0\n')
+    os.chmod(f'{stub}/bin/lake', 0o755)
+    os.chmod(f'{stub}/prefix/bin/leanchecker', 0o755)
+
+    def run(name, cwd, args, want, check=None):
+        log = f'{stub}/log_{results["PASS"] + results["FAIL"]}.txt'
+        open(log, 'w').close()
+        env = dict(os.environ, PATH=f'{stub}/bin' + os.pathsep + os.environ.get('PATH', ''),
+                   STUB_PREFIX=f'{stub}/prefix', STUB_LOG=log)
+        try:
+            p = subprocess.run(['sh', os.path.join(cwd, 'scripts', 'Controls', 'replay.sh')] + args, cwd=cwd,
+                               env=env, capture_output=True, text=True, timeout=120)
+        except subprocess.TimeoutExpired:
+            report('FAIL', name, 'no result within 120 s')
+            return
+        with open(log) as f:
+            replayed = f.read().split()
+        problem = None
+        if 'Traceback' in p.stderr:
+            problem = 'traceback: ' + p.stderr.strip().splitlines()[-1]
+        elif p.returncode != want:
+            problem = f'exit status {p.returncode}, expected {want}'
+        elif check is not None:
+            problem = check(replayed)
+        report('FAIL' if problem else 'PASS', name, problem or f'exit status {want}')
+
+    lib = sorted(os.path.relpath(os.path.join(r, n), ROOT)[:-5].replace(os.sep, '.')
+                 for r, _, ns in os.walk(os.path.join(ROOT, 'OddPerfect')) for n in ns if n.endswith('.lean'))
+    run('replay.sh: default list is every library file', ROOT, [], 0,
+        lambda got: None if got == lib and lib else f'{len(got)} modules replayed, {len(lib)} library files')
+    small = f'{t}/replaytree'
+    os.makedirs(f'{small}/OddPerfect')
+    os.makedirs(f'{small}/scripts/Controls')
+    for src in (SCAN, REPLAY):
+        with open(src) as f, open(f'{small}/scripts/Controls/{os.path.basename(src)}', 'w') as g:
+            g.write(f.read())
+    with open(f'{small}/OddPerfect.lean', 'w') as f:
+        f.write('import  OddPerfect.A\nimport OddPerfect.B\n')
+    for m in ('A', 'B'):
+        with open(f'{small}/OddPerfect/{m}.lean', 'w') as f:
+            f.write(f'theorem {m.lower()}_true : True := trivial\n')
+    run('replay.sh: import written with two spaces is listed', small, [], 0,
+        lambda got: None if got == ['OddPerfect.A', 'OddPerfect.B'] else f'replayed {got}')
+    run('replay.sh: empty explicit selection', small, [''], 2)
+    with open(f'{small}/OddPerfect/C.lean', 'w') as f:
+        f.write('theorem c_true : True := trivial\n')
+    run('replay.sh: library file not imported by the root file', small, [], 2,
+        lambda got: None if not got else f'replayed {got}')
+
+
 def main(argv):
     if argv[1:] not in ([], ['--stdlib-only']):
         print('usage: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]', file=sys.stderr)
@@ -348,6 +592,10 @@ def main(argv):
         three_free_three(t)
         second_largest_prime(t)
         ledger_three_free(t, argv[1:] == ['--stdlib-only'])
+        mixed_index(t, argv[1:] == ['--stdlib-only'])
+        gen6_jobs_argument(t)
+        source_scan(t)
+        replay_list(t)
     print(f'validator controls: {results["PASS"]} passed, {results["FAIL"]} failed, {results["SKIP"]} skipped')
     return 1 if results['FAIL'] else 0
 

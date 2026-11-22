@@ -4,7 +4,7 @@
 # steps and a RESULT line with steps, kinds of steps, number of K step chunks and the total
 # size of the chunk stacks as Lean text. Used for the reach record of the bound.
 # Used by: no module (measurement only).
-# Run: python3 -I reach.py B [LO] [W] [K] [MAXNODES]   (defaults 10001 10 500 unlimited)
+# Run: python3 -I reach.py B [LO] [W] [K] [MAXNODES]   (defaults 10001 10 500 10^12)
 # Requires: Python 3.8 or later, standard library only. Deterministic; about 45 microseconds per
 # step (B = 72: 5 seconds; B = 100: 3 minutes; B = 110: 48 minutes).
 # Untrusted: every result is checked again by the Lean kernel.
@@ -13,10 +13,18 @@
 import sys, os, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from slp import *
-B = int(sys.argv[1]); LO = int(sys.argv[2]) if len(sys.argv) > 2 else 10001
-W = int(sys.argv[3]) if len(sys.argv) > 3 else 10
-K = int(sys.argv[4]) if len(sys.argv) > 4 else 500
-MAXN = int(sys.argv[5]) if len(sys.argv) > 5 else 10 ** 12
+def usage():
+    print('usage: reach.py B [LO] [W] [K] [MAXNODES] with 1 <= B < LO, W >= 0, '
+          'K >= 1 and MAXNODES >= 0', file=sys.stderr)
+    sys.exit(2)
+
+if not 2 <= len(sys.argv) <= 6: usage()
+try:
+    args = list(map(int, sys.argv[1:]))
+except ValueError:
+    usage()
+B, LO, W, K, MAXN = args + [10001, 10, 500, 10 ** 12][len(args)-1:]
+if not (1 <= B < LO and W >= 0 and K >= 1 and MAXN >= 0): usage()
 M = Mof(B)
 R = init(B, LO)[::-1]
 stats = {}; nodes = 0; t0 = time.time(); chars = 0; chunks = 0; maxstack = 0; res = 'limit'

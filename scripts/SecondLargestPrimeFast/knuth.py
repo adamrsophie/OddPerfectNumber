@@ -12,7 +12,18 @@
 import sys, os, random, math
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from slp import *
-B, N = int(sys.argv[1]), int(sys.argv[2]); random.seed(int(sys.argv[3]) if len(sys.argv) > 3 else 1)
+def usage():
+    print('usage: knuth.py B PROBES [SEED] with B >= 1 and PROBES >= 1', file=sys.stderr)
+    sys.exit(2)
+
+if len(sys.argv) not in (3, 4): usage()
+try:
+    B, N = int(sys.argv[1]), int(sys.argv[2])
+    seed = int(sys.argv[3]) if len(sys.argv) == 4 else 1
+except ValueError:
+    usage()
+if B < 1 or N < 1: usage()
+random.seed(seed)
 M = Mof(B); W = 10
 ests = []; stuck = 0
 for i in range(N):

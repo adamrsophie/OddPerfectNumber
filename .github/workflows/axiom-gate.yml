@@ -78,8 +78,9 @@ jobs:
       # Exit status controls of the published Python validators, all of them, including those of
       # scripts/CommonFamilies/verify.py, which needs sympy, and the controls of the helpers of
       # scripts/ThreeFreeThree (forged certificates, failure statuses, regeneration of the twelve
-      # generated modules with a byte comparison). The validators run as subprocesses of the
-      # same interpreter.
+      # generated modules with a byte comparison), of the MixedIndex validators, of the source
+      # scan and of the module list of the kernel replay (with a stand in for lake). The
+      # validators run as subprocesses of the same interpreter.
       - name: Validator controls
         run: |
           "$RUNNER_TEMP/venv/bin/python" -I scripts/Controls/validator_controls.py
@@ -126,8 +127,9 @@ jobs:
         run: lake env lean AxiomGate.lean
 
       # Restates the headline theorems with mathlib's definitions and the project's OddPerfect
-      # and proves each by reference to the library theorem; fails if a statement changed or
-      # mentions a project definition outside the file's allowed list (about 5 s).
+      # and proves each by reference to the library theorem; fails if a statement changed,
+      # mentions a project definition outside the file's allowed list, or if the restatements
+      # differ from the file's inventory of expected names (about 5 s).
       - name: Statement gate
         run: lake env lean StatementGate.lean
 

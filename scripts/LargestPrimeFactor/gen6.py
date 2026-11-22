@@ -503,7 +503,7 @@ if __name__ == '__main__':
     sys.stderr.write(f"DR entries {len(DR)}, K = {K}, X union {sorted({x for c in certs for x in c[2]})}, "
                      f"|L| = {len(L)}, exceptions {sum(len(c[3]) for c in certs)}, "
                      f"extra {sum(len(c[4]) for c in certs)}, cpu={time.process_time() - t0:.1f}\n")
-    jobs_at = 3 if mode == 'mirror' else 7
+    jobs_at = 3 if mode == 'mirror' else 6
     jobs = int(sys.argv[jobs_at]) if len(sys.argv) > jobs_at and sys.argv[jobs_at].isdigit() else 1
     if '--nomirror' not in sys.argv:
         allok, parts, bad = mirror3(B, P, M, K, Q, DR, XU, L, certs, jobs)

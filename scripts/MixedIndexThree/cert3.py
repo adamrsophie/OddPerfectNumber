@@ -99,10 +99,20 @@ def main(cfg, order, limit):
 
 if __name__ == '__main__':
     sys.setrecursionlimit(50000)
-    S.load_cache()
-    cfg = json.load(open(sys.argv[1]))
+    def usage():
+        print('usage: cert3.py CONFIG.json {min,ff} OUT.json [NODE_LIMIT] with '
+              'NODE_LIMIT >= 0 and a nonempty OUT', file=sys.stderr)
+        sys.exit(2)
+
+    if len(sys.argv) not in (4, 5): usage()
     order, out = sys.argv[2], sys.argv[3]
-    limit = int(sys.argv[4]) if len(sys.argv) > 4 else 10 ** 9
+    try:
+        limit = int(sys.argv[4]) if len(sys.argv) == 5 else 10 ** 9
+    except ValueError:
+        usage()
+    if order not in ('min', 'ff') or limit < 0 or not out: usage()
+    cfg = json.load(open(sys.argv[1]))
+    S.load_cache()
     try:
         tree, n = main(cfg, order, limit)
     finally:
@@ -110,3 +120,6 @@ if __name__ == '__main__':
     if tree is not None:
         json.dump(tree, open(out, 'w'))
     print(json.dumps({'out': out, 'order': order, 'nodes': n, 'closed': tree is not None}))
+
+    # An incomplete search must not look successful to a caller or allow stale output reuse.
+    sys.exit(0 if tree is not None else 1)

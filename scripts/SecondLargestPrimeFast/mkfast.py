@@ -15,10 +15,18 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from slp import init, run, Mof, fmt_stack, primesUpTo
 
-B, K, LO, NMOD = map(int, sys.argv[1:5])
-if K < 1 or NMOD < 1 or not 1 <= B < LO:
-    # zero fuel would loop forever and zero modules would divide by zero
-    print('usage: B K LO NMOD OUT [TWO] [PRE] with K >= 1, NMOD >= 1 and 1 <= B < LO'); sys.exit(2)
+def usage():
+    print('usage: mkfast.py B K LO NMOD OUT [TWO] [PRE] with K >= 1, NMOD >= 1, '
+          '1 <= B < LO <= 10001 and a nonempty OUT', file=sys.stderr)
+    sys.exit(2)
+
+if not 6 <= len(sys.argv) <= 8: usage()
+try:
+    B, K, LO, NMOD = map(int, sys.argv[1:5])
+except ValueError:
+    usage()
+# The emitted wrapper uses exists_primeFactor_gt, whose bound is 10000.
+if K < 1 or NMOD < 1 or not 1 <= B < LO <= 10001 or not sys.argv[5]: usage()
 OUT = sys.argv[5]
 TWO = sys.argv[6] if len(sys.argv) > 6 else 'SecondLargestPrimeTwo'
 PRE = sys.argv[7] if len(sys.argv) > 7 else 'SecondLargestPrimeFastData'

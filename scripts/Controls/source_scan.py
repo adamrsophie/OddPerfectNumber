@@ -11,7 +11,8 @@
 # (in the default form, on the whole library) every file OddPerfect/**.lean that the root file
 # OddPerfect.lean does not import directly, and every import of the root file without a file.
 # Comments, docstrings, string literals (raw strings included) and quoted identifiers «...» are
-# removed before matching; the match runs on the whole text, so a construct in the middle of a
+# removed before ordinary token matching; attribute matching also preserves quoted names.
+# The match runs on the whole text, so a construct in the middle of a
 # line or after a line break is found too. The scan is lexical: it does not parse Lean, so it
 # can report a construct that the parser would read differently (fail closed), and it trusts
 # the rules above for where comments and strings end.
@@ -20,13 +21,18 @@
 #     python3 -I scripts/Controls/source_scan.py FILE [FILE ...] (the given files only; a file
 #                                                 ending in .toml is scanned as a lakefile)
 # Prints one line per finding, "path:line: construct", then a summary line.
-# Requires: Python 3 standard library. Running time: about a second.
+# Policy: bang-prefixed string syntax (s!, m!, or another such prefix) is forbidden in library
+# source because embedded expressions may execute elaborator code. This is a conservative
+# restriction, not a complete Lean parser. Quoted attribute names are checked as identifiers.
+# TOML option keys are checked after decoding, including Unicode escapes.
+# Requires: Python 3.11+ standard library. Running time: about a second.
 # Exit status: 0 when nothing is found, 1 when something is found, 2 for a usage error.
 # License: GPL 3, same as the repository.
 
 import os
 import re
 import sys
+import tomllib
 
 # The options the library sets, all of them limits of elaboration or linter switches.
 ALLOWED_OPTIONS = {
@@ -55,10 +61,11 @@ KEYWORDS = {
 }
 
 TOKEN = re.compile('#?' + IDENT_CHAR + '+')
+INTERPOLATION_PREFIX = re.compile('(' + IDENT_CHAR + r'+!)\s*$')
 
 # (label, pattern) on the text without comments and strings.
 CONSTRUCTS = [
-    ('attribute that runs code', r'@\[[^\]]*(?<!' + IDENT_CHAR + r')(command_elab|term_elab|'
+    ('attribute that runs code', r'(?:@\[|\battribute\s*\[)[^\]]*(?<!' + IDENT_CHAR + r')(command_elab|term_elab|'
      r'tactic|delab|app_unexpander|macro|init|simproc|dsimproc|\w+_parser|builtin_\w+)(?!\w)'),
     ('local instance', r'(?<!' + IDENT_CHAR + r')(local|scoped)\s+instance\b'),
     ('local instance', r'attribute\s*\[[^\]]*(?<!' + IDENT_CHAR + r')(local|scoped)\s+instance\b'),
@@ -89,7 +96,7 @@ def raw_hashes(text, i):
     return m.group(1)
 
 
-def strip(text):
+def strip(text, preserve_quoted=False, interpolations=None):
     """Replaces comments, docstrings and string literals by spaces, keeping line breaks."""
     out = []
     i, n = 0, len(text)
@@ -120,7 +127,10 @@ def strip(text):
             # a quoted identifier such as «a"b»: nothing inside it is a quote or a comment
             j = text.find('\u00bb', i + 1)
             j = n if j < 0 else j + 1
-            out.append(blank(text[i:j]))
+            if preserve_quoted and j <= n and text[j - 1:j] == '»':
+                out.append(' ' + text[i + 1:j - 1] + ' ')
+            else:
+                out.append(blank(text[i:j]))
             i = j
         elif tok == '"' and raw_hashes(text, i) is not None:
             # a raw string r"..." or r#"..."#: no escapes, it ends at the quote and the hashes
@@ -130,6 +140,11 @@ def strip(text):
             out.append(blank(text[i:j]))
             i = j
         elif tok == '"':
+            # Conservative policy: bang-prefixed string syntax may elaborate embedded code.
+            # Check before masking; comments and ordinary/raw strings remain excluded.
+            prefix = INTERPOLATION_PREFIX.search(''.join(out))
+            if prefix and interpolations is not None:
+                interpolations.append((prefix.start(), prefix.group(1)))
             j = i + 1
             while j < n and text[j] != '"':
                 j += 2 if text[j] == '\\' else 1
@@ -156,8 +171,11 @@ def line_of(text, pos):
 def scan_lean(path):
     with open(path, encoding='utf-8') as f:
         raw = f.read()
-    text = strip(raw)
-    found = []
+    interpolations = []
+    text = strip(raw, interpolations=interpolations)
+    attribute_text = strip(raw, preserve_quoted=True)
+    found = [(line_of(raw, pos), 'interpolated string syntax ' + prefix)
+             for pos, prefix in interpolations]
     for m in TOKEN.finditer(text):
         tok = m.group(0)
         if tok in KEYWORDS:
@@ -165,8 +183,9 @@ def scan_lean(path):
         elif tok.startswith('debug.'):
             found.append((line_of(text, m.start()), 'debug option ' + tok))
     for label, pat in CONSTRUCTS:
-        for m in re.finditer(pat, text):
-            found.append((line_of(text, m.start()), label))
+        checked = attribute_text if label == 'attribute that runs code' else text
+        for m in re.finditer(pat, checked):
+            found.append((line_of(checked, m.start()), label))
     for m in OPTION.finditer(text):
         if m.group(1) not in ALLOWED_OPTIONS:
             found.append((line_of(text, m.start()), 'set_option ' + m.group(1)))
@@ -176,9 +195,34 @@ def scan_lean(path):
 def scan_lake(path):
     with open(path, encoding='utf-8') as f:
         text = f.read()
-    text = re.sub(r'#[^\n]*', lambda m: ' ' * len(m.group(0)), text)
-    return sorted({(line_of(text, m.start()), 'lakefile option ' + m.group(1))
-                   for m in LAKE_KEYS.finditer(text)})
+    try:
+        data = tomllib.loads(text)
+    except tomllib.TOMLDecodeError as exc:
+        m = re.search(r'\(at line (\d+)', str(exc))
+        return [(int(m.group(1)) if m else 1, 'invalid TOML: ' + str(exc))]
+    keys = set()
+    def visit(value):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if LAKE_KEYS.fullmatch(key):
+                    keys.add(key)
+                visit(child)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child)
+    visit(data)
+    # Locations are diagnostic only; acceptance uses the decoded TOML keys above.
+    locations = {}
+    for m in LAKE_KEYS.finditer(text):
+        locations.setdefault(m.group(1), line_of(text, m.start()))
+    for m in re.finditer(r'"(?:\\.|[^"\\])*"', text):
+        try:
+            value = tomllib.loads('key = ' + m.group(0))['key']
+        except tomllib.TOMLDecodeError:
+            continue
+        if isinstance(value, str) and value in keys:
+            locations.setdefault(value, line_of(text, m.start()))
+    return sorted((locations.get(key, 1), 'lakefile option ' + key) for key in keys)
 
 
 def library_files():

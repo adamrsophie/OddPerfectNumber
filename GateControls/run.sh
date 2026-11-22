@@ -12,7 +12,9 @@
 #
 # Passes only if the clean controls exit 0 with the summary line, and each rejecting control
 # exits with status 1 (a normal Lean error exit), reports the expected number of problems,
-# and prints its intended diagnostic line. Any other status (a crash or a signal), a panic,
+# and prints its intended diagnostic line. Three controls of the statement gate change its
+# inventory: an entry without a restatement, a restatement without an entry, and an entry
+# paired with another library theorem. Any other status (a crash or a signal), a panic,
 # or a missing diagnostic fails the runner. Also runs the source scan on its control
 # GateControls/SourceScan.lean (every construct reported, nothing else), checks its import
 # check on the real tree and on a copy with one file missing from the root file, and replays
@@ -116,6 +118,15 @@ expect ShadowedStatement 1 \
 expect StatementGuard 1 \
   'statement gate FAILED (1 problems):' \
   'StatementGate.shadowed: mentions GateControls.OddPerfect, a project definition outside the allowed list'
+expect StatementMissing 1 \
+  'statement gate FAILED (1 problems):' \
+  'StatementGate.lower_bound_79: expected restatement of OddPerfect.LowerBound.lower_bound is missing'
+expect StatementExtra 1 \
+  'statement gate FAILED (1 problems):' \
+  'StatementGate.extra: restated but not in the expected list'
+expect StatementRebound 1 \
+  'statement gate FAILED (1 problems):' \
+  'StatementGate.lower_bound: proved by OddPerfect.LowerBoundTwo.lower_bound, expected OddPerfect.LowerBound.lower_bound'
 check SkipKernel 0 -
 
 # The kernel replay must reject the declaration that the axiom gate accepted above.

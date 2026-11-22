@@ -13,6 +13,7 @@
 # with the given one, all at once, which needed more than 50 GB of memory on the build server.
 # One module at a time needs at most about 10 GB (OddPerfect.OmegaSevenRootsA).
 # Prints one line per module with the seconds it took, then a summary line.
+# The default module list uses source_scan.py to require complete direct root-import coverage.
 # Requires: the toolchain (lake, leanchecker) and Python 3 for the module list.
 # Exit status: 0 when every module replays, 1 when one fails, 2 for a usage error.
 # License: GPL 3, same as the repository.
@@ -27,16 +28,22 @@ if [ "$#" -gt 0 ]; then
   mods=$*
 else
   mods=$(python3 -I -c '
-import re
-seen, todo = set(), ["OddPerfect"]
-while todo:
-    m = todo.pop()
-    if m in seen:
-        continue
-    seen.add(m)
-    with open(m.replace(".", "/") + ".lean") as f:
-        todo += re.findall(r"^import (OddPerfect[A-Za-z0-9_.]*)\s*$", f.read(), re.M)
-print("\n".join(sorted(seen - {"OddPerfect"})))
+import os
+import runpy
+import sys
+# Use exactly the source scans comment/whitespace handling and coverage rule.
+scan = runpy.run_path("scripts/Controls/source_scan.py")
+files = scan["library_files"]()
+problems = scan["import_problems"](files)
+if problems:
+    for path, problem in problems:
+        print(f"{path}: {problem}", file=sys.stderr)
+    sys.exit(2)
+mods = sorted(f[:-5].replace(os.sep, ".") for f in files if f != "OddPerfect.lean")
+if not mods:
+    print("no library modules selected for kernel replay", file=sys.stderr)
+    sys.exit(2)
+print("\n".join(mods))
 ') || exit 2
 fi
 for m in $mods; do
@@ -61,6 +68,10 @@ for m in $mods; do
   fi
   count=$((count + 1))
 done
+if [ "$count" -eq 0 ]; then
+  echo "no library modules selected for kernel replay"
+  exit 2
+fi
 if [ "$failures" -ne 0 ]; then
   echo "kernel replay FAILED: $failures of $count modules"
   exit 1
