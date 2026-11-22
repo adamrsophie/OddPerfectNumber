@@ -153,3 +153,4 @@ import OddPerfect.RestrainedSix
 import OddPerfect.ThreeFreeCount
 import OddPerfect.NotThreeNine
 import OddPerfect.ReciprocalSumFour
+import OddPerfect.ReciprocalSumUpper
