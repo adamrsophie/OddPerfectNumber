@@ -5,7 +5,7 @@
 # Used by: OddPerfect/AttackSize.lean (1416/793 and the sets {5, 11, ..., 89} and
 # {5, 7, 11, 13}).
 # Run: python3 c.py
-# Requires: Python 3 standard library. Running time: under a second.
+# Requires: Python 3 standard library. Running time: about five seconds.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
 # sibling helper files are found next to this script.

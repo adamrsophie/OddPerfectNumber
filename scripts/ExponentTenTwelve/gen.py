@@ -6,7 +6,7 @@
 # ten_1806113, ten_15797, twelve_gen, twelve_53, twelve_8346157).
 # Run: python3 gen.py
 # Writes primes.lean, bodies.lean and cases.lean to the current folder.
-# Requires: sympy (version 1.14.0 was used). Running time: a few seconds.
+# Requires: sympy (version 1.14.0 was used). Running time: under a second.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
 # sibling helper files are found next to this script.

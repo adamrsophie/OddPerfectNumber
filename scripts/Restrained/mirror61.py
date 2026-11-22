@@ -8,7 +8,7 @@
 # rational arithmetic. See SPEC.md for the slotOK format.
 # Used by: OddPerfect/RestrainedFour.lean.
 # Run: python3 -I mirror61.py
-# Requires: Python 3 standard library. Deterministic. Running time: a few seconds.
+# Requires: Python 3 standard library. Deterministic. Running time: under a second.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: reads and writes no files.
 # License: GPL 3, same as the repository.

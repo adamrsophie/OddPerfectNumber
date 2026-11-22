@@ -10,12 +10,13 @@
 # The environment variable DEEPB sets the deeper osearch bound (default 2 * 10^9).
 # Then emit.py or assemble.py turn cert_L.json into Lean, and checker.py rechecks it.
 # Requires: Python 3 standard library and a C compiler. Running time: seconds for
-# l = 5, 7; minutes to about half an hour per part for l = 17 to 29.
-# This script does not reproduce the certificates in the Lean file: for l = 5, 7 and the
-# ordinary part of l = 17 it finds different certificates (checker.py accepts the ones for
-# l = 5 and 7; repeated runs for l = 5 give the same output). The certificates used in the
-# Lean file are stored in certs/. How the search was configured when they were found was
-# not recorded.
+# l = 5, 7; up to about five CPU minutes per part for l = 11 to 29.
+# This script does not reproduce the certificates in the Lean file: its special trees agree
+# with them, its ordinary trees differ for every l (checker.py accepts the new
+# certificates). gen2_eager.py reproduces the stored certificates for l = 5 and 7; for
+# larger l the Pollard rho steps start at random points, so a rerun matches a stored tree
+# only by chance (see the README). The certificates used in the Lean file are stored in
+# certs/.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
 # sibling helper files are found next to this script.
