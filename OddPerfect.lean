@@ -234,3 +234,4 @@ import OddPerfect.EqualExponentsSize
 import OddPerfect.PrimePowerIndexBound
 import OddPerfect.CommonIndexCapacity
 import OddPerfect.SpecialBelowParity
+import OddPerfect.TwoExceptionFiveIndex
