@@ -202,3 +202,4 @@ import OddPerfect.LowerBoundTwo
 import OddPerfect.MixedIndexTwoCheck
 import OddPerfect.MixedIndexTwoData
 import OddPerfect.MixedIndexTwo
+import OddPerfect.RadicalExponent
