@@ -214,3 +214,6 @@ import OddPerfect.TwoExceptionThreeAData
 import OddPerfect.TwoExceptionThreeA
 import OddPerfect.ReciprocalSumSix
 import OddPerfect.LedgerPrimeThree
+import OddPerfect.TwoExceptionThreeBCheck
+import OddPerfect.TwoExceptionThreeBData
+import OddPerfect.TwoExceptionThreeB
