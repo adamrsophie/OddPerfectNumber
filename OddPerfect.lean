@@ -190,3 +190,12 @@ import OddPerfect.FiveExceptionData79
 import OddPerfect.FiveExceptionDataT
 import OddPerfect.FiveExceptionScan
 import OddPerfect.FiveExceptionThirteen
+import OddPerfect.LowerBoundTwoTable
+import OddPerfect.LowerBoundTwoTableOk1
+import OddPerfect.LowerBoundTwoTableOk2
+import OddPerfect.LowerBoundTwoTablePrime
+import OddPerfect.LowerBoundTwoTree1
+import OddPerfect.LowerBoundTwoTree2
+import OddPerfect.LowerBoundTwoTree3
+import OddPerfect.LowerBoundTwoTree4
+import OddPerfect.LowerBoundTwo
