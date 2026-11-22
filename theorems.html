@@ -127,6 +127,11 @@
   (hodd : Odd (N.factorization q))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
   3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_two_exceptions">OddPerfect.three_dvd_of_two_exceptions</a> in <a href="reference.html#mod-ThreeFreeTwo">OddPerfect.ThreeFreeTwo</a></p>
+<p>It also holds with three exceptional primes r₁, r₂ and r₃, again with no condition on them (module <a href="reference.html#mod-ThreeFreeThree"><code>ThreeFreeThree</code></a>). The proof is a case analysis with 1223 leaves over 102 class triples, found by a search outside Lean and rechecked in the kernel by a checker that is proved sound. Whether this statement is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_three_exceptions</span> {N q r₁ r₂ r₃ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2) :
+  3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_three_exceptions">OddPerfect.three_dvd_of_three_exceptions</a> in <a href="reference.html#mod-ThreeFreeThree">OddPerfect.ThreeFreeThree</a></p>
 
 <h2 id="mutual-residues">Mutual quadratic residues</h2>
 <span class="cls restricted">restricted exclusion or bound checked</span> <span class="tag unver">novelty unverified</span>
@@ -185,7 +190,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>42aa01d</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>24cd4fc</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
