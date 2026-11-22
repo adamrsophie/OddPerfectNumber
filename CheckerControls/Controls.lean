@@ -9,6 +9,7 @@ import OddPerfect.CommonFiveSeven
 import OddPerfect.OmegaSix
 import OddPerfect.OmegaSevenEngine
 import OddPerfect.ThreeFreeThreeChecker
+import OddPerfect.ForcingClosedBound
 
 /-!
 # Checker controls
@@ -74,6 +75,19 @@ example : [0, 1, 91, 49, 9409].any LPF.isPrimeF = false := by decide +kernel
 example : [2, 3, 5, 97, 9973].all OmegaSixSearch.isPrimeQ = true := by decide +kernel
 -- `OmegaSixSearch.isPrimeQ`: `0`, `1`, a composite and prime squares dropped.
 example : [0, 1, 91, 49, 9409].any OmegaSixSearch.isPrimeQ = false := by decide +kernel
+
+/-! ## Small sieve (`ForcingClosedBound.smallSieveB`) -/
+
+-- The least prime passes.
+example : ForcingClosedBound.smallSieveB 2 = true := by decide +kernel
+-- The least composite is rejected.
+example : ForcingClosedBound.smallSieveB 4 = false := by decide +kernel
+-- Documented raw behavior: `0` passes although it is not prime (`q ≤ d` holds for every `d`).
+-- The filter is used only on lists that start at `3`, and soundness uses only
+-- `smallSieveB_of_prime`.
+example : ForcingClosedBound.smallSieveB 0 = true := by decide +kernel
+-- Documented raw behavior: `1` passes although it is not prime, for the same reason.
+example : ForcingClosedBound.smallSieveB 1 = true := by decide +kernel
 
 /-! ## Consecutive primes (`LowerBound.consec`) -/
 

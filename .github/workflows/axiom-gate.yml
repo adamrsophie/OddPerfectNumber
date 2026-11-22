@@ -18,7 +18,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    # A build from an empty build folder takes more than two and a half hours on the hosted
+    # runner; a run that restores an earlier build compiles only what changed.
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -52,6 +54,13 @@ jobs:
           path: .lake/build
           key: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-${{ github.sha }}-${{ github.run_id }}
           restore-keys: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-
+
+      # Exit status controls of the published Python validators, before the long build so that a
+      # failure shows early. The runner has no sympy, so the controls of
+      # scripts/CommonFamilies/verify.py, which needs it, are skipped and listed as SKIP; the
+      # other controls use only the standard library.
+      - name: Validator controls
+        run: python3 -I scripts/Controls/validator_controls.py --stdlib-only
 
       - name: Build
         run: |

@@ -23,6 +23,10 @@ and the rest. The 3-adic ledger over `{q} ∪ O` gives `|O| ≤ 2`, and `|O| ≤
 The exponents of `13` and `q` enter only through the bound `p/(p - 1)`.
 
 Main results: `restrained_not_thirteen` and `restrained_exception_eq_three`.
+
+The conclusion `r = 3` is the first half of Theorem 1 of Ochem and Zelinsky (arXiv 2607.19746,
+2026), whose second half is `v_3(N) ≥ 2.3 · 10^10`. The proof here uses neither Nielsen's bound
+`ω(N) ≥ 10` nor results on the Nagell-Ljunggren equation, which their proof uses.
 -/
 
 open ArithmeticFunction
@@ -1243,7 +1247,9 @@ theorem restrained_not_thirteen {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
 
 /-- **Restrained odd perfect numbers, final form.** With the hypotheses of
 `three_dvd_of_one_exception`, the exceptional prime is `3`, with `v_3(N)` even and at least
-`4`, `q ≡ 1 (mod 3)`, `5 ∤ N` and `7 ∤ N`. -/
+`4`, `q ≡ 1 (mod 3)`, `5 ∤ N` and `7 ∤ N`. The conclusion `r = 3` is the first half of Theorem 1
+of Ochem and Zelinsky (arXiv 2607.19746, 2026); this proof uses neither `ω(N) ≥ 10` nor results
+on the Nagell-Ljunggren equation. -/
 theorem restrained_exception_eq_three {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
     (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) :

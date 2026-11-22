@@ -13,6 +13,12 @@ divides `v_p(N) + 1` for every ordinary prime `p`. This file proves:
 * a checker for abundant divisors (`CommonFam.abOK`);
 * the common `35` family is impossible (known; Hagis and McDaniel), and hence the ordinary
   exponents cannot all equal one `E` with `35 ∣ E + 1`.
+
+The whole common `5` family is impossible by the Main Theorem of Fletcher, Nielsen and Ochem
+(Math. Comp. 81, 2012), which gives `5 ∤ N`, together with Kanold's theorem
+(`OddPerfect.dvd_of_dvd_succ`), which gives `5 ∣ N`. That general statement is not proved in
+this library; the modules for the common `35`, `55`, `65`, `85`, `95` and `115` families give
+independent certificates checked by the kernel.
 -/
 
 open ArithmeticFunction

@@ -5,8 +5,10 @@ open FamInst in
 /-- The common `55` family is impossible. Let `N` be an odd perfect number with special prime
 `q`. Then `55 ∣ v_p(N) + 1` cannot hold for every ordinary prime `p`. Here `5 ∣ N`, `11 ∣ N` and
 `q ≡ 1 (mod 12)`; the forcing table from the seeds `5, 11` reaches all target primes whichever
-source node `≡ 1 (mod 12)` is special, and they give an abundant divisor. We did not locate a
-published proof of this case. -/
+source node `≡ 1 (mod 12)` is special, and they give an abundant divisor. Known: the statement
+follows from the Main Theorem of Fletcher, Nielsen and Ochem (Math. Comp. 81, 2012) together with
+Kanold's theorem (`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate
+checked by the kernel. -/
 theorem not_common_fifty_five {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q → 55 ∣ N.factorization p + 1) : False := by

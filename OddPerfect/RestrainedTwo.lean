@@ -28,7 +28,9 @@ factor `13`. The exact check of `13^a 61^b` with `b < 4` leaves only `t = 3`, an
 Rankin bound gives abundancy at most `13/9 · 183/169 · 61/60 · 5/4 / (1 - 0.0006) < 2`.
 
 The main results are `restrained_not_97`, `restrained_sixty_one_mod_three`,
-`restrained_three_sq_cases_two` and `restrained_cases_two`.
+`restrained_three_sq_cases_two` and `restrained_cases_two`. The configurations they leave are
+closed in `OddPerfect.RestrainedThree` (`q = 13, r = 7`), `OddPerfect.RestrainedFour` (`r = 61`)
+and `OddPerfect.RestrainedFive` (`r = 13`).
 -/
 
 open ArithmeticFunction

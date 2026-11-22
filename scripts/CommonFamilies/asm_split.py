@@ -62,7 +62,9 @@ Let `N` be an odd perfect number with special prime `q`. A common `d` family mea
 divides `v_p(N) + 1` for every ordinary prime `p`. This file proves that the common `{d}`
 family is impossible, from the table and checks of the modules `OddPerfect.{data}` and
 `OddPerfect.{final}Rows1` onward, with the reach and abundance checkers of
-`OddPerfect.CommonFiveSeven`. We did not locate a published proof for this family.
+`OddPerfect.CommonFiveSeven`. Known: the statement follows from the Main Theorem of Fletcher,
+Nielsen and Ochem (Math. Comp. 81, 2012) together with Kanold's theorem
+(`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate checked by the kernel.
 -/
 
 ''' + OPEN + open(f'mod_{final}.txt').read() + open(fin).read())

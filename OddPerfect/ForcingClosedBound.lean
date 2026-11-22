@@ -64,8 +64,9 @@ theorem smoothB_eq_true {n M K : ℕ} (hn : n ≠ 0) (hK : n < 2 ^ K)
   exact Nat.mod_eq_zero_of_dvd (dvd_pow_of_lt hn hK h)
 
 /-- A cheap filter passed by every prime: no `d` with `2 ≤ d ≤ 31` and `d < q` divides `q`.
-Below `1024` it passes exactly the primes `q ≥ 2`; above, it may also pass composites, which
-costs nothing for soundness. -/
+For `2 ≤ q < 1024` it passes exactly the primes. It also passes `0` and `1`, and for `q ≥ 1024`
+it may pass composites; neither costs anything for soundness, and the callers `lengths` and
+`initial` apply it only to `q ≥ 3`. -/
 def smallSieveB (q : ℕ) : Bool := (List.range' 2 30).all fun d => q ≤ d || q % d != 0
 
 /-- Every prime passes `smallSieveB`. -/

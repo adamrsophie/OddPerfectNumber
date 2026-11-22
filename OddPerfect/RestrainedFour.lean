@@ -24,7 +24,8 @@ the slots `O` (primes `≡ 1 (mod 3)`) and the rest.
 The exponents of `q` and `61` enter only through the bound `p/(p - 1)`.
 
 Main results: `restrained_not_sixty_one` and `restrained_cases_four`. The lemmas `rankin_tail`
-and `abundancy_close` are stated for an arbitrary set of exact squares and four generators.
+and `abundancy_close` are stated for an arbitrary set of exact squares and four generators. The
+configuration `r = 13` left by `restrained_cases_four` is closed in `OddPerfect.RestrainedFive`.
 -/
 
 open ArithmeticFunction

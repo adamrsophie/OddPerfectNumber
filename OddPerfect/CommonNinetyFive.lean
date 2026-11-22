@@ -23,7 +23,9 @@ Let `N` be an odd perfect number with special prime `q`. A common `d` family mea
 divides `v_p(N) + 1` for every ordinary prime `p`. This file proves that the common `95`
 family is impossible, from the table and checks of the modules `OddPerfect.CommonNinetyFiveData` and
 `OddPerfect.CommonNinetyFiveRows1` onward, with the reach and abundance checkers of
-`OddPerfect.CommonFiveSeven`. We did not locate a published proof for this family.
+`OddPerfect.CommonFiveSeven`. Known: the statement follows from the Main Theorem of Fletcher,
+Nielsen and Ochem (Math. Comp. 81, 2012) together with Kanold's theorem
+(`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate checked by the kernel.
 -/
 
 open ArithmeticFunction
@@ -209,8 +211,10 @@ open FamInst in
 /-- The common `95` family is impossible. Let `N` be an odd perfect number with special prime
 `q`. Then `95 ∣ v_p(N) + 1` cannot hold for every ordinary prime `p`. Here `5 ∣ N`, `19 ∣ N`
 and `q ≡ 1 (mod 12)`; the forcing table from the seeds `5, 19` reaches all target primes
-whichever source node `≡ 1 (mod 12)` is special, and they give an abundant divisor. We did not
-locate a published proof for this family. -/
+whichever source node `≡ 1 (mod 12)` is special, and they give an abundant divisor. Known: the
+statement follows from the Main Theorem of Fletcher, Nielsen and Ochem (Math. Comp. 81, 2012)
+together with Kanold's theorem (`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent
+certificate checked by the kernel. -/
 theorem not_common_ninety_five {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q → 95 ∣ N.factorization p + 1) : False := by

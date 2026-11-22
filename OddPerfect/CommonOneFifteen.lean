@@ -7,8 +7,9 @@ Let `N` be an odd perfect number with special prime `q`. A common `d` family mea
 divides `v_p(N) + 1` for every ordinary prime `p`. This file proves that the common `115`
 family is impossible, with the table of `OddPerfect.CommonOneFifteenData`, the primality in
 `OddPerfect.CommonOneFifteenPrime`, and the reach and
-abundance checkers of `OddPerfect.CommonFiveSeven`. We did not locate a published proof of
-this case.
+abundance checkers of `OddPerfect.CommonFiveSeven`. Known: the statement follows from the Main
+Theorem of Fletcher, Nielsen and Ochem (Math. Comp. 81, 2012) together with Kanold's theorem
+(`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate checked by the kernel.
 -/
 
 open ArithmeticFunction
@@ -156,8 +157,10 @@ open FamInst in
 /-- The common `115` family is impossible. Let `N` be an odd perfect number with special prime
 `q`. Then `115 ∣ v_p(N) + 1` cannot hold for every ordinary prime `p`. Here `5 ∣ N`,
 `23 ∣ N` and `q ≡ 1 (mod 12)`; the forcing table from the seeds `5, 23` reaches all target primes whichever
-source node `≡ 1 (mod 12)` is special, and they give an abundant divisor. We did not locate a
-published proof of this case. -/
+source node `≡ 1 (mod 12)` is special, and they give an abundant divisor. Known: the statement
+follows from the Main Theorem of Fletcher, Nielsen and Ochem (Math. Comp. 81, 2012) together with
+Kanold's theorem (`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate
+checked by the kernel. -/
 theorem not_common_one_fifteen {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q → 115 ∣ N.factorization p + 1) : False := by

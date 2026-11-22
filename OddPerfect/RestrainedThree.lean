@@ -26,7 +26,9 @@ Let `K = {3, 7, 13}` and let `T` be the other prime factors, all exact squares. 
 
 The exponents of `7` and `13` enter only through the bound `p/(p - 1)`.
 
-Main results: `restrained_not_thirteen_seven` and `restrained_cases_three`.
+Main results: `restrained_not_thirteen_seven` and `restrained_cases_three`. The configurations
+left by `restrained_cases_three` are closed in `OddPerfect.RestrainedFour` (`r = 61`) and
+`OddPerfect.RestrainedFive` (`r = 13`).
 -/
 
 open ArithmeticFunction

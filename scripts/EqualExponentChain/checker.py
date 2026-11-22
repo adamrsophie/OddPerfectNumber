@@ -2,6 +2,9 @@
 # Independent checker mirroring checkAll of OddPerfect/EqualExponentChain.lean. It imports
 # nothing from the generator.
 # Run: python3 checker.py cert_5.json cert_7.json ...
+# Exit status: 0 when every certificate is accepted, 1 when a well formed certificate is
+# rejected, 2 for malformed input (unreadable JSON, wrong keys, unknown node tag, wrong number of
+# fields, a field that is not a natural number) or when no certificate is given.
 # Requires: Python 3 standard library. Running time: seconds.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
@@ -109,8 +112,90 @@ def check_all(l, pc, ordt, spect):
     return run(l, pcp, ([l], [l], None, 2), ordt) and run(l, pcp, ([], [], l, 2), spect)
 
 
+class Malformed(Exception):
+    pass
+
+
+# Number of list entries, tag included, of each node constructor.
+ARITY = {'ord': 4, 'spec': 4, 'branch': 4, 'expo': 5, 'over': 5, 'mod4': 1}
+
+
+def nat(x, what):
+    if type(x) is not int or x < 0:
+        raise Malformed(f'{what}: expected a natural number, got {x!r:.60}')
+
+
+def shape_tree(t, part):
+    """Checks tags, arities and field types of a whole tree before it is run."""
+    stack = [t]
+    while stack:
+        c = stack.pop()
+        if type(c) is not list or not c or type(c[0]) is not str:
+            raise Malformed(f'{part}: node {c!r:.60} is not a tagged list')
+        tag = c[0]
+        if tag not in ARITY:
+            raise Malformed(f'{part}: unknown node tag {tag!r:.60}')
+        if len(c) != ARITY[tag]:
+            raise Malformed(f'{part}: node {tag} has {len(c) - 1} fields, expected {ARITY[tag] - 1}')
+        if tag in ('ord', 'spec'):
+            nat(c[1], part + ' ' + tag); nat(c[2], part + ' ' + tag); stack.append(c[3])
+        elif tag == 'branch':
+            nat(c[1], part + ' branch'); stack += [c[2], c[3]]
+        elif tag == 'expo':
+            for x in c[1:4]:
+                nat(x, part + ' expo')
+            stack.append(c[4])
+        elif tag == 'over':
+            nat(c[1], part + ' over'); nat(c[3], part + ' over'); nat(c[4], part + ' over')
+            if type(c[2]) is not list:
+                raise Malformed(f'{part}: over node with a ledger that is not a list')
+            for e in c[2]:
+                if type(e) is not list or len(e) != 2:
+                    raise Malformed(f'{part}: over ledger entry {e!r:.60} is not a pair')
+                nat(e[0], part + ' over ledger'); nat(e[1], part + ' over ledger')
+
+
+def no_dup_keys(pairs):
+    keys = [k for k, _ in pairs]
+    if len(set(keys)) != len(keys):
+        raise Malformed('duplicate key in a JSON object')
+    return dict(pairs)
+
+
+def load(fn):
+    with open(fn) as f:
+        d = json.load(f, object_pairs_hook=no_dup_keys)
+    if type(d) is not dict or set(d) != {'l', 'pratt', 'ord', 'spec'}:
+        raise Malformed('expected a JSON object with exactly the keys l, pratt, ord, spec')
+    nat(d['l'], 'l')
+    if type(d['pratt']) is not list:
+        raise Malformed('pratt is not a list')
+    for e in d['pratt']:
+        if type(e) is not list or len(e) != 3 or type(e[2]) is not list:
+            raise Malformed(f'pratt entry {e!r:.60} is not [p, a, [factors]]')
+        nat(e[0], 'pratt'); nat(e[1], 'pratt')
+        for f in e[2]:
+            nat(f, 'pratt factor')
+    shape_tree(d['ord'], 'ord')
+    shape_tree(d['spec'], 'spec')
+    return d
+
+
 if __name__ == '__main__':
     sys.setrecursionlimit(100000)
+    if len(sys.argv) < 2:
+        print('usage: python3 checker.py cert.json [more.json ...]', file=sys.stderr)
+        sys.exit(2)
+    status = 0
     for fn in sys.argv[1:]:
-        d = json.load(open(fn))
-        print(fn, check_all(d['l'], d['pratt'], d['ord'], d['spec']))
+        try:
+            d = load(fn)
+            ok = check_all(d['l'], d['pratt'], d['ord'], d['spec'])
+        except (Malformed, OSError, ValueError, TypeError, KeyError, RecursionError) as e:
+            print(fn, 'MALFORMED:', e)
+            status = 2
+            continue
+        print(fn, ok)
+        if not ok:
+            status = max(status, 1)
+    sys.exit(status)

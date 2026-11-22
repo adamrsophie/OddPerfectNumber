@@ -3,6 +3,9 @@
 # checker defines it, sharing no code with the generator.
 # Used by: a recheck of OddPerfect/LowerBound.lean (prime table and the three trees).
 # Run: python3 check.py LowerBound.lean 79 3: 5:3 7:3,5
+# Exit status: 0 when the table and every requested tree are accepted, 1 when the table or a
+# requested tree is rejected, 2 for a usage error, no tree requested, a requested tree missing
+# from the file, or definitions that cannot be parsed.
 # Requires: Python 3 standard library. Running time: under a second.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
@@ -34,7 +37,7 @@ def check_entry(known, p, a, fs):  # mirrors Pratt.checkEntry
     for f in fs: prod *= f
     if prod != nat_sub(p, 1): return False
     if not all(f in known or trial_prime(f) for f in fs): return False
-    assert p >= 2
+    if p < 2: return False
     if pow(a, p - 1, p) != 1: return False
     if not all(f != 0 and pow(a, (p - 1) // f, p) != 1 for f in fs): return False
     return True
@@ -182,6 +185,11 @@ def run(L, ins, stk, pcs):
         stk = cs + stk
     return len(stk) == 0, len(ins)
 
+class Malformed(Exception): pass
+
+def need(cond, msg):
+    if not cond: raise Malformed(msg)
+
 def parse_pairs(t):
     return [tuple(int(x) for x in m) for m in re.findall(r'\((\d+), (\d+)\)', t)]
 
@@ -194,22 +202,24 @@ def parse(text):
         def term():
             t = toks[pos[0]]; pos[0] += 1
             if t == '(':
-                r = term(); assert toks[pos[0]] == ')'; pos[0] += 1; return r
+                r = term(); need(toks[pos[0]] == ')', 'unbalanced parentheses'); pos[0] += 1; return r
             if t == 'PT.leaf': return []
             if re.fullmatch(r'tab\d+', t): return parse_def(t)
-            assert t == 'PT.node', t
+            need(t == 'PT.node', 'unexpected token %r' % t)
             l = term()
             p = int(toks[pos[0]]); a = int(toks[pos[0] + 1]); fs = toks[pos[0] + 2]; pos[0] += 3
-            assert fs.startswith('[')
+            need(fs.startswith('['), 'factor list expected')
             r = term()
-            assert p not in pcs
+            need(p not in pcs, 'duplicate table entry %d' % p)
             pcs[p] = (a, [(int(x), int(y)) for x, y in re.findall(r'\((\d+), (\d+)\)', fs)])
             return l + [p] + r
-        ks = term(); assert pos[0] == len(toks), name
+        ks = term(); need(pos[0] == len(toks), 'trailing tokens in ' + name)
         return ks
     keys = parse_def('table')
-    assert keys == sorted(keys) and len(set(keys)) == len(keys)
-    assert table_ok(pcs), 'table rejected'
+    need(keys == sorted(keys) and len(set(keys)) == len(keys), 'table keys not strictly increasing')
+    if not table_ok(pcs):
+        print('table REJECTED')
+        sys.exit(1)
     print('table ok', len(pcs))
     defs = {}
     for m in re.finditer(r'def (\w+) : List Ins := \[\n(.*?)\]\n', text, re.S):
@@ -237,12 +247,31 @@ def parse(text):
         trees[m.group(1)] = ins
     return pcs, trees
 
+def main(argv):
+    if len(argv) < 4:
+        print('usage: python3 check.py file.lean B p0:excl,... [more trees]  (at least one tree)', file=sys.stderr)
+        return 2
+    try:
+        with open(argv[1]) as f:
+            text = f.read()
+        L = 10 ** int(argv[2])
+        specs = []
+        for spec in argv[3:]:
+            p0, _, ex = spec.partition(':')
+            specs.append((int(p0), [int(x) for x in ex.split(',') if x]))
+        pcs, trees = parse(text)
+        for p0, _ in specs:
+            need('tree%d' % p0 in trees, 'tree%d not found' % p0)
+    except (Malformed, OSError, ValueError, KeyError, IndexError) as e:
+        print('MALFORMED:', e, file=sys.stderr)
+        return 2
+    status = 0
+    for p0, ex in specs:
+        s = [('pw', p0, 1)] + [('nd', x) for x in ex]
+        ok, n = run(L, trees['tree%d' % p0], [s], pcs)
+        print('tree', p0, 'OK' if ok else 'REJECTED at %d' % n, len(trees['tree%d' % p0]))
+        if not ok: status = 1
+    return status
+
 if __name__ == '__main__':
-    text = open(sys.argv[1]).read()
-    L = 10 ** int(sys.argv[2])
-    pcs, trees = parse(text)
-    for spec in sys.argv[3:]:
-        p0, _, ex = spec.partition(':')
-        s = [('pw', int(p0), 1)] + [('nd', int(x)) for x in ex.split(',') if x]
-        ok, n = run(L, trees['tree' + p0], [s], pcs)
-        print('tree', p0, 'OK' if ok else 'REJECTED at %d' % n, len(trees['tree' + p0]))
+    sys.exit(main(sys.argv))

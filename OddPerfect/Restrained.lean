@@ -36,19 +36,18 @@ three ordinary primes `≡ 1 (mod 3)`. Five leaves are closed here:
   `σ(x^2) ≥ 10^24`, so `x ≥ 10^12`; `x` becomes a fourth generator and the argument above
   applies (survivors `11` and `653`, respectively `5`).
 
-Open leaves, stated exactly by `restrained_three_sq_cases`:
+The four remaining leaves, stated exactly by `restrained_three_sq_cases`, are closed in later
+modules:
 
-* `r = 13`, `q` unknown: both units of the budget may be free, the two candidates `x`
-  may feed each other, and `σ(13^{e_r})` is not controlled.
-* `q = 13, r = 7`: as above with two free units.
-* `r = 61` with `13^2 ∥ N`, `q` unknown: one free unit, but `q` is an unknown generator, so
-  the exact search over its powers is not finite.
-* `r = 97` with `13^2, 61^2 ∥ N`, `q` unknown: the budget is spent, but again `q` is an
-  unknown generator (here `q ≡ 1 (mod 12)`, `q ≥ 37`); a box bound with floors in the style
-  of `ThreeFreeException` might close it.
+* `r = 97` with `13^2, 61^2 ∥ N`: `OddPerfect.RestrainedTwo` (`restrained_not_97`), which also
+  shows `q ≡ 1 (mod 3)` in the leaf `r = 61`;
+* `q = 13, r = 7`: `OddPerfect.RestrainedThree` (`restrained_not_thirteen_seven`);
+* `r = 61` with `13^2 ∥ N`: `OddPerfect.RestrainedFour` (`restrained_not_sixty_one`);
+* `r = 13`: `OddPerfect.RestrainedFive` (`restrained_not_thirteen`).
 
-Ochem and Zelinsky (arXiv 2607.19746, Section 3) close these with searches to `10^10`, long
-factor trees and Nielsen's `ω(N) ≥ 10`.
+Hence `restrained_exception_eq_three` (in `OddPerfect.RestrainedFive`) gives `r = 3`. Ochem and
+Zelinsky (arXiv 2607.19746, Section 3) close these leaves with searches to `10^10`, long factor
+trees and Nielsen's `ω(N) ≥ 10`; the conclusion `r = 3` is the first half of their Theorem 1.
 
 ## Case `r = 3`
 
