@@ -217,3 +217,5 @@ import OddPerfect.LargestPrimeFactorThreeSearch2
 import OddPerfect.LargestPrimeFactorThreeSearch3
 import OddPerfect.LargestPrimeFactorThreeSearch4
 import OddPerfect.LargestPrimeFactorThreeFinal
+import OddPerfect.TwoExceptionFourCheck
+import OddPerfect.TwoExceptionFour
