@@ -217,3 +217,4 @@ import OddPerfect.LedgerPrimeThree
 import OddPerfect.TwoExceptionThreeBCheck
 import OddPerfect.TwoExceptionThreeBData
 import OddPerfect.TwoExceptionThreeB
+import OddPerfect.ReciprocalSumSeven
