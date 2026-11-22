@@ -122,6 +122,11 @@
   (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) : 3 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.three_dvd_of_one_exception">OddPerfect.three_dvd_of_one_exception</a> in <a href="reference.html#mod-ThreeFreeException">OddPerfect.ThreeFreeException</a></p>
 <p class="idea"><strong>Proof idea.</strong> Assume 3 does not divide N. Then q ≡ 1 (mod 12), and for every other ordinary p, σ(p²) = q<sup>a</sup>r<sup>b</sup>. Size comparisons on these values, split by whether r divides some σ(p²), bound the abundancy below 2. No computer search is used.</p>
+<p>In the same setting the exceptional prime is 3 itself, and no prime p with 5 ≤ p &lt; 132257 divides N (module <a href="reference.html#mod-RestrainedSeven"><code>RestrainedSeven</code></a>, by exclusion trees checked in the kernel). No novelty is claimed: Ochem and Zelinsky prove much more about this family.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">restrained_not_dvd_of_lt</span> {N q r p : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
+  (hp : p.Prime) (h5 : 5 ≤ p) (hlt : p &lt; 132257) : ¬ p ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.restrained_not_dvd_of_lt">OddPerfect.restrained_not_dvd_of_lt</a> in <a href="reference.html#mod-RestrainedSeven">OddPerfect.RestrainedSeven</a></p>
 <p>The same conclusion holds with two exceptional primes r₁ and r₂, with no condition on them (module <a href="reference.html#mod-ThreeFreeTwo"><code>ThreeFreeTwo</code></a>). Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_two_exceptions</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -215,7 +220,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>21261ff</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>15a3ae7</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
