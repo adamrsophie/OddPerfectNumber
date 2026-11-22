@@ -16,6 +16,7 @@ import OddPerfect.RestrainedSevenCheck
 import OddPerfect.LargestPrimeFactorTwo
 import OddPerfect.SecondLargestPrimeFast
 import OddPerfect.MixedIndexData
+import OddPerfect.MixedIndexThreePrimes
 
 /-!
 # Checker controls
@@ -637,5 +638,69 @@ example : MixedIndex.chk [] [] [] 0 0 (.shut 11 3) = true := by decide +kernel
 example : MixedIndex.primeB 101 = true := by decide +kernel
 example : [91, 183].any MixedIndex.primeB = false := by decide +kernel
 example : Pratt.check [(101, 5, [2, 2, 5, 5])] = false := by decide +kernel
+
+/-! ## The mixed index tree checker with cuts (`OddPerfect.MixedIndexThree.chk3`) -/
+
+-- Accepted tree with a cut. Fixed part `3 ^ 2 5`; index `3` of `11` is shut by `7 ∣ 133`;
+-- index `5` records `(11, 5)` and makes `11` the sender of `5`, as `5 ∣ 16105`, then cuts; the
+-- cut state `([11, 13], [(11, 5)], [], 11)` is in `Acc`; index `7` forces `43 ∣ 1948717`.
+example : MixedIndexThree.chk3 [43] [(3, 2), (5, 1)] 0 false [([11, 13], [(11, 5)], [], 11)]
+    [11, 13] [] [] 0 (.node 11 (.shut 11 3) (.force 11 5 [] .cut)
+      (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = true := by decide +kernel
+-- The same tree with `Acc` empty: the cut has no excluded state to match (`Acc.contains`).
+example : MixedIndexThree.chk3 [43] [(3, 2), (5, 1)] 0 false []
+    [11, 13] [] [] 0 (.node 11 (.shut 11 3) (.force 11 5 [] .cut)
+      (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- Stated cut state does not match the state reached: the sender of `5` is given as `0`.
+example : MixedIndexThree.chk3 [43] [(3, 2), (5, 1)] 0 false [([11, 13], [(11, 5)], [], 0)]
+    [11, 13] [] [] 0 (.node 11 (.shut 11 3) (.force 11 5 [] .cut)
+      (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- Cut state that drops the known prime `13`.
+example : MixedIndexThree.chk3 [43] [(3, 2), (5, 1)] 0 false [([11], [(11, 5)], [], 11)]
+    [11, 13] [] [] 0 (.node 11 (.shut 11 3) (.force 11 5 [] .cut)
+      (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- A chunk is checked from its own state: `11 ^ 4` is allowed from the state reached after
+-- the index `5` of `11`, and rejected from a start state that does not record that index
+-- (`entOK`).
+example : MixedIndexThree.chk3 [] [(3, 2), (5, 1)] 0 false []
+    [11, 13] [(11, 5)] [] 11 (.abund [(11, 4), (13, 2)]) = true := by decide +kernel
+example : MixedIndexThree.chk3 [] [(3, 2), (5, 1)] 0 false []
+    [11, 13] [] [] 11 (.abund [(11, 4), (13, 2)]) = false := by decide +kernel
+-- Abundancy bound on the wrong side: `σ(3 ^ 2 5 11 ^ 2) = 10374 < 2 3 ^ 2 5 11 ^ 2 = 10890`.
+example : MixedIndexThree.chk3 [] [(3, 2), (5, 1)] 0 false []
+    [11, 13] [] [] 0 (.abund [(11, 2)]) = false := by decide +kernel
+-- Branch list that omits the index `7`: the third branch repeats the rule for index `5`
+-- (`isAt p 7 t7`).
+example : MixedIndexThree.chk3 [43] [(3, 2), (5, 1)] 0 false [([11, 13], [(11, 5)], [], 11)]
+    [11, 13] [] [] 0 (.node 11 (.shut 11 3) (.force 11 5 [] .cut)
+      (.force 11 5 [] .cut)) = false := by decide +kernel
+-- Forced prime missing from the certified primes (`P.contains r`).
+example : MixedIndexThree.chk3 [] [(3, 2), (5, 1)] 0 false [([11, 13], [(11, 5)], [], 11)]
+    [11, 13] [] [] 0 (.node 11 (.shut 11 3) (.force 11 5 [] .cut)
+      (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- Cap at `3`: `3 ∣ 183 = σ(13 ^ 2)`. With the sender `11` known, `13` and the special component
+-- give `3` senders, so the cap `2` shuts; the cap `3` does not, nor the cap `0` (off).
+example : MixedIndexThree.chk3 [] [] 2 false [] [13] [] [11] 0 (.shut 13 3) = true := by
+  decide +kernel
+example : MixedIndexThree.chk3 [] [] 3 false [] [13] [] [11] 0 (.shut 13 3) = false := by
+  decide +kernel
+example : MixedIndexThree.chk3 [] [] 0 false [] [13] [] [11] 0 (.shut 13 3) = false := by
+  decide +kernel
+-- Cap at `3` with `13` itself listed as the known sender: it is not counted twice (`nd`).
+example : MixedIndexThree.chk3 [] [] 2 false [] [13] [] [13] 0 (.shut 13 3) = false := by
+  decide +kernel
+-- Raw behavior: `chk3` trusts `P`; with the composite `183` listed it is forced.
+-- `chk3_sound` assumes that every element of `P` is prime.
+example : MixedIndexThree.chk3 [183] [(3, 2), (5, 1)] 0 false [] [11, 13] [] [] 0
+    (.force 13 3 [183] (.abund [(11, 2), (13, 2)])) = true := by decide +kernel
+-- Certified primes of the data modules (`MixedIndexThree.primeB`): `1017061` has a Pratt entry;
+-- `1891 = 31 61` fails trial division; `1000001 = 101 9901` is above `10 ^ 6` and has no entry.
+example : MixedIndexThree.primeB 1017061 = true := by decide +kernel
+example : [1891, 1000001].any MixedIndexThree.primeB = false := by decide +kernel
+-- Pratt entries: the entry of `1017061` is accepted; the composite `1017147 = 3 339049`, with
+-- `1017146 = 2 13 19 29 71` factored correctly, fails `18 ^ 1017146 ≡ 1`.
+example : Pratt.checkAux [] [(1017061, 18, [2, 2, 3, 5, 11, 23, 67])] = true := by
+  decide +kernel
+example : Pratt.checkAux [] [(1017147, 18, [2, 13, 19, 29, 71])] = false := by decide +kernel
 
 end CheckerControls

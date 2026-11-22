@@ -222,3 +222,11 @@ import OddPerfect.TwoExceptionFour
 import OddPerfect.EqualExponentsBound
 import OddPerfect.SquareRow
 import OddPerfect.LedgerParityTwo
+import OddPerfect.MixedIndexThreeCheck
+import OddPerfect.MixedIndexThreePrimes
+import OddPerfect.MixedIndexThreeData1
+import OddPerfect.MixedIndexThreeData2
+import OddPerfect.MixedIndexThreeData3
+import OddPerfect.MixedIndexThreeData4
+import OddPerfect.MixedIndexThreeData5
+import OddPerfect.MixedIndexThree

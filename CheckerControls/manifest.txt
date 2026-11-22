@@ -23,3 +23,4 @@
 17 Certified rows of the largest prime factor search (`OddPerfect.LPF2.rowOK`)
 10 The fast search step for two large primes (`OddPerfect.SLP.expandF`, `runF`)
 17 The mixed index tree checker (`OddPerfect.MixedIndex.chk`)
+18 The mixed index tree checker with cuts (`OddPerfect.MixedIndexThree.chk3`)
