@@ -180,3 +180,6 @@ import OddPerfect.NotFifteenSixteenC
 import OddPerfect.NotFifteenSixteenD
 import OddPerfect.NotFifteenSixteen
 import OddPerfect.TwoExceptionThree
+import OddPerfect.MixedIndexCheck
+import OddPerfect.MixedIndexData
+import OddPerfect.MixedIndex
