@@ -174,3 +174,8 @@ import OddPerfect.SecondLargestPrimeFastData6
 import OddPerfect.SecondLargestPrimeFastData7
 import OddPerfect.SecondLargestPrimeFastData8
 import OddPerfect.SecondLargestPrimeFastData9
+import OddPerfect.NotFifteenSixteenA
+import OddPerfect.NotFifteenSixteenB
+import OddPerfect.NotFifteenSixteenC
+import OddPerfect.NotFifteenSixteenD
+import OddPerfect.NotFifteenSixteen
