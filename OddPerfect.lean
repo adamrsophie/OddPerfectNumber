@@ -145,3 +145,4 @@ import OddPerfect.SecondLargestPrimeTwo
 import OddPerfect.RestrainedTwo
 import OddPerfect.RestrainedThree
 import OddPerfect.RestrainedFour
+import OddPerfect.RestrainedFive
