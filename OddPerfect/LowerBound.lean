@@ -22,6 +22,8 @@ multiple of the recorded prime powers, and the product `∏ σ(p ^ a)` over comp
 `a + 1 ∣ e + 1`, which divides `σ(N) = 2 N` (halved if even).
 -/
 
+set_option Elab.async false
+
 namespace OddPerfect.LowerBound
 
 open ArithmeticFunction

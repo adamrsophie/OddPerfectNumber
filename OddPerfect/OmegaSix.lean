@@ -27,6 +27,8 @@ Starting from `3` (which divides `N` when `ω(N) ≤ 6`), the search closes `ω(
 `ω(N) = 5`.
 -/
 
+set_option Elab.async false
+
 namespace OddPerfect.OmegaSixSearch
 
 open Cert (geom)
@@ -796,9 +798,122 @@ set_option maxRecDepth 100000 in
 /-- The search closes four prime factors. -/
 theorem search_four : solve 30 [⟨3, 2, false⟩] 3 3 = true := by decide +kernel
 
+/-- One step of the search through its prime window: when `j ≠ 0` and the window branch of
+`solve` is taken, it suffices to close every prime `q` of the window. -/
+private theorem solve_of_window {f : ℕ} {l : List Ent} {j m a n : ℕ} (hj : j ≠ 0)
+    (hb : bounds l j m ≠ [] ∧ (minB (bounds l j m) ≤ lowB l j m + W ∨ allEx l = true ∨ 2 ≤ j))
+    (ha : lowB l j m = a) (hn : minB (bounds l j m) + 1 - lowB l j m = n)
+    (h : ∀ q ∈ List.range' a n, isPrimeQ q = true →
+      solve f (l ++ [⟨q, kmin q, false⟩]) (j - 1) q = true) :
+    solve (f + 1) l j m = true := by
+  rw [solve.eq_2, if_neg hj, if_pos hb]
+  simp only [Bool.or_eq_true, List.all_eq_true]
+  right
+  intro q hq
+  rw [hn, ha] at hq
+  cases hp : isPrimeQ q
+  · simp
+  · exact Or.inr (h q hq hp)
+
+/-- A window split into two consecutive parts. -/
+private theorem win_split {f : ℕ} {l : List Ent} {j a b k n2 n : ℕ}
+    (h1 : ∀ q ∈ List.range' a k, isPrimeQ q = true →
+      solve f (l ++ [⟨q, kmin q, false⟩]) (j - 1) q = true)
+    (h2 : ∀ q ∈ List.range' b n2, isPrimeQ q = true →
+      solve f (l ++ [⟨q, kmin q, false⟩]) (j - 1) q = true)
+    (hk : a + k = b) (hn : k + n2 = n) :
+    ∀ q ∈ List.range' a n, isPrimeQ q = true →
+      solve f (l ++ [⟨q, kmin q, false⟩]) (j - 1) q = true := by
+  intro q hq
+  rw [List.mem_range'_1] at hq
+  by_cases hqb : q < b
+  · exact h1 q (List.mem_range'_1.mpr ⟨hq.1, by omega⟩)
+  · exact h2 q (List.mem_range'_1.mpr ⟨by omega, by omega⟩)
+
+/-- A window of one prime `b`, closed by a separate check of its child state. -/
+private theorem win_one {f : ℕ} {l : List Ent} {j b : ℕ}
+    (hc : solve f (l ++ [⟨b, kmin b, false⟩]) (j - 1) b = true) :
+    ∀ q ∈ List.range' b 1, isPrimeQ q = true →
+      solve f (l ++ [⟨q, kmin q, false⟩]) (j - 1) q = true := by
+  intro q hq _
+  rw [List.mem_range'_1] at hq
+  obtain rfl : q = b := by omega
+  exact hc
+
 set_option maxRecDepth 100000 in
-/-- The search closes five prime factors. -/
-theorem search_five : solve 30 [⟨3, 2, false⟩] 4 3 = true := by decide +kernel
+/-- Window `[4, 5)` (mirror nodes: 0). -/
+private theorem five_w4 : ∀ q ∈ List.range' 4 1,
+    isPrimeQ q = true → solve 29 ([⟨3, 2, false⟩] ++ [⟨q, kmin q, false⟩]) (4 - 1) q = true := by
+  decide +kernel
+
+set_option maxRecDepth 100000 in
+/-- Window `[6, 17)` (mirror nodes: 907). -/
+private theorem five_5_w6 : ∀ q ∈ List.range' 6 11,
+    isPrimeQ q = true → solve 28 ([⟨3, 2, false⟩, ⟨5, 1, false⟩] ++ [⟨q, kmin q, false⟩]) (3 - 1) q = true := by
+  decide +kernel
+
+set_option maxRecDepth 100000 in
+/-- Window `[18, 257)` (mirror nodes: 1166). -/
+private theorem five_5_17_w18 : ∀ q ∈ List.range' 18 239,
+    isPrimeQ q = true → solve 27 ([⟨3, 2, false⟩, ⟨5, 1, false⟩, ⟨17, 1, false⟩] ++ [⟨q, kmin q, false⟩]) (2 - 1) q = true := by
+  decide +kernel
+
+set_option maxRecDepth 100000 in
+/-- Window `[257, 337)` (mirror nodes: 1178). -/
+private theorem five_5_17_w257 : ∀ q ∈ List.range' 257 80,
+    isPrimeQ q = true → solve 27 ([⟨3, 2, false⟩, ⟨5, 1, false⟩, ⟨17, 1, false⟩] ++ [⟨q, kmin q, false⟩]) (2 - 1) q = true := by
+  decide +kernel
+
+set_option maxRecDepth 100000 in
+/-- Window `[337, 512)` (mirror nodes: 1124). -/
+private theorem five_5_17_w337 : ∀ q ∈ List.range' 337 175,
+    isPrimeQ q = true → solve 27 ([⟨3, 2, false⟩, ⟨5, 1, false⟩, ⟨17, 1, false⟩] ++ [⟨q, kmin q, false⟩]) (2 - 1) q = true := by
+  decide +kernel
+
+/-- The state `[⟨3, 2, false⟩, ⟨5, 1, false⟩, ⟨17, 1, false⟩]` with `2` further primes above `17`, through its window. -/
+private theorem five_5_17 : solve 28 [⟨3, 2, false⟩, ⟨5, 1, false⟩, ⟨17, 1, false⟩] 2 17 = true :=
+  solve_of_window (by decide) (by decide +kernel) (by decide +kernel) (by decide +kernel)
+    (win_split five_5_17_w18
+      (win_split five_5_17_w257
+      five_5_17_w337 rfl rfl) rfl rfl)
+
+set_option maxRecDepth 100000 in
+/-- Window `[18, 23)` (mirror nodes: 882). -/
+private theorem five_5_w18 : ∀ q ∈ List.range' 18 5,
+    isPrimeQ q = true → solve 28 ([⟨3, 2, false⟩, ⟨5, 1, false⟩] ++ [⟨q, kmin q, false⟩]) (3 - 1) q = true := by
+  decide +kernel
+
+set_option maxRecDepth 100000 in
+/-- Window `[23, 47)` (mirror nodes: 981). -/
+private theorem five_5_w23 : ∀ q ∈ List.range' 23 24,
+    isPrimeQ q = true → solve 28 ([⟨3, 2, false⟩, ⟨5, 1, false⟩] ++ [⟨q, kmin q, false⟩]) (3 - 1) q = true := by
+  decide +kernel
+
+/-- The state `[⟨3, 2, false⟩, ⟨5, 1, false⟩]` with `3` further primes above `5`, through its window. -/
+private theorem five_5 : solve 29 [⟨3, 2, false⟩, ⟨5, 1, false⟩] 3 5 = true :=
+  solve_of_window (by decide) (by decide +kernel) (by decide +kernel) (by decide +kernel)
+    (win_split five_5_w6
+      (win_split (win_one (b := 17) five_5_17)
+      (win_split five_5_w18
+      five_5_w23 rfl rfl) rfl rfl) rfl rfl)
+
+set_option maxRecDepth 100000 in
+/-- Window `[6, 15)` (mirror nodes: 471). -/
+private theorem five_w6 : ∀ q ∈ List.range' 6 9,
+    isPrimeQ q = true → solve 29 ([⟨3, 2, false⟩] ++ [⟨q, kmin q, false⟩]) (4 - 1) q = true := by
+  decide +kernel
+
+/-- The state `[⟨3, 2, false⟩]` with `4` further primes above `3`, through its window. -/
+private theorem five : solve 30 [⟨3, 2, false⟩] 4 3 = true :=
+  solve_of_window (by decide) (by decide +kernel) (by decide +kernel) (by decide +kernel)
+    (win_split five_w4
+      (win_split (win_one (b := 5) five_5)
+      five_w6 rfl rfl) rfl rfl)
+
+/-- The search closes five prime factors. The kernel run is cut along the prime windows of the
+search into the checks above, each of at most 1200 search nodes of the Python mirror, so that
+each check is small in memory. -/
+theorem search_five : solve 30 [⟨3, 2, false⟩] 4 3 = true := five
 
 end OddPerfect.OmegaSixSearch
 

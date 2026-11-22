@@ -17,6 +17,8 @@
 # certificates about 15 seconds, mirror check tens of CPU minutes (split over J processes).
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: output files are written to the folder OUT given on the command line.
+# The theorem text (mode thm) checks the row table T in chunks of RK rows, one kernel check
+# per chunk (private theorems rows1, rows2, ...), which keeps the peak memory of the check low.
 # License: GPL 3, same as the repository.
 import sys, os, math, time
 from math import gcd
@@ -443,6 +445,42 @@ end OddPerfect
 """
     return files
 
+def thm_text(B, P, M, D, T, RK=8):
+    Ts = "[" + ", ".join(f"({p}, {r})" for p, r in T) + "]"
+    ch = [T[i:i + RK] for i in range(0, len(T), RK)]
+    lit = lambda c: "[" + ", ".join(f"({p}, {r})" for p, r in c) + "]"
+    out = [f"""/-- The number `M = 2 ∏ P` of `exists_primeFactor_gt`, named so that the row checks below
+do not repeat it. -/
+private def bigM : ℕ := {M}
+"""]
+    for k, c in enumerate(ch, 1):
+        out.append(f"""set_option maxHeartbeats 0 in
+/-- Rows {RK * (k - 1) + 1} to {RK * (k - 1) + len(c)} of the row table of `exists_primeFactor_gt`. -/
+private theorem rows{k} : ({lit(c)} : List (ℕ × List ℕ)).all
+    (fun x => x.2 == LPF.row {B} bigM x.1) = true := by decide +kernel
+""")
+    app = " ++ (\n      ".join(lit(c) for c in ch) + ")" * (len(ch) - 1)
+    names = ", ".join(f"rows{k}" for k in range(1, len(ch) + 1))
+    out.append(f"""set_option maxRecDepth 10000 in
+/-- The row table of `exists_primeFactor_gt`, checked in chunks of {RK} rows (one kernel check
+each, which keeps the peak memory of the check low). -/
+private theorem rows : ({Ts} : List (ℕ × List ℕ)).all
+    (fun x => x.2 == LPF.row {B} bigM x.1) = true := by
+  rw [show ({Ts} : List (ℕ × List ℕ)) =
+      {app} from rfl]
+  simp only [List.all_append, {names}, Bool.and_self]
+
+set_option maxHeartbeats 0 in
+/-- The largest prime factor of an odd perfect number exceeds `{B}`. -/
+theorem exists_primeFactor_gt {{N : ℕ}} (h : OddPerfect N) : ∃ p ∈ N.primeFactors, {B} < p :=
+  LPF.exists_primeFactor_gt_of_search (P := {P})
+    (M := {M})
+    (D := {D})
+    (T := {Ts})
+    (by decide +kernel) (by decide +kernel) (by decide +kernel) rows
+    (by decide +kernel) h""")
+    return "\n".join(out)
+
 # ---------------------------------------------------------------- main
 
 if __name__ == '__main__':
@@ -453,16 +491,7 @@ if __name__ == '__main__':
     sys.stderr.write(f"B={B} ok={ok} nodes={nodes} rows={len(T)} "
                      f"rowentries={sum(len(r) for _, r in T)} cpu={time.process_time() - t0:.1f}\n")
     if mode == 'thm':
-        Ts = "[" + ", ".join(f"({p}, {r})" for p, r in T) + "]"
-        print(f"""set_option maxHeartbeats 0 in
-/-- The largest prime factor of an odd perfect number exceeds `{B}`. -/
-theorem exists_primeFactor_gt {{N : ℕ}} (h : OddPerfect N) : ∃ p ∈ N.primeFactors, {B} < p :=
-  LPF.exists_primeFactor_gt_of_search (P := {P})
-    (M := {M})
-    (D := {D})
-    (T := {Ts})
-    (by decide +kernel) (by decide +kernel) (by decide +kernel) (by decide +kernel)
-    (by decide +kernel) h""")
+        print(thm_text(B, P, M, D, T))
     elif mode in ('mirror', 'lean'):
         if not ok: sys.exit("search failed")
         certs, XU, L = make_certs(B, R, T)

@@ -12,11 +12,49 @@
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
 # sibling helper files are found next to this script.
+# The theorem text (mode thm) checks the row table T in chunks of RK rows, one kernel check
+# per chunk (private theorems rows1, rows2, ...), which keeps the peak memory of the check low.
 # License: GPL 3, same as the repository.
 import sys
 sys.setrecursionlimit(100000)
 sys.set_int_max_str_digits(0)
 from math import gcd
+def thm_text(B, P, M, D, T, RK=8):
+    Ts = "[" + ", ".join(f"({p}, {r})" for p, r in T) + "]"
+    ch = [T[i:i + RK] for i in range(0, len(T), RK)]
+    lit = lambda c: "[" + ", ".join(f"({p}, {r})" for p, r in c) + "]"
+    out = [f"""/-- The number `M = 2 ∏ P` of `exists_primeFactor_gt`, named so that the row checks below
+do not repeat it. -/
+private def bigM : ℕ := {M}
+"""]
+    for k, c in enumerate(ch, 1):
+        out.append(f"""set_option maxHeartbeats 0 in
+/-- Rows {RK * (k - 1) + 1} to {RK * (k - 1) + len(c)} of the row table of `exists_primeFactor_gt`. -/
+private theorem rows{k} : ({lit(c)} : List (ℕ × List ℕ)).all
+    (fun x => x.2 == LPF.row {B} bigM x.1) = true := by decide +kernel
+""")
+    app = " ++ (\n      ".join(lit(c) for c in ch) + ")" * (len(ch) - 1)
+    names = ", ".join(f"rows{k}" for k in range(1, len(ch) + 1))
+    out.append(f"""set_option maxRecDepth 10000 in
+/-- The row table of `exists_primeFactor_gt`, checked in chunks of {RK} rows (one kernel check
+each, which keeps the peak memory of the check low). -/
+private theorem rows : ({Ts} : List (ℕ × List ℕ)).all
+    (fun x => x.2 == LPF.row {B} bigM x.1) = true := by
+  rw [show ({Ts} : List (ℕ × List ℕ)) =
+      {app} from rfl]
+  simp only [List.all_append, {names}, Bool.and_self]
+
+set_option maxHeartbeats 0 in
+/-- The largest prime factor of an odd perfect number exceeds `{B}`. -/
+theorem exists_primeFactor_gt {{N : ℕ}} (h : OddPerfect N) : ∃ p ∈ N.primeFactors, {B} < p :=
+  LPF.exists_primeFactor_gt_of_search (P := {P})
+    (M := {M})
+    (D := {D})
+    (T := {Ts})
+    (by decide +kernel) (by decide +kernel) (by decide +kernel) rows
+    (by decide +kernel) h""")
+    return "\n".join(out)
+
 B = int(sys.argv[1]); mode = sys.argv[2]
 
 def isp(n): return n >= 2 and all(n % d for d in range(2, int(n ** .5) + 1))
@@ -72,15 +110,7 @@ T = [(p, rowc[p]) for p in rowc]
 sys.stderr.write(f"B={B} ok={ok} nodes={nodes} rows={len(T)} rowentries={sum(len(r) for _, r in T)}\n")
 Ts = "[" + ", ".join(f"({p}, {r})" for p, r in T) + "]"
 if mode == 'thm':
-    print(f"""set_option maxHeartbeats 0 in
-/-- The largest prime factor of an odd perfect number exceeds `{B}`. -/
-theorem exists_primeFactor_gt {{N : ℕ}} (h : OddPerfect N) : ∃ p ∈ N.primeFactors, {B} < p :=
-  LPF.exists_primeFactor_gt_of_search (P := {P})
-    (M := {M})
-    (D := {D})
-    (T := {Ts})
-    (by decide +kernel) (by decide +kernel) (by decide +kernel) (by decide +kernel)
-    (by decide +kernel) h""")
+    print(thm_text(B, P, M, D, T))
 else:
     print(f"""set_option profiler true
 set_option maxHeartbeats 0

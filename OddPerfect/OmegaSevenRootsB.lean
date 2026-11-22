@@ -12,6 +12,8 @@ most 6000 search nodes (Python mirror count) by the exponent splits and covers o
 `engine.py`) and `gen.py`. Mirror nodes in this file: 59256.
 -/
 
+set_option Elab.async false
+
 namespace OddPerfect.OmegaSevenRoots
 
 open OmegaSixSearch (Ent kmin)
