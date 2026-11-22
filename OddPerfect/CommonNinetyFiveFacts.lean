@@ -37,6 +37,9 @@ theorem zp95_eq : nodes95.zip rows95 =
       zp95_124, zp95_125, zp95_126, zp95_127].flatten := by
   decide +kernel
 
+/-- The node parts have length `50`, the last one at most `50`. -/
+theorem ndp95_lens : lensOK 50 ndp95 = true := by decide +kernel
+
 /-- No node is `2`. -/
 theorem nodes95_ne2 : ∀ t ∈ nodes95, t ≠ 2 := by
   have : nodes95.all (· != 2) = true := by decide +kernel
@@ -69,6 +72,11 @@ theorem nd95_eq : nodes95 =
       nd95_82, nd95_83, nd95_84, nd95_85, nd95_86, nd95_87, nd95_88, nd95_89].flatten := by
   rfl
 
+/-- Every blocked candidate lies in one of the blocked sets. -/
+theorem blk95_cover : (nodes95.take rows95.length).all
+    (fun b => !cand95 b || [blk95_0, blk95_1, blk95_2, blk95_3].any fun f => f b) = true := by
+  decide +kernel
+
 /-- The target primes are the nodes selected by the target mask. -/
 theorem vals95_sel : CommonChain.sel 0 tm95 0 nodes95 = vals95 := by decide +kernel
 
@@ -86,9 +94,11 @@ end FamInst
 end OddPerfect
 
 #print axioms OddPerfect.FamInst.zp95_eq
+#print axioms OddPerfect.FamInst.ndp95_lens
 #print axioms OddPerfect.FamInst.nodes95_ne2
 #print axioms OddPerfect.FamInst.src95_eq
 #print axioms OddPerfect.FamInst.nd95_eq
+#print axioms OddPerfect.FamInst.blk95_cover
 #print axioms OddPerfect.FamInst.vals95_sel
 #print axioms OddPerfect.FamInst.vals95_nodup
 #print axioms OddPerfect.FamInst.PG95

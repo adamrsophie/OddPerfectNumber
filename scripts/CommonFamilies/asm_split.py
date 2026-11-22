@@ -5,11 +5,13 @@
 # the final module gets the fragment finFile at its end. Writes <outDir>/<Module>.lean for
 # every module of <name>.mods.json and prints the module list. Then run axioms.py once on
 # each written file.
-# Used by: OddPerfect/CommonNinetyFive.lean and its 18 companion modules.
-# Run: python3 asm_split.py name d seedText finFile [outDir], for example
+# Used by: OddPerfect/CommonNinetyFive.lean and its 12 companion modules.
+# Run: python3 asm_split.py name d seedText finFile [outDir [dataImport]], for example
 # python3 asm_split.py 95 95 '`5, 19`' fragments/fin95.lean out; outDir defaults to OddPerfect
 # in the current folder and is created if missing. (The original run wrote straight into the
-# folder OddPerfect of the repository.)
+# folder OddPerfect of the repository.) dataImport is the module imported by the Data module,
+# OddPerfect.CommonFiveSeven by default; with OddPerfect.CommonFastChecks (for tables written
+# by mktail.py with the key "fast") the docstring of the final module also names it.
 # Requires: Python 3 standard library. Deterministic. Running time: under a second.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
@@ -20,6 +22,9 @@ import sys, json, os
 n, d, seeds, fin = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 mods = json.load(open(f'{n}.mods.json')); data, facts, final = mods[0], mods[1], mods[-1]
 R = os.path.join(sys.argv[5] if len(sys.argv) > 5 else 'OddPerfect', '')
+DI = sys.argv[6] if len(sys.argv) > 6 else 'OddPerfect.CommonFiveSeven'
+FASTDOC = ('' if DI == 'OddPerfect.CommonFiveSeven' else
+           f'\nThe primality, row and reach checks use the cheaper checkers of `{DI}`.')
 os.makedirs(R, exist_ok=True)
 OPEN = '''open ArithmeticFunction
 open scoped ArithmeticFunction.sigma
@@ -45,7 +50,7 @@ def doc(m):
         if m.startswith(final + k):
             return f'{w} of the common `{d}` table, part {m[len(final + k):]}'
 for m in mods[:-1]:
-    imp = 'OddPerfect.CommonFiveSeven' if m == data else 'OddPerfect.' + data
+    imp = DI if m == data else 'OddPerfect.' + data
     body = open(f'mod_{m}.txt').read()
     if m == data: body = open(f'{n}.lean.txt').read() + '\n' + body
     txt = (f'import {imp}\n\n/-!\n# Common exponent families: {doc(m)}\n\n'
@@ -64,7 +69,7 @@ family is impossible, from the table and checks of the modules `OddPerfect.{data
 `OddPerfect.{final}Rows1` onward, with the reach and abundance checkers of
 `OddPerfect.CommonFiveSeven`. Known: the statement follows from the Main Theorem of Fletcher,
 Nielsen and Ochem (Math. Comp. 81, 2012) together with Kanold's theorem
-(`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate checked by the kernel.
+(`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate checked by the kernel.{FASTDOC}
 -/
 
 ''' + OPEN + open(f'mod_{final}.txt').read() + open(fin).read())

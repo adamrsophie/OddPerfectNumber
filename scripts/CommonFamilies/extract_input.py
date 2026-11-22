@@ -7,7 +7,7 @@
 # compact JSON. This is not the certificate cert_d95.json of the original search (which also
 # carried seeds, the special test and other keys): it is the table of the published modules,
 # from which the chain in rebuild95.sh reproduces those modules byte for byte.
-# Used by: rebuild95.sh, for OddPerfect/CommonNinetyFive.lean and its 18 companion modules.
+# Used by: rebuild95.sh, for OddPerfect/CommonNinetyFive.lean and its 12 companion modules.
 # Run: python3 -I extract_input.py CommonNinetyFiveData.lean out.json
 # Requires: Python 3 standard library. Deterministic. Running time: under a second.
 # Untrusted: every result is checked again by the Lean kernel.

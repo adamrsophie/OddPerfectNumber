@@ -99,6 +99,7 @@ import OddPerfect.ReciprocalSumTwo
 import OddPerfect.KanoldSquareFinal
 import OddPerfect.LargestPrimeCapacityTwo
 import OddPerfect.NetworkCut
+import OddPerfect.CommonFastChecks
 import OddPerfect.CommonNinetyFiveData
 import OddPerfect.CommonNinetyFiveFacts
 import OddPerfect.CommonNinetyFiveRows1
@@ -111,12 +112,6 @@ import OddPerfect.CommonNinetyFivePrime2
 import OddPerfect.CommonNinetyFivePrime3
 import OddPerfect.CommonNinetyFivePrime4
 import OddPerfect.CommonNinetyFiveReach1
-import OddPerfect.CommonNinetyFiveReach2
-import OddPerfect.CommonNinetyFiveReach3
-import OddPerfect.CommonNinetyFiveReach4
-import OddPerfect.CommonNinetyFiveReach5
-import OddPerfect.CommonNinetyFiveReach6
-import OddPerfect.CommonNinetyFiveReach7
 import OddPerfect.CommonNinetyFive
 import OddPerfect.ThreeFreeThreeCore
 import OddPerfect.ThreeFreeThreeChecker

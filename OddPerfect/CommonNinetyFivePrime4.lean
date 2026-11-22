@@ -17,89 +17,89 @@ namespace FamInst
 open OddPerfect.CommonChain (maskOf)
 open OddPerfect.CommonFam (pPow pSig expL)
 
-/-- The nodes of part 62 are certified. -/
-theorem nd95_62_isPS : nd95_62.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 62 are prime by trial division. -/
+theorem nd95_62_isPS : nd95_62.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 63 are certified. -/
-theorem nd95_63_isPS : nd95_63.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 63 are prime by trial division. -/
+theorem nd95_63_isPS : nd95_63.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 64 are certified. -/
-theorem nd95_64_isPS : nd95_64.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 64 are prime by trial division. -/
+theorem nd95_64_isPS : nd95_64.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 65 are certified. -/
-theorem nd95_65_isPS : nd95_65.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 65 are prime by trial division. -/
+theorem nd95_65_isPS : nd95_65.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 66 are certified. -/
-theorem nd95_66_isPS : nd95_66.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 66 are prime by trial division. -/
+theorem nd95_66_isPS : nd95_66.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 67 are certified. -/
-theorem nd95_67_isPS : nd95_67.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 67 are prime by trial division. -/
+theorem nd95_67_isPS : nd95_67.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 68 are certified. -/
-theorem nd95_68_isPS : nd95_68.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 68 are prime by trial division. -/
+theorem nd95_68_isPS : nd95_68.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 69 are certified. -/
-theorem nd95_69_isPS : nd95_69.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 69 are prime by trial division. -/
+theorem nd95_69_isPS : nd95_69.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 70 are certified. -/
-theorem nd95_70_isPS : nd95_70.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 70 are prime by trial division. -/
+theorem nd95_70_isPS : nd95_70.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 71 are certified. -/
-theorem nd95_71_isPS : nd95_71.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 71 are prime by trial division. -/
+theorem nd95_71_isPS : nd95_71.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 72 are certified. -/
-theorem nd95_72_isPS : nd95_72.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 72 are prime by trial division. -/
+theorem nd95_72_isPS : nd95_72.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 73 are certified. -/
-theorem nd95_73_isPS : nd95_73.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 73 are prime by trial division. -/
+theorem nd95_73_isPS : nd95_73.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 74 are certified. -/
-theorem nd95_74_isPS : nd95_74.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 74 are prime by trial division. -/
+theorem nd95_74_isPS : nd95_74.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 75 are certified. -/
-theorem nd95_75_isPS : nd95_75.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 75 are prime by trial division. -/
+theorem nd95_75_isPS : nd95_75.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 76 are certified. -/
-theorem nd95_76_isPS : nd95_76.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 76 are prime by trial division. -/
+theorem nd95_76_isPS : nd95_76.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 77 are certified. -/
-theorem nd95_77_isPS : nd95_77.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 77 are prime by trial division. -/
+theorem nd95_77_isPS : nd95_77.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 78 are certified. -/
-theorem nd95_78_isPS : nd95_78.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 78 are prime by trial division. -/
+theorem nd95_78_isPS : nd95_78.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 79 are certified. -/
-theorem nd95_79_isPS : nd95_79.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 79 are prime by trial division. -/
+theorem nd95_79_isPS : nd95_79.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 80 are certified. -/
-theorem nd95_80_isPS : nd95_80.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 80 are prime by trial division. -/
+theorem nd95_80_isPS : nd95_80.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 81 are certified. -/
-theorem nd95_81_isPS : nd95_81.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 81 are prime by trial division. -/
+theorem nd95_81_isPS : nd95_81.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 82 are certified. -/
-theorem nd95_82_isPS : nd95_82.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 82 are prime by trial division. -/
+theorem nd95_82_isPS : nd95_82.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 83 are certified. -/
-theorem nd95_83_isPS : nd95_83.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 83 are prime by trial division. -/
+theorem nd95_83_isPS : nd95_83.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 84 are certified. -/
-theorem nd95_84_isPS : nd95_84.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 84 are prime by trial division. -/
+theorem nd95_84_isPS : nd95_84.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 85 are certified. -/
-theorem nd95_85_isPS : nd95_85.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 85 are prime by trial division. -/
+theorem nd95_85_isPS : nd95_85.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 86 are certified. -/
-theorem nd95_86_isPS : nd95_86.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 86 are prime by trial division. -/
+theorem nd95_86_isPS : nd95_86.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 87 are certified. -/
-theorem nd95_87_isPS : nd95_87.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 87 are prime by trial division. -/
+theorem nd95_87_isPS : nd95_87.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 88 are certified. -/
-theorem nd95_88_isPS : nd95_88.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 88 are prime by trial division. -/
+theorem nd95_88_isPS : nd95_88.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 89 are certified. -/
-theorem nd95_89_isPS : nd95_89.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 89 are prime by trial division. -/
+theorem nd95_89_isPS : nd95_89.all (fastPrime oddP) = true := by decide +kernel
 
 
 end FamInst

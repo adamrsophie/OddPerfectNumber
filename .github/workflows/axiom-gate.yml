@@ -84,8 +84,8 @@ jobs:
         run: |
           "$RUNNER_TEMP/venv/bin/python" -I scripts/Controls/validator_controls.py
 
-      # Regenerates the 19 modules OddPerfect/CommonNinetyFive*.lean of the family of 95 from
-      # the archived input and compares them byte for byte with the checkout (about five
+      # Regenerates the 13 modules OddPerfect/CommonNinetyFive*.lean of the family of 95 from
+      # the archived input and compares them byte for byte with the checkout (about ten
       # seconds). The script runs every step with the interpreter named by PYTHON.
       - name: Rebuild of the family of 95
         env:

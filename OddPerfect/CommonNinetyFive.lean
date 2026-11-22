@@ -9,12 +9,6 @@ import OddPerfect.CommonNinetyFivePrime2
 import OddPerfect.CommonNinetyFivePrime3
 import OddPerfect.CommonNinetyFivePrime4
 import OddPerfect.CommonNinetyFiveReach1
-import OddPerfect.CommonNinetyFiveReach2
-import OddPerfect.CommonNinetyFiveReach3
-import OddPerfect.CommonNinetyFiveReach4
-import OddPerfect.CommonNinetyFiveReach5
-import OddPerfect.CommonNinetyFiveReach6
-import OddPerfect.CommonNinetyFiveReach7
 
 /-!
 # Common exponent families: the common `95` family
@@ -26,6 +20,7 @@ family is impossible, from the table and checks of the modules `OddPerfect.Commo
 `OddPerfect.CommonFiveSeven`. Known: the statement follows from the Main Theorem of Fletcher,
 Nielsen and Ochem (Math. Comp. 81, 2012) together with Kanold's theorem
 (`OddPerfect.dvd_of_dvd_succ`); the proof here is an independent certificate checked by the kernel.
+The primality, row and reach checks use the cheaper checkers of `OddPerfect.CommonFastChecks`.
 -/
 
 open ArithmeticFunction
@@ -39,8 +34,9 @@ open OddPerfect.CommonChain (maskOf)
 open OddPerfect.CommonFam (pPow pSig expL)
 
 /-- The divisibility checks of all rows. -/
-theorem hrows95 : ∀ e ∈ nodes95.zip rows95, rowChk 95 nodes95 e = true :=
-  all_of_parts _ zp95_eq (by
+theorem hrows95 : ∀ e ∈ nodes95.zip rows95, rowChk 95 nodes95 e = true := fun e he =>
+  rowChk_of_rowChkP (K := 50) (parts := ndp95) (by decide) nd95_eq ndp95_lens
+    (all_of_parts _ zp95_eq (by
     exact List.forall_mem_cons.mpr ⟨rows95_0, List.forall_mem_cons.mpr ⟨rows95_1,
       List.forall_mem_cons.mpr ⟨rows95_2, List.forall_mem_cons.mpr ⟨rows95_3,
       List.forall_mem_cons.mpr ⟨rows95_4, List.forall_mem_cons.mpr ⟨rows95_5,
@@ -106,52 +102,19 @@ theorem hrows95 : ∀ e ∈ nodes95.zip rows95, rowChk 95 nodes95 e = true :=
       List.forall_mem_cons.mpr ⟨rows95_124, List.forall_mem_cons.mpr ⟨rows95_125,
       List.forall_mem_cons.mpr ⟨rows95_126, List.forall_mem_cons.mpr ⟨rows95_127, fun _ h =>
       absurd h
-      List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩)
+      List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩) e he)
 
 /-- Every blocked source node passes the reach check. -/
 theorem hcand95 : ∀ b ∈ nodes95.take rows95.length, cand95 b = true →
-    reach nodes95 rows95 2 tm95 3 b = true := by
-  intro b hb hcb
-  have := all_of_parts (f := fun b => !cand95 b || reach nodes95 rows95 2 tm95 3 b)
-    _ src95_eq (by
+    reach nodes95 rows95 2 tm95 3 b = true :=
+  hcand_of_groups [blk95_0, blk95_1, blk95_2, blk95_3] (by
     exact List.forall_mem_cons.mpr ⟨reach95_0, List.forall_mem_cons.mpr ⟨reach95_1,
-      List.forall_mem_cons.mpr ⟨reach95_2, List.forall_mem_cons.mpr ⟨reach95_3,
-      List.forall_mem_cons.mpr ⟨reach95_4, List.forall_mem_cons.mpr ⟨reach95_5,
-      List.forall_mem_cons.mpr ⟨reach95_6, List.forall_mem_cons.mpr ⟨reach95_7,
-      List.forall_mem_cons.mpr ⟨reach95_8, List.forall_mem_cons.mpr ⟨reach95_9,
-      List.forall_mem_cons.mpr ⟨reach95_10, List.forall_mem_cons.mpr ⟨reach95_11,
-      List.forall_mem_cons.mpr ⟨reach95_12, List.forall_mem_cons.mpr ⟨reach95_13,
-      List.forall_mem_cons.mpr ⟨reach95_14, List.forall_mem_cons.mpr ⟨reach95_15,
-      List.forall_mem_cons.mpr ⟨reach95_16, List.forall_mem_cons.mpr ⟨reach95_17,
-      List.forall_mem_cons.mpr ⟨reach95_18, List.forall_mem_cons.mpr ⟨reach95_19,
-      List.forall_mem_cons.mpr ⟨reach95_20, List.forall_mem_cons.mpr ⟨reach95_21,
-      List.forall_mem_cons.mpr ⟨reach95_22, List.forall_mem_cons.mpr ⟨reach95_23,
-      List.forall_mem_cons.mpr ⟨reach95_24, List.forall_mem_cons.mpr ⟨reach95_25,
-      List.forall_mem_cons.mpr ⟨reach95_26, List.forall_mem_cons.mpr ⟨reach95_27,
-      List.forall_mem_cons.mpr ⟨reach95_28, List.forall_mem_cons.mpr ⟨reach95_29,
-      List.forall_mem_cons.mpr ⟨reach95_30, List.forall_mem_cons.mpr ⟨reach95_31,
-      List.forall_mem_cons.mpr ⟨reach95_32, List.forall_mem_cons.mpr ⟨reach95_33,
-      List.forall_mem_cons.mpr ⟨reach95_34, List.forall_mem_cons.mpr ⟨reach95_35,
-      List.forall_mem_cons.mpr ⟨reach95_36, List.forall_mem_cons.mpr ⟨reach95_37,
-      List.forall_mem_cons.mpr ⟨reach95_38, List.forall_mem_cons.mpr ⟨reach95_39,
-      List.forall_mem_cons.mpr ⟨reach95_40, List.forall_mem_cons.mpr ⟨reach95_41,
-      List.forall_mem_cons.mpr ⟨reach95_42, List.forall_mem_cons.mpr ⟨reach95_43,
-      List.forall_mem_cons.mpr ⟨reach95_44, List.forall_mem_cons.mpr ⟨reach95_45,
-      List.forall_mem_cons.mpr ⟨reach95_46, List.forall_mem_cons.mpr ⟨reach95_47,
-      List.forall_mem_cons.mpr ⟨reach95_48, List.forall_mem_cons.mpr ⟨reach95_49,
-      List.forall_mem_cons.mpr ⟨reach95_50, List.forall_mem_cons.mpr ⟨reach95_51,
-      List.forall_mem_cons.mpr ⟨reach95_52, List.forall_mem_cons.mpr ⟨reach95_53,
-      List.forall_mem_cons.mpr ⟨reach95_54, List.forall_mem_cons.mpr ⟨reach95_55,
-      List.forall_mem_cons.mpr ⟨reach95_56, List.forall_mem_cons.mpr ⟨reach95_57,
-      List.forall_mem_cons.mpr ⟨reach95_58, List.forall_mem_cons.mpr ⟨reach95_59,
-      List.forall_mem_cons.mpr ⟨reach95_60, List.forall_mem_cons.mpr ⟨reach95_61,
-      List.forall_mem_cons.mpr ⟨reach95_62, List.forall_mem_cons.mpr ⟨reach95_63, fun _ h =>
-      absurd h List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩) b hb
-  simpa [hcb] using this
+      List.forall_mem_cons.mpr ⟨reach95_2, List.forall_mem_cons.mpr ⟨reach95_3, fun _ h => absurd
+      h List.not_mem_nil⟩⟩⟩⟩) blk95_cover
 
 /-- The nodes of the `d = 95` table are prime. -/
 theorem nodes95_prime : ∀ t ∈ nodes95, t.Prime := fun t ht =>
-  isPS_sound rfl (all_of_parts _ nd95_eq (by
+  prime_of_fastPrime (all_of_parts _ nd95_eq (by
     exact List.forall_mem_cons.mpr ⟨nd95_0_isPS, List.forall_mem_cons.mpr ⟨nd95_1_isPS,
       List.forall_mem_cons.mpr ⟨nd95_2_isPS, List.forall_mem_cons.mpr ⟨nd95_3_isPS,
       List.forall_mem_cons.mpr ⟨nd95_4_isPS, List.forall_mem_cons.mpr ⟨nd95_5_isPS,

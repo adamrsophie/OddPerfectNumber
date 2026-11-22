@@ -3,7 +3,7 @@
 # end of the assembled family files.
 # Used by: OddPerfect/CommonFiveSeven.lean, CommonSixtyFive.lean, CommonFiftyFive.lean,
 # CommonEightyFive.lean, CommonOneFifteen.lean, CommonOneFifteenData.lean,
-# CommonOneFifteenPrime.lean, and the 19 modules CommonNinetyFive*.lean (the final lines).
+# CommonOneFifteenPrime.lean, and the 13 modules CommonNinetyFive*.lean (the final lines).
 # Run: python3 axioms.py file.lean (edits the file in place).
 # Requires: Python 3 standard library. Deterministic. Running time: under a second.
 # Untrusted: every result is checked again by the Lean kernel.

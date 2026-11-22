@@ -5,7 +5,7 @@
 # hcand, nodes_prime, ab). Parts are grouped greedily in order so that the estimate of
 # est.py for each module stays below its cap. Writes the bodies mod_<Module>.txt and the
 # module list <name>.mods.json in import order, and prints the groups.
-# Used by: OddPerfect/CommonNinetyFive.lean and its 18 companion modules (through asm_split.py).
+# Used by: OddPerfect/CommonNinetyFive.lean and its 12 companion modules (through asm_split.py).
 # Run: python3 split.py name Prefix d rowsCap primeCap reachCap, for example
 # python3 split.py 95 CommonNinetyFive 95 2500000 550000 450000.
 # Requires: Python 3 standard library. Deterministic. Running time: under a second.
