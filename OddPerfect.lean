@@ -169,3 +169,7 @@ import OddPerfect.LargestPrimeFactorTwoRows7
 import OddPerfect.LargestPrimeFactorTwoRows8
 import OddPerfect.LargestPrimeFactorTwoRows9
 import OddPerfect.LargestPrimeFactorTwoFinal
+import OddPerfect.RestrainedSevenCheck
+import OddPerfect.RestrainedSevenData1
+import OddPerfect.RestrainedSevenData2
+import OddPerfect.RestrainedSeven
