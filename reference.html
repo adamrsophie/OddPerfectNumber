@@ -35,7 +35,7 @@
 <aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#foundations">Foundations</a></li><li class="l2"><a href="#euler">Euler's form and the special prime</a></li><li class="l2"><a href="#counting">Prime factor counts, size and exponents</a></li><li class="l2"><a href="#patterns">Exponent patterns</a></li><li class="l2"><a href="#collisions">Collisions of x² + x + 1</a></li><li class="l2"><a href="#tools">Tools and countermodels</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Reference</h1>
-<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>e0ab537</code>: 134 modules imported by the root file <code>OddPerfect.lean</code>, 2051 public theorems. Private and protected theorems are omitted.</p>
+<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>6a2327b</code>: 144 modules imported by the root file <code>OddPerfect.lean</code>, 2062 public theorems. Private and protected theorems are omitted.</p>
 <p class="sub">Docstrings are shown when present, with attributions and comparative remarks removed; a <b>Proof idea</b> is shown where it was written from the Lean source. <span class="tag unver">novelty unverified</span> and <span class="tag tool">tool</span> are explained on the <a href="theorems.html">Highlights</a> page.</p>
 <div class="filter" hidden><label for="filter">Filter modules and theorems</label>
 <input id="filter" type="search" placeholder="for example steuerwald, abundancy, 105" autocomplete="off" spellcheck="false">
@@ -2301,6 +2301,101 @@
   (hP : 40961 ∈ N.primeFactors) : <span class="k">∃</span> r ∈ N.primeFactors, 40961 &lt; r</code></pre><p class="doc"><code>40961</code> is not the largest prime factor of an odd perfect number <code>N</code>: if <code>40961 ∣ N</code>, some prime factor of <code>N</code> exceeds <code>40961</code>. This excludes one isolated value; it does not say that the largest prime factor of <code>N</code> exceeds <code>40961</code>.</p></div>
 <div class="decl" id="OddPerfect.largest_primeFactor_ne_18433" data-decl><h4><a class="anchor" href="#OddPerfect.largest_primeFactor_ne_18433"><code>OddPerfect.largest_primeFactor_ne_18433</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">largest_primeFactor_ne_18433</span> {N : <span class="t">ℕ</span>} (h : OddPerfect N)
   (hP : 18433 ∈ N.primeFactors) : <span class="k">∃</span> r ∈ N.primeFactors, 18433 &lt; r</code></pre><p class="doc"><code>18433</code> is not the largest prime factor of an odd perfect number <code>N</code>: if <code>18433 ∣ N</code>, some prime factor of <code>N</code> exceeds <code>18433</code>. This excludes one isolated value; it does not say that the largest prime factor of <code>N</code> exceeds <code>18433</code>.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData1" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData1</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData1.lean">OddPerfect/SecondLargestPrimeData1.lean</a> · 190 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 1 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data1.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data1.cert_first"><code>OddPerfect.SLP.Data1.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData2" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData2</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData2.lean">OddPerfect/SecondLargestPrimeData2.lean</a> · 183 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 2 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data2.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data2.cert_first"><code>OddPerfect.SLP.Data2.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData3" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData3</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData3.lean">OddPerfect/SecondLargestPrimeData3.lean</a> · 190 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 3 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data3.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data3.cert_first"><code>OddPerfect.SLP.Data3.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData4" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData4</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData4.lean">OddPerfect/SecondLargestPrimeData4.lean</a> · 183 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 4 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data4.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data4.cert_first"><code>OddPerfect.SLP.Data4.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData5" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData5</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData5.lean">OddPerfect/SecondLargestPrimeData5.lean</a> · 190 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 5 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data5.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data5.cert_first"><code>OddPerfect.SLP.Data5.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData6" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData6</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData6.lean">OddPerfect/SecondLargestPrimeData6.lean</a> · 183 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 6 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data6.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data6.cert_first"><code>OddPerfect.SLP.Data6.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData7" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData7</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData7.lean">OddPerfect/SecondLargestPrimeData7.lean</a> · 190 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 7 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data7.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data7.cert_first"><code>OddPerfect.SLP.Data7.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData8" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData8</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData8.lean">OddPerfect/SecondLargestPrimeData8.lean</a> · 183 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 8 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data8.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data8.cert_first"><code>OddPerfect.SLP.Data8.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeData9" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeData9</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeData9.lean">OddPerfect/SecondLargestPrimeData9.lean</a> · 190 lines · 1 public theorem · imports <a href="#mod-SecondLargestPrime">SecondLargestPrime</a> </p>
+<p class="summary">Certificate data for two prime factors above 72, part 9 of 9: a stretch of the search, checked step by step in the kernel.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The stacks between stretches of 500 steps were produced by running the engine itself; the kernel reruns every stretch and compares the result with the next stack.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.Data9.cert_first" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.Data9.cert_first"><code>OddPerfect.SLP.Data9.cert_first</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">cert_first</span> (h : Cert 72 last) : Cert 72 first</code></pre><p class="doc">No state of <code>first</code> holds, given that no state of <code>last</code> holds.</p></div>
+</div></details>
+</section>
+<section class="module" id="mod-SecondLargestPrimeTwo" data-module>
+<h3><code>OddPerfect.SecondLargestPrimeTwo</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/SecondLargestPrimeTwo.lean">OddPerfect/SecondLargestPrimeTwo.lean</a> · 62 lines · 2 public theorems · imports <a href="#mod-SecondLargestPrimeData1">SecondLargestPrimeData1</a>, <a href="#mod-SecondLargestPrimeData2">SecondLargestPrimeData2</a>, <a href="#mod-SecondLargestPrimeData3">SecondLargestPrimeData3</a>, <a href="#mod-SecondLargestPrimeData4">SecondLargestPrimeData4</a>, <a href="#mod-SecondLargestPrimeData5">SecondLargestPrimeData5</a>, <a href="#mod-SecondLargestPrimeData6">SecondLargestPrimeData6</a>, <a href="#mod-SecondLargestPrimeData7">SecondLargestPrimeData7</a>, <a href="#mod-SecondLargestPrimeData8">SecondLargestPrimeData8</a>, <a href="#mod-SecondLargestPrimeData9">SecondLargestPrimeData9</a> </p>
+<p class="summary">An odd perfect number has two distinct prime factors above 72. Much larger bounds for the second largest prime factor are known in the literature; this is the range the kernel checks here.</p>
+<div class="idea"><p><strong>Proof idea.</strong> The search engine of <code>SecondLargestPrime</code>, unchanged, started from a prime factor above 10000 (from <code>LargestPrimeFactor</code>) in place of 3000. The search for the bound 72 takes 101315 steps, about seven times the search for 58: the number of steps roughly doubles with each new small prime, which is what stops this method well below the bounds in the literature. This module assembles the checks of the nine data modules.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.SLP.exists_two_of_cert_from" data-decl><h4><a class="anchor" href="#OddPerfect.SLP.exists_two_of_cert_from"><code>OddPerfect.SLP.exists_two_of_cert_from</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">exists_two_of_cert_from</span> {B : <span class="t">ℕ</span>} {st : List Ent}
+  (hst : (primesUpTo B).map (<span class="k">fun</span> q =&gt; (q, 0, 0)) = st) (hB : B ≤ 10000)
+  (hc : Cert B [(st, 0, 10001, 0, 0, 0, false)]) {N : <span class="t">ℕ</span>} (h : OddPerfect N) :
+  <span class="k">∃</span> p ∈ N.primeFactors, <span class="k">∃</span> r ∈ N.primeFactors, p ≠ r ∧ B &lt; p ∧ B &lt; r</code></pre><p class="doc">A certified initial stack, with lower bound <code>10001</code> for the large prime, gives two distinct prime factors above <code>B</code>. The initial entries <code>st</code> are given explicitly and checked.</p></div>
+<div class="decl" id="OddPerfect.exists_two_primeFactors_gt_72" data-decl><h4><a class="anchor" href="#OddPerfect.exists_two_primeFactors_gt_72"><code>OddPerfect.exists_two_primeFactors_gt_72</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">exists_two_primeFactors_gt_72</span> {N : <span class="t">ℕ</span>} (h : OddPerfect N) :
+  <span class="k">∃</span> p ∈ N.primeFactors, <span class="k">∃</span> r ∈ N.primeFactors, p ≠ r ∧ 72 &lt; p ∧ 72 &lt; r</code></pre><p class="doc">An odd perfect number has two distinct prime factors above <code>72</code>.</p></div>
 </div></details>
 </section>
 </section>
@@ -5392,7 +5487,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>e0ab537</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>6a2327b</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

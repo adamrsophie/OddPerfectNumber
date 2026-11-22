@@ -126,6 +126,8 @@
 <li class="event"><time datetime="2026-11-21T23:10">23:10</time><p class="ev-title"><b>Three exceptions force 3.</b> <code class="hash">24cd4fc</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The new module <code>ThreeFreeThree</code> proves that if every prime factor other than the special prime and three further primes has exponent exactly 2, then 3 divides N, with no condition on the three exceptions. A verified checker rechecks a case analysis with 1223 leaves in the kernel, split over 11 data modules. Whether the statement is new has not been checked (novelty unverified).</p></li>
 <li class="event minor"><time datetime="2026-11-21T23:11">23:11</time><p class="ev-title"><b>Longer time limit for the axiom gate.</b> <code class="hash">9e1280f</code> <span class="cls known">known result formalized</span></p><p>The library has 135 modules and the workflow builds them one at a time, so the time limit of the axiom gate workflow was raised from 120 to 180 minutes.</p></li>
 <li class="event minor"><time datetime="2026-11-21T23:24">23:24</time><p class="ev-title"><b>Scripts and controls for three exceptions.</b> <code class="hash">e0ab537</code> <span class="cls known">known result formalized</span></p><p>Rerunning the published search reproduces the certificate, and rerunning the converter reproduces the 12 generated modules byte for byte. Nine new controls show that the checker rejects corrupted weights, pins, children and excluded values.</p></li>
+<li class="event minor"><time datetime="2026-11-21T23:54">23:54</time><p class="ev-title"><b>The workflow reuses earlier builds.</b> <code class="hash">c5974b1</code> <span class="cls known">known result formalized</span></p><p>The axiom gate workflow restores the compiled library of the most recent passing run on the main branch, and Lake rebuilds only the modules whose sources or imports changed. The axiom gate still inspects the whole library on every run. A weekly scheduled run and a manual run rebuild everything from an empty build folder.</p></li>
+<li class="event"><time datetime="2026-11-22T00:05">22 November 2026, 00:05</time><p class="ev-title"><b>Two prime factors above 72.</b> <code class="hash">6a2327b</code> <span class="cls known">known result formalized</span></p><p>The module <code>SecondLargestPrimeTwo</code> proves that an odd perfect number has two distinct prime factors above 72, with the engine of <code>SecondLargestPrime</code> and nine data modules. Much larger bounds are known in the literature; the search doubles with each new small prime, so this method stops here.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -139,7 +141,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>e0ab537</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>6a2327b</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
