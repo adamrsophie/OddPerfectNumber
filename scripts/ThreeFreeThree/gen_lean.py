@@ -3,8 +3,9 @@
 # OddPerfect.ThreeFreeThreeChecker, with a Python mirror of the Lean checker (leafOK, treeOK).
 # Used by: the data modules OddPerfect/ThreeFreeThreeData01.lean .. ThreeFreeThreeData11.lean
 # (the theorems u<i>_<k>_ok and their private group lemmas) and the final module
-# OddPerfect/ThreeFreeThree.lean (tree0 .. tree101, trees, allOK_trees and
-# three_dvd_of_three_exceptions); the mode data writes all twelve files.
+# OddPerfect/ThreeFreeThree.lean (tree0 .. tree101, trees, allOK_trees,
+# three_dvd_of_three_mod_exceptions, three_dvd_of_three_exceptions and
+# four_le_card_mod_exceptions); the mode data writes all twelve files.
 # Run: python3 -I gen_lean.py CERT MODE [ARG], where CERT is cert3_final.json or
 # cert3_final.json.xz and MODE is one of
 #   mirror             run the mirror on every leaf and compare with the certificate
@@ -31,6 +32,8 @@ FIXED = {'5': 5, '7': 7, '13': 13, '19': 19, '31': 31, '37': 37, '43': 43}
 SLOTIDX = {'q': 0, 'r1': 1, 'r2': 2, 'r3': 3}
 FUEL_LV = 1000
 FUEL_SQ = 200
+TAILN = 178802  # the tail factor 1/(1 - 1/(2 * 299^2)) = 178802/178801 of finalOK
+TAILD = 178801
 
 
 def prime_factors(n):
@@ -207,14 +210,23 @@ def leaf_ok(cl, nd, w):
     for s in C:
         Pn *= s * s + s + 1
         Pd *= s * s
+    # finalOK: each s in C contributes s/(s - 1), and the tail factor TAILN/TAILD covers the
+    # ordinary primes s >= 300
+    Qn = Qd = 1
+    for s in C:
+        Qn *= s
+        Qd *= s - 1
     info.update(X=X, C=C, B=B)
     ok = X[0] < X[1]
     if ok:
-        lhs = m[0] * m[1] * m[2] * m[3] * Pn * X[1]
-        rhs = 2 * ((m[0] - 1) * (m[1] - 1) * (m[2] - 1) * (m[3] - 1)) * Pd * (X[1] - X[0])
+        mm = m[0] * m[1] * m[2] * m[3]
+        md = (m[0] - 1) * (m[1] - 1) * (m[2] - 1) * (m[3] - 1)
+        lhs = mm * Qn * X[1] * TAILN
+        rhs = 2 * md * Qd * (X[1] - X[0]) * TAILD
         ok = lhs <= rhs
-        info['bound'] = Fraction(m[0] * m[1] * m[2] * m[3] * Pn * X[1],
-                                 (m[0] - 1) * (m[1] - 1) * (m[2] - 1) * (m[3] - 1) * Pd * (X[1] - X[0]))
+        # the bound of the certificate (fv(s) for s in C, no tail factor), for comparison
+        info['bound'] = Fraction(mm * Pn * X[1], md * Pd * (X[1] - X[0]))
+        info['cbound'] = Fraction(lhs, md * Qd * (X[1] - X[0]) * TAILD)
     return ok, info
 
 # Tree semantics.
@@ -455,11 +467,18 @@ def gen_data(d, outdir):
     # final module
     out = [f'import OddPerfect.{n}' for n in names]
     out += ['', '/-!', '# Odd perfect numbers with three exceptional primes are divisible by 3', '',
-            'Let `N` be an odd perfect number with special prime `q`, and suppose every prime factor of',
-            '`N` except `q`, `r₁`, `r₂` and `r₃` has exponent exactly 2. We show `3 ∣ N`. This extends',
-            '`three_dvd_of_two_exceptions` to three exceptions.', '',
-            'Assume `3 ∤ N`. The degenerate cases reduce to the two exception theorem',
-            '(`ThreeFreeThree.ctx4_of_not_three_dvd`). In the core case the three primes are relabeled so',
+            'Let `N` be an odd perfect number with special prime `q`, and suppose every prime factor `p`',
+            'of `N` except `q`, `r₁`, `r₂` and `r₃` has an exponent `e` with `3 ∣ e + 1` (for example',
+            '`e = 2`). We show `3 ∣ N` (`three_dvd_of_three_mod_exceptions`). The case of exponents',
+            'exactly 2 is `three_dvd_of_three_exceptions`, which extends `three_dvd_of_two_exceptions` to',
+            'three exceptions, and `four_le_card_mod_exceptions` is the counting form: if `3 ∤ N`, at',
+            'least four prime factors of `N` other than `q` have an exponent `e` with `3 ∤ e + 1`.', '',
+            'For context only (the literature was not screened): Ochem and Zelinsky (arXiv 2607.19746)',
+            'treat one exception with exact squares, and Fletcher, Nielsen and Ochem (Math. Comp. 81,',
+            '2012) bound the least prime factor when every ordinary exponent `e` has `3 ∣ e + 1` or',
+            '`5 ∣ e + 1`, with no exception.', '',
+            'Assume `3 ∤ N`. The labels are replaced by three distinct prime factors of `N` other than `q`',
+            '(`ThreeFreeThree.ctx4_of_not_three_dvd`). The three primes are then relabeled so',
             'that their classes are sorted (`ThreeFreeThree.Ctx4.cover`), and for each of the 102 sorted',
             'class triples a binary split tree of constraints is checked by `ThreeFreeThree.treeOK`,',
             'whose soundness is `ThreeFreeThree.treeOK_sound`. The 1223 leaves of the trees were found by',
@@ -495,21 +514,58 @@ theorem allOK_trees : allOK trees = true :=
 
 end ThreeFreeThree
 
+/-- An odd perfect number `N` with special prime `q`, in which every prime factor `p` other than
+`q` and three further numbers `r₁`, `r₂`, `r₃` has an exponent `e = N.factorization p` with
+`3 ∣ e + 1`, is divisible by 3. Here `r₁, r₂, r₃` are arbitrary natural numbers: they need not
+be distinct, prime, or divisors of `N`, so the cases of fewer exceptional primes are included.
+The case analysis behind the proof was found by a search outside Lean and is rechecked by the
+kernel. -/
+theorem three_dvd_of_three_mod_exceptions {N q r₁ r₂ r₃ : ℕ} (h : OddPerfect N) (hq : q.Prime)
+    (hodd : Odd (N.factorization q))
+    (hmod : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → 3 ∣ N.factorization p + 1) :
+    3 ∣ N :=
+  ThreeFreeThree.three_dvd_of_three_exceptions_of_check ThreeFreeThree.trees
+    ThreeFreeThree.allOK_trees h hq hodd hmod
+
 /-- An odd perfect number in which every prime factor other than the special prime `q` and
 three further primes `r₁`, `r₂`, `r₃` has exponent exactly 2 is divisible by 3. Here
 `r₁, r₂, r₃` are arbitrary natural numbers: they need not be distinct, prime, or divisors of
-`N`, so the cases of fewer exceptional primes are included. -/
+`N`, so the cases of fewer exceptional primes are included. This is the case `e = 2` of
+`three_dvd_of_three_mod_exceptions`. -/
 theorem three_dvd_of_three_exceptions {N q r₁ r₂ r₃ : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
     (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2) :
     3 ∣ N :=
-  ThreeFreeThree.three_dvd_of_three_exceptions_of_check ThreeFreeThree.trees
-    ThreeFreeThree.allOK_trees h hq hodd hsq
+  three_dvd_of_three_mod_exceptions (r₁ := r₁) (r₂ := r₂) (r₃ := r₃) h hq hodd
+    fun p hp h0 h1 h2 h3 => by simp [hsq p hp h0 h1 h2 h3]
+
+/-- The counting form of `three_dvd_of_three_mod_exceptions`: if `N` is an odd perfect number
+with special prime `q` and `3 ∤ N`, then at least four prime factors `p ≠ q` of `N` have an
+exponent `e = N.factorization p` with `3 ∤ e + 1`. -/
+theorem four_le_card_mod_exceptions {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
+    (hodd : Odd (N.factorization q)) (h3 : ¬ 3 ∣ N) :
+    4 ≤ ((N.primeFactors.erase q).filter fun p => ¬ 3 ∣ N.factorization p + 1).card := by
+  by_contra hc
+  set B := (N.primeFactors.erase q).filter fun p => ¬ 3 ∣ N.factorization p + 1
+  have hB : B.card ≤ 3 := by omega
+  have hU : 3 ≤ (B ∪ {0, 1, 2}).card :=
+    le_trans (by decide) (Finset.card_le_card Finset.subset_union_right)
+  obtain ⟨R, hBR, -, hR⟩ := Finset.exists_subsuperset_card_eq Finset.subset_union_left hB hU
+  obtain ⟨a, b, d, -, -, -, rfl⟩ := Finset.card_eq_three.mp hR
+  apply h3
+  refine three_dvd_of_three_mod_exceptions (r₁ := a) (r₂ := b) (r₃ := d) h hq hodd
+    fun p hp hpq ha hb hd => ?_
+  by_contra hn
+  have hm := hBR (Finset.mem_filter.mpr ⟨Finset.mem_erase.mpr ⟨hpq, hp⟩, hn⟩)
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+  tauto
 
 end OddPerfect
 
 #print axioms OddPerfect.ThreeFreeThree.allOK_trees
-#print axioms OddPerfect.three_dvd_of_three_exceptions''')
+#print axioms OddPerfect.three_dvd_of_three_mod_exceptions
+#print axioms OddPerfect.three_dvd_of_three_exceptions
+#print axioms OddPerfect.four_le_card_mod_exceptions''')
     open(os.path.join(outdir, 'ThreeFreeThree.lean'), 'w').write('\n'.join(out) + '\n')
     print('modules', len(names), 'leaves', total)
 
@@ -545,6 +601,7 @@ def main():
     if cmd == 'mirror':
         bad = 0
         worst = Fraction(0)
+        cworst = (Fraction(0), 0)
         maxex = (0, None)
         for ti, lid, cl, nd, w in leaves:
             L = cm[lid]
@@ -566,9 +623,12 @@ def main():
                 bad += 1
                 print('MISMATCH', lid, ok, info['m'], cleast)
             worst = max(worst, info.get('bound', 0))
+            cworst = max(cworst, (info.get('cbound', 0), lid))
             if info['exact'] > maxex[0]:
                 maxex = (info['exact'], lid)
         print('leaves', len(leaves), 'bad', bad, 'worst', float(worst), 'max exact', maxex)
+        print('worst corrected bound %d/%d ~ %.9f at leaf %d' % (cworst[0].numerator,
+              cworst[0].denominator, float(cworst[0]), cworst[1]))
     elif cmd == 'leaf':
         lid = int(sys.argv[3])
         for ti, l, cl, nd, w in leaves:

@@ -1,9 +1,10 @@
 # Untrusted helper script for the OddPerfect Lean library.
 # Second checker for the certificate cert3_final.json, written from SPEC.md alone (it shares
 # no code with cert3f.py or check3.py). It performs every check listed in Section 6 of
-# SPEC.md, with exact arithmetic throughout (int and Fraction; floats only for display), and
-# stops at the first failed check, naming it. With --tamper it applies 13 corruptions to the
-# certificate, one at a time, and reports whether each is rejected.
+# SPEC.md, including the corrected bound of Section 4, with exact arithmetic throughout (int
+# and Fraction; floats only for display), and stops at the first failed check, naming it.
+# With --tamper it applies 13 corruptions to the certificate, one at a time, and reports
+# whether each is rejected.
 # Used by: the certificate behind OddPerfect/ThreeFreeThreeData01.lean .. Data11.lean and
 # OddPerfect/ThreeFreeThree.lean.
 # Run: python3 -I verify3.py cert3_final.json [--tamper]   (or cert3_final.json.xz)
@@ -23,6 +24,11 @@ CAP = 300
 BOX = 5
 K = Fraction(301, 300) ** 2
 THRESH = Fraction(1999, 1000)
+# Corrected bound (exponents only known to be 2 modulo 3): each s in C contributes
+# s/(s - 1) instead of fv(s), and the ordinary primes s >= CAP contribute at most the tail
+# factor TAIL = 1/(1 - 1/(2*299^2)) (from sum_{s >= 300} s^-3 <= 1/(2*299^2)). The corrected
+# bound must be < 2; the Lean checker tests <= 2.
+TAIL = Fraction(2 * 299 ** 2, 2 * 299 ** 2 - 1)
 WDEN = 1000
 CLASSES = ['5', '7', '13', '19', '31', '37', '43', 'n2', 'big']
 FIXED = CLASSES[:7]
@@ -205,9 +211,11 @@ def leaf_quantities(slots):
     floor = Fraction(1)
     for m in ms:
         floor *= Fraction(m, m - 1)
+    cfloor = floor
     for s in C:
         floor *= fv(s)
-    return dict(ms=ms, vac=vac, C=C, target=target, exact=exact, floor=floor)
+        cfloor *= Fraction(s, s - 1)
+    return dict(ms=ms, vac=vac, C=C, target=target, exact=exact, floor=floor, cfloor=cfloor)
 
 
 def box_vectors(target):
@@ -363,6 +371,10 @@ def check_leaf(node, slots, stats):
     bound = floor / (1 - X)
     need(frac(L['bound'], ck('bound')) == bound, ck('bound'), 'stored != recomputed')
     need(bound <= THRESH, ck('bound <= threshold'), 'bound = %.6f' % float(bound))
+    cbound = Q['cfloor'] * TAIL / (1 - X)
+    need(cbound < 2, ck('corrected bound < 2'), 'corrected bound = %.6f' % float(cbound))
+    if stats['cworst'] is None or cbound > stats['cworst'][0]:
+        stats['cworst'] = (cbound, lid)
     stats['leaves'] += 1
     if E > 0:
         stats['Epos'] += 1
@@ -446,7 +458,7 @@ def verify(cert):
     exp = expected_triples()
     tr = cert['triples']
     need(isinstance(tr, list) and len(tr) == len(exp), 'triples', 'count %d != %d' % (len(tr), len(exp)))
-    stats = dict(leaves=0, splits=0, Epos=0, hits=0, vacuous=0, worst=None, maxbox=0, rules={},
+    stats = dict(leaves=0, splits=0, Epos=0, hits=0, vacuous=0, worst=None, cworst=None, maxbox=0, rules={},
                  peel_mismatch=0, composite_pins=set(), vacuous_pins=0)
     counter = [0]
     for rec, t in zip(tr, exp):
@@ -474,6 +486,10 @@ def report(stats):
     print('pins that make a child trivially vacuous (residue/least/excluded/pinned): %d' % stats['vacuous_pins'])
     print('worst bound: %d/%d' % (wb.numerator, wb.denominator))
     print('worst bound ~ %.9f at leaf %d' % (float(wb), wl))
+    cb, cl = stats['cworst']
+    print('tail factor: %d/%d' % (TAIL.numerator, TAIL.denominator))
+    print('worst corrected bound: %d/%d' % (cb.numerator, cb.denominator))
+    print('worst corrected bound ~ %.9f at leaf %d (all %d leaves < 2)' % (float(cb), cl, stats['leaves']))
 
 
 # Tamper tests.

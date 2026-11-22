@@ -269,16 +269,16 @@ example : OmegaSevenEngine.run 5 [⟨3, 2, true⟩] 0 3 = true := by decide +ker
 
 /-! ## Three exceptional primes (`OddPerfect.ThreeFreeThree.leafOK`, `treeOK`) -/
 
--- Well formed: leaf 388 of the certificate, the leaf with the largest bound (about 1.99497).
+-- Well formed: leaf 388 of the certificate, the leaf with the largest bound (about 1.99653).
 example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 109⟩
     ⟨(109, 393), (223, 590), (209, 911), (25, 261)⟩ = true := by decide +kernel
 -- Weight `w₃ = 25/262` is not admissible: `262 ^ 2 > 25 ^ 2 * 109`.
 example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 109⟩
     ⟨(109, 393), (223, 590), (209, 911), (25, 262)⟩ = false := by decide +kernel
--- Weight `w₀ = 111/393` is admissible but too large: the bound is about `2.0023`.
+-- Weight `w₀ = 111/393` is admissible but too large: the bound is about `2.0038`.
 example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 109⟩
     ⟨(111, 393), (223, 590), (209, 911), (25, 261)⟩ = false := by decide +kernel
--- `r₃` pinned to `127` instead of `109`: with the same weights the bound is about `2.0112`.
+-- `r₃` pinned to `127` instead of `109`: with the same weights the bound is about `2.0127`.
 example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 127⟩
     ⟨(109, 393), (223, 590), (209, 911), (25, 261)⟩ = false := by decide +kernel
 -- Well formed tree (hand made): split `q` at `13`. The pinned child is closed with

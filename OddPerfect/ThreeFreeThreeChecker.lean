@@ -5,7 +5,7 @@ import OddPerfect.ThreeFreeThreeCore
 
 This file defines a Boolean checker, in natural number arithmetic, for case analysis
 certificates in the setting of `OddPerfect.ThreeFreeThreeCore`, and proves it sound: a tree of
-constraints on `(q, r₁, r₂, r₃)` that passes `treeOK` admits no core configuration `Ctx4`
+constraints on `(q, r₁, r₂, r₃)` that passes `treeOK` has no core configuration `Ctx4`
 satisfying its root constraints. It also proves that every core configuration, after
 relabeling `r₁, r₂, r₃`, satisfies the root constraints of one of 102 class triples.
 
@@ -19,7 +19,8 @@ proved only once a data module establishes the check.
   is fixed along a tree.
 * Leaves. The checker computes least values, the set of small ordinary primes allowed by the
   constraints, a box sum with an exact part decided by an integer square root test, the
-  geometric tail, and tests the closing inequality of `Ctx4.close`.
+  geometric tail, and tests the closing inequality of `Ctx4.close` with `cap = 300`, where the
+  tail factor `tailF 300` equals `178802/178801`.
 * Trees. A binary split pins one free slot to a value or excludes that value.
 -/
 
@@ -251,11 +252,12 @@ def tailP (w : Wts) : ℕ × ℕ :=
     90000 * (w.w0.2 ^ 5 * w.w1.2 ^ 5 * w.w2.2 ^ 5 * w.w3.2 ^ 5) *
       ((w.w0.2 - w.w0.1) * (w.w1.2 - w.w1.1) * (w.w2.2 - w.w2.1) * (w.w3.2 - w.w3.1)))
 
-/-- The closing test `ρ₀ ρ₁ ρ₂ ρ₃ ∏ fv / (1 - X) ≤ 2` in natural numbers. -/
+/-- The closing test `ρ₀ ρ₁ ρ₂ ρ₃ (∏ s/(s - 1)) (178802/178801) / (1 - X) ≤ 2` in natural
+numbers. -/
 def finalOK (m : ℕ × ℕ × ℕ × ℕ) (C : List ℕ) (X : ℕ × ℕ) : Bool :=
-  decide (m.1 * m.2.1 * m.2.2.1 * m.2.2.2 * (C.map fun s => s * s + s + 1).prod * X.2 ≤
+  decide (m.1 * m.2.1 * m.2.2.1 * m.2.2.2 * C.prod * X.2 * 178802 ≤
     2 * ((m.1 - 1) * (m.2.1 - 1) * (m.2.2.1 - 1) * (m.2.2.2 - 1)) *
-      (C.map fun s => s * s).prod * (X.2 - X.1))
+      (C.map fun s => s - 1).prod * (X.2 - X.1) * 178801)
 
 /-- The check of one leaf. -/
 def leafOK (cl : ClassTriple) (nd : Node) (w : Wts) : Bool :=
@@ -523,12 +525,6 @@ private theorem acc_of {s : Slot} {P : List ℕ} {m x : ℕ} (hs : s.Sat x) (hm 
 
 /-! ## Soundness: the small set -/
 
-private theorem one_le_fv' {s : ℕ} (hs : 1 ≤ s) : 1 ≤ fv s := by
-  have hs' : (1 : ℚ) ≤ s := by exact_mod_cast hs
-  unfold fv
-  rw [le_div_iff₀ (by positivity)]
-  nlinarith
-
 private theorem mem_smallList {cl : ClassTriple} {nd : Node} {N q r₁ r₂ r₃ : ℕ}
     (c : Ctx4 N q r₁ r₂ r₃) (hS : Sat cl nd q r₁ r₂ r₃) {s : ℕ} (hs : s ∈ ord4 N q r₁ r₂ r₃)
     (h300 : s < 300) : s ∈ smallList nd (leastVals cl nd) := by
@@ -557,28 +553,29 @@ private theorem smallList_ge {nd : Node} {m : ℕ × ℕ × ℕ × ℕ} : ∀ s 
   obtain ⟨e, ⟨he, -⟩, rfl⟩ := hs
   exact table_keys e he
 
-private theorem prod_toFinset_le (l : List ℕ) (hl : ∀ s ∈ l, 1 ≤ s) :
-    ∏ s ∈ l.toFinset, fv s ≤ (l.map fv).prod := by
+private theorem prod_toFinset_le (l : List ℕ) (hl : ∀ s ∈ l, 2 ≤ s) :
+    ∏ s ∈ l.toFinset, rv s ≤ (l.map rv).prod := by
   induction l with
   | nil => simp
   | cons a l ih =>
     have ih' := ih (fun s hs => hl s (List.mem_cons_of_mem a hs))
-    have ha := one_le_fv' (hl a (by simp))
-    have h0 : 0 ≤ ∏ s ∈ l.toFinset, fv s := Finset.prod_nonneg fun s hs =>
-      zero_le_one.trans (one_le_fv' (hl s (List.mem_cons_of_mem a (List.mem_toFinset.mp hs))))
+    have ha := one_le_rv (hl a (by simp))
+    have h0 : 0 ≤ ∏ s ∈ l.toFinset, rv s := Finset.prod_nonneg fun s hs =>
+      zero_le_one.trans (one_le_rv (hl s (List.mem_cons_of_mem a (List.mem_toFinset.mp hs))))
     rw [List.toFinset_cons, List.map_cons, List.prod_cons]
     by_cases hm : a ∈ l.toFinset
     · rw [Finset.insert_eq_of_mem hm]; nlinarith
     · rw [Finset.prod_insert hm]; exact mul_le_mul_of_nonneg_left ih' (by linarith)
 
-private theorem prod_fv_list (l : List ℕ) : (l.map fv).prod =
-    (((l.map fun s => s * s + s + 1).prod : ℕ) : ℚ) / (((l.map fun s => s * s).prod : ℕ) : ℚ) := by
+private theorem prod_rv_list (l : List ℕ) (hl : ∀ s ∈ l, 1 ≤ s) : (l.map rv).prod =
+    ((l.prod : ℕ) : ℚ) / (((l.map fun s => s - 1).prod : ℕ) : ℚ) := by
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [List.map_cons, List.prod_cons, Nat.cast_mul, Nat.cast_add, Nat.cast_one, ih, fv]
+    have ha : 1 ≤ a := hl a (by simp)
+    simp only [List.map_cons, List.prod_cons, Nat.cast_mul,
+      ih (fun s hs => hl s (List.mem_cons_of_mem a hs)), rv, Nat.cast_sub ha, Nat.cast_one]
     rw [div_mul_div_comm]
-    ring
 
 /-! ## Soundness: weights and the box terms -/
 
@@ -738,22 +735,25 @@ private theorem step_pos {nd : Node} {w : Wts} {D4 : ℕ} (hD : 0 < D4) :
 
 /-! ## Soundness of a leaf -/
 
+private theorem tailF_300 : tailF 300 = 178802 / 178801 := by
+  unfold tailF; norm_num
+
 private theorem final_bound {m0 m1 m2 m3 : ℕ} {C : List ℕ} {X : ℕ × ℕ}
     (h0 : 2 ≤ m0) (h1 : 2 ≤ m1) (h2 : 2 ≤ m2) (h3 : 2 ≤ m3) (hC : ∀ s ∈ C, 5 ≤ s)
     (hX : X.1 < X.2) (h : finalOK (m0, m1, m2, m3) C X = true) :
     (m0 : ℚ) / (m0 - 1) * ((m1 : ℚ) / (m1 - 1)) * ((m2 : ℚ) / (m2 - 1)) *
-      ((m3 : ℚ) / (m3 - 1)) * (∏ s ∈ C.toFinset, fv s) / (1 - val X) ≤ 2 := by
+      ((m3 : ℚ) / (m3 - 1)) * (∏ s ∈ C.toFinset, rv s) * tailF 300 / (1 - val X) ≤ 2 := by
   obtain ⟨X1, X2⟩ := X
   simp only at hX
   simp only [finalOK, decide_eq_true_eq] at h
-  set Pn := (C.map fun s => s * s + s + 1).prod
-  set Pd := (C.map fun s => s * s).prod
+  set Pn := C.prod
+  set Pd := (C.map fun s => s - 1).prod
   have hPd : 0 < Pd := List.prod_pos fun x hx => by
     obtain ⟨s, hs, rfl⟩ := List.mem_map.mp hx
     have := hC s hs
-    positivity
+    omega
   have hfvC := prod_toFinset_le C fun s hs => le_trans (by norm_num) (hC s hs)
-  rw [prod_fv_list] at hfvC
+  rw [prod_rv_list C fun s hs => le_trans (by norm_num) (hC s hs)] at hfvC
   have q0 : (1 : ℚ) < m0 := by exact_mod_cast h0
   have q1 : (1 : ℚ) < m1 := by exact_mod_cast h1
   have q2 : (1 : ℚ) < m2 := by exact_mod_cast h2
@@ -763,8 +763,8 @@ private theorem final_bound {m0 m1 m2 m3 : ℕ} {C : List ℕ} {X : ℕ × ℕ}
   have hPdq : (0 : ℚ) < Pd := by exact_mod_cast hPd
   have h1X : 0 < 1 - val (X1, X2) := by
     unfold val; simp only; rw [sub_pos, div_lt_one hX2]; exact hX12
-  have key : (m0 : ℚ) * m1 * m2 * m3 * Pn * X2 ≤
-      2 * (((m0 : ℚ) - 1) * (m1 - 1) * (m2 - 1) * (m3 - 1)) * Pd * (X2 - X1) := by
+  have key : (m0 : ℚ) * m1 * m2 * m3 * Pn * X2 * 178802 ≤
+      2 * (((m0 : ℚ) - 1) * (m1 - 1) * (m2 - 1) * (m3 - 1)) * Pd * (X2 - X1) * 178801 := by
     have := h
     rw [← Nat.cast_le (α := ℚ)] at this
     push_cast [Nat.cast_sub (show 1 ≤ m0 by omega), Nat.cast_sub (show 1 ≤ m1 by omega),
@@ -778,11 +778,12 @@ private theorem final_bound {m0 m1 m2 m3 : ℕ} {C : List ℕ} {X : ℕ × ℕ}
     have a2 : 0 < (m2 : ℚ) / (m2 - 1) := div_pos (by linarith) (by linarith)
     have a3 : 0 < (m3 : ℚ) / (m3 - 1) := div_pos (by linarith) (by linarith)
     positivity
+  rw [tailF_300]
   calc _ ≤ (m0 : ℚ) / (m0 - 1) * ((m1 : ℚ) / (m1 - 1)) * ((m2 : ℚ) / (m2 - 1)) *
-        ((m3 : ℚ) / (m3 - 1)) * ((Pn : ℚ) / Pd) / (1 - val (X1, X2)) := by
+        ((m3 : ℚ) / (m3 - 1)) * ((Pn : ℚ) / Pd) * (178802 / 178801) / (1 - val (X1, X2)) := by
         gcongr
-    _ = (m0 : ℚ) * m1 * m2 * m3 * Pn * X2 /
-        ((((m0 : ℚ) - 1) * (m1 - 1) * (m2 - 1) * (m3 - 1)) * Pd * (X2 - X1)) := by
+    _ = (m0 : ℚ) * m1 * m2 * m3 * Pn * X2 * 178802 /
+        ((((m0 : ℚ) - 1) * (m1 - 1) * (m2 - 1) * (m3 - 1)) * Pd * (X2 - X1) * 178801) := by
         have e0 : (m0 : ℚ) - 1 ≠ 0 := by linarith
         have e1 : (m1 : ℚ) - 1 ≠ 0 := by linarith
         have e2 : (m2 : ℚ) - 1 ≠ 0 := by linarith
@@ -1082,15 +1083,16 @@ theorem Ctx4.cover {N q r₁ r₂ r₃ : ℕ} (c : Ctx4 N q r₁ r₂ r₃) :
 /-- The statement with three exceptional primes, **conditional on the check**
 `allOK trees = true`. This theorem proves nothing by itself: the three exception statement is
 proved only once a data module supplies `trees` and establishes the check. If `N` is an odd
-perfect number, `q` its special prime, and every prime factor of `N` other than
-`q, r₁, r₂, r₃` has exponent exactly 2, then `3 ∣ N`. -/
+perfect number, `q` its special prime, and every prime factor `p` of `N` other than
+`q, r₁, r₂, r₃` has an exponent `e` with `3 ∣ e + 1`, then `3 ∣ N`. -/
 theorem three_dvd_of_three_exceptions_of_check (trees : List (ClassTriple × Tree))
     (hcheck : allOK trees = true) {N q r₁ r₂ r₃ : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
-    (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2) :
+    (hmod : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → 3 ∣ N.factorization p + 1) :
     3 ∣ N := by
   by_contra h3
-  obtain ⟨a, b, d, c, ht, hS⟩ := (ctx4_of_not_three_dvd h hq hodd hsq h3).cover
+  obtain ⟨r₁', r₂', r₃', c₀⟩ := ctx4_of_not_three_dvd h hq hodd hmod h3
+  obtain ⟨a, b, d, c, ht, hS⟩ := c₀.cover
   simp only [allOK, List.all_eq_true, List.any_eq_true, Bool.and_eq_true,
     decide_eq_true_eq] at hcheck
   obtain ⟨e, -, -, hok⟩ := hcheck _ ht

@@ -1,7 +1,8 @@
 # Untrusted helper script for the OddPerfect Lean library.
 # Checker for the certificate cert3_final.json written by cert3f.py, written from SPEC.md
 # (it imports nothing from the generator): it rebuilds the constraints of every node from the
-# roots and the splits and recomputes every leaf from them.
+# roots and the splits and recomputes every leaf from them, including the corrected bound of
+# SPEC.md, Section 4.
 # Used by: the certificate behind OddPerfect/ThreeFreeThreeData01.lean .. Data11.lean and
 # OddPerfect/ThreeFreeThree.lean.
 # Run: python3 -I check3.py cert3_final.json   (or cert3_final.json.xz)
@@ -26,6 +27,9 @@ def read_cert(path):
 
 
 CLASSES = ['5', '7', '13', '19', '31', '37', '43', 'n2', 'big']
+# Corrected bound for exponents e with 3 | e + 1 (SPEC.md, Section 4): s/(s - 1) for s in C and
+# the tail factor 1/(1 - 1/(2 * 299^2)) = 178802/178801; it must be < 2 (Lean tests <= 2).
+TAIL = F(178802, 178801)
 NAMES = ['q', 'r1', 'r2', 'r3']
 
 
@@ -173,6 +177,14 @@ def check_leaf(sl, lf, nid, doc, st):
     need(X < 1, f'leaf {nid} X >= 1')
     b = floor / (1 - X)
     need(fr(lf['bound']) == b and b <= thr, f'leaf {nid} bound')
+    cb = TAIL / (1 - X)
+    for m in mins:
+        cb *= F(m, m - 1)
+    for s_ in myC:
+        cb *= F(s_, s_ - 1)
+    need(cb < 2, f'leaf {nid} corrected bound')
+    if cb > st['cworst'][0]:
+        st['cworst'] = (cb, nid)
     st['closed'] += 1
     st['E>0'] += E > 0
     if b > st['worst'][0]:
@@ -221,7 +233,7 @@ def main():
     want = [list(t) for t in combinations_with_replacement(CLASSES, 3)
             if not any(t.count(c) > 1 for c in CLASSES[:7])]
     need([t['triple'] for t in doc['triples']] == want and len(want) == 102, 'triples')
-    st = dict(id=0, closed=0, vacuous=0, worst=(F(0), 0), **{'E>0': 0})
+    st = dict(id=0, closed=0, vacuous=0, worst=(F(0), 0), cworst=(F(0), 0), **{'E>0': 0})
     for t in doc['triples']:
         walk(root(t['triple']), t['tree'], doc, st)
     need(st['closed'] + st['vacuous'] == doc['leaf_count'], 'leaf count')
@@ -229,6 +241,8 @@ def main():
     print(f"ACCEPT: 102 triples, {st['closed']} closed leaves, {st['vacuous']} vacuous, "
           f"{st['E>0']} leaves with E > 0, worst bound {float(st['worst'][0]):.6f} at leaf {st['worst'][1]}")
     print('worst bound exact:', st['worst'][0])
+    print(f"worst corrected bound {float(st['cworst'][0]):.6f} at leaf {st['cworst'][1]}")
+    print('worst corrected bound exact:', st['cworst'][0])
 
 
 if __name__ == '__main__':

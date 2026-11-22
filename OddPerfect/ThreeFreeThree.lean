@@ -13,12 +13,20 @@ import OddPerfect.ThreeFreeThreeData11
 /-!
 # Odd perfect numbers with three exceptional primes are divisible by 3
 
-Let `N` be an odd perfect number with special prime `q`, and suppose every prime factor of
-`N` except `q`, `r₁`, `r₂` and `r₃` has exponent exactly 2. We show `3 ∣ N`. This extends
-`three_dvd_of_two_exceptions` to three exceptions.
+Let `N` be an odd perfect number with special prime `q`, and suppose every prime factor `p`
+of `N` except `q`, `r₁`, `r₂` and `r₃` has an exponent `e` with `3 ∣ e + 1` (for example
+`e = 2`). We show `3 ∣ N` (`three_dvd_of_three_mod_exceptions`). The case of exponents
+exactly 2 is `three_dvd_of_three_exceptions`, which extends `three_dvd_of_two_exceptions` to
+three exceptions, and `four_le_card_mod_exceptions` is the counting form: if `3 ∤ N`, at
+least four prime factors of `N` other than `q` have an exponent `e` with `3 ∤ e + 1`.
 
-Assume `3 ∤ N`. The degenerate cases reduce to the two exception theorem
-(`ThreeFreeThree.ctx4_of_not_three_dvd`). In the core case the three primes are relabeled so
+For context only (the literature was not screened): Ochem and Zelinsky (arXiv 2607.19746)
+treat one exception with exact squares, and Fletcher, Nielsen and Ochem (Math. Comp. 81,
+2012) bound the least prime factor when every ordinary exponent `e` has `3 ∣ e + 1` or
+`5 ∣ e + 1`, with no exception.
+
+Assume `3 ∤ N`. The labels are replaced by three distinct prime factors of `N` other than `q`
+(`ThreeFreeThree.ctx4_of_not_three_dvd`). The three primes are then relabeled so
 that their classes are sorted (`ThreeFreeThree.Ctx4.cover`), and for each of the 102 sorted
 class triples a binary split tree of constraints is checked by `ThreeFreeThree.treeOK`,
 whose soundness is `ThreeFreeThree.treeOK_sound`. The 1223 leaves of the trees were found by
@@ -969,18 +977,55 @@ theorem allOK_trees : allOK trees = true :=
 
 end ThreeFreeThree
 
+/-- An odd perfect number `N` with special prime `q`, in which every prime factor `p` other than
+`q` and three further numbers `r₁`, `r₂`, `r₃` has an exponent `e = N.factorization p` with
+`3 ∣ e + 1`, is divisible by 3. Here `r₁, r₂, r₃` are arbitrary natural numbers: they need not
+be distinct, prime, or divisors of `N`, so the cases of fewer exceptional primes are included.
+The case analysis behind the proof was found by a search outside Lean and is rechecked by the
+kernel. -/
+theorem three_dvd_of_three_mod_exceptions {N q r₁ r₂ r₃ : ℕ} (h : OddPerfect N) (hq : q.Prime)
+    (hodd : Odd (N.factorization q))
+    (hmod : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → 3 ∣ N.factorization p + 1) :
+    3 ∣ N :=
+  ThreeFreeThree.three_dvd_of_three_exceptions_of_check ThreeFreeThree.trees
+    ThreeFreeThree.allOK_trees h hq hodd hmod
+
 /-- An odd perfect number in which every prime factor other than the special prime `q` and
 three further primes `r₁`, `r₂`, `r₃` has exponent exactly 2 is divisible by 3. Here
 `r₁, r₂, r₃` are arbitrary natural numbers: they need not be distinct, prime, or divisors of
-`N`, so the cases of fewer exceptional primes are included. -/
+`N`, so the cases of fewer exceptional primes are included. This is the case `e = 2` of
+`three_dvd_of_three_mod_exceptions`. -/
 theorem three_dvd_of_three_exceptions {N q r₁ r₂ r₃ : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
     (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2) :
     3 ∣ N :=
-  ThreeFreeThree.three_dvd_of_three_exceptions_of_check ThreeFreeThree.trees
-    ThreeFreeThree.allOK_trees h hq hodd hsq
+  three_dvd_of_three_mod_exceptions (r₁ := r₁) (r₂ := r₂) (r₃ := r₃) h hq hodd
+    fun p hp h0 h1 h2 h3 => by simp [hsq p hp h0 h1 h2 h3]
+
+/-- The counting form of `three_dvd_of_three_mod_exceptions`: if `N` is an odd perfect number
+with special prime `q` and `3 ∤ N`, then at least four prime factors `p ≠ q` of `N` have an
+exponent `e = N.factorization p` with `3 ∤ e + 1`. -/
+theorem four_le_card_mod_exceptions {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
+    (hodd : Odd (N.factorization q)) (h3 : ¬ 3 ∣ N) :
+    4 ≤ ((N.primeFactors.erase q).filter fun p => ¬ 3 ∣ N.factorization p + 1).card := by
+  by_contra hc
+  set B := (N.primeFactors.erase q).filter fun p => ¬ 3 ∣ N.factorization p + 1
+  have hB : B.card ≤ 3 := by omega
+  have hU : 3 ≤ (B ∪ {0, 1, 2}).card :=
+    le_trans (by decide) (Finset.card_le_card Finset.subset_union_right)
+  obtain ⟨R, hBR, -, hR⟩ := Finset.exists_subsuperset_card_eq Finset.subset_union_left hB hU
+  obtain ⟨a, b, d, -, -, -, rfl⟩ := Finset.card_eq_three.mp hR
+  apply h3
+  refine three_dvd_of_three_mod_exceptions (r₁ := a) (r₂ := b) (r₃ := d) h hq hodd
+    fun p hp hpq ha hb hd => ?_
+  by_contra hn
+  have hm := hBR (Finset.mem_filter.mpr ⟨Finset.mem_erase.mpr ⟨hpq, hp⟩, hn⟩)
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+  tauto
 
 end OddPerfect
 
 #print axioms OddPerfect.ThreeFreeThree.allOK_trees
+#print axioms OddPerfect.three_dvd_of_three_mod_exceptions
 #print axioms OddPerfect.three_dvd_of_three_exceptions
+#print axioms OddPerfect.four_le_card_mod_exceptions

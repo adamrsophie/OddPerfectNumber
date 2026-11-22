@@ -1,28 +1,33 @@
 import OddPerfect.ThreeFreeTwo
+import OddPerfect.OmegaFour
 
 /-!
 # The certificate independent core for three exceptional primes
 
-This file is the certificate independent core of a proof in progress, built on the method of
+This file is the certificate independent core of a proof built on the method of
 `OddPerfect.ThreeFreeTwo`. The setting has four distinguished primes: the special prime `q`
 of an odd perfect number `N` and three further primes `r₁, r₂, r₃`; every other prime factor
-of `N` (an ordinary prime) has exponent exactly 2, and `3 ∤ N`. Nothing here depends on a
-case analysis or certificate; the statement with three exceptional primes is not proved in
-this file.
+`s` of `N` (an ordinary prime) has an exponent `e` with `3 ∣ e + 1` (for example `e = 2`), and
+`3 ∤ N`. Nothing here depends on a case analysis or certificate; the statement with three
+exceptional primes is not proved in this file.
 
-* `ctx4_of_not_three_dvd` reduces the degenerate configurations (some `rᵢ` equal to `q`, two
-  `rᵢ` equal, or some `rᵢ` not dividing `N`) to `three_dvd_of_two_exceptions`, and packages
-  the core configuration as `Ctx4`.
-* For an ordinary `s`, every prime factor of `1 + s + s^2` is one of the four primes and is
-  `1` modulo 3, so `1 + s + s^2 = q^a r₁^b r₂^c r₃^d` with `(a, b, c, d) = vec4 q r₁ r₂ r₃ s`
-  not all even, and `vec4` is injective on the ordinary primes.
+* `ctx4_of_not_three_dvd` replaces arbitrary labels `r₁, r₂, r₃` by three distinct prime
+  factors of `N` other than `q` that contain every label dividing `N` (there are at least four
+  prime factors by `four_le_card_primeFactors`), and packages the result as `Ctx4`.
+* For an ordinary `s`, `1 + s + s^2` divides `σ(s^e)` and hence `N`, so `s ≡ 2 (mod 3)`; every
+  prime factor of `1 + s + s^2` is `1` modulo 3, hence not ordinary, hence one of the four
+  primes. So `1 + s + s^2 = q^a r₁^b r₂^c r₃^d` with `(a, b, c, d) = vec4 q r₁ r₂ r₃ s` not all
+  even, and `vec4` is injective on the ordinary primes.
 * With weights `α, β, γ, δ ∈ [0, 1)` satisfying `w² p ≥ 1` for each of the four primes `p`
   (or `p ≡ 2 (mod 3)`), the weight `wt4 α β γ δ (vec4 q r₁ r₂ r₃ s)` times `s + 1` is at
   least 1.
-* `Ctx4.close`: the ordinary primes below `cap` lie in an explicit finite set `C`; for the
-  larger ones, an arbitrary nonnegative bound `g` on `fv s - 1` is summed over the box
-  `[0, M)^4` (`gsum`), and the weights give the geometric tail `kk cap * tl4` outside the box.
-  If the resulting bound on the abundancy is at most 2, this contradicts `abundancy N = 2`.
+* `Ctx4.close`: the abundancy of `s^e` is below `rv s = s/(s - 1)`. The ordinary primes below
+  `cap` lie in an explicit finite set `C`. For the larger ones, `rv s = fv s · s³/(s³ - 1)`
+  with `fv s = (s^2 + s + 1)/s^2`; the product of `s³/(s³ - 1)` over `s ≥ cap` is at most
+  `tailF cap`, and the product of `fv s` is bounded by summing an arbitrary nonnegative bound
+  `g` on `fv s - 1` over the box `[0, M)^4` (`gsum`), with the geometric tail `kk cap * tl4`
+  outside the box. If the resulting bound on the abundancy is at most 2, this contradicts
+  `abundancy N = 2`.
 -/
 
 open ArithmeticFunction
@@ -34,8 +39,15 @@ namespace ThreeFreeThree
 
 /-! ## Analytic part -/
 
-/-- The abundancy `σ(s^2)/s^2` of an exact square. -/
+/-- The value `(s^2 + s + 1)/s^2`, the abundancy `σ(s^2)/s^2` when `s` is prime. -/
 def fv (s : ℕ) : ℚ := ((s : ℚ) ^ 2 + s + 1) / s ^ 2
+
+/-- The value `s/(s - 1)`, an upper bound for the abundancy of every power of a prime `s`. -/
+def rv (s : ℕ) : ℚ := (s : ℚ) / (s - 1)
+
+/-- The tail factor `1/(1 - 1/(2 (cap - 1)^2))`, an upper bound for the product of
+`s³/(s³ - 1)` over any finite set of integers `s ≥ cap`. -/
+def tailF (cap : ℕ) : ℚ := 1 / (1 - 1 / (2 * ((cap : ℚ) - 1) ^ 2))
 
 /-- The constant `((cap + 1)/cap)^2`. -/
 def kk (cap : ℕ) : ℚ := (((cap : ℚ) + 1) / cap) ^ 2
@@ -306,10 +318,99 @@ private theorem prod_bound4 (S : Finset ℕ) (π : ℕ → ℕ × ℕ × ℕ × 
   calc _ ≤ (∏ s ∈ C, fv s) * (1 / (1 - X)) := mul_le_mul h1 h2 hP0 hC0
     _ = _ := by ring
 
+/-- `rv s ≥ 1` for `s ≥ 2`. -/
+theorem one_le_rv {s : ℕ} (hs : 2 ≤ s) : 1 ≤ rv s := by
+  have hs' : (2 : ℚ) ≤ s := by exact_mod_cast hs
+  unfold rv
+  rw [le_div_iff₀ (by linarith)]
+  linarith
+
+private theorem cube_pos {b : ℚ} (hb : 2 ≤ b) : 0 < b ^ 3 - 1 := by
+  have := pow_le_pow_left₀ (by norm_num) hb 3
+  norm_num at this
+  linarith
+
+/-- One step of the telescoping bound: `1/(b³ - 1) ≤ 1/(2 (b - 1)^2) - 1/(2 b^2)` for `b ≥ 2`. -/
+private theorem cube_step {b : ℚ} (hb : 2 ≤ b) :
+    1 / (b ^ 3 - 1) ≤ 1 / (2 * (b - 1) ^ 2) - 1 / (2 * b ^ 2) := by
+  have h1 : 0 < b - 1 := by linarith
+  have h3 := cube_pos hb
+  rw [div_sub_div _ _ (by positivity) (by positivity), div_le_div_iff₀ h3 (by positivity)]
+  have ht : 0 ≤ b - 2 := by linarith
+  nlinarith [mul_nonneg ht ht, mul_nonneg (mul_nonneg ht ht) ht, mul_nonneg ht h1.le]
+
+/-- The telescoping sum of `1/(s³ - 1)` over `cap ≤ s < cap + n`. -/
+private theorem cube_sum (cap : ℕ) (hcap : 2 ≤ cap) : ∀ n : ℕ,
+    ∑ s ∈ Finset.Ico cap (cap + n), 1 / ((s : ℚ) ^ 3 - 1) ≤
+      1 / (2 * ((cap : ℚ) - 1) ^ 2) - 1 / (2 * (((cap + n : ℕ) : ℚ) - 1) ^ 2)
+  | 0 => by simp
+  | n + 1 => by
+    rw [← add_assoc, Finset.sum_Ico_succ_top (by omega)]
+    have ih := cube_sum cap hcap n
+    have hb : (2 : ℚ) ≤ ((cap + n : ℕ) : ℚ) := by exact_mod_cast (show 2 ≤ cap + n by omega)
+    have key := cube_step hb
+    have e : (((cap + n + 1 : ℕ) : ℚ) - 1) = ((cap + n : ℕ) : ℚ) := by push_cast; ring
+    rw [e]
+    linarith
+
+/-- The product of `s³/(s³ - 1) = 1 + 1/(s³ - 1)` over a finite set of integers `s ≥ cap` is
+at most `tailF cap`, so the product of `rv s` is at most `tailF cap` times the product of
+`fv s`. -/
+private theorem prod_rv_le (cap : ℕ) (hcap : 2 ≤ cap) (T : Finset ℕ) (hT : ∀ s ∈ T, cap ≤ s) :
+    ∏ s ∈ T, rv s ≤ tailF cap * ∏ s ∈ T, fv s := by
+  classical
+  set x : ℕ → ℚ := fun s => 1 / ((s : ℚ) ^ 3 - 1)
+  have hs2 : ∀ s ∈ T, (2 : ℚ) ≤ s := fun s hs => by exact_mod_cast hcap.trans (hT s hs)
+  have hx0 : ∀ s ∈ T, 0 ≤ x s := fun s hs => by
+    exact (one_div_pos.mpr (cube_pos (hs2 s hs))).le
+  have hrv : ∀ s ∈ T, rv s = fv s * (1 + x s) := fun s hs => by
+    have h2 := hs2 s hs
+    have h0 : (s : ℚ) ≠ 0 := by positivity
+    have h1 : (s : ℚ) - 1 ≠ 0 := by linarith
+    have h3 : (s : ℚ) ^ 3 - 1 ≠ 0 := (cube_pos h2).ne'
+    simp only [rv, fv, x]
+    field_simp
+    ring
+  rw [Finset.prod_congr rfl hrv, Finset.prod_mul_distrib]
+  set K := T.sup id + 1
+  have hsub : T ⊆ Finset.Ico cap (cap + K) := fun s hs => by
+    have := Finset.le_sup (f := id) hs
+    simp only [id] at this
+    rw [Finset.mem_Ico]
+    exact ⟨hT s hs, by omega⟩
+  have hc : (2 : ℚ) ≤ cap := by exact_mod_cast hcap
+  have hlast : 0 ≤ 1 / (2 * (((cap + K : ℕ) : ℚ) - 1) ^ 2) := by
+    have : (2 : ℚ) ≤ ((cap + K : ℕ) : ℚ) := by exact_mod_cast (show 2 ≤ cap + K by omega)
+    have : 0 < (((cap + K : ℕ) : ℚ) - 1) := by linarith
+    positivity
+  have hsum : ∑ s ∈ T, x s ≤ 1 / (2 * ((cap : ℚ) - 1) ^ 2) := by
+    refine le_trans (Finset.sum_le_sum_of_subset_of_nonneg hsub fun s hs _ => ?_) ?_
+    · have : (2 : ℚ) ≤ s := by
+        have := (Finset.mem_Ico.mp hs).1
+        exact_mod_cast hcap.trans this
+      exact (one_div_pos.mpr (cube_pos this)).le
+    · linarith [cube_sum cap hcap K]
+  have he : 1 / (2 * ((cap : ℚ) - 1) ^ 2) ≤ 1 / 2 := by
+    apply one_div_le_one_div_of_le (by norm_num)
+    nlinarith
+  have hG := prod_one_add_le T x hx0
+  have hP0 : 0 ≤ ∏ s ∈ T, (1 + x s) := Finset.prod_nonneg fun s hs => by linarith [hx0 s hs]
+  have hF0 : 0 ≤ ∏ s ∈ T, fv s := Finset.prod_nonneg fun s hs =>
+    zero_le_one.trans (one_le_fv (by have := hcap.trans (hT s hs); omega))
+  have hpos : 0 < 1 - 1 / (2 * ((cap : ℚ) - 1) ^ 2) := by linarith
+  have h2 : ∏ s ∈ T, (1 + x s) ≤ tailF cap := by
+    unfold tailF
+    rw [le_div_iff₀ hpos]
+    nlinarith
+  calc (∏ s ∈ T, fv s) * ∏ s ∈ T, (1 + x s) ≤ (∏ s ∈ T, fv s) * tailF cap :=
+        mul_le_mul_of_nonneg_left h2 hF0
+    _ = _ := by ring
+
 /-! ## The arithmetic setting -/
 
 /-- The core case: `q, r₁, r₂, r₃` are distinct prime factors of the odd perfect number `N`,
-`q` is the special prime, every other prime factor has exponent 2, and `3 ∤ N`. -/
+`q` is the special prime, every other prime factor has an exponent `e` with `3 ∣ e + 1`, and
+`3 ∤ N`. -/
 structure Ctx4 (N q r₁ r₂ r₃ : ℕ) : Prop where
   opn : OddPerfect N
   hq : q.Prime
@@ -323,7 +424,7 @@ structure Ctx4 (N q r₁ r₂ r₃ : ℕ) : Prop where
   h1q : r₁ ≠ q
   h2q : r₂ ≠ q
   h3q : r₃ ≠ q
-  hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2
+  hmod : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → 3 ∣ N.factorization p + 1
   h3 : ¬ 3 ∣ N
 
 variable {N q r₁ r₂ r₃ : ℕ}
@@ -342,7 +443,7 @@ theorem Ctx4.swap12 (c : Ctx4 N q r₁ r₂ r₃) : Ctx4 N q r₂ r₁ r₃ wher
   h1q := c.h2q
   h2q := c.h1q
   h3q := c.h3q
-  hsq := fun p hp ha hb hc hd => c.hsq p hp ha hc hb hd
+  hmod := fun p hp ha hb hc hd => c.hmod p hp ha hc hb hd
   h3 := c.h3
 
 /-- Exchanging `r₂` and `r₃`. -/
@@ -359,34 +460,47 @@ theorem Ctx4.swap23 (c : Ctx4 N q r₁ r₂ r₃) : Ctx4 N q r₁ r₃ r₂ wher
   h1q := c.h1q
   h2q := c.h3q
   h3q := c.h2q
-  hsq := fun p hp ha hb hc hd => c.hsq p hp ha hb hd hc
+  hmod := fun p hp ha hb hc hd => c.hmod p hp ha hb hd hc
   h3 := c.h3
 
-/-- Reduction of the degenerate cases to `three_dvd_of_two_exceptions`: if `3 ∤ N`, the four
-primes form a core configuration. -/
+/-- Padding of the labels: if `3 ∤ N`, there are three distinct prime factors `a, b, d` of `N`,
+all different from `q`, such that every prime factor of `N` other than `q, a, b, d` has an
+exponent `e` with `3 ∣ e + 1`. They are chosen to contain every `rᵢ` that is a prime factor of
+`N` other than `q`; the hypothesis only gets weaker when the set of labels grows. -/
 theorem ctx4_of_not_three_dvd {N q r₁ r₂ r₃ : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q))
-    (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2)
-    (h3 : ¬ 3 ∣ N) : Ctx4 N q r₁ r₂ r₃ := by
-  by_cases A : r₁ ∈ N.primeFactors ∧ r₁ ≠ q ∧ r₁ ≠ r₂ ∧ r₁ ≠ r₃
-  · by_cases B : r₂ ∈ N.primeFactors ∧ r₂ ≠ q ∧ r₂ ≠ r₃
-    · by_cases C : r₃ ∈ N.primeFactors ∧ r₃ ≠ q
-      · exact ⟨h, hq, hodd, A.1, B.1, C.1, A.2.2.1, A.2.2.2, B.2.2, A.2.1, B.2.1, C.2, hsq, h3⟩
-      · exfalso; apply h3
-        refine three_dvd_of_two_exceptions h hq hodd (r₁ := r₁) (r₂ := r₂)
-          fun p hp hpq h1 h2 => hsq p hp hpq h1 h2 ?_
-        rintro rfl
-        exact C ⟨hp, hpq⟩
-    · exfalso; apply h3
-      refine three_dvd_of_two_exceptions h hq hodd (r₁ := r₁) (r₂ := r₃)
-        fun p hp hpq h1 h3' => hsq p hp hpq h1 ?_ h3'
-      rintro rfl
-      exact B ⟨hp, hpq, h3'⟩
-  · exfalso; apply h3
-    refine three_dvd_of_two_exceptions h hq hodd (r₁ := r₂) (r₂ := r₃)
-      fun p hp hpq h2 h3' => hsq p hp hpq ?_ h2 h3'
-    rintro rfl
-    exact A ⟨hp, hpq, h2, h3'⟩
+    (hmod : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → 3 ∣ N.factorization p + 1)
+    (h3 : ¬ 3 ∣ N) : ∃ a b d, Ctx4 N q a b d := by
+  classical
+  have hqN : q ∈ N.primeFactors :=
+    Nat.mem_primeFactors.mpr ⟨hq, Nat.dvd_of_factorization_pos hodd.pos.ne', h.ne_zero⟩
+  set P := N.primeFactors.erase q
+  have hP : 3 ≤ P.card := by
+    have := four_le_card_primeFactors h
+    rw [Finset.card_erase_of_mem hqN]
+    omega
+  set R := P.filter fun p => p = r₁ ∨ p = r₂ ∨ p = r₃
+  have hR : R.card ≤ 3 := by
+    refine le_trans (Finset.card_le_card (t := {r₁, r₂, r₃}) fun p hp => ?_) Finset.card_le_three
+    obtain ⟨-, hp⟩ := Finset.mem_filter.mp hp
+    simp only [Finset.mem_insert, Finset.mem_singleton]
+    exact hp
+  obtain ⟨R', hRR', hR'P, hcard⟩ := Finset.exists_subsuperset_card_eq (Finset.filter_subset _ P) hR hP
+  obtain ⟨a, b, d, hab, had, hbd, rfl⟩ := Finset.card_eq_three.mp hcard
+  have mem : ∀ x ∈ ({a, b, d} : Finset ℕ), x ∈ N.primeFactors ∧ x ≠ q := fun x hx => by
+    have := Finset.mem_erase.mp (hR'P hx)
+    exact ⟨this.2, this.1⟩
+  have ha := mem a (by simp)
+  have hb := mem b (by simp)
+  have hd := mem d (by simp)
+  refine ⟨a, b, d, h, hq, hodd, ha.1, hb.1, hd.1, hab, had, hbd, ha.2, hb.2, hd.2, ?_, h3⟩
+  intro p hp hpq hpa hpb hpd
+  have hnot : p ∉ R := fun hm => by
+    have := hRR' hm
+    simp only [Finset.mem_insert, Finset.mem_singleton] at this
+    tauto
+  have hpP : p ∈ P := Finset.mem_erase.mpr ⟨hpq, hp⟩
+  refine hmod p hp hpq ?_ ?_ ?_ <;> rintro rfl <;> exact hnot (Finset.mem_filter.mpr ⟨hpP, by tauto⟩)
 
 /-- The ordinary prime factors. -/
 def ord4 (N q r₁ r₂ r₃ : ℕ) : Finset ℕ :=
@@ -451,13 +565,41 @@ theorem Ctx4.r_prime (c : Ctx4 N q r₁ r₂ r₃) :
     ⟨Nat.prime_of_mem_primeFactors c.hr₂, c.five_le c.hr₂⟩,
     ⟨Nat.prime_of_mem_primeFactors c.hr₃, c.five_le c.hr₃⟩⟩
 
-/-- An ordinary prime is prime, has exponent 2, is at least 5, and is `2` modulo 3. -/
+/-- If `3 ∤ N` and a prime factor `s` of the odd perfect number `N` has an exponent `e` with
+`3 ∣ e + 1`, then `1 + s + s^2` divides `σ(s^e)` and hence `N`, and `s ≡ 2 (mod 3)`. -/
+theorem cyc_dvd_of_mod {N s : ℕ} (h : OddPerfect N) (h3 : ¬ 3 ∣ N) (hs : s ∈ N.primeFactors)
+    (he : 3 ∣ N.factorization s + 1) : 1 + s + s ^ 2 ∣ N ∧ s % 3 = 2 := by
+  obtain ⟨hsp, hsN, -⟩ := Nat.mem_primeFactors.mp hs
+  have h1 : σ 1 (s ^ 2) ∣ σ 1 (s ^ N.factorization s) := OPNExample.sigma_prime_pow_dvd hsp he
+  have h2 := h1.trans (OPNStarter.component_sigma_dvd h.perfect hsp rfl)
+  rw [sigma_sq hsp] at h2
+  have hodd : Odd (1 + s + s ^ 2) := by
+    have : Even (s + s ^ 2) := by
+      rw [show s + s ^ 2 = s * (s + 1) by ring]
+      exact Nat.even_mul_succ_self s
+    rw [add_assoc]
+    exact this.one_add
+  have hdvd : 1 + s + s ^ 2 ∣ N :=
+    Nat.Coprime.dvd_of_dvd_mul_left (Nat.coprime_comm.mp (Nat.coprime_two_left.mpr hodd)) h2
+  refine ⟨hdvd, ?_⟩
+  have h0 : s % 3 ≠ 0 := fun h0 => h3 ((Nat.dvd_of_mod_eq_zero h0).trans hsN)
+  have h1' : s % 3 ≠ 1 := by
+    intro h1'
+    obtain ⟨k, hk⟩ : ∃ k, s = 3 * k + 1 := ⟨s / 3, by omega⟩
+    apply h3
+    refine dvd_trans ⟨3 * k ^ 2 + 3 * k + 1, ?_⟩ hdvd
+    subst hk
+    ring
+  omega
+
+/-- An ordinary prime is prime, has an exponent `e` with `3 ∣ e + 1`, is at least 5, and is
+`2` modulo 3. -/
 theorem Ctx4.ord_facts {s : ℕ} (c : Ctx4 N q r₁ r₂ r₃) (hs : s ∈ ord4 N q r₁ r₂ r₃) :
-    s.Prime ∧ N.factorization s = 2 ∧ 5 ≤ s ∧ s % 3 = 2 := by
+    s.Prime ∧ 3 ∣ N.factorization s + 1 ∧ 5 ≤ s ∧ s % 3 = 2 := by
   obtain ⟨hsN, h1, h2, h3, h4⟩ := mem_ord4.mp hs
   have hsp := Nat.prime_of_mem_primeFactors hsN
-  have he := c.hsq s hsN h1 h2 h3 h4
-  exact ⟨hsp, he, (c.five_le hsN).1, OPNThreeFree.source_mod_three c.opn.perfect c.h3 hsp he⟩
+  have he := c.hmod s hsN h1 h2 h3 h4
+  exact ⟨hsp, he, (c.five_le hsN).1, (cyc_dvd_of_mod c.opn c.h3 hsN he).2⟩
 
 /-- None of `q, r₁, r₂, r₃` is ordinary. -/
 theorem Ctx4.not_mem_ord (_c : Ctx4 N q r₁ r₂ r₃) :
@@ -471,15 +613,17 @@ is `1` modulo 3. -/
 theorem Ctx4.tgt {s : ℕ} (c : Ctx4 N q r₁ r₂ r₃) (hs : s ∈ ord4 N q r₁ r₂ r₃) {d : ℕ}
     (hd : d.Prime) (hdd : d ∣ 1 + s + s ^ 2) :
     (d = q ∨ d = r₁ ∨ d = r₂ ∨ d = r₃) ∧ d % 3 = 1 := by
-  obtain ⟨hsp, he, -⟩ := c.ord_facts hs
-  rw [← sigma_sq hsp] at hdd
-  obtain ⟨-, hdN, -, hd3, hd2⟩ :=
-    OPNThreeFree.exact_square_transfer c.opn.perfect c.h3 hsp he hd hdd
+  obtain ⟨-, he, -⟩ := c.ord_facts hs
+  have hdN : d ∣ N := hdd.trans (cyc_dvd_of_mod c.opn c.h3 (mem_ord4.mp hs).1 he).1
+  have hd3' : d ≠ 3 := by rintro rfl; exact c.h3 hdN
+  have hd3 : d % 3 = 1 := OPNThreeFree.target_mod_three hd hd3' hdd
   refine ⟨?_, hd3⟩
   by_contra hc
   simp only [not_or] at hc
-  exact hd2 (c.hsq d (Nat.mem_primeFactors.mpr ⟨hd, hdN, c.opn.ne_zero⟩) hc.1 hc.2.1 hc.2.2.1
-    hc.2.2.2)
+  have hord : d ∈ ord4 N q r₁ r₂ r₃ := mem_ord4.mpr
+    ⟨Nat.mem_primeFactors.mpr ⟨hd, hdN, c.opn.ne_zero⟩, hc.1, hc.2.1, hc.2.2.1, hc.2.2.2⟩
+  have := (c.ord_facts hord).2.2.2
+  omega
 
 private theorem ne_sq {p m : ℕ} (hp : 0 < p) : 1 + p + p ^ 2 ≠ m ^ 2 := by
   intro h
@@ -602,11 +746,11 @@ theorem Ctx4.fv_sub_le_min {s : ℕ} (c : Ctx4 N q r₁ r₂ r₃) (hs : s ∈ o
 private theorem abundancy_nonneg (n : ℕ) : 0 ≤ abundancy n := by
   unfold abundancy; positivity
 
-/-- The abundancy of `N` is 2, so the bound `p/(p - 1)` for the four primes and the exact
-value `fv s` for the ordinary primes give a strict inequality. -/
+/-- The abundancy of `N` is 2, and the abundancy of each prime power factor `p^e` is below
+`p/(p - 1)`, which gives a strict inequality. -/
 theorem Ctx4.abund_lt (c : Ctx4 N q r₁ r₂ r₃) :
     2 < (q : ℚ) / (q - 1) * ((r₁ : ℚ) / (r₁ - 1)) * ((r₂ : ℚ) / (r₂ - 1)) *
-      ((r₃ : ℚ) / (r₃ - 1)) * ∏ s ∈ ord4 N q r₁ r₂ r₃, fv s := by
+      ((r₃ : ℚ) / (r₃ - 1)) * ∏ s ∈ ord4 N q r₁ r₂ r₃, rv s := by
   have hN := c.opn
   have hN0 := hN.ne_zero
   have hqT : q ∈ N.primeFactors :=
@@ -621,20 +765,15 @@ theorem Ctx4.abund_lt (c : Ctx4 N q r₁ r₂ r₃) :
   rw [abundancy_eq_prod_primeFactors hN0, ← Finset.mul_prod_erase _ _ hqT,
     ← Finset.mul_prod_erase _ _ hr1T, ← Finset.mul_prod_erase _ _ hr2T,
     ← Finset.mul_prod_erase _ _ hr3T] at hab
-  have heq : ∏ x ∈ ord4 N q r₁ r₂ r₃, abundancy (x ^ N.factorization x) =
-      ∏ x ∈ ord4 N q r₁ r₂ r₃, fv x := by
-    refine Finset.prod_congr rfl fun x hx => ?_
-    obtain ⟨hxp, hxe, -⟩ := c.ord_facts hx
-    have hx0 : (x : ℚ) ≠ 0 := by exact_mod_cast hxp.ne_zero
-    rw [hxe, abundancy_prime_pow hxp]
-    simp only [Finset.sum_range_succ, Finset.sum_range_zero, fv]
-    field_simp
-    ring
   change abundancy _ * (abundancy _ * (abundancy _ * (abundancy _ *
     ∏ x ∈ ord4 N q r₁ r₂ r₃, _))) = 2 at hab
-  rw [heq] at hab
-  have hP : 0 < ∏ s ∈ ord4 N q r₁ r₂ r₃, fv s := Finset.prod_pos fun s hs =>
-    lt_of_lt_of_le zero_lt_one (one_le_fv (le_trans (by norm_num) (c.ord_facts hs).2.2.1))
+  set A := ∏ x ∈ ord4 N q r₁ r₂ r₃, abundancy (x ^ N.factorization x)
+  have hA0 : 0 ≤ A := Finset.prod_nonneg fun x _ => abundancy_nonneg _
+  have hle : A ≤ ∏ s ∈ ord4 N q r₁ r₂ r₃, rv s :=
+    Finset.prod_le_prod (fun x _ => abundancy_nonneg _)
+      fun x hx => (abundancy_prime_pow_lt (c.ord_facts hx).1 _).le
+  have hP : 0 < ∏ s ∈ ord4 N q r₁ r₂ r₃, rv s := Finset.prod_pos fun s hs =>
+    lt_of_lt_of_le zero_lt_one (one_le_rv (le_trans (by norm_num) (c.ord_facts hs).2.2.1))
   have hgq := abundancy_prime_pow_lt c.hq (N.factorization q)
   have hg1 := abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors c.hr₁) (N.factorization r₁)
   have hg2 := abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors c.hr₂) (N.factorization r₂)
@@ -643,10 +782,12 @@ theorem Ctx4.abund_lt (c : Ctx4 N q r₁ r₂ r₃) :
   have h01 := abundancy_nonneg (r₁ ^ N.factorization r₁)
   have h02 := abundancy_nonneg (r₂ ^ N.factorization r₂)
   have h03 := abundancy_nonneg (r₃ ^ N.factorization r₃)
-  have e3 := mul_lt_mul_of_pos_right hg3 hP
-  have e2 := mul_lt_mul'' hg2 e3 h02 (mul_nonneg h03 hP.le)
-  have e1 := mul_lt_mul'' hg1 e2 h01 (mul_nonneg h02 (mul_nonneg h03 hP.le))
-  have e0 := mul_lt_mul'' hgq e1 h0q (mul_nonneg h01 (mul_nonneg h02 (mul_nonneg h03 hP.le)))
+  have e3 : abundancy (r₃ ^ N.factorization r₃) * A <
+      (r₃ : ℚ) / (r₃ - 1) * ∏ s ∈ ord4 N q r₁ r₂ r₃, rv s :=
+    lt_of_le_of_lt (mul_le_mul_of_nonneg_left hle h03) (mul_lt_mul_of_pos_right hg3 hP)
+  have e2 := mul_lt_mul'' hg2 e3 h02 (mul_nonneg h03 hA0)
+  have e1 := mul_lt_mul'' hg1 e2 h01 (mul_nonneg h02 (mul_nonneg h03 hA0))
+  have e0 := mul_lt_mul'' hgq e1 h0q (mul_nonneg h01 (mul_nonneg h02 (mul_nonneg h03 hA0)))
   rw [hab] at e0
   calc (2 : ℚ) < _ := e0
     _ = _ := by ring
@@ -655,9 +796,10 @@ private theorem div_pred_pos {p : ℕ} (hp : 2 ≤ p) : 0 < (p : ℚ) / (p - 1) 
   have : (2 : ℚ) ≤ p := by exact_mod_cast hp
   apply div_pos <;> linarith
 
-/-- The closing theorem: the abundancy bound from the small ordinary primes in `C`, the box
-bound `g`, and the geometric tail is at most 2, which is impossible. -/
-theorem Ctx4.close (c : Ctx4 N q r₁ r₂ r₃) (cap M : ℕ) (hcap : 1 ≤ cap)
+/-- The closing theorem: the abundancy bound from the small ordinary primes in `C`, the tail
+factor `tailF cap`, the box bound `g`, and the geometric tail is at most 2, which is
+impossible. -/
+theorem Ctx4.close (c : Ctx4 N q r₁ r₂ r₃) (cap M : ℕ) (hcap : 2 ≤ cap)
     {α β γ δ ρ₀ ρ₁ ρ₂ ρ₃ : ℚ}
     (hα0 : 0 ≤ α) (hα1 : α < 1) (hβ0 : 0 ≤ β) (hβ1 : β < 1)
     (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (hδ0 : 0 ≤ δ) (hδ1 : δ < 1)
@@ -665,7 +807,7 @@ theorem Ctx4.close (c : Ctx4 N q r₁ r₂ r₃) (cap M : ℕ) (hcap : 1 ≤ cap
     (hγ : 1 ≤ γ ^ 2 * r₂ ∨ r₂ % 3 = 2) (hδ : 1 ≤ δ ^ 2 * r₃ ∨ r₃ % 3 = 2)
     (hρ₀ : (q : ℚ) / (q - 1) ≤ ρ₀) (hρ₁ : (r₁ : ℚ) / (r₁ - 1) ≤ ρ₁)
     (hρ₂ : (r₂ : ℚ) / (r₂ - 1) ≤ ρ₂) (hρ₃ : (r₃ : ℚ) / (r₃ - 1) ≤ ρ₃)
-    (C : Finset ℕ) (hC : ∀ x ∈ C, 1 ≤ x)
+    (C : Finset ℕ) (hC : ∀ x ∈ C, 2 ≤ x)
     (hsmall : ∀ s ∈ ord4 N q r₁ r₂ r₃, s < cap → s ∈ C)
     (g : ℕ × ℕ × ℕ × ℕ → ℚ) (hg0 : ∀ v, 0 ≤ g v)
     (hg : ∀ s ∈ ord4 N q r₁ r₂ r₃, cap ≤ s →
@@ -673,15 +815,53 @@ theorem Ctx4.close (c : Ctx4 N q r₁ r₂ r₃) (cap M : ℕ) (hcap : 1 ≤ cap
       (vec4 q r₁ r₂ r₃ s).2.2.1 < M → (vec4 q r₁ r₂ r₃ s).2.2.2 < M →
       fv s - 1 ≤ g (vec4 q r₁ r₂ r₃ s))
     (X : ℚ) (hX : gsum g M + kk cap * tl4 α β γ δ M ≤ X) (hX1 : X < 1)
-    (hfin : ρ₀ * ρ₁ * ρ₂ * ρ₃ * (∏ s ∈ C, fv s) / (1 - X) ≤ 2) : False := by
-  have hP := prod_bound4 (ord4 N q r₁ r₂ r₃) (vec4 q r₁ r₂ r₃) c.vec_inj cap M hcap
-    hα0 hα1 hβ0 hβ1 hγ0 hγ1 hδ0 hδ1 C hC
-    (fun s hs => le_trans (by norm_num) (c.ord_facts hs).2.2.1) hsmall
-    (fun s hs _ => c.weight hs hα0 hβ0 hγ0 hδ0 hα hβ hγ hδ) (fun s hs => (c.shape hs).2)
-    g hg0 hg X hX hX1
+    (hfin : ρ₀ * ρ₁ * ρ₂ * ρ₃ * (∏ s ∈ C, rv s) * tailF cap / (1 - X) ≤ 2) : False := by
+  classical
+  set S := ord4 N q r₁ r₂ r₃
+  have hS2 : ∀ s ∈ S, 2 ≤ s := fun s hs => le_trans (by norm_num) (c.ord_facts hs).2.2.1
+  set Sg := S.filter (fun s => ¬ s < cap)
+  have hSg : ∀ s ∈ Sg, s ∈ S ∧ cap ≤ s := fun s hs => by
+    rw [Finset.mem_filter] at hs; exact ⟨hs.1, by omega⟩
+  -- the large ordinary primes: `∏ fv ≤ 1/(1 - X)`
+  have hPg := prod_bound4 Sg (vec4 q r₁ r₂ r₃) (c.vec_inj.mono (Finset.filter_subset _ S))
+    cap M (by omega) hα0 hα1 hβ0 hβ1 hγ0 hγ1 hδ0 hδ1 ∅ (by simp)
+    (fun s hs => by have := hS2 s (hSg s hs).1; omega)
+    (fun s hs h => absurd (hSg s hs).2 (by omega))
+    (fun s hs _ => c.weight (hSg s hs).1 hα0 hβ0 hγ0 hδ0 hα hβ hγ hδ)
+    (fun s hs => (c.shape (hSg s hs).1).2)
+    g hg0 (fun s hs h => hg s (hSg s hs).1 h) X hX hX1
+  rw [Finset.prod_empty] at hPg
+  have hTg := prod_rv_le cap hcap Sg fun s hs => (hSg s hs).2
+  -- the small ordinary primes: `∏ rv ≤ ∏_C rv`
+  have hl : ∏ s ∈ S.filter (fun s => s < cap), rv s ≤ ∏ s ∈ C, rv s := by
+    apply Finset.prod_le_prod_of_subset_of_one_le
+    · intro s hs; rw [Finset.mem_filter] at hs; exact hsmall s hs.1 hs.2
+    · intro s hs
+      exact zero_le_one.trans (one_le_rv (hS2 s (Finset.mem_of_mem_filter s hs)))
+    · intro s hs _; exact one_le_rv (hC s hs)
+  have hsplit := Finset.prod_filter_mul_prod_filter_not S (fun s => s < cap) (f := rv)
+  have hl0 : 0 ≤ ∏ s ∈ S.filter (fun s => s < cap), rv s := Finset.prod_nonneg fun s hs =>
+    zero_le_one.trans (one_le_rv (hS2 s (Finset.mem_of_mem_filter s hs)))
+  have hC0 : 0 ≤ ∏ s ∈ C, rv s := Finset.prod_nonneg fun s hs => zero_le_one.trans (one_le_rv (hC s hs))
+  have hg0' : 0 ≤ ∏ s ∈ Sg, rv s := Finset.prod_nonneg fun s hs =>
+    zero_le_one.trans (one_le_rv (hS2 s (hSg s hs).1))
+  have htf : 0 ≤ tailF cap := by
+    have hc : (2 : ℚ) ≤ cap := by exact_mod_cast hcap
+    have : 1 / (2 * ((cap : ℚ) - 1) ^ 2) ≤ 1 / 2 :=
+      one_div_le_one_div_of_le (by norm_num) (by nlinarith)
+    unfold tailF
+    apply div_nonneg zero_le_one
+    linarith
+  have h1X : 0 < 1 - X := by linarith
+  have hfv0 : 0 ≤ ∏ s ∈ Sg, fv s := Finset.prod_nonneg fun s hs =>
+    zero_le_one.trans (one_le_fv (by have := hS2 s (hSg s hs).1; omega))
+  have hG : ∏ s ∈ Sg, rv s ≤ tailF cap * (1 / (1 - X)) :=
+    hTg.trans (mul_le_mul_of_nonneg_left (by simpa using hPg) htf)
+  have hP : ∏ s ∈ S, rv s ≤ (∏ s ∈ C, rv s) * (tailF cap * (1 / (1 - X))) := by
+    rw [← hsplit]
+    exact mul_le_mul hl hG hg0' hC0
   have hab := c.abund_lt
-  have hP0 : 0 ≤ ∏ s ∈ ord4 N q r₁ r₂ r₃, fv s := Finset.prod_nonneg fun s hs =>
-    le_trans zero_le_one (one_le_fv (le_trans (by norm_num) (c.ord_facts hs).2.2.1))
+  have hP0 : 0 ≤ ∏ s ∈ S, rv s := by rw [← hsplit]; exact mul_nonneg hl0 hg0'
   obtain ⟨⟨-, h1, -⟩, ⟨-, h2, -⟩, ⟨-, h3, -⟩⟩ := c.r_prime
   have b0 := div_pred_pos c.hq.two_le
   have b1 := div_pred_pos (show 2 ≤ r₁ by omega)
@@ -696,7 +876,9 @@ theorem Ctx4.close (c : Ctx4 N q r₁ r₂ r₃) (cap M : ℕ) (hcap : 1 ≤ cap
     have := mul_pos (mul_pos (mul_pos b0 b1) b2) b3
     linarith
   have e := mul_le_mul hρ hP hP0 hρ0
-  rw [mul_div_assoc] at hfin
+  have hfin' : ρ₀ * ρ₁ * ρ₂ * ρ₃ * ((∏ s ∈ C, rv s) * (tailF cap * (1 / (1 - X)))) ≤ 2 := by
+    calc _ = ρ₀ * ρ₁ * ρ₂ * ρ₃ * (∏ s ∈ C, rv s) * tailF cap / (1 - X) := by ring
+      _ ≤ 2 := hfin
   linarith
 
 end ThreeFreeThree
@@ -705,6 +887,7 @@ end OddPerfect
 
 #print axioms OddPerfect.ThreeFreeThree.fv_sub_one
 #print axioms OddPerfect.ThreeFreeThree.fv_sub_le
+#print axioms OddPerfect.ThreeFreeThree.one_le_rv
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.swap12
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.swap23
 #print axioms OddPerfect.ThreeFreeThree.ctx4_of_not_three_dvd
@@ -712,6 +895,7 @@ end OddPerfect
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.q_mod
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.five_le
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.r_prime
+#print axioms OddPerfect.ThreeFreeThree.cyc_dvd_of_mod
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.ord_facts
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.not_mem_ord
 #print axioms OddPerfect.ThreeFreeThree.Ctx4.tgt
