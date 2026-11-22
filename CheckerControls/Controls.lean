@@ -8,6 +8,7 @@ import OddPerfect.CommonFamily
 import OddPerfect.CommonFiveSeven
 import OddPerfect.OmegaSix
 import OddPerfect.OmegaSevenEngine
+import OddPerfect.ThreeFreeThreeChecker
 
 /-!
 # Checker controls
@@ -251,5 +252,40 @@ example : OmegaSevenEngine.run 5 [⟨2, 2, true⟩, ⟨7, 1, true⟩] 0 7 = fals
 example : OmegaSevenEngine.run 5 [⟨2, 2, false⟩, ⟨7, 1, false⟩] 0 7 = false := by decide +kernel
 -- Exact `3 ^ 2` alone is deficient: closed.
 example : OmegaSevenEngine.run 5 [⟨3, 2, true⟩] 0 3 = true := by decide +kernel
+
+/-! ## Three exceptional primes (`OddPerfect.ThreeFreeThree.leafOK`, `treeOK`) -/
+
+-- Well formed: leaf 388 of the certificate, the leaf with the largest bound (about 1.99497).
+example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 109⟩
+    ⟨(109, 393), (223, 590), (209, 911), (25, 261)⟩ = true := by decide +kernel
+-- Weight `w₃ = 25/262` is not admissible: `262 ^ 2 > 25 ^ 2 * 109`.
+example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 109⟩
+    ⟨(109, 393), (223, 590), (209, 911), (25, 262)⟩ = false := by decide +kernel
+-- Weight `w₀ = 111/393` is admissible but too large: the bound is about `2.0023`.
+example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 109⟩
+    ⟨(111, 393), (223, 590), (209, 911), (25, 261)⟩ = false := by decide +kernel
+-- `r₃` pinned to `127` instead of `109`: with the same weights the bound is about `2.0112`.
+example : ThreeFreeThree.leafOK (.c7, .c19, .big) ⟨.free .q 13 [], .pin 7, .pin 19, .pin 127⟩
+    ⟨(109, 393), (223, 590), (209, 911), (25, 261)⟩ = false := by decide +kernel
+-- Well formed tree (hand made): split `q` at `13`. The pinned child is closed with
+-- `w₀ = 109/393`; in the other child `13` is excluded, the least value of `q` is `25` and the
+-- weight `w₀ = 1/5` is admissible.
+example : ThreeFreeThree.treeOK (.c5, .n2, .n2) (ThreeFreeThree.rootNode (.c5, .n2, .n2))
+    (.split 0 13 (.leaf ⟨(109, 393), (0, 1), (0, 1), (0, 1)⟩)
+      (.leaf ⟨(1, 5), (0, 1), (0, 1), (0, 1)⟩)) = true := by decide +kernel
+-- The same tree with the pinned child removed: `13` is no longer excluded, and `1/5` is not
+-- admissible for the least value `13`.
+example : ThreeFreeThree.treeOK (.c5, .n2, .n2) (ThreeFreeThree.rootNode (.c5, .n2, .n2))
+    (.leaf ⟨(1, 5), (0, 1), (0, 1), (0, 1)⟩) = false := by decide +kernel
+-- The other child alone, from its explicit constraints: accepted with `13` excluded.
+example : ThreeFreeThree.treeOK (.c5, .n2, .n2) ⟨.free .q 13 [13], .pin 5, .free .n2 11 [],
+    .free .n2 11 []⟩ (.leaf ⟨(1, 5), (0, 1), (0, 1), (0, 1)⟩) = true := by decide +kernel
+-- The same with the excluded value `13` dropped: rejected.
+example : ThreeFreeThree.treeOK (.c5, .n2, .n2) ⟨.free .q 13 [], .pin 5, .free .n2 11 [],
+    .free .n2 11 []⟩ (.leaf ⟨(1, 5), (0, 1), (0, 1), (0, 1)⟩) = false := by decide +kernel
+-- A split of a pinned slot (`r₁ = 5`) is rejected whatever its children are.
+example : ThreeFreeThree.treeOK (.c5, .n2, .n2) (ThreeFreeThree.rootNode (.c5, .n2, .n2))
+    (.split 1 5 (.leaf ⟨(109, 393), (0, 1), (0, 1), (0, 1)⟩)
+      (.leaf ⟨(109, 393), (0, 1), (0, 1), (0, 1)⟩)) = false := by decide +kernel
 
 end CheckerControls
