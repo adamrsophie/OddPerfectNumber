@@ -147,3 +147,4 @@ import OddPerfect.RestrainedThree
 import OddPerfect.RestrainedFour
 import OddPerfect.RestrainedFive
 import OddPerfect.LargestPrimeRoots
+import OddPerfect.OmegaSevenFiveSeven

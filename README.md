@@ -31,7 +31,7 @@ Memory: the modules with large kernel checked tables (for example the `OmegaSeve
 | `OddPerfect.lean` | The root file that imports every module. |
 | `AxiomGate.lean` | A check over every constant of the library: axioms, unsafe or opaque declarations, the statement of the conjecture, and coverage of every library module and tracked source file. Run with `lake env lean AxiomGate.lean` after the build. |
 | `GateControls/` | Control files for the gate: one clean file that it must accept and four that it must reject, each for a stated reason. They are not part of the library and are never imported. Run with `sh GateControls/run.sh` after the build. |
-| `CheckerControls/` | Regression controls for the Boolean certificate checkers: small examples that fix the value of each checker on well formed and malformed inputs. They are not part of the library and are never imported. Run with `sh CheckerControls/run.sh` after the build. |
+| `CheckerControls/` | Regression controls for the Boolean certificate checkers: small examples that fix the value of each checker on well formed and malformed inputs, checked against the inventory `manifest.txt`, and the five generated checks of the largest prime factor search. They are not part of the library and are never imported. Run with `sh CheckerControls/run.sh` after the build; the argument `full` also compiles the generated checks, which need about 15 GB of memory. |
 | `scripts/` | The search and generator programs that found the certificates, trees and tables checked in the library. Nothing there is trusted; see `scripts/README.md`. |
 
 The module list changes often. The project site lists every module and every public theorem at a stated commit: <https://adamrsophie.github.io/OddPerfectNumber/>.

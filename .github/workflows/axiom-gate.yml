@@ -55,12 +55,33 @@ jobs:
           key: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-${{ github.sha }}-${{ github.run_id }}
           restore-keys: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-
 
-      # Exit status controls of the published Python validators, before the long build so that a
-      # failure shows early. The runner has no sympy, so the controls of
-      # scripts/CommonFamilies/verify.py, which needs it, are skipped and listed as SKIP; the
-      # other controls use only the standard library.
+      # The Python checks below run before the long build so that a failure shows early. The
+      # system Python of the runner is externally managed and has no sympy, so a virtual
+      # environment outside the checkout gets exactly the pinned pure Python wheels of sympy and
+      # mpmath listed with their SHA-256 hashes in scripts/Controls/requirements-sympy.txt (that
+      # file says how to regenerate it); pip refuses any other file. The interpreter of the
+      # environment still sees its own packages in isolated mode (-I).
+      - name: Python environment with pinned sympy
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --disable-pip-version-check --no-cache-dir \
+            --require-hashes -r scripts/Controls/requirements-sympy.txt
+          "$RUNNER_TEMP/venv/bin/python" -I -c 'import sys, sympy, mpmath; print(sys.version, sympy.__version__, mpmath.__version__)'
+
+      # Exit status controls of the published Python validators, all of them, including those of
+      # scripts/CommonFamilies/verify.py, which needs sympy. The validators run as subprocesses
+      # of the same interpreter.
       - name: Validator controls
-        run: python3 -I scripts/Controls/validator_controls.py --stdlib-only
+        run: |
+          "$RUNNER_TEMP/venv/bin/python" -I scripts/Controls/validator_controls.py
+
+      # Regenerates the 19 modules OddPerfect/CommonNinetyFive*.lean of the family of 95 from
+      # the archived input and compares them byte for byte with the checkout (about five
+      # seconds). The script runs every step with the interpreter named by PYTHON.
+      - name: Rebuild of the family of 95
+        env:
+          PYTHON: ${{ runner.temp }}/venv/bin/python
+        run: bash scripts/CommonFamilies/rebuild95.sh . "$RUNNER_TEMP/rebuild95"
 
       - name: Build
         run: |
@@ -95,9 +116,12 @@ jobs:
           AXIOM_GATE_TRACKED_FILES: ${{ runner.temp }}/tracked-files.txt
         run: sh GateControls/run.sh AxiomGate.lean
 
-      # Values of the certificate checkers on tiny well formed and malformed inputs.
+      # Values of the certificate checkers on tiny well formed and malformed inputs. The weekly
+      # run also compiles the five generated checks of the largest prime factor search (about
+      # 90 s CPU and 15 GB peak on the build server, as much as
+      # OddPerfect/LargestPrimeFactor.lean itself); the other runs only count them.
       - name: Checker controls
-        run: sh CheckerControls/run.sh
+        run: sh CheckerControls/run.sh ${{ github.event_name == 'schedule' && 'full' || '' }}
 
       # Saved only after every step above passed, and never from a pull request.
       - name: Save the library build

@@ -301,5 +301,20 @@ example : ThreeFreeThree.treeOK (.c5, .n2, .n2) ⟨.free .q 13 [], .pin 5, .free
 example : ThreeFreeThree.treeOK (.c5, .n2, .n2) (ThreeFreeThree.rootNode (.c5, .n2, .n2))
     (.split 1 5 (.leaf ⟨(109, 393), (0, 1), (0, 1), (0, 1)⟩)
       (.leaf ⟨(109, 393), (0, 1), (0, 1), (0, 1)⟩)) = false := by decide +kernel
+-- The closing test `finalOK m C X` accepts when `ρ(m) ∏ s/(s - 1) (178802/178801) / (1 - X)`
+-- is at most `2`, where `ρ(m) = ∏ mᵢ/(mᵢ - 1)` and `X = X.1/X.2`. Its earlier form used
+-- `(s ^ 2 + s + 1)/s ^ 2` for each small prime `s` of `C` and no tail factor `178802/178801`.
+-- The three controls below separate the two forms; all values are exact.
+-- Small prime factor: `m = (7, 11, 13, 17)`, `C = [5]`, `X = 1/12`. The current value is
+-- `19757621/9808512 ≈ 2.01433 > 2` (already `1547/768 ≈ 2.01432` without the tail factor), the
+-- earlier one `47957/24000 ≈ 1.99821 ≤ 2` (and `612486251/306516000 ≈ 1.99822` with the tail).
+example : ThreeFreeThree.finalOK (7, 11, 13, 17) [5] (1, 12) = false := by decide +kernel
+-- Tail factor alone: `m = (5, 7, 11, 13)`, `C = []`, `X = 151/1152`. Without the tail factor
+-- the value is exactly `2`, which the earlier form accepts; with it, `357604/178801 > 2`.
+example : ThreeFreeThree.finalOK (5, 7, 11, 13) [] (151, 1152) = false := by decide +kernel
+-- Accepted at the boundary: `m = (7, 11, 13, 17)`, `C = [5]`, `X = 18070457/235404288`. The
+-- current value is exactly `2`; the earlier one is `22171324/11175125 ≈ 1.98399`.
+example : ThreeFreeThree.finalOK (7, 11, 13, 17) [5] (18070457, 235404288) = true := by
+  decide +kernel
 
 end CheckerControls

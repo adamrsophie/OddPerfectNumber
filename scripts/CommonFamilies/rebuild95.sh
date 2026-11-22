@@ -16,6 +16,8 @@
 # Run: bash rebuild95.sh <checkout> <outDir>; outDir must not exist or be empty. Exits nonzero
 # on any difference. Every intermediate file stays in outDir.
 # Requires: bash, Python 3 and sympy (the recorded run used Python 3.12.14 and sympy 1.14.0).
+# Interpreter: the environment variable PYTHON if set (for example a virtual environment
+# interpreter), otherwise python3 from PATH; every step runs it in isolated mode (-I).
 # Deterministic. Running time: about five seconds.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: all paths come from the two arguments.
@@ -28,19 +30,20 @@ mkdir -p "$2"
 O=$(cd "$2" && pwd)
 [ -z "$(ls -A "$O")" ] || { echo "output folder $O is not empty" >&2; exit 2; }
 S="$C/scripts/CommonFamilies"
+PY=${PYTHON:-python3}
 IN="$S/inputs/family95_input.json"
 cd "$O"
 
-python3 -I - "$IN" "$S/inputs/family95_input.json.sha256" <<'EOF'
+"$PY" -I - "$IN" "$S/inputs/family95_input.json.sha256" <<'EOF'
 import sys, hashlib
 want = open(sys.argv[2]).read().split()[0]
 got = hashlib.sha256(open(sys.argv[1], 'rb').read()).hexdigest()
 if got != want: sys.exit(f'SHA-256 mismatch: {got} != {want}')
 EOF
 
-python3 -I "$S/gen2.py" "$IN" 95 5,19 1000000000 50 0 2:m12
+"$PY" -I "$S/gen2.py" "$IN" 95 5,19 1000000000 50 0 2:m12
 
-python3 -I - <<'EOF'
+"$PY" -I - <<'EOF'
 import json
 s = open('95.lean.txt').read()
 for name in ('nodes95', 'rows95', 'vals95'):
@@ -52,20 +55,20 @@ m = json.load(open('95.meta.json')); m['zc'] = 25
 json.dump(m, open('95.meta.json', 'w'))
 EOF
 
-python3 -I "$S/mktail.py" 95 95 ':2:b % 12 == 1'
-python3 -I "$S/ndflat.py" 95
+"$PY" -I "$S/mktail.py" 95 95 ':2:b % 12 == 1'
+"$PY" -I "$S/ndflat.py" 95
 
-python3 -I - <<'EOF'
+"$PY" -I - <<'EOF'
 s = open('95.lean.txt').read()
 old, new = 'The nodes of the `d` table', 'The nodes of the `d = 95` table'
 assert s.count(old) == 1
 open('95.lean.txt', 'w').write(s.replace(old, new))
 EOF
 
-python3 -I "$S/est.py" 95 95 50
-python3 -I "$S/split.py" 95 CommonNinetyFive 95 2500000 550000 450000
-python3 -I "$S/asm_split.py" 95 95 '`5, 19`' "$S/fragments/fin95.lean" mods
-for f in mods/*.lean; do python3 -I "$S/axioms.py" "$f"; done
+"$PY" -I "$S/est.py" 95 95 50
+"$PY" -I "$S/split.py" 95 CommonNinetyFive 95 2500000 550000 450000
+"$PY" -I "$S/asm_split.py" 95 95 '`5, 19`' "$S/fragments/fin95.lean" mods
+for f in mods/*.lean; do "$PY" -I "$S/axioms.py" "$f"; done
 
 status=0
 got=$(cd mods && ls CommonNinetyFive*.lean)

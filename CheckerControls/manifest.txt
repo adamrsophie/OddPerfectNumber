@@ -1,17 +1,19 @@
-# Inventory of CheckerControls/Controls.lean, read by run.sh. Each line gives the least number
-# of examples a control group must contain, a space, then the exact text of its heading
-# "/-! ## <heading> -/". run.sh fails if a listed group is missing, if a group has fewer
-# examples than listed, or if the whole file has fewer examples than the sum. Adding examples
-# or groups needs no change here; raise a count or add a line to make the new controls required.
+# Inventory of CheckerControls/Controls.lean and CheckerControls/LargestPrimeControls.lean, read
+# by run.sh. Each line gives the least number of examples a control group must contain, a space,
+# then the exact text of its heading "/-! ## <heading> -/" in either file. run.sh fails if a
+# listed group is missing, if a group has fewer examples than listed, or if the two files
+# together have fewer examples than the sum. Adding examples or groups needs no change here;
+# raise a count or add a line to make the new controls required.
 9 Pratt certificates (`OddPerfect.Pratt`)
 12 Trial division primality tests
 4 Small sieve (`ForcingClosedBound.smallSieveB`)
 4 Consecutive primes (`LowerBound.consec`)
 5 The lower bound proof tree runner (`LowerBound.run`)
 5 Prime factor outside a modulus (`LPF.bigF`)
+5 Generated checks of the largest prime factor search (`LPF.exists_primeFactor_gt_of_search`)
 12 Equal exponent chains (`OddPerfect.EqChain`)
 6 Common prime chains (`OddPerfect.CommonChain.check`)
 19 Common families (`OddPerfect.CommonFam`, `OddPerfect.FamInst`)
 6 The six prime search (`OmegaSixSearch.solve`)
 6 The seven prime engine (`OmegaSevenEngine.run`)
-9 Three exceptional primes (`OddPerfect.ThreeFreeThree.leafOK`, `treeOK`)
+12 Three exceptional primes (`OddPerfect.ThreeFreeThree.leafOK`, `treeOK`)
