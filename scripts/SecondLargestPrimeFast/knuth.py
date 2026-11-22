@@ -24,6 +24,6 @@ for i in range(N):
         if not cs: break
         w *= len(cs); s = random.choice(cs)
     ests.append(tot)
-    if (i + 1) % (N // 10) == 0:
+    if (i + 1) % max(1, N // 10) == 0:
         m = sum(ests) / len(ests); sd = math.sqrt(sum((x - m) ** 2 for x in ests) / max(1, len(ests) - 1))
         print('B', B, 'probes', i + 1, 'estimate %.3e' % m, 'stderr %.2e' % (sd / math.sqrt(len(ests))), 'stuck', stuck, flush=True)

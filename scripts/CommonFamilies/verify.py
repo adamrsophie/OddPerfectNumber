@@ -90,8 +90,8 @@ def no_dup_keys(pairs):
 
 def profile(d, seeds, mr, excl, exps):
     """The claim of a certificate, in a form that compares equal for equal claims."""
-    return {'d': d, 'seeds': sorted(seeds), 'special_test': list(mr),
-            'excluded_primes': sorted(excl), 'exponents': exps}
+    return {'d': d, 'seeds': sorted(set(seeds)), 'special_test': list(mr),
+            'excluded_primes': sorted(set(excl)), 'exponents': exps}
 
 
 def parse_expect(text):

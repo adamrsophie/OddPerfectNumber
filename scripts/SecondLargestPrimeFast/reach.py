@@ -34,3 +34,5 @@ while True:
         print('PROGRESS nodes', nodes, 'stack', len(R), 'time', round(time.time() - t0), stats, flush=True)
 print('RESULT B', B, 'LO', LO, 'W', W, res, 'nodes', nodes, 'kinds', stats, 'chunksK', chunks,
       'chars', chars, 'maxstack', maxstack, 'cpu', round(time.process_time(), 1), flush=True)
+# exit status 0 only when the search closes; `limit` and `stuck` are not closure
+sys.exit(0 if res == 'closes' else 1)

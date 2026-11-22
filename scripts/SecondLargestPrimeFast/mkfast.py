@@ -16,6 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from slp import init, run, Mof, fmt_stack, primesUpTo
 
 B, K, LO, NMOD = map(int, sys.argv[1:5])
+if K < 1 or NMOD < 1 or not 1 <= B < LO:
+    # zero fuel would loop forever and zero modules would divide by zero
+    print('usage: B K LO NMOD OUT [TWO] [PRE] with K >= 1, NMOD >= 1 and 1 <= B < LO'); sys.exit(2)
 OUT = sys.argv[5]
 TWO = sys.argv[6] if len(sys.argv) > 6 else 'SecondLargestPrimeTwo'
 PRE = sys.argv[7] if len(sys.argv) > 7 else 'SecondLargestPrimeFastData'
@@ -26,7 +29,7 @@ L = init(B, LO)
 S = [L]
 while L:
     L = run(B, M, W, K, L)
-    assert L is not None, 'the search is stuck'
+    if L is None: print('FAIL: the search is stuck'); sys.exit(1)
     S.append(L)
 n = len(S) - 1
 cuts = [round(i * n / NMOD) for i in range(NMOD + 1)]

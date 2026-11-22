@@ -2,7 +2,8 @@
 # Untrusted helper script for the OddPerfect Lean library.
 # Permanent controls for the published validators EqualExponentChain/checker.py,
 # LowerBound/check.py, CommonFamilies/verify.py and CommonFamilies/est.py, and for the helpers
-# under ThreeFreeThree/ (check3.py, verify3.py, gen_lean.py, route3.py): every archived valid
+# under ThreeFreeThree/ (check3.py, verify3.py, gen_lean.py, route3.py), SecondLargestPrimeFast/
+# (validate.py, knuth.py, reach.py, mkfast.py) and LedgerThreeFree/check.py: every archived valid
 # input must pass with exit status 0, and each mutated input must be rejected with the expected
 # nonzero status (1: a well formed input fails a check; 2: malformed input or usage), with no
 # Python traceback. The validators run as subprocesses with `sys.executable -I`, in normal and
@@ -13,7 +14,7 @@
 # With --stdlib-only the controls of CommonFamilies/verify.py, which needs sympy, are skipped
 # (each is listed as SKIP); without it a missing sympy is a failure.
 # Requires: Python 3 standard library (sympy for the verify.py controls). Running time: about
-# half a minute.
+# two minutes.
 # Exit status: 0 when every control behaves as expected, 1 otherwise, 2 for a usage error.
 # License: GPL 3, same as the repository.
 
@@ -32,6 +33,9 @@ LBCHECK = os.path.join(SC, 'LowerBound', 'check.py')
 VERIFY = os.path.join(SC, 'CommonFamilies', 'verify.py')
 EST = os.path.join(SC, 'CommonFamilies', 'est.py')
 TF = os.path.join(SC, 'ThreeFreeThree')
+SLP = os.path.join(SC, 'SecondLargestPrimeFast')
+SLP_VALIDATE = os.path.join(SLP, 'validate.py')
+LEDGER = os.path.join(SC, 'LedgerThreeFree', 'check.py')
 TF_CERT = os.path.join(TF, 'cert3_final.json.xz')
 EQ_CERTS = sorted(os.path.join(SC, f, 'certs', n) for f in ('EqualExponentChain', 'EqualExponentChainMore')
                   for n in os.listdir(os.path.join(SC, f, 'certs')) if n.endswith('.json'))
@@ -96,7 +100,7 @@ def mutate_text(src, dst, old, new):
 
 def no_asserts():
     """The validators and this script must not rely on `assert`, which python -O removes."""
-    for path in (CHECKER, LBCHECK, VERIFY, EST, os.path.abspath(__file__)):
+    for path in (CHECKER, LBCHECK, VERIFY, EST, SLP_VALIDATE, LEDGER, os.path.abspath(__file__)):
         with open(path) as f:
             tree = ast.parse(f.read(), path)
         lines = [n.lineno for n in ast.walk(tree) if isinstance(n, ast.Assert)]
@@ -142,7 +146,8 @@ def common_families(t, stdlib_only):
              'verify.py --expect, d = 65 certificate', 'verify.py --expect: claim differs',
              'verify.py: deficient singleton 781/625', 'verify.py: conflicting duplicate case',
              'verify.py: missing case', 'verify.py: extra case', 'verify.py: empty residue profile (1, 1)',
-             'verify.py: excluded prime 1 (empty profile)', 'verify.py: duplicate row', 'verify.py: seed 0']
+             'verify.py: excluded prime 1 (empty profile)', 'verify.py: duplicate row', 'verify.py: seed 0',
+             'verify.py --expect: a repeated seed is the same claim']
     if stdlib_only:
         for n in names:
             skip(n)
@@ -172,6 +177,7 @@ def common_families(t, stdlib_only):
     control(names[10], VERIFY, [write_json(f'{t}/cf_duprow.json', bad)], 2)
     bad = dict(c, seeds=[0] + c['seeds'])
     control(names[11], VERIFY, [write_json(f'{t}/cf_seed0.json', bad)], 2)
+    control(names[12], VERIFY, ['--expect', json.dumps(dict(CLAIM57, seeds=[5, 7, 5])), CF57], 0)
 
 
 def estimator(t):
@@ -266,6 +272,69 @@ def three_free_three(t):
         report('FAIL', 'gen_lean.py data: modules byte equal', f'{len(names)} files written, differing: {differ}')
 
 
+def second_largest_prime(t):
+    """validate.py must reject an incomplete or altered chain of chunks; the search tools must
+    report a search that did not close by their exit status."""
+    def repo(name, old=None, new=None, module=9):
+        d = os.path.join(t, name, 'OddPerfect')
+        os.makedirs(d)
+        for m in range(1, 10):
+            n = f'SecondLargestPrimeFastData{m}.lean'
+            src = os.path.join(ROOT, 'OddPerfect', n)
+            if old is not None and m == module:
+                mutate_text(src, os.path.join(d, n), old, new)
+            else:
+                with open(src) as f, open(os.path.join(d, n), 'w') as g:
+                    g.write(f.read())
+        return os.path.join(t, name)
+
+    head = ' : runF 72 557940830126698960967415390 10 500 '
+    control('validate.py accepts the published chunks', SLP_VALIDATE, [ROOT], 0)
+    control('validate.py: last run with bound 73', SLP_VALIDATE,
+            [repo('slp_bound', 'theorem run202' + head, 'theorem run202 : runF 73 557940830126698960967415390 10 500 ')], 1)
+    control('validate.py: wrong modulus', SLP_VALIDATE,
+            [repo('slp_mod', 'theorem run5' + head, 'theorem run5 : runF 72 557940830126698960967415391 10 500 ', 1)], 1)
+    control('validate.py: last run renamed (unfinished prefix)', SLP_VALIDATE,
+            [repo('slp_prefix', 'private theorem run202' + head, 'private theorem final' + head)], 1)
+    control('validate.py: run renumbered', SLP_VALIDATE,
+            [repo('slp_number', 'theorem run7' + head, 'theorem run9007' + head, 1)], 1)
+    control('knuth.py: one probe', os.path.join(SLP, 'knuth.py'), ['60', '1'], 0, modes=('',))
+    control('reach.py: node limit is not closure', os.path.join(SLP, 'reach.py'), ['72', '10001', '10', '500', '1000'],
+            1, modes=('',))
+    control('mkfast.py: zero fuel', os.path.join(SLP, 'mkfast.py'), ['72', '0', '10001', '9', f'{t}/mk0'], 2, modes=('',))
+    control('mkfast.py: zero modules', os.path.join(SLP, 'mkfast.py'), ['72', '500', '10001', '0', f'{t}/mk1'], 2,
+            modes=('',))
+
+
+def ledger_three_free(t, stdlib_only):
+    """LedgerThreeFree/check.py must end with exit status 1 when a comparison of the proof fails."""
+    names = ['check.py (LedgerThreeFree) accepts the published numbers', 'check.py: false envelope 19/10',
+             'check.py: envelope 1995/1000, too loose for q0 = 229', 'check.py: nine large primes at q = 109',
+             'check.py: wrong survivor']
+    if stdlib_only:
+        for n in names:
+            skip(n)
+        return
+    if importlib.util.find_spec('sympy') is None:
+        report('FAIL', 'LedgerThreeFree/check.py controls', 'sympy is not installed (use --stdlib-only to skip them)')
+        return
+    with open(LEDGER) as f:
+        text = f.read()
+
+    def mutant(name, old, new, count):
+        if text.count(old) != count:
+            raise SystemExit(f'control setup: {old!r} does not occur {count} times in {LEDGER}')
+        with open(f'{t}/{name}.py', 'w') as f:
+            f.write(text.replace(old, new))
+        return f'{t}/{name}.py'
+
+    control(names[0], LEDGER, [], 0)
+    control(names[1], mutant('ledger_env', 'Fr(19901, 10000)', 'Fr(19, 10)', 3), [], 1)
+    control(names[2], mutant('ledger_loose', 'Fr(19901, 10000)', 'Fr(1995, 1000)', 3), [], 1)
+    control(names[3], mutant('ledger_big', 'Fr(661, 660) ** 2', 'Fr(661, 660) ** 9', 1), [], 1)
+    control(names[4], mutant('ledger_surv', '491: 603791}, "survivor map")', '491: 603793}, "survivor map")', 1), [], 1)
+
+
 def main(argv):
     if argv[1:] not in ([], ['--stdlib-only']):
         print('usage: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]', file=sys.stderr)
@@ -277,6 +346,8 @@ def main(argv):
         common_families(t, argv[1:] == ['--stdlib-only'])
         estimator(t)
         three_free_three(t)
+        second_largest_prime(t)
+        ledger_three_free(t, argv[1:] == ['--stdlib-only'])
     print(f'validator controls: {results["PASS"]} passed, {results["FAIL"]} failed, {results["SKIP"]} skipped')
     return 1 if results['FAIL'] else 0
 
