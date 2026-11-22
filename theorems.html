@@ -161,6 +161,10 @@
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">four_le_card_mod_exceptions</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q)) (h3 : ¬ 3 ∣ N) :
   4 ≤ ((N.primeFactors.erase q).filter <span class="k"><span class="k">fun</span></span> p =&gt; ¬ 3 ∣ N.factorization p + 1).card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.four_le_card_mod_exceptions">OddPerfect.four_le_card_mod_exceptions</a> in <a href="reference.html#mod-ThreeFreeThree">OddPerfect.ThreeFreeThree</a></p>
+<p>In one case the count rises to five: when 3 does not divide N, the special prime is 13, and 19 and 31 divide N (module <a href="reference.html#mod-FiveExceptionThirteen"><code>FiveExceptionThirteen</code></a>). Five exceptions for every special prime are not proved. Whether this statement is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">_root_.OddPerfect.five_le_card_mod_exceptions_of_thirteen</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hodd : Odd (N.factorization 13)) (h3 : ¬ 3 ∣ N) (h19 : 19 ∣ N) (h31 : 31 ∣ N) :
+  5 ≤ ((N.primeFactors.erase 13).filter <span class="k"><span class="k">fun</span></span> p =&gt; ¬ 3 ∣ N.factorization p + 1).card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.five_le_card_mod_exceptions_of_thirteen">OddPerfect.five_le_card_mod_exceptions_of_thirteen</a> in <a href="reference.html#mod-FiveExceptionThirteen">OddPerfect.FiveExceptionThirteen</a></p>
 <p>A count in another direction: if at most 31 ordinary primes have an exponent e with 3 not dividing e + 1, and each of them is 2 modulo 3, then 3 divides N (module <a href="reference.html#mod-LedgerThreeFree"><code>LedgerThreeFree</code></a>). An earlier form of this statement left out the special prime 109 and asked for exponent exactly 2 at the other primes; both restrictions are gone. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_thirtyone_exceptional_mod_three</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
   (hq : q.Prime) (hodd : Odd (N.factorization q))
@@ -236,7 +240,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>8daa82a</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>f3e4f77</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
