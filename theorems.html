@@ -91,6 +91,12 @@
   (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 →
     3 ∣ N.factorization p + 1 ∨ 5 ∣ N.factorization p + 1 ∨ 7 ∣ N.factorization p + 1) :
   False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.not_mixed_index_three_five_seven">OddPerfect.not_mixed_index_three_five_seven</a> in <a href="reference.html#mod-MixedIndex">OddPerfect.MixedIndex</a></p>
+<p>With any exponent at the special prime 5, the exponent of 3 is not 2 and the index of 3 is divisible neither by 3 nor by 5 (module <a href="reference.html#mod-MixedIndexTwo"><code>MixedIndexTwo</code></a>). The case where the index of 3 is divisible by 7 only is open.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">not_mixed_index_special_five_of_three</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (h5o : Odd (N.factorization 5))
+  (hexp : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ 5 →
+    3 ∣ N.factorization p + 1 ∨ 5 ∣ N.factorization p + 1 ∨ 7 ∣ N.factorization p + 1)
+  (h3i : 3 ∣ N.factorization 3 + 1 ∨ 5 ∣ N.factorization 3 + 1) : False</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.MixedIndexTwo.not_mixed_index_special_five_of_three">OddPerfect.MixedIndexTwo.not_mixed_index_special_five_of_three</a> in <a href="reference.html#mod-MixedIndexTwo">OddPerfect.MixedIndexTwo</a></p>
 <p>Also <a href="reference.html#OddPerfect.mcdaniel"><code>mcdaniel</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_four"><code>not_all_exponents_four</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_six"><code>not_all_exponents_six</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_ten"><code>not_all_exponents_ten</code></a>, <a href="reference.html#OddPerfect.not_all_exponents_twelve"><code>not_all_exponents_twelve</code></a>, the certificate checker of <a href="reference.html#mod-EqualExponentChain"><code>EqualExponentChain</code></a> for the exponents listed above, and <a href="reference.html#OddPerfect.pow_four_dvd_of_dvd_succ"><code>pow_four_dvd_of_dvd_succ</code></a>, explained in their modules on the <a href="reference.html#patterns">Reference</a> page.</p>
 
 <h2 id="small-primes">Small primes cannot all be present</h2>
@@ -138,6 +144,11 @@
   (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
   (hp : p.Prime) (h5 : 5 ≤ p) (hlt : p &lt; 132257) : ¬ p ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.restrained_not_dvd_of_lt">OddPerfect.restrained_not_dvd_of_lt</a> in <a href="reference.html#mod-RestrainedSeven">OddPerfect.RestrainedSeven</a></p>
+<p>Consequences without further tables (module <a href="reference.html#mod-RestrainedEight"><code>RestrainedEight</code></a>): at least 38049 distinct prime factors in this family, and exponent at least 12 at the prime 3.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">restrained_omega_ge</span> {N q r : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) :
+  38049 ≤ ω N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.restrained_omega_ge">OddPerfect.restrained_omega_ge</a> in <a href="reference.html#mod-RestrainedEight">OddPerfect.RestrainedEight</a></p>
 <p>The same conclusion holds with two exceptional primes r₁ and r₂, with no condition on them (module <a href="reference.html#mod-ThreeFreeTwo"><code>ThreeFreeTwo</code></a>). Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_two_exceptions</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -176,6 +187,20 @@
   (hodd : Odd (N.factorization q))
   (hP : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → (σ 1 (p ^ N.factorization p)).Prime) :
   5 ≤ ((N.primeFactors.erase q).image N.factorization).card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.five_le_card_exponents_of_sigma_prime">OddPerfect.five_le_card_exponents_of_sigma_prime</a> in <a href="reference.html#mod-LedgerPrime">OddPerfect.LedgerPrime</a></p>
+<p>Under the same hypothesis the count rises to eleven, and two distinct ordinary primes must have the same prime divisor sum (module <a href="reference.html#mod-LedgerPrimeTwo"><code>LedgerPrimeTwo</code></a>; <span class="tag unver">novelty unverified</span>).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">eleven_le_card_exponents_of_sigma_prime</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hP : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → (σ 1 (p ^ N.factorization p)).Prime) :
+  11 ≤ ((N.primeFactors.erase q).image N.factorization).card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.eleven_le_card_exponents_of_sigma_prime">OddPerfect.eleven_le_card_exponents_of_sigma_prime</a> in <a href="reference.html#mod-LedgerPrimeTwo">OddPerfect.LedgerPrimeTwo</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_prime_sigma_collision</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hP : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → (σ 1 (p ^ N.factorization p)).Prime) :
+  <span class="k"><span class="k">∃</span></span> s p r : <span class="t"><span class="t">ℕ</span></span>, s ∈ N.primeFactors ∧ s ≠ q ∧ σ 1 (s ^ N.factorization s) = q ∧
+    ¬ s ∣ σ 1 (q ^ N.factorization q) ∧ Even (N.factorization s) ∧
+    2 ≤ N.factorization s ∧
+    p ∈ N.primeFactors ∧ p ≠ q ∧ r ∈ N.primeFactors ∧ r ≠ q ∧ p ≠ r ∧
+    σ 1 (p ^ N.factorization p) = s ∧ σ 1 (r ^ N.factorization r) = s ∧
+    N.factorization p ≠ N.factorization r</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_prime_sigma_collision">OddPerfect.exists_prime_sigma_collision</a> in <a href="reference.html#mod-LedgerPrimeTwo">OddPerfect.LedgerPrimeTwo</a></p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">card_nine_dvd_le</span> (h : OddPerfect N) (q : <span class="t"><span class="t">ℕ</span></span>) :
   ((N.primeFactors.erase q).filter (9 ∣ N.factorization · + 1)).card ≤
     <span class="k"><span class="k">∑</span></span> t ∈ (N.primeFactors.erase q).filter (· % 3 = 1), N.factorization t</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.card_nine_dvd_le">OddPerfect.card_nine_dvd_le</a> in <a href="reference.html#mod-LedgerOrders">OddPerfect.LedgerOrders</a></p>
@@ -205,8 +230,11 @@
 <p>The same counting of senders excludes two further isolated values, 40961 and 18433 (module <a href="reference.html#mod-LargestPrimeCapacityTwo"><code>LargestPrimeCapacityTwo</code></a>). These two statements are known: published lower bounds for the largest prime factor are far higher.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">largest_primeFactor_ne_40961</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
   (hP : 40961 ∈ N.primeFactors) : <span class="k"><span class="k">∃</span></span> r ∈ N.primeFactors, 40961 &lt; r</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.largest_primeFactor_ne_40961">OddPerfect.largest_primeFactor_ne_40961</a> in <a href="reference.html#mod-LargestPrimeCapacityTwo">OddPerfect.LargestPrimeCapacityTwo</a></p>
-<p>Every odd perfect number exceeds 10<sup>79</sup> (module <a href="reference.html#mod-LowerBound"><code>LowerBound</code></a>); much larger bounds are known in the literature.</p>
-<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">lower_bound</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 10 ^ 79 &lt; N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.LowerBound.lower_bound">OddPerfect.LowerBound.lower_bound</a> in <a href="reference.html#mod-LowerBound">OddPerfect.LowerBound</a></p>
+<p>Every odd perfect number exceeds 10<sup>150</sup> (module <a href="reference.html#mod-LowerBoundTwo"><code>LowerBoundTwo</code></a>; the earlier module <a href="reference.html#mod-LowerBound"><code>LowerBound</code></a> proves 10<sup>79</sup>). Much larger bounds are known in the literature: 10<sup>1500</sup> (Ochem and Rao, 2012).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">lower_bound</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 10 ^ 150 &lt; N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.LowerBoundTwo.lower_bound">OddPerfect.LowerBoundTwo.lower_bound</a> in <a href="reference.html#mod-LowerBoundTwo">OddPerfect.LowerBoundTwo</a></p>
+<p>The radical R of N (the product of its distinct prime factors) satisfies R &lt; 2 N<sup>17/26</sup> (module <a href="reference.html#mod-RadicalExponent"><code>RadicalExponent</code></a>; the theorem of Luca and Pomerance, 2010).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">rad_pow_twentysix_lt</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
+  (<span class="k"><span class="k">∏</span></span> p ∈ N.primeFactors, p) ^ 26 &lt; 2 ^ 26 * N ^ 17</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.rad_pow_twentysix_lt">OddPerfect.rad_pow_twentysix_lt</a> in <a href="reference.html#mod-RadicalExponent">OddPerfect.RadicalExponent</a></p>
 <p>Separately, some prime factor exceeds 100000. This is a known type of result, and much larger bounds are in the literature (10<sup>8</sup>, Goto and Ohno); here a search with a soundness proof is run by the kernel (module <a href="reference.html#mod-LargestPrimeFactor"><code>LargestPrimeFactor</code></a>, which proves 10000), on a table whose rows are accepted from certificates (modules <a href="reference.html#mod-LargestPrimeFactorTwo"><code>LargestPrimeFactorTwo</code></a> and <a href="reference.html#mod-LargestPrimeFactorTwoFinal"><code>LargestPrimeFactorTwoFinal</code></a>).</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_primeFactor_gt_100000</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
   <span class="k"><span class="k">∃</span></span> p ∈ N.primeFactors, 100000 &lt; p</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_primeFactor_gt_100000">OddPerfect.exists_primeFactor_gt_100000</a> in <a href="reference.html#mod-LargestPrimeFactorTwoFinal">OddPerfect.LargestPrimeFactorTwoFinal</a></p>
@@ -216,6 +244,8 @@
 <p>The sum of the reciprocals of the prime factors lies strictly between 0.5960631 and log 2, about 0.6931 (modules <a href="reference.html#mod-ReciprocalSum"><code>ReciprocalSum</code></a>, <a href="reference.html#mod-ReciprocalSumTwo"><code>ReciprocalSumTwo</code></a>, <a href="reference.html#mod-ReciprocalSumThree"><code>ReciprocalSumThree</code></a>, <a href="reference.html#mod-ReciprocalSumFour"><code>ReciprocalSumFour</code></a>, <a href="reference.html#mod-ReciprocalSumUpper"><code>ReciprocalSumUpper</code></a> and <a href="reference.html#mod-ReciprocalLogTwo"><code>ReciprocalLogTwo</code></a>). The lower bound comes with four cases: above 0.5960631 when 15 divides N, above 0.604706 when 3 divides N and 5 does not, above 0.647648 when 5 divides N and 3 does not, above 0.667363 when neither does. There are matching upper bounds by cases: below 0.673634 when 15 divides N, below 0.657304 when 3 divides N and 5 does not, below 0.677637 when 5 divides N and 3 does not; when neither divides N the upper bound stays log 2. No case has an empty window. The upper bound is due to Suryanarayana (1963); lower bounds by cases on 3 and 5 are classical too (Cohen, 1980, gives 0.596063 when 15 divides N), and the constants proved here were not compared digit by digit with the published ones.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sum_inv_gt_5960631_div_10000000</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) :
   (5960631 / 10000000 : ℝ) &lt; <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, 1 / (p : ℝ)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sum_inv_gt_5960631_div_10000000">OddPerfect.sum_inv_gt_5960631_div_10000000</a> in <a href="reference.html#mod-ReciprocalSumFour">OddPerfect.ReciprocalSumFour</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sum_inv_gt_66747288_of_not_three_not_five</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (h3 : ¬ 3 ∣ N)
+  (h5 : ¬ 5 ∣ N) : (66747288 / 100000000 : ℝ) &lt; <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, 1 / (p : ℝ)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sum_inv_gt_66747288_of_not_three_not_five">OddPerfect.sum_inv_gt_66747288_of_not_three_not_five</a> in <a href="reference.html#mod-ReciprocalSumFive">OddPerfect.ReciprocalSumFive</a></p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sum_inv_lt_677637_of_three_or_five</span> (h : OddPerfect N) (h35 : 3 ∣ N ∨ 5 ∣ N) :
   <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors, 1 / (p : ℝ) &lt; 677637 / 1000000</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.sum_inv_lt_677637_of_three_or_five">OddPerfect.sum_inv_lt_677637_of_three_or_five</a> in <a href="reference.html#mod-ReciprocalSumUpper">OddPerfect.ReciprocalSumUpper</a></p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">sum_inv_lt_log_two</span> (h : OddPerfect N) :
@@ -240,7 +270,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>f3e4f77</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>9dcef13</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
