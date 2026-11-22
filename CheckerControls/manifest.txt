@@ -18,3 +18,8 @@
 6 The seven prime engine (`OmegaSevenEngine.run`)
 12 Three exceptional primes (`OddPerfect.ThreeFreeThree.leafOK`, `treeOK`)
 2 Correction weights (`OddPerfect.corrBound`)
+33 Common fast checks (`OddPerfect.FamInst.fastPrime`, `rowChkP`, `reachS`)
+29 The restrained exclusion tree checker (`OddPerfect.RestrainedSeven.chk`, `rowsOK`)
+17 Certified rows of the largest prime factor search (`OddPerfect.LPF2.rowOK`)
+10 The fast search step for two large primes (`OddPerfect.SLP.expandF`, `runF`)
+17 The mixed index tree checker (`OddPerfect.MixedIndex.chk`)

@@ -11,6 +11,11 @@ import OddPerfect.OmegaSevenEngine
 import OddPerfect.ThreeFreeThreeChecker
 import OddPerfect.ForcingClosedBound
 import OddPerfect.ReciprocalSumTwo
+import OddPerfect.CommonFastChecks
+import OddPerfect.RestrainedSevenCheck
+import OddPerfect.LargestPrimeFactorTwo
+import OddPerfect.SecondLargestPrimeFast
+import OddPerfect.MixedIndexData
 
 /-!
 # Checker controls
@@ -325,5 +330,312 @@ example : ThreeFreeThree.finalOK (7, 11, 13, 17) [5] (18070457, 235404288) = tru
 -- the least admissible value and the comparison is not vacuous.
 example : corrBound 3 ≤ (72132645667761 : ℚ) / 1000000000000000 := by decide +kernel
 example : ¬ (corrBound 3 ≤ (72132645667760 : ℚ) / 1000000000000000) := by decide +kernel
+
+/-! ## Common fast checks (`OddPerfect.FamInst.fastPrime`, `rowChkP`, `reachS`) -/
+
+-- `incr`, ordering premise of `fastPrime_sound`: a strictly increasing list is accepted.
+example : FamInst.incr [3, 5, 7] = true := by decide +kernel
+-- `incr`: the descending step `7, 5` is rejected (`Nat.blt 7 5`).
+example : FamInst.incr [7, 5] = false := by decide +kernel
+-- `incr`: equal neighbors are rejected (the order is strict).
+example : FamInst.incr [3, 3, 5] = false := by decide +kernel
+-- Raw behavior on a list that is not increasing: `tdl` stops at the first element `7` since
+-- `25 < 7 * 7`, before it reaches the divisor `5`; `fastPrime_sound` assumes `incr L`.
+example : FamInst.tdl 25 [7, 5] = true := by decide +kernel
+-- `cover`, coverage premise: `[3, 5, 7]` holds every odd prime up to `7`; fuel `6` is exactly
+-- enough (the values `3, ..., 7` and the final empty list).
+example : FamInst.cover 6 3 [3, 5, 7] = true := by decide +kernel
+-- `cover`: fuel `5` is exhausted before the empty list is reached (the clause `0 => false`).
+example : FamInst.cover 5 3 [3, 5, 7] = false := by decide +kernel
+-- `cover`: the prime `5` is omitted; `5 ≠ 7` and `hasDiv 5` fails.
+example : FamInst.cover 10 3 [3, 7] = false := by decide +kernel
+-- Contract boundary, part 1: the raw trial division Boolean with a trial list that omits `3`
+-- classifies `9` as a candidate prime, since `9 < 5 * 5` at the first element.
+example : FamInst.fastPrime [5, 7] 9 = true := by decide +kernel
+-- Contract boundary, part 2: the coverage premise `cover f 3 L` of `fastPrime_sound` rejects
+-- that list: `3 ≠ 5` and `hasDiv 3` fails.
+example : FamInst.cover 10 3 [5, 7] = false := by decide +kernel
+-- `cover`, raw behavior: a listed composite (`4`) is accepted; it is harmless, since the
+-- soundness only needs every prime to be listed.
+example : FamInst.cover 10 3 [3, 4, 5, 7] = true := by decide +kernel
+-- `tdl`: no element of `[3, 5, 7]` divides `47`, and the walk stops at `7` (`47 < 49`).
+example : FamInst.tdl 47 [3, 5, 7] = true := by decide +kernel
+-- `tdl`: `7` divides `49` (and `49 < 7 * 7` fails).
+example : FamInst.tdl 49 [3, 5, 7] = false := by decide +kernel
+-- `tdl`, exhausted list: no element divides `53`, but `53 ≥ 7 * 7`, so the walk reaches the
+-- clause `[] => false`.
+example : FamInst.tdl 53 [3, 5, 7] = false := by decide +kernel
+-- `fastPrime oddP`: odd primes accepted, including the last listed prime `4201`.
+example : [3, 97, 9973, 4201].all (FamInst.fastPrime FamInst.oddP) = true := by decide +kernel
+-- `fastPrime oddP`: `1` (not above `2`), `2` (even: the test is for odd numbers only) and the
+-- prime square `97 * 97` (divisor `97`) are rejected.
+example : [1, 2, 9409].any (FamInst.fastPrime FamInst.oddP) = false := by decide +kernel
+-- `fastPrime oddP`, one sided above `4201 ^ 2 = 17648401`: the prime `17648461` is rejected,
+-- because the walk exhausts `oddP` without meeting `q < p * p`.
+example : FamInst.fastPrime FamInst.oddP 17648461 = false := by decide +kernel
+-- `lensOK`, chunk shape: parts of length `2`, the last one shorter.
+example : FamInst.lensOK 2 [[5, 11], [71]] = true := by decide +kernel
+-- `lensOK`: a part other than the last is short.
+example : FamInst.lensOK 2 [[5], [11, 71]] = false := by decide +kernel
+-- `lensOK`: the last part is longer than `2`.
+example : FamInst.lensOK 2 [[5, 11], [71, 3, 7]] = false := by decide +kernel
+-- `ptD`, chunk boundaries: index `2` reads entry `0` of part `1`; index `3` is past the end.
+example : [0, 1, 2, 3].map (FamInst.ptD 2 [[5, 11], [71]]) = [5, 11, 71, 0] := by
+  decide +kernel
+-- `rowChkP`, well formed: `11 * 71 = 781 = 1 + 5 + 5 ^ 2 + 5 ^ 3 + 5 ^ 4`.
+example : FamInst.rowChkP 2 [[5, 11], [71]] 5 (5, [1, 2]) = true := by decide +kernel
+-- `rowChkP`, altered row: `71` does not divide `1 + 11 + ... + 11 ^ 4 = 16105`.
+example : FamInst.rowChkP 2 [[5, 11], [71]] 5 (11, [2]) = false := by decide +kernel
+-- `rowChkP`: index `3` is past the end and reads `0`, which divides nothing here.
+example : FamInst.rowChkP 2 [[5, 11], [71]] 5 (5, [1, 3]) = false := by decide +kernel
+-- Raw behavior on misshaped parts: index `4` is read as entry `0` of part `2`, the node `11`,
+-- so the row passes; `rowChk_of_rowChkP` assumes `lensOK`, which rejects these parts, and on
+-- the flattened list `[5, 7, 3, 11]` index `4` is past the end and `rowChk` rejects the row.
+example : FamInst.rowChkP 2 [[5, 7], [3], [11]] 5 (5, [4]) = true := by decide +kernel
+example : FamInst.lensOK 2 [[5, 7], [3], [11]] = false := by decide +kernel
+example : FamInst.rowChk 5 [5, 7, 3, 11] (5, [4]) = false := by decide +kernel
+-- `reachS`, well formed: with nothing blocked the seed `5` reaches the target mask `6`.
+example : FamInst.reachS [5, 11, 71] [[1, 2]] 1 6 1 (fun _ => false) = true := by
+  decide +kernel
+-- `reachS`, blocked seed: the blocked set `x ≡ 1 (mod 4)` contains `5`, so its row is skipped.
+example : FamInst.reachS [5, 11, 71] [[1, 2]] 1 6 1 (fun x => x % 4 == 1) = false := by
+  decide +kernel
+-- `reachS`, fuel: zero passes leave the seed mask `1`.
+example : FamInst.reachS [5, 11, 71] [[1, 2]] 1 6 0 (fun _ => false) = false := by
+  decide +kernel
+-- `reachS`, row order: bit `3` is set by row `1`, whose own bit is set only by the later row
+-- `2`; one pass is not enough, two passes are.
+example : FamInst.reachS [5, 7, 11, 13] [[2], [3], [1]] 1 8 1 (fun _ => false) = false := by
+  decide +kernel
+example : FamInst.reachS [5, 7, 11, 13] [[2], [3], [1]] 1 8 2 (fun _ => false) = true := by
+  decide +kernel
+-- `reachS`, target semantics: bits of the seed mask count as reached, so `ns = 3` meets the
+-- target `6` with zero passes and every source blocked; sound because `dvd_of_reach` assumes
+-- that the first `ns` nodes divide `N`.
+example : FamInst.reachS [5, 11, 71] [[1, 2]] 3 6 0 (fun _ => true) = true := by decide +kernel
+-- Coverage premise of `hcand_of_groups`: the candidate seed `5` lies in no blocked set.
+example : ([5, 11, 71].take 1).all
+    (fun b => !(b % 4 == 1) || [fun x : ℕ => x == 13].any fun f => f b) = false := by
+  decide +kernel
+
+/-! ## The restrained exclusion tree checker (`OddPerfect.RestrainedSeven.chk`, `rowsOK`) -/
+
+-- `oddPrime`: odd primes accepted, up to the largest prime below `1000000`.
+example : [3, 5, 97, 999983].all RestrainedSeven.oddPrime = true := by decide +kernel
+-- `oddPrime`: `0`, `1`, `2` (below `3`) and odd composites rejected.
+example : [0, 1, 2, 9, 25, 91].any RestrainedSeven.oddPrime = false := by decide +kernel
+-- `tdiv`, fuel: three steps reach `7` with `47 < 7 * 7`; two steps run out (`0 => false`).
+example : RestrainedSeven.tdiv 47 3 3 = true ∧ RestrainedSeven.tdiv 47 2 3 = false := by
+  decide +kernel
+-- `isPr`, a Pratt certificate above `1000000`: `2` has order `1000428 = 2 ^ 2 3 11 ^ 2 13 53`.
+example : RestrainedSeven.isPr [(1000429, 2, [2, 2, 3, 11, 11, 13, 53])] 1000429 = true := by
+  decide +kernel
+-- `isPr`, bad Pratt certificate: `3` does not have order `1000428` modulo `1000429`.
+example : RestrainedSeven.isPr [(1000429, 3, [2, 2, 3, 11, 11, 13, 53])] 1000429 = false := by
+  decide +kernel
+-- `isPr`, one sided: above `1000000` a prime without a certificate is rejected.
+example : RestrainedSeven.isPr [] 1000429 = false := by decide +kernel
+-- `isPr`: a valid certificate of another prime does not certify `1000777`.
+example : RestrainedSeven.isPr [(1000429, 2, [2, 2, 3, 11, 11, 13, 53])] 1000777 = false := by
+  decide +kernel
+-- `chkRoot`, accepted: `σ(5 ^ 2) = 31` is closed by the prime `31` of the mask.
+example : RestrainedSeven.chkRoot (2 ^ 31) 5 .skip (.kill 31) = true := by decide +kernel
+-- Wrong kill prime: `7` does not divide `31` (`src % t == 0`).
+example : RestrainedSeven.chkRoot (2 ^ 7) 5 .skip (.kill 7) = false := by decide +kernel
+-- Kill prime not yet excluded: bit `31` is not set in the mask (`M.testBit t`).
+example : RestrainedSeven.chkRoot 0 5 .skip (.kill 31) = false := by decide +kernel
+-- Composite kill value: `57 = 3 * 19` divides `σ(7 ^ 2) = 57` and its bit is set, but
+-- `oddPrime 57` fails.
+example : RestrainedSeven.chkRoot (2 ^ 57) 7 .skip (.kill 57) = false := by decide +kernel
+-- Accepted node: `σ(31 ^ 2) = 993 = 3 * 331`; at the prime `331 ≢ 1 (mod 12)` the source
+-- `σ(331 ^ 2) = 109893` is divisible by `3`.
+example : RestrainedSeven.chkRoot (2 ^ 3) 31 .skip (.node 331 [] .skip (.kill 3)) = true := by
+  decide +kernel
+-- A node at `3` is rejected (`t != 3`), although `3 ∣ 993` and its subtree closes `13`.
+example : RestrainedSeven.chkRoot (2 ^ 3 ||| 2 ^ 13) 31 .skip (.node 3 [] .skip (.kill 13)) =
+    false := by decide +kernel
+-- Even and excluded row primes: `p % 2 == 1` rejects `4`, `p != 3` rejects `3`.
+example : RestrainedSeven.chkRoot (2 ^ 7) 4 .skip (.kill 7) = false := by decide +kernel
+example : RestrainedSeven.chkRoot (2 ^ 13) 3 .skip (.kill 13) = false := by decide +kernel
+-- Raw behavior: no primality test of the row value; `9 ^ 2 + 9 + 1 = 91 = 7 * 13` is closed by
+-- `7`. A row is only used when its value is prime, and the soundness reads only the prime bits
+-- of the mask, so the bit `9` set by such a row carries no claim.
+example : RestrainedSeven.chkRoot (2 ^ 7) 9 .skip (.kill 7) = true := by decide +kernel
+-- Root `13 ≡ 1 (mod 12)`: the branch `13 = q` closes `14` by `7`, the branch of exponent `2`
+-- closes `183 = 3 * 61` by `61`.
+example : RestrainedSeven.chkRoot (2 ^ 7 ||| 2 ^ 61) 13 (.kill 7) (.kill 61) = true := by
+  decide +kernel
+-- The same root without the branch `13 = q` (`skip` is never accepted).
+example : RestrainedSeven.chkRoot (2 ^ 7 ||| 2 ^ 61) 13 .skip (.kill 61) = false := by
+  decide +kernel
+-- Forced prime that may be the special prime: `σ(29 ^ 2) = 871 = 13 * 67`, and the node `13`
+-- needs both branches while `q` is not fixed.
+example : RestrainedSeven.chkRoot (2 ^ 7 ||| 2 ^ 61) 29 .skip
+    (.node 13 [] (.kill 7) (.kill 61)) = true := by decide +kernel
+example : RestrainedSeven.chkRoot (2 ^ 7 ||| 2 ^ 61) 29 .skip
+    (.node 13 [] .skip (.kill 61)) = false := by decide +kernel
+-- Once `q = 13` is fixed, a node at `13` is rejected (`t != qv`); with `qv = 0` it is accepted.
+example : RestrainedSeven.chk (2 ^ 7 ||| 2 ^ 61) 13 91 (.node 13 [] (.kill 7) (.kill 61)) =
+    false := by decide +kernel
+example : RestrainedSeven.chk (2 ^ 7 ||| 2 ^ 61) 0 91 (.node 13 [] (.kill 7) (.kill 61)) =
+    true := by decide +kernel
+-- `rowsOK`, order of exclusions: the row of `31` kills by `3` and sets bit `31`; the row of `5`
+-- then kills `31`.
+example : RestrainedSeven.rowsOK 8 [(31, .skip, .kill 3), (5, .skip, .kill 31)]
+    (8 ||| 2 ^ 31 ||| 2 ^ 5) = true := by decide +kernel
+-- `rowsOK`: in the reverse order the row of `5` uses bit `31` before it is set.
+example : RestrainedSeven.rowsOK 8 [(5, .skip, .kill 31), (31, .skip, .kill 3)]
+    (8 ||| 2 ^ 31 ||| 2 ^ 5) = false := by decide +kernel
+-- `rowsOK`: the final mask must be the mask after the rows (`M == M'`).
+example : RestrainedSeven.rowsOK 8 [(31, .skip, .kill 3)] 8 = false := by decide +kernel
+-- `cover`: `5` and `7` by bits, `6`, `8`, `9` by the divisors `2`, `3`.
+example : RestrainedSeven.cover (2 ^ 5 ||| 2 ^ 7) [2, 3] 5 5 = true := by decide +kernel
+-- `cover`, gap between segments: `[5, 7)` and `[8, 10)` pass, but they are not adjacent, and
+-- the range `[5, 10)` fails at the prime `7`, whose bit is not set.
+example : RestrainedSeven.cover (2 ^ 5) [2, 3] 5 2 = true ∧
+    RestrainedSeven.cover (2 ^ 5) [2, 3] 8 2 = true := by decide +kernel
+example : RestrainedSeven.cover (2 ^ 5) [2, 3] 5 5 = false := by decide +kernel
+-- `cover`: a divisor must be proper (`d < m`) and at least `2`.
+example : RestrainedSeven.cover 0 [5] 5 1 = false ∧ RestrainedSeven.cover 0 [1] 7 1 = false := by
+  decide +kernel
+
+/-! ## Certified rows of the largest prime factor search (`OddPerfect.LPF2.rowOK`) -/
+
+-- Bound `B = 11`: `P = [3, 5, 7, 11]`, `M = 2 * 3 * 5 * 7 * 11 = 2310`, `D = 2 * 4 * 6 * 10`.
+-- `killP`, accepted: `σ(3 ^ 2) = 13`; neither `3` nor `2 * 3 + 1 = 7` divides it.
+example : LPF2.killP 11 3 3 1 = true := by decide +kernel
+-- `killP`, bad residue: `σ(3 ^ 4) = 121` is divisible by `2 * 5 + 1 = 11 ≤ B` (`candOK`).
+example : LPF2.killP 11 3 5 1 = false := by decide +kernel
+-- `killP`, target semantics: for `B = 9` the candidate `11` is above the bound and is not
+-- tested, which is right: `11 > 9` is a prime factor above the bound.
+example : LPF2.killP 9 3 5 1 = true := by decide +kernel
+-- `killP`: `r = 3` divides the quotient `σ(7 ^ 2) = 57` (`gs / S % r`); dividing by `S = 3`
+-- first leaves `19`, which passes.
+example : LPF2.killP 11 7 3 1 = false ∧ LPF2.killP 11 7 3 3 = true := by decide +kernel
+-- `killP`: the divisor `S = 13` leaves the quotient `1` (`Nat.blt 1`).
+example : LPF2.killP 11 3 3 13 = false := by decide +kernel
+-- `primeOK`, prime coverage: with `X = [5]` every prime `r ≤ 5` is listed or killed; without
+-- it the prime `5` is neither listed nor killed (`killP 11 3 5 1` fails).
+example : LPF2.primeOK 11 3 5 [5] [3, 5, 7, 11] [] = true ∧
+    LPF2.primeOK 11 3 5 [] [3, 5, 7, 11] [] = false := by decide +kernel
+-- `listOK`: the exponents `e ≤ 4` with `e + 1 ∣ 10 ^ 20` are `4, 3, 1`; omitting `3` fails.
+example : LPF2.listOK (10 ^ 20) 4 [4, 3, 1] = true ∧ LPF2.listOK (10 ^ 20) 4 [4, 1] = false := by
+  decide +kernel
+-- `rowOK`, accepted: the row `[4]` of `3` (`σ(3 ^ 4) = 11 ^ 2`, so `4` is admissible).
+example : LPF2.rowOK 11 2310 (10 ^ 20) [3, 5, 7, 11] [4, 3, 1] (3, [4], [5], [], []) = true := by
+  decide +kernel
+-- `rowOK`, omitted row entry: `4` passes the parity test, is not in the row, `5 ∣ xpow [5]`,
+-- and no further kill applies (`L.all`).
+example : LPF2.rowOK 11 2310 (10 ^ 20) [3, 5, 7, 11] [4, 3, 1] (3, [], [5], [], []) = false := by
+  decide +kernel
+-- `rowOK`: `XU = 10 ^ 19` is not a multiple of `xpow [5] = 10 ^ 20`.
+example : LPF2.rowOK 11 2310 (10 ^ 19) [3, 5, 7, 11] [4, 3, 1] (3, [4], [5], [], []) = false := by
+  decide +kernel
+-- `rowOK`: the further kill `(5, 1)` fails `killOK`, since `gcd(121, 2310) = 11`.
+example : LPF2.rowOK 11 2310 (10 ^ 20) [3, 5, 7, 11] [4, 3, 1]
+    (3, [], [5], [], [(5, 1)]) = false := by decide +kernel
+-- Wrong modulus product: with `M = 210`, which omits `11`, the same kill passes `killOK`; the
+-- premise `2 * P.prod = M` of `exists_primeFactor_gt_of_cert` rejects `210`.
+example : LPF2.killOK 210 3 5 1 = true := by decide +kernel
+example : 2 * [3, 5, 7, 11].prod ≠ 210 := by decide +kernel
+-- Prime coverage of `primesUpTo_eq_filter`: `primeBy` with the trial list `[2, 5]`, which omits
+-- `3`, accepts `9`; the premise needs every prime up to `K` in the list, and `[2, 3]` rejects it.
+example : LPF2.primeBy [2, 5] 9 = true ∧ LPF2.primeBy [2, 3] 9 = false := by decide +kernel
+example : LPF.primesUpTo 11 = [3, 5, 7, 11] := by decide +kernel
+-- `LPF.search` for `B = 11`: fuel `3` closes every branch; fuel `2` is exhausted (`0 => false`).
+example : LPF.search 11 [3, 5, 7, 11] 2310 480 [] 3 [] [] [] = true := by decide +kernel
+example : LPF.search 11 [3, 5, 7, 11] 2310 480 [] 2 [] [] [] = false := by decide +kernel
+
+/-! ## The fast search step for two large primes (`OddPerfect.SLP.expandF`, `runF`) -/
+
+-- Equality of search states is decided through a long product type; the default instance search
+-- size is too small for it.
+set_option synthInstance.maxSize 2048
+
+-- Tiny states for `B = 5`, `M = 30`. A closed state: the exact entries `3 ^ 2 5 ^ 2 7 ^ 2`
+-- give the lower abundancy `22971 / 11025 ≥ 2`.
+example : SLP.expandF 5 30 10 ([(3, 3, 2), (5, 3, 2), (7, 3, 2)], 0, 0, 0, 0, 0, false) =
+    some [] := by decide +kernel
+example : SLP.expandF 5 30 10 ([(3, 3, 2), (5, 3, 2), (7, 3, 2)], 0, 0, 0, 0, 0, false) =
+    SLP.expand 5 30 10 ([(3, 3, 2), (5, 3, 2), (7, 3, 2)], 0, 0, 0, 0, 0, false) := by
+  decide +kernel
+-- A failing state with entry code `4` (treated as dividing, but never picked): no undecided
+-- entry, no pinned prime, no entry of code `2`, so the step is stuck (`none`).
+example : SLP.expandF 5 30 10 ([(3, 4, 0), (5, 4, 0), (7, 4, 0)], 0, 0, 0, 0, 0, false) =
+    none := by decide +kernel
+example : SLP.expandF 5 30 10 ([(3, 4, 0), (5, 4, 0), (7, 4, 0)], 0, 0, 0, 0, 0, false) =
+    SLP.expand 5 30 10 ([(3, 4, 0), (5, 4, 0), (7, 4, 0)], 0, 0, 0, 0, 0, false) := by
+  decide +kernel
+-- The same entries with code `2` are picked by `pickBest`; the two steps still agree.
+example : SLP.expandF 5 30 10 ([(3, 2, 0), (5, 2, 0), (7, 2, 0)], 0, 0, 0, 0, 0, false) =
+    SLP.expand 5 30 10 ([(3, 2, 0), (5, 2, 0), (7, 2, 0)], 0, 0, 0, 0, 0, false) := by
+  decide +kernel
+-- Child order at an undecided entry (window `W = 0`): first `3` divides with the least exponent
+-- `2`, then `3` is excluded; the bounds become `lo = 1`, `hi = 3`.
+example : SLP.expandF 5 30 0 ([(3, 0, 0)], 0, 0, 0, 0, 0, false) =
+    some [([(3, 2, 2)], 0, 1, 3, 0, 0, false), ([(3, 1, 0)], 0, 1, 3, 0, 0, false)] := by
+  decide +kernel
+example : SLP.expandF 5 30 0 ([(3, 0, 0)], 0, 0, 0, 0, 0, false) =
+    SLP.expand 5 30 0 ([(3, 0, 0)], 0, 0, 0, 0, 0, false) := by decide +kernel
+-- `runF`: zero fuel returns the stack unchanged; a stuck state gives `none`; three steps agree
+-- with `run`.
+example : SLP.runF 5 30 0 0 [([(3, 0, 0)], 0, 0, 0, 0, 0, false)] =
+    some [([(3, 0, 0)], 0, 0, 0, 0, 0, false)] := by decide +kernel
+example : SLP.runF 5 30 10 2 [([(3, 4, 0), (5, 4, 0), (7, 4, 0)], 0, 0, 0, 0, 0, false)] =
+    none := by decide +kernel
+example : SLP.runF 5 30 0 3 [([(3, 0, 0)], 0, 0, 0, 0, 0, false)] =
+    SLP.run 5 30 0 3 [([(3, 0, 0)], 0, 0, 0, 0, 0, false)] := by decide +kernel
+
+/-! ## The mixed index tree checker (`OddPerfect.MixedIndex.chk`) -/
+
+-- Accepted tiny tree: `3 ^ 2 5 11 ^ 2 13 ^ 2` is abundant.
+example : MixedIndex.chk [] [11, 13] [] 0 0 (.abund [(11, 2), (13, 2)]) = true := by
+  decide +kernel
+-- `11` is not a known prime factor (`entOK`: `K.contains`).
+example : MixedIndex.chk [] [13] [] 0 0 (.abund [(11, 2), (13, 2)]) = false := by
+  decide +kernel
+-- Capacity of an entry: exponent `4` needs a recorded index divisor `k ≥ 5` (`entOK`).
+example : MixedIndex.chk [] [11, 13] [] 0 0 (.abund [(11, 4), (13, 2)]) = false := by
+  decide +kernel
+-- Accepted node at `11`: index `3` is shut by `7 ∣ 133`; index `5` records `(11, 5)`, which
+-- allows the exponent `4`; index `7` forces the certified prime `43 ∣ 1948717`.
+example : MixedIndex.chk [43] [11, 13] [] 0 0 (.node 11 (.shut 11 3)
+    (.force 11 5 [] (.abund [(11, 4), (13, 2)]))
+    (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = true := by decide +kernel
+-- The same tree with `43` missing from the certified primes (`P.contains r`).
+example : MixedIndex.chk [] [11, 13] [] 0 0 (.node 11 (.shut 11 3)
+    (.force 11 5 [] (.abund [(11, 4), (13, 2)]))
+    (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- Wrong prime: `47` is certified but does not divide `1948717` (`geomS p (k - 1) % r == 0`).
+example : MixedIndex.chk [47] [11, 13] [] 0 0 (.node 11 (.shut 11 3)
+    (.force 11 5 [] (.abund [(11, 4), (13, 2)]))
+    (.force 11 7 [47] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- Branches out of order: the branch for index `3` is a rule for index `5` (`isAt p 3 c3`).
+example : MixedIndex.chk [43] [11, 13] [] 0 0 (.node 11
+    (.force 11 5 [] (.abund [(11, 4), (13, 2)])) (.shut 11 3)
+    (.force 11 7 [43] (.abund [(11, 2), (13, 2)]))) = false := by decide +kernel
+-- Capacity rule for `3`: `3 ∣ 183 = σ(13 ^ 2)` shuts only with another known sender of `3`:
+-- rejected with no sender, accepted with the sender `11`, rejected with the sender `13` itself.
+example : MixedIndex.chk [] [13] [] 0 0 (.shut 13 3) = false := by decide +kernel
+example : MixedIndex.chk [] [13] [] 11 0 (.shut 13 3) = true := by decide +kernel
+example : MixedIndex.chk [] [13] [] 13 0 (.shut 13 3) = false := by decide +kernel
+-- `force` at a second sender of `3`: accepted while no sender is known, rejected once the
+-- sender `11` is known (`geomS p (k - 1) % 3 != 0 || a3 == 0`).
+example : MixedIndex.chk [61] [11, 13] [] 0 0 (.force 13 3 [61] (.abund [(11, 2), (13, 2)])) =
+    true := by decide +kernel
+example : MixedIndex.chk [61] [11, 13] [] 11 0 (.force 13 3 [61] (.abund [(11, 2), (13, 2)])) =
+    false := by decide +kernel
+-- Raw behavior: `chk` trusts `P`; with the composite `183` listed it is forced. `chk_sound`
+-- assumes that every element of `P` is prime.
+example : MixedIndex.chk [183] [11, 13] [] 0 0
+    (.force 13 3 [183] (.abund [(11, 2), (13, 2)])) = true := by decide +kernel
+-- Raw behavior: a root rule is not tied to `K`; `chk_sound` assumes that every root rule
+-- `isAt p k` has `p ∈ K` and `k ∣ v_p(N) + 1`, and the final tree has a `node` root.
+example : MixedIndex.chk [] [] [] 0 0 (.shut 11 3) = true := by decide +kernel
+-- Certified primes of the data module (`MixedIndex.primeB`): `101` has a Pratt entry; `91`
+-- fails trial division; `183` has no entry. A bad Pratt entry: `5` has order `25` modulo `101`.
+example : MixedIndex.primeB 101 = true := by decide +kernel
+example : [91, 183].any MixedIndex.primeB = false := by decide +kernel
+example : Pratt.check [(101, 5, [2, 2, 5, 5])] = false := by decide +kernel
 
 end CheckerControls
