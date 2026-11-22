@@ -150,6 +150,8 @@
 <li class="event"><time datetime="2026-11-22T11:17">11:17</time><p class="ev-title"><b>Restrained family: no prime factor from 5 to 132257.</b> <code class="hash">dae5347</code> <span class="cls known">known result formalized</span></p><p><code>RestrainedSeven</code> proves that in the restrained family no prime from 5 up to 132257 divides N, by 12342 exclusion trees checked in the kernel (about 6 CPU minutes). No novelty is claimed: Ochem and Zelinsky (2026) treat this family in depth and prove that the exponent of 3 is at least 23,000,000,000. An offline sweep to 3,000,000 is running; it is not part of the theorem.</p></li>
 <li class="event minor"><time datetime="2026-11-22T11:21">11:21</time><p class="ev-title"><b>Families of 55, 85 and 115: cheaper kernel checks.</b> <code class="hash">15a3ae7</code> <span class="cls known">known result formalized</span></p><p>The five modules of the families of 55, 85 and 115 now use the cheaper table checks of <code>CommonFastChecks</code>, as the family of 95 does. The public theorems are unchanged and no module is added or removed. Measured on the build server: 55 and 85 together 397 CPU seconds before and 64 after; the three modules of 115 together 851 before and 91 after. No new mathematics.</p></li>
 <li class="event minor"><time datetime="2026-11-22T11:40">11:40</time><p class="ev-title"><b>Second largest prime: cheaper kernel checks.</b> <code class="hash">35ed8d3</code> <span class="cls known">known result formalized</span></p><p>The search for two prime factors above 72 is now checked with a faster step function, proved equal to the original one in <code>SecondLargestPrimeFast</code>. The nine data modules are replaced by nine new ones; the public theorems are unchanged, and the bound 58 is now a corollary of the bound 72. Measured on the build server: data 2738 CPU seconds before and 938 after. No new mathematics.</p></li>
+<li class="event"><time datetime="2026-11-22T11:54">11:54</time><p class="ev-title"><b>Sixteen prime factors when 3 ∤ N and 5 ∤ N.</b> <code class="hash">05b36f0</code> <span class="cls known">known result formalized</span></p><p><code>NotFifteenSixteen</code> proves that an odd perfect number divisible by neither 3 nor 5 has at least sixteen distinct prime factors. Fifteen is classical (Norton 1960) and follows from the abundancy of the smallest primes; the step to sixteen excludes exactly fifteen prime factors with the verified search engine (240 kernel checks, 122294 search nodes, about 13 CPU minutes). Whether sixteen is in the literature was not verified, so no novelty is claimed.</p></li>
+<li class="event"><time datetime="2026-11-22T11:56">11:56</time><p class="ev-title"><b>Two exceptional exponents with special prime 5: the exponent of 3 is not 4.</b> <code class="hash">97286cd</code> </p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -163,7 +165,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>35ed8d3</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>05b36f0</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

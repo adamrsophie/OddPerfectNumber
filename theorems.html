@@ -54,7 +54,7 @@
 
 <h2 id="five-primes">At least seven prime factors</h2>
 <span class="cls known">known result formalized</span>
-<p>ω(N) ≥ 7 (Pomerance 1974). Without the prime 3 at least eight, and without 3 and 5 at least fifteen.</p>
+<p>ω(N) ≥ 7 (Pomerance 1974). Without the prime 3 at least ten, and without 3 and 5 at least sixteen.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">seven_le_card_primeFactors</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 7 ≤ N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.seven_le_card_primeFactors">OddPerfect.seven_le_card_primeFactors</a> in <a href="reference.html#mod-OmegaSevenFinal">OddPerfect.OmegaSevenFinal</a></p>
 <p>The case of exactly six prime factors is closed by 280 kernel runs of a verified search engine (modules <a href="reference.html#mod-OmegaSevenEngine"><code>OmegaSevenEngine</code></a> and <a href="reference.html#mod-OmegaSevenFinal"><code>OmegaSevenFinal</code></a>). The step from five to six is a search over the prime factors in increasing order, run by the kernel with a soundness proof; it is described in the module <a href="reference.html#mod-OmegaSix"><code>OmegaSix</code></a>.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">six_le_card_primeFactors</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 6 ≤ N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.six_le_card_primeFactors">OddPerfect.six_le_card_primeFactors</a> in <a href="reference.html#mod-OmegaSix">OddPerfect.OmegaSix</a></p>
@@ -65,7 +65,7 @@
 <p>The earlier bound ω(N) ≥ 5 has a separate proof:</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">five_le_card_primeFactors</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) : 5 ≤ N.primeFactors.card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.five_le_card_primeFactors">OddPerfect.five_le_card_primeFactors</a> in <a href="reference.html#mod-OmegaFive">OddPerfect.OmegaFive</a></p>
 <p class="idea"><strong>Proof idea.</strong> With four prime factors the product bound 2 &lt; ∏ p/(p − 1) leaves 104 explicit supports. For each one a kernel computation lists the possible exponents of each prime and shows that some σ(x<sup>e</sup>) always has a prime factor outside the support.</p>
-<p>Also <a href="reference.html#OddPerfect.ten_le_card_primeFactors_of_not_three_dvd"><code>ten_le_card_primeFactors_of_not_three_dvd</code></a> (if 3 does not divide N, at least ten distinct prime factors; the published bounds are eleven by Hagis and by Kishore, 1983, and twelve by Nielsen, 2007) and <a href="reference.html#OddPerfect.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd"><code>fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd</code></a>.</p>
+<p>Also <a href="reference.html#OddPerfect.ten_le_card_primeFactors_of_not_three_dvd"><code>ten_le_card_primeFactors_of_not_three_dvd</code></a> (if 3 does not divide N, at least ten distinct prime factors; the published bounds are eleven by Hagis and by Kishore, 1983, and twelve by Nielsen, 2007) , <a href="reference.html#OddPerfect.fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd"><code>fifteen_le_card_primeFactors_of_not_three_dvd_of_not_five_dvd</code></a> (Norton 1960) and <a href="reference.html#OddPerfect.sixteen_le_card_primeFactors_of_not_three_not_five"><code>sixteen_le_card_primeFactors_of_not_three_not_five</code></a> (if neither 3 nor 5 divides N, at least sixteen; whether this is in the literature was not verified).</p>
 
 <h2 id="upper-bound">Upper bound</h2>
 <span class="cls known">known result formalized</span>
@@ -220,7 +220,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>35ed8d3</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>05b36f0</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
