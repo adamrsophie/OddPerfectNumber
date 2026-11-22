@@ -17,3 +17,4 @@
 6 The six prime search (`OmegaSixSearch.solve`)
 6 The seven prime engine (`OmegaSevenEngine.run`)
 12 Three exceptional primes (`OddPerfect.ThreeFreeThree.leafOK`, `treeOK`)
+2 Correction weights (`OddPerfect.corrBound`)

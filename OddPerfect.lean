@@ -148,3 +148,6 @@ import OddPerfect.RestrainedFour
 import OddPerfect.RestrainedFive
 import OddPerfect.LargestPrimeRoots
 import OddPerfect.OmegaSevenFiveSeven
+import OddPerfect.ReciprocalSumThree
+import OddPerfect.RestrainedSix
+import OddPerfect.ThreeFreeCount

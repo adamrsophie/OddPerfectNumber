@@ -10,6 +10,7 @@ import OddPerfect.OmegaSix
 import OddPerfect.OmegaSevenEngine
 import OddPerfect.ThreeFreeThreeChecker
 import OddPerfect.ForcingClosedBound
+import OddPerfect.ReciprocalSumTwo
 
 /-!
 # Checker controls
@@ -316,5 +317,13 @@ example : ThreeFreeThree.finalOK (5, 7, 11, 13) [] (151, 1152) = false := by dec
 -- current value is exactly `2`; the earlier one is `22171324/11175125 ≈ 1.98399`.
 example : ThreeFreeThree.finalOK (7, 11, 13, 17) [5] (18070457, 235404288) = true := by
   decide +kernel
+
+/-! ## Correction weights (`OddPerfect.corrBound`) -/
+
+-- `OddPerfect/ReciprocalSumThree.lean` checks each table weight `w` by `corrBound p ≤ w / 10 ^ 15`.
+-- The table weight of the prime 3 passes; the same weight less one fails, so the table holds
+-- the least admissible value and the comparison is not vacuous.
+example : corrBound 3 ≤ (72132645667761 : ℚ) / 1000000000000000 := by decide +kernel
+example : ¬ (corrBound 3 ≤ (72132645667760 : ℚ) / 1000000000000000) := by decide +kernel
 
 end CheckerControls
