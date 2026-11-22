@@ -5,6 +5,15 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # A full rebuild from an empty build folder: once a week, and on request.
+  schedule:
+    - cron: "23 4 * * 0"
+  workflow_dispatch:
+    inputs:
+      clean:
+        description: Rebuild everything from an empty build folder
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -15,15 +24,34 @@ jobs:
 
       # Installs elan and the toolchain pinned in lean-toolchain and restores the
       # mathlib cache with lake exe cache get. The build runs in the timed step below.
+      # The action's own cache of .lake is off: it is saved before the build step, so it
+      # would hold only the mathlib files that lake exe cache get fetches anyway.
       - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee # v1.7.1
         with:
           use-mathlib-cache: true
+          use-github-cache: false
           build: false
           test: false
           lint: false
 
       - name: Toolchain version
         run: lean --version && lake --version
+
+      # The compiled library of the most recent run that passed every step below. Lake
+      # decides what to rebuild from content hashes of each source file and of what it
+      # imports, so a restored module is reused only if nothing it depends on changed, and
+      # the axiom gate below still inspects every constant of the whole library on every
+      # run. The key contains the toolchain, the manifest and the lakefile, so a change to
+      # any of them starts from an empty build folder. The weekly run and a manual run with
+      # "clean" skip this step and rebuild everything. Only runs on the main branch save
+      # the build (last step), so a pull request cannot change what later runs restore.
+      - name: Restore the library build of an earlier run
+        if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && !inputs.clean) }}
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: .lake/build
+          key: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-
 
       - name: Build
         run: |
@@ -61,3 +89,11 @@ jobs:
       # Values of the certificate checkers on tiny well formed and malformed inputs.
       - name: Checker controls
         run: sh CheckerControls/run.sh
+
+      # Saved only after every step above passed, and never from a pull request.
+      - name: Save the library build
+        if: ${{ success() && github.event_name != 'pull_request' }}
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: .lake/build
+          key: build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-${{ github.sha }}-${{ github.run_id }}
