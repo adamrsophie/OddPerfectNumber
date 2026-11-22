@@ -5,11 +5,12 @@
 # whatever node b = r (mod m) is blocked, and writes cert_<name>.json with targets chosen so
 # that every case is abundant. Rows are cached in rows_<name>.json so runs extend the table.
 # Used by: OddPerfect/CommonFiveSeven.lean, CommonSixtyFive.lean, CommonFiftyFive.lean,
-# CommonEightyFive.lean, CommonOneFifteenData.lean (through gen2.py: the certificates).
+# CommonEightyFive.lean, CommonOneFifteenData.lean, CommonNinetyFiveData.lean (through
+# gen2.py: the certificates).
 # Run: python3 search.py name d seeds minutes [options]. The certificates record their seeds
 # and branch (d = 5 with seeds 5,7 and hypothesis seed 7; d = 65 with seeds 5,13 and branch
-# 13:7; d = 55, 85, 115 with seeds 5,11, 5,17 and 5,23); the minutes and the other options of
-# the original runs were not recorded (see the README).
+# 13:7; d = 55, 85, 115, 95 with seeds 5,11, 5,17, 5,23 and 5,19); the minutes and the
+# other options of the original runs were not recorded (see the README).
 # Requires: Python 3 and sympy. Not deterministic: the search stops at a wall clock deadline
 # and factoring steps have time budgets. Running time: the minutes argument, plus the final
 # pruning step.

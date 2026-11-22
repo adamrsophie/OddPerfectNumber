@@ -4,9 +4,11 @@
 # with it): Pratt primality of every node, the row divisibilities, the reach of every target
 # with every candidate special prime blocked, and the abundance of every case.
 # Used by: the certificates behind OddPerfect/CommonFiveSeven.lean, CommonSixtyFive.lean,
-# CommonFiftyFive.lean, CommonEightyFive.lean, CommonOneFifteenData.lean.
+# CommonFiftyFive.lean, CommonEightyFive.lean, CommonOneFifteenData.lean,
+# CommonNinetyFiveData.lean.
 # Run: python3 verify.py cert.json [more.json ...]
-# Requires: Python 3 and sympy. Deterministic. Running time: about ten seconds for the five certificates of the library.
+# Requires: Python 3 and sympy. Deterministic. Running time: about ten seconds for the five
+# certificates of 57, 65, 55, 85, 115; about 35 seconds for that of 95.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
 # sibling helper files are found next to this script.

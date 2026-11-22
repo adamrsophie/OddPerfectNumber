@@ -5,11 +5,13 @@
 # certificates for the nodes above a threshold, and writes <name>.lean.txt (the literals
 # nodes, rows, vals, tm, P, G, the src and nd parts and pc) and <name>.meta.json.
 # Used by: OddPerfect/CommonFiveSeven.lean (name 57), CommonSixtyFive.lean (65),
-# CommonFiftyFive.lean (55), CommonEightyFive.lean (85), CommonOneFifteenData.lean (115).
+# CommonFiftyFive.lean (55), CommonEightyFive.lean (85), CommonOneFifteenData.lean (115),
+# CommonNinetyFiveData.lean (95, after ndflat.py and asm_split.py).
 # Run: python3 gen2.py cert.json name seeds prattThr chunkSize prune variant ...
 # with variant = ns:cand and cand one of m12 (b % 12 == 1), m12x13 (and b != 13), eq13
 # (b == 13); the commands used are listed in the README.
-# Requires: Python 3 and sympy. Deterministic. Running time: under two seconds.
+# Requires: Python 3 and sympy. Deterministic. Running time: under two seconds,
+# about five seconds for 95.
 # Untrusted: every result is checked again by the Lean kernel.
 # Paths: input and output files are read from and written to the current folder;
 # sibling helper files are found next to this script.

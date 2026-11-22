@@ -5,7 +5,8 @@
 # number of rows per part (default 100).
 # Used by: OddPerfect/CommonFiveSeven.lean, CommonSixtyFive.lean, CommonFiftyFive.lean,
 # CommonEightyFive.lean, and CommonOneFifteen.lean, CommonOneFifteenData.lean,
-# CommonOneFifteenPrime.lean (the lemmas after the literals).
+# CommonOneFifteenPrime.lean (the lemmas after the literals), and the 19 modules
+# CommonNinetyFive*.lean (after ndflat.py, split.py and asm_split.py).
 # Run: python3 mktail.py name d branch ... with branch = tag:ns:candLean, for example
 # python3 mktail.py 65 65 'A:3:b == 13' 'B:2:b % 12 == 1 && b != 13'.
 # Requires: Python 3 standard library. Deterministic. Running time: under a second.
