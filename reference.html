@@ -35,7 +35,7 @@
 <aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#foundations">Foundations</a></li><li class="l2"><a href="#euler">Euler's form and the special prime</a></li><li class="l2"><a href="#counting">Prime factor counts, size and exponents</a></li><li class="l2"><a href="#patterns">Exponent patterns</a></li><li class="l2"><a href="#collisions">Collisions of x² + x + 1</a></li><li class="l2"><a href="#tools">Tools and countermodels</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Reference</h1>
-<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>328c518</code>: 147 modules imported by the root file <code>OddPerfect.lean</code>, 2072 public theorems. Private and protected theorems are omitted.</p>
+<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>d01e402</code>: 148 modules imported by the root file <code>OddPerfect.lean</code>, 2075 public theorems. Private and protected theorems are omitted.</p>
 <p class="sub">Docstrings are shown when present, with attributions and comparative remarks removed; a <b>Proof idea</b> is shown where it was written from the Lean source. <span class="tag unver">novelty unverified</span> and <span class="tag tool">tool</span> are explained on the <a href="theorems.html">Highlights</a> page.</p>
 <div class="filter" hidden><label for="filter">Filter modules and theorems</label>
 <input id="filter" type="search" placeholder="for example steuerwald, abundancy, 105" autocomplete="off" spellcheck="false">
@@ -2978,7 +2978,7 @@
 <section class="module" id="mod-Restrained" data-module>
 <h3><code>OddPerfect.Restrained</code></h3>
 <p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Restrained.lean">OddPerfect/Restrained.lean</a> · 1499 lines · 3 public theorems · imports <a href="#mod-ThreeFreeException">ThreeFreeException</a>, <a href="#mod-Steuerwald">Steuerwald</a>, <a href="#mod-Phi3">Phi3</a>, <a href="#mod-Valuation">Valuation</a>, <a href="#mod-ValuationBounds">ValuationBounds</a>, <a href="#mod-SpecialPrime">SpecialPrime</a>, <a href="#mod-Reciprocity">Reciprocity</a>, <a href="#mod-Certificate">Certificate</a> <span class="tag unver">contains novelty unverified</span></p>
-<p class="summary">The restrained case: every prime factor other than the special prime q and one further prime r has exponent exactly 2. The module proves a case map and excludes nothing outright. If r ≠ 3, then 3² exactly divides N and only four explicit cases remain: r = 13; q = 13 with r = 7; r = 61 with 13² exactly dividing N; r = 97 with 13² and 61² exactly dividing N. If r = 3, the exponent of 3 is even and at least 4, q ≡ 1 (mod 3), and neither 5 nor 7 divides N.</p>
+<p class="summary">The restrained case: every prime factor other than the special prime q and one further prime r has exponent exactly 2. The module proves a case map and excludes nothing outright. If r ≠ 3, then 3² exactly divides N and only four explicit cases remain: r = 13; q = 13 with r = 7; r = 61 with 13² exactly dividing N; r = 97 with 13² and 61² exactly dividing N. If r = 3, the exponent of 3 is even and at least 4, q ≡ 1 (mod 3), and neither 5 nor 7 divides N. The four cases with r ≠ 3 are excluded in the modules <code>RestrainedTwo</code> to <code>RestrainedFive</code>, so r = 3.</p>
 <div class="idea"><p><strong>Proof idea.</strong> With 3² exactly dividing N, each ordinary prime ≡ 1 (mod 3) spends one unit of the budget 2 of the prime 3. Forcing from σ(3²) = 13 gives nine leaves according to which forced primes equal q or r; every other branch has three ordinary primes ≡ 1 (mod 3). In five leaves the budget is spent or nearly spent, so every further ordinary prime t has σ(t²) supported on known primes. An exact search checked by the kernel lists the t with σ(t²) below a bound, the small survivors are removed by abundant divisors, and for the rest a weighted sum bound keeps the abundancy below 2. For r = 3, quadratic reciprocity gives q ≡ 1 (mod 3), and factor chains from 5 and from 7 end in abundant divisors or in an overflow of a budget.</p></div>
 <details class="decls"><summary>Public theorems</summary><div class="decl-list">
 <div class="decl" id="OddPerfect.restrained_three_sq_cases" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_three_sq_cases"><code>OddPerfect.restrained_three_sq_cases</code></a><span class="tag unver">novelty unverified</span></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_three_sq_cases</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
@@ -5097,6 +5097,35 @@
   (N.factorization 3 = 2 ∧ r = 13)</code></pre><p class="doc"><strong>Restrained odd perfect numbers, sharpened again.</strong> With the hypotheses of <code>three_dvd_of_one_exception</code>, either the exceptional prime is <code>3</code> (with <code>v_3(N)</code> even, at least <code>4</code>, <code>q ≡ 1 (mod 3)</code>, <code>5 ∤ N</code> and <code>7 ∤ N</code>), or <code>3^2 ∥ N</code> and <code>r = 13</code>.</p></div>
 </div></details>
 </section>
+<section class="module" id="mod-RestrainedFive" data-module>
+<h3><code>OddPerfect.RestrainedFive</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/RestrainedFive.lean">OddPerfect/RestrainedFive.lean</a> · 1260 lines · 3 public theorems · imports <a href="#mod-RestrainedFour">RestrainedFour</a>, <a href="#mod-Pratt">Pratt</a> <span class="tag unver">contains novelty unverified</span></p>
+<p class="summary">The last case with r ≠ 3: in the restrained setting with 3² exactly dividing N, r is not 13. Together with the earlier modules this gives <code>restrained_exception_eq_three</code>: if every prime factor other than the special prime q and one further prime r has exponent exactly 2, then r = 3, the exponent of 3 is even and at least 4, q ≡ 1 (mod 3), and neither 5 nor 7 divides N. The case r = 3 itself is not excluded. Whether this statement is new has not been checked (novelty unverified).</p>
+<div class="idea"><p><strong>Proof idea.</strong> Here 13 = σ(3²) divides N with a free exponent. The budget of the prime 3 allows at most two further primes ≡ 1 (mod 3), and at most one when q ≡ 2 (mod 3). If q ≡ 2 (mod 3), such a prime x has σ(x²) = 3·13<sup>a</sup>, a kernel check makes x at least 10<sup>6</sup>, and the known factors give at most 13/9 · 13/12 · 5/4 &lt; 1.957, so the abundancy stays below 2. If q ≡ 1 (mod 12), forcing trees refute every prime q below 337 and, for larger q, every prime ≡ 1 (mod 3) below 1225: each tree follows the prime factors of σ(p²) and of q + 1 until a third prime ≡ 1 (mod 3) appears. A checker for these trees is proved sound once, and the primes in them are certified by Pratt certificates. A tail lemma with one fixed generator (13) and three split generators (q and the two large primes) closes the bound.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.RestrainedFive.rankin_tail3" data-decl><h4><a class="anchor" href="#OddPerfect.RestrainedFive.rankin_tail3"><code>OddPerfect.RestrainedFive.rankin_tail3</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">rankin_tail3</span> (T : Finset <span class="t">ℕ</span>) {g₁ g₂ g₃ g₄ B : <span class="t">ℕ</span>} {α₁ α₂ α₃ α₄ β₁ β : <span class="t">ℚ</span>}
+  (p2 : g₂.Prime) (p3 : g₃.Prime) (p4 : g₄.Prime)
+  (h12 : g₁ ≠ g₂) (h13 : g₁ ≠ g₃) (h14 : g₁ ≠ g₄) (h23 : g₂ ≠ g₃) (h24 : g₂ ≠ g₄)
+  (h34 : g₃ ≠ g₄)
+  (a1 : 0 ≤ α₁) (a2 : 0 ≤ α₂) (a3 : 0 ≤ α₃) (a4 : 0 ≤ α₄)
+  (l1 : α₁ &lt; 1) (l2 : α₂ &lt; 1) (l3 : α₃ &lt; 1) (l4 : α₄ &lt; 1)
+  (w1 : 1 ≤ α₁ ^ 2 * g₁) (w2 : 1 ≤ α₂ ^ 2 * g₂) (w3 : 1 ≤ α₃ ^ 2 * g₃) (w4 : 1 ≤ α₄ ^ 2 * g₄)
+  (b1 : 0 ≤ β₁) (bβ : 0 ≤ β) (m1 : β₁ &lt; 1) (v1 : 1 ≤ β₁ ^ 4 * g₁) (vB : 1 ≤ β ^ 4 * B)
+  (hT : <span class="k">∀</span> t ∈ T, 10 ≤ t ∧ (phi3 t).primeFactors ⊆ {g₁, g₂, g₃, g₄} ∧
+    (¬ g₂ ∣ phi3 t → ¬ g₃ ∣ phi3 t → ¬ g₄ ∣ phi3 t → B ≤ phi3 t)) :
+  <span class="k">∑</span> t ∈ T, (fv t - 1) ≤ 121 / 100 * (β * (1 / (1 - β₁) * (1 * (1 * 1))) +
+    (α₂ + α₃ + α₄) * (1 / (1 - α₁) * (1 / (1 - α₂) * (1 / (1 - α₃) * (1 / (1 - α₄))))))</code></pre><p class="doc">Rankin bound for a set of exact squares <code>t ≡ 2 (mod 3)</code> with one floor generator: <code>σ(t^2)</code> is supported on <code>{g₁, g₂, g₃, g₄}</code>, and when none of the primes <code>g₂, g₃, g₄</code> divides it, <code>σ(t^2) ≥ B</code>.</p></div>
+<div class="decl" id="OddPerfect.restrained_not_thirteen" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_not_thirteen"><code>OddPerfect.restrained_not_thirteen</code></a><span class="tag unver">novelty unverified</span></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_not_thirteen</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hrq : r ≠ q)
+  (hsq : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
+  (h3 : N.factorization 3 = 2) : r ≠ 13</code></pre><p class="doc">**Restrained, leaf <code>r = 13</code>.** Under the hypotheses of <code>restrained_three_sq_cases</code>, the further prime <code>r</code> is not <code>13</code>.</p></div>
+<div class="decl" id="OddPerfect.restrained_exception_eq_three" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_exception_eq_three"><code>OddPerfect.restrained_exception_eq_three</code></a><span class="tag unver">novelty unverified</span></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_exception_eq_three</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) :
+  r = 3 ∧ 4 ≤ N.factorization 3 ∧ Even (N.factorization 3) ∧ q % 3 = 1 ∧ ¬ 5 ∣ N ∧
+    ¬ 7 ∣ N</code></pre><p class="doc"><strong>Restrained odd perfect numbers, final form.</strong> With the hypotheses of <code>three_dvd_of_one_exception</code>, the exceptional prime is <code>3</code>, with <code>v_3(N)</code> even and at least <code>4</code>, <code>q ≡ 1 (mod 3)</code>, <code>5 ∤ N</code> and <code>7 ∤ N</code>.</p></div>
+</div></details>
+</section>
 </section>
 <section class="ref-group" data-group><h2 id="collisions">Collisions of x² + x + 1</h2>
 <p class="sub">Partial results on questions from Ochem and Zelinsky (arXiv 2607.19746) about values of x² + x + 1, and numerical checks.</p>
@@ -5572,7 +5601,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>328c518</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>d01e402</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
