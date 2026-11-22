@@ -132,3 +132,13 @@ import OddPerfect.ThreeFreeThreeData09
 import OddPerfect.ThreeFreeThreeData10
 import OddPerfect.ThreeFreeThreeData11
 import OddPerfect.ThreeFreeThree
+import OddPerfect.SecondLargestPrimeData1
+import OddPerfect.SecondLargestPrimeData2
+import OddPerfect.SecondLargestPrimeData3
+import OddPerfect.SecondLargestPrimeData4
+import OddPerfect.SecondLargestPrimeData5
+import OddPerfect.SecondLargestPrimeData6
+import OddPerfect.SecondLargestPrimeData7
+import OddPerfect.SecondLargestPrimeData8
+import OddPerfect.SecondLargestPrimeData9
+import OddPerfect.SecondLargestPrimeTwo
