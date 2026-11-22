@@ -142,6 +142,7 @@
 <li class="event"><time datetime="2026-11-22T08:12">08:12</time><p class="ev-title"><b>Nine prime factors when 3 ∤ N.</b> <code class="hash">1de4a6e</code> <span class="cls known">known result formalized</span></p><p><code>NotThreeNine</code> proves that an odd perfect number not divisible by 3 has at least nine distinct prime factors, with the search engine of the seven prime theorem and no new cut. The published bounds are eleven (Hagis; Kishore, 1983) and twelve (Nielsen, 2007).</p></li>
 <li class="event"><time datetime="2026-11-22T08:14">08:14</time><p class="ev-title"><b>Reciprocal sum above 0.5960631.</b> <code class="hash">5c69462</code> <span class="cls known">known result formalized</span></p><p><code>ReciprocalSumFour</code> raises the lower bound for the sum of the reciprocals of the prime factors from 59/100 to 0.5960631 and adds the bounds 0.604706, 0.647648 and 0.667363 for the cases where 5, 3, or both do not divide N. This is the level of the classical bounds of Cohen (1980); the constants were not compared digit by digit with the published ones.</p></li>
 <li class="event minor"><time datetime="2026-11-22T08:42">08:42</time><p class="ev-title"><b>Reciprocal sum: upper bounds by cases.</b> <code class="hash">39e1cc6</code> <span class="cls known">known result formalized</span></p><p><code>ReciprocalSumUpper</code> proves upper bounds for the sum of the reciprocals of the prime factors in the cases where 3 or 5 divides N, so each case now has a window of width between 0.03 and 0.08. No window is empty, so no case is excluded. Bounds of this kind are classical (Cohen, 1978 and 1980).</p></li>
+<li class="event"><time datetime="2026-11-22T10:12">10:12</time><p class="ev-title"><b>Four statements from the valuation ledger.</b> <code class="hash">9a0f747</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>Four modules prove statements by counting which prime divides which divisor sum, without tables. <code>LedgerThreeFree</code>: if at most 31 ordinary primes have 3 ∤ e + 1 and each is 2 modulo 3, then 3 divides N; the earlier restriction on the special prime (109) is removed. <code>LedgerPrime</code>: a conditional statement, if every ordinary divisor sum σ(p^e) were prime then at least five distinct exponents would occur. <code>LedgerOrders</code> and <code>LedgerParity</code>: two counting inequalities. Whether these statements are new has not been checked.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -155,7 +156,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>39e1cc6</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>9a0f747</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

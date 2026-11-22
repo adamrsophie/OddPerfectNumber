@@ -41,9 +41,9 @@
 <p>The nodes are the prime power <a href="background.html#component">components</a> p<sup>e<sub>p</sub></sup> of N, where e<sub>p</sub> is the exact exponent of p. The weight of the edge from p to a prime r is the <a href="background.html#valuation">r-adic valuation</a> of the component divisor sum:</p>
 <p class="formula">w(p, r) = v<sub>r</sub>(σ(p<sup>e<sub>p</sub></sup>))</p>
 <p>So p sends to r as many factors of r as σ(p<sup>e<sub>p</sub></sup>) contains. There is an edge p → r between prime factors exactly when this weight is nonzero.</p>
-<pre class="lean"><code><code><span class="k">def</span> <span class="n">sigmaWeight</span> (N p q : <span class="t"><span class="t">ℕ</span></span>) : <span class="t"><span class="t">ℕ</span></span> := (σ 1 (p ^ N.factorization p)).factorization q</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/39e1cc6f422b295645226ce3bad85020d2dba6cd/OddPerfect/Network.lean">OddPerfect/Network.lean</a></p>
+<pre class="lean"><code><code><span class="k">def</span> <span class="n">sigmaWeight</span> (N p q : <span class="t"><span class="t">ℕ</span></span>) : <span class="t"><span class="t">ℕ</span></span> := (σ 1 (p ^ N.factorization p)).factorization q</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/9a0f747421ef6ff40bee6b0acb4c247db2a6f9e2/OddPerfect/Network.lean">OddPerfect/Network.lean</a></p>
 <pre class="lean"><code><code><span class="k">def</span> <span class="n">SigmaEdge</span> (N p q : <span class="t"><span class="t">ℕ</span></span>) : <span class="k"><span class="k">Prop</span></span> :=
-  p ∈ N.primeFactors ∧ q ∈ N.primeFactors ∧ q ∣ σ 1 (p ^ N.factorization p)</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/39e1cc6f422b295645226ce3bad85020d2dba6cd/OddPerfect/Network.lean">OddPerfect/Network.lean</a></p>
+  p ∈ N.primeFactors ∧ q ∈ N.primeFactors ∧ q ∣ σ 1 (p ^ N.factorization p)</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/9a0f747421ef6ff40bee6b0acb4c247db2a6f9e2/OddPerfect/Network.lean">OddPerfect/Network.lean</a></p>
 
 <h2 id="conservation">Conservation</h2>
 <p>Since σ is multiplicative, σ(N) is the product of the component sums, so v<sub>r</sub>(σ(N)) is the sum of the weights into r. Comparing with v<sub>r</sub>(2N) gives one exact equation per prime:</p>
@@ -67,7 +67,7 @@
 <h2 id="candidates">Candidates and balance</h2>
 <p>To state the reformulation, the library forgets N and keeps only an exponent function. A <code>Candidate</code> is a finitely supported function p ↦ e<sub>p</sub> from the natural numbers to the natural numbers. Its support is the set where e<sub>p</sub> &gt; 0, its value is ∏ p<sup>e<sub>p</sub></sup>, and its weights are defined exactly as above from σ(p<sup>e<sub>p</sub></sup>).</p>
 <pre class="lean"><code><code><span class="k">structure</span> <span class="n">Candidate</span> <span class="k"><span class="k">where</span></span>
-  exponent : <span class="t"><span class="t">ℕ</span></span> →₀ <span class="t"><span class="t">ℕ</span></span></code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/39e1cc6f422b295645226ce3bad85020d2dba6cd/OddPerfect/Reduction.lean">OddPerfect/Reduction.lean</a></p>
+  exponent : <span class="t"><span class="t">ℕ</span></span> →₀ <span class="t"><span class="t">ℕ</span></span></code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/9a0f747421ef6ff40bee6b0acb4c247db2a6f9e2/OddPerfect/Reduction.lean">OddPerfect/Reduction.lean</a></p>
 <p>A candidate is <code>Balanced</code> when four local conditions hold:</p>
 <ol>
 <li>every element of the support is prime;</li>
@@ -83,7 +83,7 @@
   /-- Conservation at every odd prime. -/
   balance_odd : <span class="k"><span class="k">∀</span></span> q : <span class="t"><span class="t">ℕ</span></span>, q.Prime → q ≠ 2 → <span class="k"><span class="k">∑</span></span> p ∈ C.support, C.weight p q = C.exponent q
   /-- The weights into 2 add up to exactly one. -/
-  balance_two : <span class="k"><span class="k">∑</span></span> p ∈ C.support, C.weight p 2 = 1</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/39e1cc6f422b295645226ce3bad85020d2dba6cd/OddPerfect/Reduction.lean">OddPerfect/Reduction.lean</a></p>
+  balance_two : <span class="k"><span class="k">∑</span></span> p ∈ C.support, C.weight p 2 = 1</code></code></pre><p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/9a0f747421ef6ff40bee6b0acb4c247db2a6f9e2/OddPerfect/Reduction.lean">OddPerfect/Reduction.lean</a></p>
 <p>Note what is not in the definition: strong connectivity, Euler's form and other properties are <em>consequences</em> of balance, collected in the structure <code>Candidate.Necessary</code> and proved for every balanced candidate by <code>Balanced.necessary</code>. <code>Candidate.Necessary</code> is not a weaker problem. Its Touchard field makes the value odd and positive, and its field <code>abundancy_eq_two</code> makes that value perfect, so it follows from the fields that a candidate satisfying <code>Candidate.Necessary</code> exists if and only if an odd perfect number exists.</p>
 
 <h2 id="reduction">The reduction</h2>
@@ -101,7 +101,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>39e1cc6</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>9a0f747</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
