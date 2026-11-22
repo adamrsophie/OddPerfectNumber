@@ -203,3 +203,4 @@ import OddPerfect.MixedIndexTwoCheck
 import OddPerfect.MixedIndexTwoData
 import OddPerfect.MixedIndexTwo
 import OddPerfect.RadicalExponent
+import OddPerfect.LedgerPrimeTwo
