@@ -629,6 +629,8 @@ def main():
         print('leaves', len(leaves), 'bad', bad, 'worst', float(worst), 'max exact', maxex)
         print('worst corrected bound %d/%d ~ %.9f at leaf %d' % (cworst[0].numerator,
               cworst[0].denominator, float(cworst[0]), cworst[1]))
+        if bad:
+            raise SystemExit(1)
     elif cmd == 'leaf':
         lid = int(sys.argv[3])
         for ti, l, cl, nd, w in leaves:

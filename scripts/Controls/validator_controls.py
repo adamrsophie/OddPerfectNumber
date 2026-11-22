@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # Untrusted helper script for the OddPerfect Lean library.
 # Permanent controls for the published validators EqualExponentChain/checker.py,
-# LowerBound/check.py, CommonFamilies/verify.py and CommonFamilies/est.py: every archived valid
+# LowerBound/check.py, CommonFamilies/verify.py and CommonFamilies/est.py, and for the helpers
+# under ThreeFreeThree/ (check3.py, verify3.py, gen_lean.py, route3.py): every archived valid
 # input must pass with exit status 0, and each mutated input must be rejected with the expected
 # nonzero status (1: a well formed input fails a check; 2: malformed input or usage), with no
 # Python traceback. The validators run as subprocesses with `sys.executable -I`, in normal and
@@ -11,8 +12,8 @@
 # Run: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]
 # With --stdlib-only the controls of CommonFamilies/verify.py, which needs sympy, are skipped
 # (each is listed as SKIP); without it a missing sympy is a failure.
-# Requires: Python 3 standard library (sympy for the verify.py controls). Running time: a few
-# seconds.
+# Requires: Python 3 standard library (sympy for the verify.py controls). Running time: about
+# half a minute.
 # Exit status: 0 when every control behaves as expected, 1 otherwise, 2 for a usage error.
 # License: GPL 3, same as the repository.
 
@@ -30,6 +31,8 @@ CHECKER = os.path.join(SC, 'EqualExponentChain', 'checker.py')
 LBCHECK = os.path.join(SC, 'LowerBound', 'check.py')
 VERIFY = os.path.join(SC, 'CommonFamilies', 'verify.py')
 EST = os.path.join(SC, 'CommonFamilies', 'est.py')
+TF = os.path.join(SC, 'ThreeFreeThree')
+TF_CERT = os.path.join(TF, 'cert3_final.json.xz')
 EQ_CERTS = sorted(os.path.join(SC, f, 'certs', n) for f in ('EqualExponentChain', 'EqualExponentChainMore')
                   for n in os.listdir(os.path.join(SC, f, 'certs')) if n.endswith('.json'))
 CF57 = os.path.join(SC, 'CommonFamilies', 'certs', 'cert_d5_7.json')
@@ -191,6 +194,78 @@ def estimator(t):
         report('PASS', 'est.py: unreachable target writes no estimate file')
 
 
+def tf_leaves(node):
+    if 'leaf' in node:
+        yield node['leaf']
+    else:
+        for kid in node['children']:
+            yield from tf_leaves(kid)
+
+
+def tf_forge(t, name, change):
+    """A copy of the three exception certificate with one change applied to it."""
+    import lzma
+    with lzma.open(TF_CERT) as f:
+        doc = json.loads(f.read())
+    change([leaf for tr in doc['triples'] for leaf in tf_leaves(tr['tree']) if leaf['status'] == 'closed'])
+    return write_json(f'{t}/{name}.json', doc)
+
+
+def three_free_three(t):
+    """check3.py must reject malformed leaves, and the helpers must report failures by exit status."""
+    def tf(name):
+        return os.path.join(TF, name)
+
+    def fifth_weight(leaves):
+        leaves[0]['weights'].append([0, 1])
+
+    def negative_witness(leaves):
+        x = next(x for leaf in leaves for x in leaf['witnesses'] if x['kind'] == 'small')
+        x['s'] = -(x['s'] + 1)
+
+    def three_slots(leaves):
+        leaves[0]['slots'].pop()
+
+    def bound_lowered(leaves):
+        leaves[0]['bound'][0] -= 1
+
+    def small_primes_dropped(leaves):
+        for leaf in leaves:
+            if leaf['C']:
+                leaf['C'].pop()
+
+    control('check3.py accepts the published certificate', tf('check3.py'), [TF_CERT], 0)
+    control('check3.py: fifth weight', tf('check3.py'), [tf_forge(t, 'w5', fifth_weight)], 1)
+    control('check3.py: negative square witness', tf('check3.py'), [tf_forge(t, 'neg', negative_witness)], 1)
+    control('check3.py: three slots', tf('check3.py'), [tf_forge(t, 'slots3', three_slots)], 1)
+    control('verify3.py accepts the published certificate', tf('verify3.py'), [TF_CERT], 0, modes=('',))
+    control('verify3.py --tamper: every tamper is rejected', tf('verify3.py'), [TF_CERT, '--tamper'], 0, modes=('',))
+    blind = mutate_text(tf('verify3.py'), f'{t}/verify3_blind.py',
+                        "            verify(c)\n            print('NOT REJECTED", "            print('NOT REJECTED")
+    control('verify3.py --tamper: a verifier that accepts everything fails the run', blind, [TF_CERT, '--tamper'],
+            1, modes=('',))
+    control('gen_lean.py mirror agrees with the published certificate', tf('gen_lean.py'), [TF_CERT, 'mirror'],
+            0, modes=('',))
+    control('gen_lean.py mirror: stored bound lowered', tf('gen_lean.py'),
+            [tf_forge(t, 'bound', bound_lowered), 'mirror'], 1, modes=('',))
+    control('route3.py: published certificate', tf('route3.py'), [TF_CERT, '0', '1'], 0, modes=('',))
+    control('route3.py: small prime sets shortened', tf('route3.py'),
+            [tf_forge(t, 'cdrop', small_primes_dropped), '0', '1'], 1, modes=('',))
+    out = f'{t}/tfdata'
+    os.mkdir(out)
+    control('gen_lean.py data runs', tf('gen_lean.py'), [TF_CERT, 'data', out], 0, modes=('',))
+    names = sorted(n for n in os.listdir(out) if n.endswith('.lean'))
+    differ = []
+    for n in names:
+        with open(os.path.join(out, n), 'rb') as f, open(os.path.join(ROOT, 'OddPerfect', n), 'rb') as g:
+            if f.read() != g.read():
+                differ.append(n)
+    if len(names) == 12 and not differ:
+        report('PASS', 'gen_lean.py data: 12 of 12 modules byte equal')
+    else:
+        report('FAIL', 'gen_lean.py data: modules byte equal', f'{len(names)} files written, differing: {differ}')
+
+
 def main(argv):
     if argv[1:] not in ([], ['--stdlib-only']):
         print('usage: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]', file=sys.stderr)
@@ -201,6 +276,7 @@ def main(argv):
         lower_bound(t)
         common_families(t, argv[1:] == ['--stdlib-only'])
         estimator(t)
+        three_free_three(t)
     print(f'validator controls: {results["PASS"]} passed, {results["FAIL"]} failed, {results["SKIP"]} skipped')
     return 1 if results['FAIL'] else 0
 

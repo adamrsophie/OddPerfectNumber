@@ -106,6 +106,7 @@ def check_leaf(sl, lf, nid, doc, st):
         return
     need(lf['status'] == 'closed' and mins is not None, f'leaf {nid} status')
     pv = {s['val'] for s in sl if s['val'] is not None}
+    need(isinstance(lf['slots'], list) and len(lf['slots']) == 4, f'leaf {nid} needs exactly four slots')
     for i, (s, j) in enumerate(zip(sl, lf['slots'])):
         need(j['name'] == NAMES[i] and j['kind'] == s['kind'], f'leaf {nid} slot names')
         if s['val'] is not None:
@@ -123,6 +124,7 @@ def check_leaf(sl, lf, nid, doc, st):
     need({c['s'] for c in lf['C']} == myC, f'leaf {nid} C')
     tg = [s['kind'] in ('q', 'big') or (s['kind'] == 'fix' and m % 3 == 1) for s, m in zip(sl, mins)]
     need(lf['target'] == tg, f'leaf {nid} target')
+    need(isinstance(lf['weights'], list) and len(lf['weights']) == 4, f'leaf {nid} needs exactly four weights')
     ws = [fr(w) for w in lf['weights']]
     for t, w, m in zip(tg, ws, mins):
         if t:
@@ -158,9 +160,11 @@ def check_leaf(sl, lf, nid, doc, st):
         need(x is not None and x['v'] == list(v), f'leaf {nid} witness order')
         if x['kind'] == 'nonsquare':
             r = x['r']
+            need(type(r) is int and r >= 0, f'leaf {nid} nonsquare witness is not a natural number')
             need(r * r < d < (r + 1) * (r + 1), f'leaf {nid} nonsquare witness')
         else:
             s_ = x['s']
+            need(type(s_) is int and s_ >= 0, f'leaf {nid} square witness is not a natural number')
             need(d == (2 * s_ + 1) ** 2, f'leaf {nid} square witness')
             if x['kind'] == 'hit':
                 need(s_ >= cap, f'leaf {nid} hit')

@@ -629,6 +629,8 @@ def tamper_tests(path):
         except VerifyError as e:
             print('rejected: %s\n    -> %s' % (desc, e))
     print('all tampers rejected' if ok else 'SOME TAMPERS ACCEPTED')
+    if not ok:
+        raise SystemExit(1)
 
 
 def main():

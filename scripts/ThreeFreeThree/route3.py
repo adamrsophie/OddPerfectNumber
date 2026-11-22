@@ -274,6 +274,8 @@ def main():
     print('failures: %d' % len(fails))
     for f in fails[:20]:
         print('  FAIL', f)
+    if fails:
+        raise SystemExit(1)
 
 
 if __name__ == '__main__':

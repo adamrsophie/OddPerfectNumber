@@ -15,6 +15,13 @@ on:
         type: boolean
         default: true
 
+# One run at a time for pushes and pull requests of a branch, so that each run restores the
+# build its predecessor saved. A run in progress is never canceled; of the runs waiting behind
+# it only the newest is kept. The weekly rebuild and manual runs are in groups of their own.
+concurrency:
+  group: axiom-gate-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -69,8 +76,10 @@ jobs:
           "$RUNNER_TEMP/venv/bin/python" -I -c 'import sys, sympy, mpmath; print(sys.version, sympy.__version__, mpmath.__version__)'
 
       # Exit status controls of the published Python validators, all of them, including those of
-      # scripts/CommonFamilies/verify.py, which needs sympy. The validators run as subprocesses
-      # of the same interpreter.
+      # scripts/CommonFamilies/verify.py, which needs sympy, and the controls of the helpers of
+      # scripts/ThreeFreeThree (forged certificates, failure statuses, regeneration of the twelve
+      # generated modules with a byte comparison). The validators run as subprocesses of the
+      # same interpreter.
       - name: Validator controls
         run: |
           "$RUNNER_TEMP/venv/bin/python" -I scripts/Controls/validator_controls.py
