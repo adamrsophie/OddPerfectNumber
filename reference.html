@@ -35,7 +35,7 @@
 <aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#foundations">Foundations</a></li><li class="l2"><a href="#euler">Euler's form and the special prime</a></li><li class="l2"><a href="#counting">Prime factor counts, size and exponents</a></li><li class="l2"><a href="#patterns">Exponent patterns</a></li><li class="l2"><a href="#collisions">Collisions of x² + x + 1</a></li><li class="l2"><a href="#tools">Tools and countermodels</a></li></ul></nav></details></aside>
 <main id="content" tabindex="-1">
 <h1>Reference</h1>
-<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>6a2327b</code>: 144 modules imported by the root file <code>OddPerfect.lean</code>, 2062 public theorems. Private and protected theorems are omitted.</p>
+<p class="lead">Every module on the main branch, grouped by topic, with its public theorems. Statements are copied verbatim from the source (without proofs) by the site generator at commit <code>3260d8c</code>: 145 modules imported by the root file <code>OddPerfect.lean</code>, 2066 public theorems. Private and protected theorems are omitted.</p>
 <p class="sub">Docstrings are shown when present, with attributions and comparative remarks removed; a <b>Proof idea</b> is shown where it was written from the Lean source. <span class="tag unver">novelty unverified</span> and <span class="tag tool">tool</span> are explained on the <a href="theorems.html">Highlights</a> page.</p>
 <div class="filter" hidden><label for="filter">Filter modules and theorems</label>
 <input id="filter" type="search" placeholder="for example steuerwald, abundancy, 105" autocomplete="off" spellcheck="false">
@@ -5012,6 +5012,36 @@
   3 ∣ N</code></pre><p class="doc">An odd perfect number in which every prime factor other than the special prime <code>q</code> and three further primes <code>r₁</code>, <code>r₂</code>, <code>r₃</code> has exponent exactly 2 is divisible by 3. Here <code>r₁, r₂, r₃</code> are arbitrary natural numbers: they need not be distinct, prime, or divisors of <code>N</code>, so the cases of fewer exceptional primes are included.</p></div>
 </div></details>
 </section>
+<section class="module" id="mod-RestrainedTwo" data-module>
+<h3><code>OddPerfect.RestrainedTwo</code></h3>
+<p class="meta"><a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/RestrainedTwo.lean">OddPerfect/RestrainedTwo.lean</a> · 791 lines · 4 public theorems · imports <a href="#mod-Restrained">Restrained</a> <span class="tag unver">contains novelty unverified</span></p>
+<p class="summary">Two more steps in the restrained case (every prime factor other than the special prime q and one further prime r has exponent exactly 2, and 3² exactly divides N): the case r = 97 with 13² and 61² exactly dividing N is impossible, and the case r = 61 with 13² exactly dividing N forces q ≡ 1 (mod 3). Three explicit cases remain when r ≠ 3: r = 13; q = 13 with r = 7; r = 61 with 13² exactly dividing N and q ≡ 1 (mod 3). Whether these statements are new has not been checked (novelty unverified).</p>
+<div class="idea"><p><strong>Proof idea.</strong> For r = 97, σ(13²) = 3·61 and σ(61²) = 3·13·97 spend the budget of the prime 3, so q ≡ 1 (mod 3) and every other prime t is ≡ 2 (mod 3) with σ(t²) = 61<sup>a</sup>97<sup>b</sup>q<sup>c</sup> and a ≤ 1. The primes q below 100 are 37 and 73, and both overflow the budget. For q ≥ 100 an exact check of the values 61<sup>a</sup>97<sup>b</sup> with b &lt; 6 shows b ≥ 6 when c = 0; then 1/(t + 1) is at most (13/100)<sup>a</sup>(11/100)<sup>b</sup>(1/10)<sup>c</sup>, t determines (a, b, c), and the sum of these weights keeps the abundancy below 2. For r = 61 with q ≡ 2 (mod 3) the same argument runs on the primes 13 and 61.</p></div>
+<details class="decls"><summary>Public theorems</summary><div class="decl-list">
+<div class="decl" id="OddPerfect.restrained_not_97" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_not_97"><code>OddPerfect.restrained_not_97</code></a><span class="tag unver">novelty unverified</span></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_not_97</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hrq : r ≠ q)
+  (hsq : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
+  (h3 : N.factorization 3 = 2) (h13 : N.factorization 13 = 2)
+  (h61 : N.factorization 61 = 2) : r ≠ 97</code></pre><p class="doc">**Restrained, leaf <code>r = 97</code>.** Under the hypotheses of <code>restrained_three_sq_cases</code>, the configuration <code>r = 97</code> with <code>13^2 ∥ N</code> and <code>61^2 ∥ N</code> is impossible.</p></div>
+<div class="decl" id="OddPerfect.restrained_sixty_one_mod_three" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_sixty_one_mod_three"><code>OddPerfect.restrained_sixty_one_mod_three</code></a><span class="tag unver">novelty unverified</span></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_sixty_one_mod_three</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hrq : r ≠ q)
+  (hsq : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
+  (h3 : N.factorization 3 = 2) (hr : r = 61) (h13 : N.factorization 13 = 2) :
+  q % 3 = 1</code></pre><p class="doc">**Restrained, leaf <code>r = 61</code>.** Under the hypotheses of <code>restrained_three_sq_cases</code>, if <code>r = 61</code> and <code>13^2 ∥ N</code>, then <code>q ≡ 1 (mod 3)</code>.</p></div>
+<div class="decl" id="OddPerfect.restrained_three_sq_cases_two" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_three_sq_cases_two"><code>OddPerfect.restrained_three_sq_cases_two</code></a><span class="tag unver">novelty unverified</span></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_three_sq_cases_two</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
+  (h3 : N.factorization 3 = 2) :
+  r = 13 ∨ (q = 13 ∧ r = 7) ∨ (r = 61 ∧ N.factorization 13 = 2 ∧ q % 3 = 1)</code></pre><p class="doc">**Restrained, <code>3</code> ordinary, sharpened.** With the hypotheses of <code>restrained_three_sq_cases</code>, the pair <code>(q, r)</code> is one of three configurations, and in the configuration <code>r = 61</code> the special prime is <code>1 (mod 3)</code>.</p></div>
+<div class="decl" id="OddPerfect.restrained_cases_two" data-decl><h4><a class="anchor" href="#OddPerfect.restrained_cases_two"><code>OddPerfect.restrained_cases_two</code></a></h4><pre class="lean"><code><span class="k">theorem</span> <span class="n">restrained_cases_two</span> {N q r : <span class="t">ℕ</span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
+  (hsq : <span class="k">∀</span> p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2) :
+  (r = 3 ∧ 4 ≤ N.factorization 3 ∧ Even (N.factorization 3) ∧ q % 3 = 1 ∧ ¬ 5 ∣ N ∧
+    ¬ 7 ∣ N) ∨
+  (N.factorization 3 = 2 ∧ (r = 13 ∨ (q = 13 ∧ r = 7) ∨
+    (r = 61 ∧ N.factorization 13 = 2 ∧ q % 3 = 1)))</code></pre><p class="doc"><strong>Restrained odd perfect numbers, sharpened.</strong> With the hypotheses of <code>three_dvd_of_one_exception</code>, either the exceptional prime is <code>3</code> (with <code>v_3(N)</code> even, at least <code>4</code>, <code>q ≡ 1 (mod 3)</code>, <code>5 ∤ N</code> and <code>7 ∤ N</code>), or <code>3^2 ∥ N</code> and <code>(q, r)</code> is one of the three configurations of <code>restrained_three_sq_cases_two</code>.</p></div>
+</div></details>
+</section>
 </section>
 <section class="ref-group" data-group><h2 id="collisions">Collisions of x² + x + 1</h2>
 <p class="sub">Partial results on questions from Ochem and Zelinsky (arXiv 2607.19746) about values of x² + x + 1, and numerical checks.</p>
@@ -5487,7 +5517,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>6a2327b</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>3260d8c</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
