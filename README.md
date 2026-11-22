@@ -48,6 +48,10 @@ Code that imported a module for one of these declarations must now import the ne
   (`OddPerfect.SecondLargestPrimeFast`).
 * `FamInst.hrows115` moved from `OddPerfect.CommonOneFifteenData` to the final module
   `OddPerfect.CommonOneFifteen`.
+* `exists_primeFactor_gt_100000` was replaced by `exists_primeFactor_gt_200000`
+  (`OddPerfect.LargestPrimeFactorThreeFinal`); the modules `LargestPrimeFactorTwoData`,
+  `LargestPrimeFactorTwoRows1 .. 9` and `LargestPrimeFactorTwoFinal` were removed.
+  `OddPerfect.LargestPrimeFactorTwo` (the checker `LPF2`) remains.
 
 ## License
 
