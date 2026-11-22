@@ -179,3 +179,4 @@ import OddPerfect.NotFifteenSixteenB
 import OddPerfect.NotFifteenSixteenC
 import OddPerfect.NotFifteenSixteenD
 import OddPerfect.NotFifteenSixteen
+import OddPerfect.TwoExceptionThree
