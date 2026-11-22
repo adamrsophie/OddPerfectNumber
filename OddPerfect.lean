@@ -209,3 +209,6 @@ import OddPerfect.LedgerOrdersTwo
 import OddPerfect.RestrainedEight
 import OddPerfect.ReciprocalSumFive
 import OddPerfect.RadicalExponentTwo
+import OddPerfect.TwoExceptionThreeACheck
+import OddPerfect.TwoExceptionThreeAData
+import OddPerfect.TwoExceptionThreeA
