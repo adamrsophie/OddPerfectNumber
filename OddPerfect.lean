@@ -154,3 +154,7 @@ import OddPerfect.ThreeFreeCount
 import OddPerfect.NotThreeNine
 import OddPerfect.ReciprocalSumFour
 import OddPerfect.ReciprocalSumUpper
+import OddPerfect.LedgerPrime
+import OddPerfect.LedgerOrders
+import OddPerfect.LedgerThreeFree
+import OddPerfect.LedgerParity
