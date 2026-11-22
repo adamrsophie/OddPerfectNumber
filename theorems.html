@@ -227,7 +227,7 @@
   ((r₁ = 3 ∧ r₂ = 11) ∨ (r₁ = 11 ∧ r₂ = 3)) ∧ Even (N.factorization 11) ∧
     6 ≤ N.factorization 11 ∧ ¬ 3 ∣ N.factorization 11 + 1 ∧
     ¬ 5 ∣ N.factorization 11 + 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_pow_four">OddPerfect.two_exceptions_three_pow_four</a> in <a href="reference.html#mod-TwoExceptionFour">OddPerfect.TwoExceptionFour</a></p>
-<p>In that case the special prime satisfies q ≡ 1 (mod 12) (module <a href="reference.html#mod-TwoExceptionFourMod"><code>TwoExceptionFourMod</code></a>). The class q ≡ 1 (mod 12) is open here. Whether this statement is new has not been checked.</p>
+<p>In that case the special prime satisfies q ≡ 1 (mod 12) (module <a href="reference.html#mod-TwoExceptionFourMod"><code>TwoExceptionFourMod</code></a>). Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_three_pow_four_special_mod_twelve</span>
   {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -235,6 +235,11 @@
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors,
     p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
   q % 12 = 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_pow_four_special_mod_twelve">OddPerfect.two_exceptions_three_pow_four_special_mod_twelve</a> in <a href="reference.html#mod-TwoExceptionFourMod">OddPerfect.TwoExceptionFourMod</a></p>
+<p>That class is impossible as well, so with two exceptional primes the exponent of 3 is never 4 (modules <a href="reference.html#mod-TwoExceptionFourChains"><code>TwoExceptionFourChains</code></a> and <a href="reference.html#mod-TwoExceptionFourEmpty"><code>TwoExceptionFourEmpty</code></a>). Whether this statement is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_three_ne_four</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q))
+  (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+  N.factorization 3 ≠ 4</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_ne_four">OddPerfect.two_exceptions_three_ne_four</a> in <a href="reference.html#mod-TwoExceptionFourEmpty">OddPerfect.TwoExceptionFourEmpty</a></p>
 <p>It also holds with three exceptional primes r₁, r₂ and r₃, again with no condition on them (module <a href="reference.html#mod-ThreeFreeThree"><code>ThreeFreeThree</code></a>). The proof is a case analysis with 1223 leaves over 102 class triples, found by a search outside Lean and rechecked in the kernel by a checker that is proved sound. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_three_exceptions</span> {N q r₁ r₂ r₃ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -363,7 +368,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>9267552</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>2386506</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
