@@ -157,3 +157,15 @@ import OddPerfect.NotThreeTenForce
 import OddPerfect.NotThreeTenA
 import OddPerfect.NotThreeTenB
 import OddPerfect.NotThreeTen
+import OddPerfect.LargestPrimeFactorTwo
+import OddPerfect.LargestPrimeFactorTwoData
+import OddPerfect.LargestPrimeFactorTwoRows1
+import OddPerfect.LargestPrimeFactorTwoRows2
+import OddPerfect.LargestPrimeFactorTwoRows3
+import OddPerfect.LargestPrimeFactorTwoRows4
+import OddPerfect.LargestPrimeFactorTwoRows5
+import OddPerfect.LargestPrimeFactorTwoRows6
+import OddPerfect.LargestPrimeFactorTwoRows7
+import OddPerfect.LargestPrimeFactorTwoRows8
+import OddPerfect.LargestPrimeFactorTwoRows9
+import OddPerfect.LargestPrimeFactorTwoFinal
