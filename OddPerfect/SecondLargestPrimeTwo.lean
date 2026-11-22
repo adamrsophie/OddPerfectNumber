@@ -1,22 +1,24 @@
-import OddPerfect.SecondLargestPrimeData1
-import OddPerfect.SecondLargestPrimeData2
-import OddPerfect.SecondLargestPrimeData3
-import OddPerfect.SecondLargestPrimeData4
-import OddPerfect.SecondLargestPrimeData5
-import OddPerfect.SecondLargestPrimeData6
-import OddPerfect.SecondLargestPrimeData7
-import OddPerfect.SecondLargestPrimeData8
-import OddPerfect.SecondLargestPrimeData9
+import OddPerfect.SecondLargestPrimeFastData1
+import OddPerfect.SecondLargestPrimeFastData2
+import OddPerfect.SecondLargestPrimeFastData3
+import OddPerfect.SecondLargestPrimeFastData4
+import OddPerfect.SecondLargestPrimeFastData5
+import OddPerfect.SecondLargestPrimeFastData6
+import OddPerfect.SecondLargestPrimeFastData7
+import OddPerfect.SecondLargestPrimeFastData8
+import OddPerfect.SecondLargestPrimeFastData9
 
 /-!
 # Two prime factors above `72`
 
 A formalization of a known type of result: lower bounds for the second largest prime factor
-of an odd perfect number (Iannucci proved such bounds with far larger constants). We show that
+of an odd perfect number. Iannucci proved such bounds with far larger constants (the second
+largest prime factor exceeds `10 ^ 4`); those published bounds are not proved here. We show that
 an odd perfect number has two distinct prime factors above `72`, with the search engine of
 `OddPerfect.SecondLargestPrime`, started from the lower bound `10001` for the large prime given
-by `exists_primeFactor_gt`. The kernel checked steps of the search are in the modules
-`SecondLargestPrimeData1` to `SecondLargestPrimeData9`.
+by `exists_primeFactor_gt`. The steps of the search were found outside Lean and are checked
+again by the kernel in the modules `SecondLargestPrimeFastData1` to
+`SecondLargestPrimeFastData9`, with the fast step of `OddPerfect.SecondLargestPrimeFast`.
 -/
 
 namespace OddPerfect
@@ -47,7 +49,7 @@ private def st72 : List Ent :=
 private theorem st72_eq : (primesUpTo 72).map (fun q => (q, 0, 0)) = st72 := by decide +kernel
 
 private theorem cert72 : Cert 72 [(st72, 0, 10001, 0, 0, 0, false)] :=
-  Data1.cert_first (Data2.cert_first (Data3.cert_first (Data4.cert_first (Data5.cert_first (Data6.cert_first (Data7.cert_first (Data8.cert_first (Data9.cert_first (cert_nil 72)))))))))
+  FastData1.cert_first (FastData2.cert_first (FastData3.cert_first (FastData4.cert_first (FastData5.cert_first (FastData6.cert_first (FastData7.cert_first (FastData8.cert_first (FastData9.cert_first (cert_nil 72)))))))))
 
 end SLP
 
@@ -56,7 +58,14 @@ theorem exists_two_primeFactors_gt_72 {N : ℕ} (h : OddPerfect N) :
     ∃ p ∈ N.primeFactors, ∃ r ∈ N.primeFactors, p ≠ r ∧ 72 < p ∧ 72 < r :=
   SLP.exists_two_of_cert_from SLP.st72_eq (by norm_num) SLP.cert72 h
 
+/-- An odd perfect number has two distinct prime factors above `58`. -/
+theorem exists_two_primeFactors_gt {N : ℕ} (h : OddPerfect N) :
+    ∃ p ∈ N.primeFactors, ∃ r ∈ N.primeFactors, p ≠ r ∧ 58 < p ∧ 58 < r := by
+  obtain ⟨p, hp, r, hr, hpr, h1, h2⟩ := exists_two_primeFactors_gt_72 h
+  exact ⟨p, hp, r, hr, hpr, by omega, by omega⟩
+
 end OddPerfect
 
 #print axioms OddPerfect.SLP.exists_two_of_cert_from
 #print axioms OddPerfect.exists_two_primeFactors_gt_72
+#print axioms OddPerfect.exists_two_primeFactors_gt

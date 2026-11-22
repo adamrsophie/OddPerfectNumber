@@ -1,14 +1,16 @@
-import OddPerfect.SecondLargestPrime
+import OddPerfect.SecondLargestPrimeFast
 
 /-!
 # Certificate data for two prime factors above `72`, part 4 of 9
 
 Steps 34000 to 45000 of the search of `OddPerfect.SecondLargestPrime` for `B = 72`, started
-from the lower bound `10001` for the large prime. The stacks were produced by running `SLP.run`
-itself, 500 steps at a time; the kernel checks every step.
+from the lower bound `10001` for the large prime, in theorems of 500 steps checked with `SLP.runF`
+(`OddPerfect.SecondLargestPrimeFast`), which computes exactly what `SLP.run` computes. The
+stacks were found outside Lean by a program that reproduces `SLP.run`; the kernel checks every
+step again.
 -/
 
-namespace OddPerfect.SLP.Data4
+namespace OddPerfect.SLP.FastData4
 
 /-- Decidable equality of search states. -/
 private instance : DecidableEq State := fun a b => instDecidableEqProd a b
@@ -87,97 +89,97 @@ private def S89 : List State :=
   [([(3, 3, 4), (5, 1, 0), (7, 1, 0), (11, 2, 10), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 6), (29, 2, 10), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 3, 2), (53, 3, 1), (59, 1, 0), (61, 2, 6), (67, 1, 0), (71, 1, 0)], 0, 21871, 21871, 21871, 2, false), ([(3, 3, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 2, 10), (53, 3, 1), (59, 1, 0), (61, 2, 6), (67, 1, 0), (71, 1, 0)], 0, 21750, 27708, 0, 0, false), ([(3, 3, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 2, 2), (53, 2, 4), (59, 1, 0), (61, 2, 1), (67, 1, 0), (71, 1, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 12), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 2, 2), (53, 2, 1), (59, 1, 0), (61, 2, 1), (67, 1, 0), (71, 1, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 2, 2), (53, 2, 1), (59, 1, 0), (61, 1, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 2, 2), (53, 1, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 2, 6), (41, 1, 0), (43, 1, 0), (47, 1, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 2, 6), (37, 1, 0), (41, 0, 0), (43, 0, 0), (47, 0, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 2, 4), (31, 1, 0), (37, 0, 0), (41, 0, 0), (43, 0, 0), (47, 0, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 2, 4), (29, 1, 0), (31, 0, 0), (37, 0, 0), (41, 0, 0), (43, 0, 0), (47, 0, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 2, 6), (13, 1, 0), (17, 1, 0), (19, 1, 0), (23, 1, 0), (29, 0, 0), (31, 0, 0), (37, 0, 0), (41, 0, 0), (43, 0, 0), (47, 0, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 2, 4), (5, 1, 0), (7, 1, 0), (11, 1, 0), (13, 0, 0), (17, 0, 0), (19, 0, 0), (23, 0, 0), (29, 0, 0), (31, 0, 0), (37, 0, 0), (41, 0, 0), (43, 0, 0), (47, 0, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false), ([(3, 1, 0), (5, 0, 0), (7, 0, 0), (11, 0, 0), (13, 0, 0), (17, 0, 0), (19, 0, 0), (23, 0, 0), (29, 0, 0), (31, 0, 0), (37, 0, 0), (41, 0, 0), (43, 0, 0), (47, 0, 0), (53, 0, 0), (59, 0, 0), (61, 0, 0), (67, 0, 0), (71, 0, 0)], 0, 10001, 0, 0, 0, false)]
 
 set_option maxRecDepth 100000 in
-private theorem run68 : run 72 557940830126698960967415390 10 500 first = some S69 := by
+private theorem run68 : runF 72 557940830126698960967415390 10 500 first = some S69 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run69 : run 72 557940830126698960967415390 10 500 S69 = some S70 := by
+private theorem run69 : runF 72 557940830126698960967415390 10 500 S69 = some S70 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run70 : run 72 557940830126698960967415390 10 500 S70 = some S71 := by
+private theorem run70 : runF 72 557940830126698960967415390 10 500 S70 = some S71 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run71 : run 72 557940830126698960967415390 10 500 S71 = some S72 := by
+private theorem run71 : runF 72 557940830126698960967415390 10 500 S71 = some S72 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run72 : run 72 557940830126698960967415390 10 500 S72 = some S73 := by
+private theorem run72 : runF 72 557940830126698960967415390 10 500 S72 = some S73 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run73 : run 72 557940830126698960967415390 10 500 S73 = some S74 := by
+private theorem run73 : runF 72 557940830126698960967415390 10 500 S73 = some S74 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run74 : run 72 557940830126698960967415390 10 500 S74 = some S75 := by
+private theorem run74 : runF 72 557940830126698960967415390 10 500 S74 = some S75 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run75 : run 72 557940830126698960967415390 10 500 S75 = some S76 := by
+private theorem run75 : runF 72 557940830126698960967415390 10 500 S75 = some S76 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run76 : run 72 557940830126698960967415390 10 500 S76 = some S77 := by
+private theorem run76 : runF 72 557940830126698960967415390 10 500 S76 = some S77 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run77 : run 72 557940830126698960967415390 10 500 S77 = some S78 := by
+private theorem run77 : runF 72 557940830126698960967415390 10 500 S77 = some S78 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run78 : run 72 557940830126698960967415390 10 500 S78 = some S79 := by
+private theorem run78 : runF 72 557940830126698960967415390 10 500 S78 = some S79 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run79 : run 72 557940830126698960967415390 10 500 S79 = some S80 := by
+private theorem run79 : runF 72 557940830126698960967415390 10 500 S79 = some S80 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run80 : run 72 557940830126698960967415390 10 500 S80 = some S81 := by
+private theorem run80 : runF 72 557940830126698960967415390 10 500 S80 = some S81 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run81 : run 72 557940830126698960967415390 10 500 S81 = some S82 := by
+private theorem run81 : runF 72 557940830126698960967415390 10 500 S81 = some S82 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run82 : run 72 557940830126698960967415390 10 500 S82 = some S83 := by
+private theorem run82 : runF 72 557940830126698960967415390 10 500 S82 = some S83 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run83 : run 72 557940830126698960967415390 10 500 S83 = some S84 := by
+private theorem run83 : runF 72 557940830126698960967415390 10 500 S83 = some S84 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run84 : run 72 557940830126698960967415390 10 500 S84 = some S85 := by
+private theorem run84 : runF 72 557940830126698960967415390 10 500 S84 = some S85 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run85 : run 72 557940830126698960967415390 10 500 S85 = some S86 := by
+private theorem run85 : runF 72 557940830126698960967415390 10 500 S85 = some S86 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run86 : run 72 557940830126698960967415390 10 500 S86 = some S87 := by
+private theorem run86 : runF 72 557940830126698960967415390 10 500 S86 = some S87 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run87 : run 72 557940830126698960967415390 10 500 S87 = some S88 := by
+private theorem run87 : runF 72 557940830126698960967415390 10 500 S87 = some S88 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run88 : run 72 557940830126698960967415390 10 500 S88 = some S89 := by
+private theorem run88 : runF 72 557940830126698960967415390 10 500 S88 = some S89 := by
   decide +kernel
 
 set_option maxRecDepth 100000 in
-private theorem run89 : run 72 557940830126698960967415390 10 500 S89 = some last := by
+private theorem run89 : runF 72 557940830126698960967415390 10 500 S89 = some last := by
   decide +kernel
 
 /-- No state of `first` holds, given that no state of `last` holds. -/
 theorem cert_first (h : Cert 72 last) : Cert 72 first :=
-  cert_step M_eq run68 (cert_step M_eq run69 (cert_step M_eq run70 (cert_step M_eq run71 (cert_step M_eq run72 (cert_step M_eq run73 (cert_step M_eq run74 (cert_step M_eq run75 (cert_step M_eq run76 (cert_step M_eq run77 (cert_step M_eq run78 (cert_step M_eq run79 (cert_step M_eq run80 (cert_step M_eq run81 (cert_step M_eq run82 (cert_step M_eq run83 (cert_step M_eq run84 (cert_step M_eq run85 (cert_step M_eq run86 (cert_step M_eq run87 (cert_step M_eq run88 (cert_step M_eq run89 (h))))))))))))))))))))))
+  cert_stepF M_eq run68 (cert_stepF M_eq run69 (cert_stepF M_eq run70 (cert_stepF M_eq run71 (cert_stepF M_eq run72 (cert_stepF M_eq run73 (cert_stepF M_eq run74 (cert_stepF M_eq run75 (cert_stepF M_eq run76 (cert_stepF M_eq run77 (cert_stepF M_eq run78 (cert_stepF M_eq run79 (cert_stepF M_eq run80 (cert_stepF M_eq run81 (cert_stepF M_eq run82 (cert_stepF M_eq run83 (cert_stepF M_eq run84 (cert_stepF M_eq run85 (cert_stepF M_eq run86 (cert_stepF M_eq run87 (cert_stepF M_eq run88 (cert_stepF M_eq run89 (h))))))))))))))))))))))
 
-end OddPerfect.SLP.Data4
+end OddPerfect.SLP.FastData4
 
-#print axioms OddPerfect.SLP.Data4.cert_first
+#print axioms OddPerfect.SLP.FastData4.cert_first
