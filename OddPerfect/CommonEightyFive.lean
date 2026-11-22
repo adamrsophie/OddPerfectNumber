@@ -1,4 +1,4 @@
-import OddPerfect.CommonFiveSeven
+import OddPerfect.CommonFastChecks
 
 /-!
 # Common exponent families: the common `85` family
@@ -1348,52 +1348,67 @@ theorem zp85_eq : nodes85.zip rows85 =
       zp85_10, zp85_11].flatten := by
   decide +kernel
 
+/-- The nodes in parts. -/
+theorem nd85_eq : nodes85 =
+    [nd85_0, nd85_1, nd85_2, nd85_3, nd85_4, nd85_5, nd85_6, nd85_7, nd85_8, nd85_9,
+      nd85_10, nd85_11, nd85_12, nd85_13, nd85_14, nd85_15, nd85_16].flatten := by
+  decide +kernel
+
+/-- The node parts as one list. -/
+def ndp85 : List (List ℕ) :=
+  [nd85_0, nd85_1, nd85_2, nd85_3, nd85_4, nd85_5, nd85_6, nd85_7, nd85_8, nd85_9,
+      nd85_10, nd85_11, nd85_12, nd85_13, nd85_14, nd85_15, nd85_16]
+
+/-- The node parts have length `100`, the last one at most `100`. -/
+theorem ndp85_lens : lensOK 100 ndp85 = true := by decide +kernel
+
 /-- The divisibility checks of the rows, part 0. -/
-theorem rows85_0 : zp85_0.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_0 : zp85_0.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 1. -/
-theorem rows85_1 : zp85_1.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_1 : zp85_1.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 2. -/
-theorem rows85_2 : zp85_2.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_2 : zp85_2.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 3. -/
-theorem rows85_3 : zp85_3.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_3 : zp85_3.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 4. -/
-theorem rows85_4 : zp85_4.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_4 : zp85_4.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 5. -/
-theorem rows85_5 : zp85_5.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_5 : zp85_5.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 6. -/
-theorem rows85_6 : zp85_6.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_6 : zp85_6.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 7. -/
-theorem rows85_7 : zp85_7.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_7 : zp85_7.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 8. -/
-theorem rows85_8 : zp85_8.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_8 : zp85_8.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 9. -/
-theorem rows85_9 : zp85_9.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_9 : zp85_9.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 10. -/
-theorem rows85_10 : zp85_10.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_10 : zp85_10.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 11. -/
-theorem rows85_11 : zp85_11.all (rowChk 85 nodes85) = true := by decide +kernel
+theorem rows85_11 : zp85_11.all (rowChkP 100 ndp85 85) = true := by decide +kernel
 
 /-- The divisibility checks of all rows. -/
-theorem hrows85 : ∀ e ∈ nodes85.zip rows85, rowChk 85 nodes85 e = true :=
-  all_of_parts _ zp85_eq (by
+theorem hrows85 : ∀ e ∈ nodes85.zip rows85, rowChk 85 nodes85 e = true := fun e he =>
+  rowChk_of_rowChkP (K := 100) (parts := ndp85) (by decide) nd85_eq ndp85_lens
+    (all_of_parts _ zp85_eq (by
     exact List.forall_mem_cons.mpr ⟨rows85_0, List.forall_mem_cons.mpr ⟨rows85_1,
       List.forall_mem_cons.mpr ⟨rows85_2, List.forall_mem_cons.mpr ⟨rows85_3,
       List.forall_mem_cons.mpr ⟨rows85_4, List.forall_mem_cons.mpr ⟨rows85_5,
       List.forall_mem_cons.mpr ⟨rows85_6, List.forall_mem_cons.mpr ⟨rows85_7,
       List.forall_mem_cons.mpr ⟨rows85_8, List.forall_mem_cons.mpr ⟨rows85_9,
       List.forall_mem_cons.mpr ⟨rows85_10, List.forall_mem_cons.mpr ⟨rows85_11, fun _ h => absurd
-      h List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩)
+      h List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩) e he)
 
 /-- No node is `2`. -/
 theorem nodes85_ne2 : ∀ t ∈ nodes85, t ≠ 2 := by
@@ -1407,147 +1422,115 @@ theorem src85_eq : nodes85.take rows85.length =
       src85_9, src85_10, src85_11].flatten := by
   decide +kernel
 
-/-- The nodes in parts. -/
-theorem nd85_eq : nodes85 =
-    [nd85_0, nd85_1, nd85_2, nd85_3, nd85_4, nd85_5, nd85_6, nd85_7, nd85_8, nd85_9,
-      nd85_10, nd85_11, nd85_12, nd85_13, nd85_14, nd85_15, nd85_16].flatten := by
-  decide +kernel
-
 /-- The blocked candidates. -/
 def cand85 (b : ℕ) : Bool := b % 12 == 1
 
-/-- Reach checks for the blocked source nodes, part 0. -/
-theorem reach85_0 :
-    src85_0.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
+/-- Blocked set 0: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk85_0 (x : ℕ) : Bool :=
+  cand85 x && Nat.testBit 8159288196831688735484577649134619025141243369678664905554466981168207393120283630130437523590223891716822980396001775940752296603101413388284791047505537870957661108538485183842381519531991617560075127878993039410765475550362225225237049160596777663816437334383470575587910908799128553537551666268495816227736675543707764266730489844507836168230633234234613268364404529325973586792726947387788407329421971813509531885211945458169110105114362873166209307226576052620874741948754745179413659937520701985424001831967571328123402535749806033534010039795528483757491299084967709158138646812018642746978541397173663479437743802624159573648263420282133390526121503675937223563414200387957669449215163797363680682921932938412057492137567709858309994761017929899084465434403976271839080787639293743232835649701994426043322576852730670967041438488962708334866993842739582385216347439318384120325392768841070781590868511108799298724096293073819043847223612244975831134738177290762400473348089580453164370435485369921651662989757900214148504484798501166148700667187265053772634566424199255215485708201242997149866048238985030733673970914372665031770850781648626182708938952217309198495787546744947786431940345682346733306987915833080977297440 (x % 4099)
+
+/-- Blocked set 1: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk85_1 (x : ℕ) : Bool :=
+  cand85 x && Nat.testBit 28987614570184852757984019401141268803580419378376110989465534669370096115050484306074960616579849674391615389960080459659216158291068498050262658676939224104007743069655531005831406746203121975811371710686510476144398541740767605934314352312525494721858832539972804849763981585582580849332976416273685892623446146026660717060788508555833951633783918961276178928083797636024201571999074486617068520062107653186466569363152231409990833776837523271457509719910275339982210909364559955540019948047808063958433629603744692835712619884139924993340345292914280060810875220468494866058054646621317950753646222734723245041079451252652497630600473951050801497263976268006046724532787433543468975485306629150918300032167452063331736380302281382056666168401685853633704119700996814136405238360361730980011440914006530966192249334254835212823195621682904857422432898495655092926264390453744144167980094306682227096294589636421537414586688669050572558939422993201196550416218639353981367873626497872098101038373791003446547088561543912156173253749069572068114549124788893462845382867720501725520386401537311128976648450525967662542334328007847074086289519926108004869507529584009298215178168197160297084866928070208238080025952256 (x % 4099)
+
+/-- Blocked set 2: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk85_2 (x : ℕ) : Bool :=
+  cand85 x && Nat.testBit 444696591440823834253838721316612371872620552197633199635864482216316859964580698429442556624875369426756767694825478737649145045704855726737358201436444250618896350635152677805837413434083308489689710168480844896651544813217478931362626149243905940406427276551768618251041569185264841005262753637192910758465739531201598188293251823410127759023670346633622779534617952733867305256107499950399735425172091836842100524320477055584059555135662348568488618830077941540992568083610381429459836472502016395489177282267381223464611979100521260834919166732703132506385173304594235724970789821612551962905557576068287802425092670709614350977159865955658496622379050043733628207827710073285256912576564095045699504069430297380868783888776512083874355201421107789380664960909986392324610649188426896609980702888112843987231560329410260229673857053347983567203256326034510473914779853964363020751516688850549090992800195553240022234755151766384271644513766848942592645058996744151223632885417983520755770859342641933354300043313654159914893592182927693066202018128083826772187066183907659807290744218847620589955350488207083532468617216 (x % 4099)
+
+/-- Blocked set 3: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk85_3 (x : ℕ) : Bool :=
+  cand85 x && Nat.testBit 107987279333862858760510651943861564472034849676760905244082458643804727551003398562445329393026023695490586677090032214330956330551218841859940863610979811643757973048417394330246927505588174274859717129728427360921501713550567029371679363614074344028565880356862956587373062186979989690171893163013548839417174159767806515004437582873534350586144906500443689260189652196735969353450434863755680856487024807006122057357749139439859393244743741901102711659133804055400018404688526670443911220605917030623547374280121357320210587132201376797904261106495795178233092346610255604591936084168048967060044466156748666863311592700085209669421597393629060116444071712121345991797871763207429456925311011469449095279777012138046468616339458925293569486434041197485594281450423457184155799157684937408407205097955825996920803523712670064568516651573549772508516699357253784454641294329523807571472450722986717145674318401465497500062341618957693505996271364804622230232198708723578598726434585033515329788420385226967859990966634882883840142795373515958860610623760526527250168496371852386270576718686896223587557971355057335300210212671905457226966810724239372691204260764247200554647849178878666141780499512596365312 (x % 4099)
+
+/-- Reach check with the blocked set 0. -/
+theorem reach85_0 : reachS nodes85 rows85 2 tm85 3 blk85_0 = true := by
   decide +kernel
 
-/-- Reach checks for the blocked source nodes, part 1. -/
-theorem reach85_1 :
-    src85_1.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
+/-- Reach check with the blocked set 1. -/
+theorem reach85_1 : reachS nodes85 rows85 2 tm85 3 blk85_1 = true := by
   decide +kernel
 
-/-- Reach checks for the blocked source nodes, part 2. -/
-theorem reach85_2 :
-    src85_2.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
+/-- Reach check with the blocked set 2. -/
+theorem reach85_2 : reachS nodes85 rows85 2 tm85 3 blk85_2 = true := by
   decide +kernel
 
-/-- Reach checks for the blocked source nodes, part 3. -/
-theorem reach85_3 :
-    src85_3.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 4. -/
-theorem reach85_4 :
-    src85_4.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 5. -/
-theorem reach85_5 :
-    src85_5.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 6. -/
-theorem reach85_6 :
-    src85_6.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 7. -/
-theorem reach85_7 :
-    src85_7.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 8. -/
-theorem reach85_8 :
-    src85_8.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 9. -/
-theorem reach85_9 :
-    src85_9.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 10. -/
-theorem reach85_10 :
-    src85_10.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 11. -/
-theorem reach85_11 :
-    src85_11.all (fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b) = true := by
+/-- Reach check with the blocked set 3. -/
+theorem reach85_3 : reachS nodes85 rows85 2 tm85 3 blk85_3 = true := by
   decide +kernel
 
 /-- Reach check with no source blocked. -/
 theorem reach85_none : reach nodes85 rows85 2 tm85 3 0 = true := by decide +kernel
 
+/-- Every blocked candidate lies in one of the blocked sets. -/
+theorem blk85_cover : (nodes85.take rows85.length).all
+    (fun b => !cand85 b || [blk85_0, blk85_1, blk85_2, blk85_3].any fun f => f b) = true := by
+  decide +kernel
+
 /-- Every blocked source node passes the reach check. -/
 theorem hcand85 : ∀ b ∈ nodes85.take rows85.length, cand85 b = true →
-    reach nodes85 rows85 2 tm85 3 b = true := by
-  intro b hb hcb
-  have := all_of_parts (f := fun b => !cand85 b || reach nodes85 rows85 2 tm85 3 b)
-    _ src85_eq (by
+    reach nodes85 rows85 2 tm85 3 b = true :=
+  hcand_of_groups [blk85_0, blk85_1, blk85_2, blk85_3] (by
     exact List.forall_mem_cons.mpr ⟨reach85_0, List.forall_mem_cons.mpr ⟨reach85_1,
-      List.forall_mem_cons.mpr ⟨reach85_2, List.forall_mem_cons.mpr ⟨reach85_3,
-      List.forall_mem_cons.mpr ⟨reach85_4, List.forall_mem_cons.mpr ⟨reach85_5,
-      List.forall_mem_cons.mpr ⟨reach85_6, List.forall_mem_cons.mpr ⟨reach85_7,
-      List.forall_mem_cons.mpr ⟨reach85_8, List.forall_mem_cons.mpr ⟨reach85_9,
-      List.forall_mem_cons.mpr ⟨reach85_10, List.forall_mem_cons.mpr ⟨reach85_11, fun _ h =>
-      absurd h List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩) b hb
-  simpa [hcb] using this
+      List.forall_mem_cons.mpr ⟨reach85_2, List.forall_mem_cons.mpr ⟨reach85_3, fun _ h => absurd
+      h List.not_mem_nil⟩⟩⟩⟩) blk85_cover
 
-/-- The nodes of part 0 are certified. -/
-theorem nd85_0_isPS : nd85_0.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 0 are prime by trial division. -/
+theorem nd85_0_isPS : nd85_0.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 1 are certified. -/
-theorem nd85_1_isPS : nd85_1.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 1 are prime by trial division. -/
+theorem nd85_1_isPS : nd85_1.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 2 are certified. -/
-theorem nd85_2_isPS : nd85_2.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 2 are prime by trial division. -/
+theorem nd85_2_isPS : nd85_2.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 3 are certified. -/
-theorem nd85_3_isPS : nd85_3.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 3 are prime by trial division. -/
+theorem nd85_3_isPS : nd85_3.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 4 are certified. -/
-theorem nd85_4_isPS : nd85_4.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 4 are prime by trial division. -/
+theorem nd85_4_isPS : nd85_4.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 5 are certified. -/
-theorem nd85_5_isPS : nd85_5.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 5 are prime by trial division. -/
+theorem nd85_5_isPS : nd85_5.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 6 are certified. -/
-theorem nd85_6_isPS : nd85_6.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 6 are prime by trial division. -/
+theorem nd85_6_isPS : nd85_6.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 7 are certified. -/
-theorem nd85_7_isPS : nd85_7.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 7 are prime by trial division. -/
+theorem nd85_7_isPS : nd85_7.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 8 are certified. -/
-theorem nd85_8_isPS : nd85_8.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 8 are prime by trial division. -/
+theorem nd85_8_isPS : nd85_8.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 9 are certified. -/
-theorem nd85_9_isPS : nd85_9.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 9 are prime by trial division. -/
+theorem nd85_9_isPS : nd85_9.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 10 are certified. -/
-theorem nd85_10_isPS : nd85_10.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 10 are prime by trial division. -/
+theorem nd85_10_isPS : nd85_10.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 11 are certified. -/
-theorem nd85_11_isPS : nd85_11.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 11 are prime by trial division. -/
+theorem nd85_11_isPS : nd85_11.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 12 are certified. -/
-theorem nd85_12_isPS : nd85_12.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 12 are prime by trial division. -/
+theorem nd85_12_isPS : nd85_12.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 13 are certified. -/
-theorem nd85_13_isPS : nd85_13.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 13 are prime by trial division. -/
+theorem nd85_13_isPS : nd85_13.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 14 are certified. -/
-theorem nd85_14_isPS : nd85_14.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 14 are prime by trial division. -/
+theorem nd85_14_isPS : nd85_14.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 15 are certified. -/
-theorem nd85_15_isPS : nd85_15.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 15 are prime by trial division. -/
+theorem nd85_15_isPS : nd85_15.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 16 are certified. -/
-theorem nd85_16_isPS : nd85_16.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 16 are prime by trial division. -/
+theorem nd85_16_isPS : nd85_16.all (fastPrime oddP) = true := by decide +kernel
 
 /-- The nodes of the `d = 85` table are prime. -/
 theorem nodes85_prime : ∀ t ∈ nodes85, t.Prime := fun t ht =>
-  isPS_sound rfl (all_of_parts _ nd85_eq (by
+  prime_of_fastPrime (all_of_parts _ nd85_eq (by
     exact List.forall_mem_cons.mpr ⟨nd85_0_isPS, List.forall_mem_cons.mpr ⟨nd85_1_isPS,
       List.forall_mem_cons.mpr ⟨nd85_2_isPS, List.forall_mem_cons.mpr ⟨nd85_3_isPS,
       List.forall_mem_cons.mpr ⟨nd85_4_isPS, List.forall_mem_cons.mpr ⟨nd85_5_isPS,
@@ -1616,6 +1599,8 @@ theorem not_all_exponents_eq_of_eighty_five_dvd_succ {N q E : ℕ} (h : OddPerfe
 end OddPerfect
 
 #print axioms OddPerfect.FamInst.zp85_eq
+#print axioms OddPerfect.FamInst.nd85_eq
+#print axioms OddPerfect.FamInst.ndp85_lens
 #print axioms OddPerfect.FamInst.rows85_0
 #print axioms OddPerfect.FamInst.rows85_1
 #print axioms OddPerfect.FamInst.rows85_2
@@ -1631,20 +1616,12 @@ end OddPerfect
 #print axioms OddPerfect.FamInst.hrows85
 #print axioms OddPerfect.FamInst.nodes85_ne2
 #print axioms OddPerfect.FamInst.src85_eq
-#print axioms OddPerfect.FamInst.nd85_eq
 #print axioms OddPerfect.FamInst.reach85_0
 #print axioms OddPerfect.FamInst.reach85_1
 #print axioms OddPerfect.FamInst.reach85_2
 #print axioms OddPerfect.FamInst.reach85_3
-#print axioms OddPerfect.FamInst.reach85_4
-#print axioms OddPerfect.FamInst.reach85_5
-#print axioms OddPerfect.FamInst.reach85_6
-#print axioms OddPerfect.FamInst.reach85_7
-#print axioms OddPerfect.FamInst.reach85_8
-#print axioms OddPerfect.FamInst.reach85_9
-#print axioms OddPerfect.FamInst.reach85_10
-#print axioms OddPerfect.FamInst.reach85_11
 #print axioms OddPerfect.FamInst.reach85_none
+#print axioms OddPerfect.FamInst.blk85_cover
 #print axioms OddPerfect.FamInst.hcand85
 #print axioms OddPerfect.FamInst.nd85_0_isPS
 #print axioms OddPerfect.FamInst.nd85_1_isPS

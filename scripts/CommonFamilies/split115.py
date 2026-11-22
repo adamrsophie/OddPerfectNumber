@@ -1,10 +1,11 @@
 # Untrusted helper script for the OddPerfect Lean library.
 # Splits the output 115.tail.txt of mktail.py over the three modules of the 115 family:
-# the blocks cand115, reach115_*, hcand115 and ab115 go to 115main.tail.txt (for
-# CommonOneFifteen.lean), the blocks nd115_*_isPS and nodes115_prime to 115prime.tail.txt
-# (for CommonOneFifteenPrime.lean), and all other blocks to 115data.tail.txt (for
-# CommonOneFifteenData.lean). A block is a run of lines between blank lines; the order of
-# the blocks is kept.
+# the blocks cand115, blk115_*, reach115_*, hcand115, hrows115 and ab115 go to
+# 115main.tail.txt (for CommonOneFifteen.lean), the blocks nd115_*_isPS and nodes115_prime
+# to 115prime.tail.txt (for CommonOneFifteenPrime.lean), and all other blocks to
+# 115data.tail.txt (for CommonOneFifteenData.lean). A block is a run of lines between blank
+# lines; the order of the blocks is kept. hrows115 goes to the final module because, with the
+# key "fast" of mktail.py, its proof uses nd115_eq, which comes after it in the tail.
 # Used by: OddPerfect/CommonOneFifteenData.lean, CommonOneFifteenPrime.lean,
 # CommonOneFifteen.lean (see the run record of the 115 family in the README).
 # Run: python3 split115.py (in the folder that holds 115.tail.txt)
@@ -16,7 +17,7 @@
 
 import re
 
-MAIN = re.compile(r'(cand115|reach115_\w+|hcand115|ab115)$')
+MAIN = re.compile(r'(cand115|blk115_\w+|reach115_\w+|hcand115|hrows115|ab115)$')
 PRIME = re.compile(r'(nd115_\d+_isPS|nodes115_prime)$')
 
 

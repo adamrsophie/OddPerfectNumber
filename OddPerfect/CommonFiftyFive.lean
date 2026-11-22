@@ -1,4 +1,4 @@
-import OddPerfect.CommonFiveSeven
+import OddPerfect.CommonFastChecks
 
 /-!
 # Common exponent families: the common `55` family
@@ -1085,45 +1085,60 @@ theorem zp55_eq : nodes55.zip rows55 =
     [zp55_0, zp55_1, zp55_2, zp55_3, zp55_4, zp55_5, zp55_6, zp55_7, zp55_8, zp55_9].flatten := by
   decide +kernel
 
+/-- The nodes in parts. -/
+theorem nd55_eq : nodes55 =
+    [nd55_0, nd55_1, nd55_2, nd55_3, nd55_4, nd55_5, nd55_6, nd55_7, nd55_8, nd55_9,
+      nd55_10, nd55_11, nd55_12, nd55_13].flatten := by
+  decide +kernel
+
+/-- The node parts as one list. -/
+def ndp55 : List (List ℕ) :=
+  [nd55_0, nd55_1, nd55_2, nd55_3, nd55_4, nd55_5, nd55_6, nd55_7, nd55_8, nd55_9,
+      nd55_10, nd55_11, nd55_12, nd55_13]
+
+/-- The node parts have length `100`, the last one at most `100`. -/
+theorem ndp55_lens : lensOK 100 ndp55 = true := by decide +kernel
+
 /-- The divisibility checks of the rows, part 0. -/
-theorem rows55_0 : zp55_0.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_0 : zp55_0.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 1. -/
-theorem rows55_1 : zp55_1.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_1 : zp55_1.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 2. -/
-theorem rows55_2 : zp55_2.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_2 : zp55_2.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 3. -/
-theorem rows55_3 : zp55_3.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_3 : zp55_3.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 4. -/
-theorem rows55_4 : zp55_4.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_4 : zp55_4.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 5. -/
-theorem rows55_5 : zp55_5.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_5 : zp55_5.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 6. -/
-theorem rows55_6 : zp55_6.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_6 : zp55_6.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 7. -/
-theorem rows55_7 : zp55_7.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_7 : zp55_7.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 8. -/
-theorem rows55_8 : zp55_8.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_8 : zp55_8.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 9. -/
-theorem rows55_9 : zp55_9.all (rowChk 55 nodes55) = true := by decide +kernel
+theorem rows55_9 : zp55_9.all (rowChkP 100 ndp55 55) = true := by decide +kernel
 
 /-- The divisibility checks of all rows. -/
-theorem hrows55 : ∀ e ∈ nodes55.zip rows55, rowChk 55 nodes55 e = true :=
-  all_of_parts _ zp55_eq (by
+theorem hrows55 : ∀ e ∈ nodes55.zip rows55, rowChk 55 nodes55 e = true := fun e he =>
+  rowChk_of_rowChkP (K := 100) (parts := ndp55) (by decide) nd55_eq ndp55_lens
+    (all_of_parts _ zp55_eq (by
     exact List.forall_mem_cons.mpr ⟨rows55_0, List.forall_mem_cons.mpr ⟨rows55_1,
       List.forall_mem_cons.mpr ⟨rows55_2, List.forall_mem_cons.mpr ⟨rows55_3,
       List.forall_mem_cons.mpr ⟨rows55_4, List.forall_mem_cons.mpr ⟨rows55_5,
       List.forall_mem_cons.mpr ⟨rows55_6, List.forall_mem_cons.mpr ⟨rows55_7,
       List.forall_mem_cons.mpr ⟨rows55_8, List.forall_mem_cons.mpr ⟨rows55_9, fun _ h => absurd h
-      List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩)
+      List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩) e he)
 
 /-- No node is `2`. -/
 theorem nodes55_ne2 : ∀ t ∈ nodes55, t ≠ 2 := by
@@ -1137,127 +1152,106 @@ theorem src55_eq : nodes55.take rows55.length =
       src55_9].flatten := by
   decide +kernel
 
-/-- The nodes in parts. -/
-theorem nd55_eq : nodes55 =
-    [nd55_0, nd55_1, nd55_2, nd55_3, nd55_4, nd55_5, nd55_6, nd55_7, nd55_8, nd55_9,
-      nd55_10, nd55_11, nd55_12, nd55_13].flatten := by
-  decide +kernel
-
 /-- The blocked candidates. -/
 def cand55 (b : ℕ) : Bool := b % 12 == 1
 
-/-- Reach checks for the blocked source nodes, part 0. -/
-theorem reach55_0 :
-    src55_0.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
+/-- Blocked set 0: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk55_0 (x : ℕ) : Bool :=
+  cand55 x && Nat.testBit 138835387189809946263128072230131045140954683558117766851493205188878640918968759419264200408010843700768530886770780347550437225763261592272747297812733053226082303085211011848521276807885872305801998069008944201523739056073872825193430479684329330168619815770053989508446476539747211181519861060759415473204331943102272825800999083526115883382252738575450472993767780490125613613835397534880829552430111082263874572355813789733684787327011969512018274996202772764347290314327065922625864469895217888562927901190487675513314971086712747391297414848680239673629650939624627486950377119499629412396675593693368837231637089431410015379048505043278133296610197549201464313333934935346053287335862520353284525464407493577668028007365204888261965804860755292853519965590496128699099086868147635069277041702218547536069289978445304481768057894071685730629743000480194462884121934118152355007519032508472945284943676191813710608661315357732275416959231640623295255488854879684961469768713656493228845079942776678254886370209382270502684060775018101416984414978576099716002590452060113116316386494800834601917568962377485811441389903042572362319563328195771285914445224629510944745854663822216138212668736758289809778543095249484612802445312 (x % 4099)
+
+/-- Blocked set 1: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk55_1 (x : ℕ) : Bool :=
+  cand55 x && Nat.testBit 6436543425330432993110658394084909605169933192629393458382990168116161349377255946100647810444025444035575683486534289932128997375868799332886935220640123621151526580957062857664554277172415616573768772677997136808384086576015381169199135960106997535122306761272094641942272968316806898499534339360656298962515547335720626518995922621698351682912900981011470999270113009436973155732296130528294306333505275712401397698952446672239712660230522470092138242110607342155318997085431611193372024008550807580373003109625352703594664029184935057598957497333680272338778655102938432863652898853580454914913103399955026864548278579123332636132036448465903855254590059620093953321478090188859820645721073598080107753772399403380645266407499461546909339971712437258418045240775035329214138341987162854744020413362665916924562934364634167936432535055564330798019289830632094168747773966556922570558805477071334013177414225079452779141136915922877000900766197031003552166171800348860473177285140908415591804764682605194513735562907458311127933891926588729185245634341554830426652420755304643709778859541957998860031419838763303175738892615866009904241795072690458834157465807214977360132380945112243298169299927040 (x % 4099)
+
+/-- Blocked set 2: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk55_2 (x : ℕ) : Bool :=
+  cand55 x && Nat.testBit 2088777762826305013383505421433248765159928498094767560768466966567907815943114913697653623870495800771401334019220200942160540873628932849586280894152654958995005575616780113567976172433839765557193250459401222743590741817190922168235000041098637741608267624909326751528107713036610832552386736936213776478937660178331077490548729996407432083907909284501580966572380697401748874080740927015966746242671819405604147436434637085213393182195467258702791348245089767479545409031009465538541986056625570351035712914600541656979737034491411813605938553540927100830361694767236268537034393566247128236763352501209820946319625199739025341445224861779173311195263047816691549619997129718728792327813669661575168245900302299908854945139159589755135110970248828460002494088423815336771855002968059772811042177931229551112862570449368876804453575206292719605886437438641813250640427291492635913815616527032142479208349551985622556598599691922747717694029978330093866172159405845381234254105253818361321923587591186980904470411774115722990293069169135025291463612367744226110425358736004108702171606563632079692038056797248235045389726980474294446784834594214252123035280753047712718934759579486864649132450147458778202597394989227473801723248640 (x % 4099)
+
+/-- Blocked set 3: the candidates whose residue modulo `4099` is a set bit of
+the number below. -/
+def blk55_3 (x : ℕ) : Bool :=
+  cand55 x && Nat.testBit 2150420765149719371407861253383453526246899328833942509054211360968185487736455592859511400049695532279486188008877540871486659522781057248876226483857935355649573836906007309838581849589467237856779249679538879653168003760720506509328781041903361380601204548686869992697138760501444804703337902748609904375561286201621799795617805124098405171441186058156792939496206516952427886828769066161556693481679513134582786742992657677198660795964256821777158104406658665057765403847271597656987351080580081751846804579224877650430351906137673789202257362355142155300673160273020587575162756850536088103266135359581699232138856040191947019121513700995361680728458170246575414180818295146562852568490609887910737016592294474224851267356766043621483459112454303363822909219024875647573840019837928199458464199998638721209348268591915595779926992253739151433966814907761296964699716172212857934536204859569421169000659321437689885627967457331365627293053803234753677902552225521703762299847288031229227065152883784165148590120561525137835038046200917686577599882028211881046818112367084964247464410726799137051370279253819676501069160687207578070970347726831616 (x % 4099)
+
+/-- Reach check with the blocked set 0. -/
+theorem reach55_0 : reachS nodes55 rows55 2 tm55 6 blk55_0 = true := by
   decide +kernel
 
-/-- Reach checks for the blocked source nodes, part 1. -/
-theorem reach55_1 :
-    src55_1.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
+/-- Reach check with the blocked set 1. -/
+theorem reach55_1 : reachS nodes55 rows55 2 tm55 6 blk55_1 = true := by
   decide +kernel
 
-/-- Reach checks for the blocked source nodes, part 2. -/
-theorem reach55_2 :
-    src55_2.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
+/-- Reach check with the blocked set 2. -/
+theorem reach55_2 : reachS nodes55 rows55 2 tm55 6 blk55_2 = true := by
   decide +kernel
 
-/-- Reach checks for the blocked source nodes, part 3. -/
-theorem reach55_3 :
-    src55_3.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 4. -/
-theorem reach55_4 :
-    src55_4.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 5. -/
-theorem reach55_5 :
-    src55_5.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 6. -/
-theorem reach55_6 :
-    src55_6.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 7. -/
-theorem reach55_7 :
-    src55_7.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 8. -/
-theorem reach55_8 :
-    src55_8.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
-  decide +kernel
-
-/-- Reach checks for the blocked source nodes, part 9. -/
-theorem reach55_9 :
-    src55_9.all (fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b) = true := by
+/-- Reach check with the blocked set 3. -/
+theorem reach55_3 : reachS nodes55 rows55 2 tm55 6 blk55_3 = true := by
   decide +kernel
 
 /-- Reach check with no source blocked. -/
 theorem reach55_none : reach nodes55 rows55 2 tm55 6 0 = true := by decide +kernel
 
+/-- Every blocked candidate lies in one of the blocked sets. -/
+theorem blk55_cover : (nodes55.take rows55.length).all
+    (fun b => !cand55 b || [blk55_0, blk55_1, blk55_2, blk55_3].any fun f => f b) = true := by
+  decide +kernel
+
 /-- Every blocked source node passes the reach check. -/
 theorem hcand55 : ∀ b ∈ nodes55.take rows55.length, cand55 b = true →
-    reach nodes55 rows55 2 tm55 6 b = true := by
-  intro b hb hcb
-  have := all_of_parts (f := fun b => !cand55 b || reach nodes55 rows55 2 tm55 6 b)
-    _ src55_eq (by
+    reach nodes55 rows55 2 tm55 6 b = true :=
+  hcand_of_groups [blk55_0, blk55_1, blk55_2, blk55_3] (by
     exact List.forall_mem_cons.mpr ⟨reach55_0, List.forall_mem_cons.mpr ⟨reach55_1,
-      List.forall_mem_cons.mpr ⟨reach55_2, List.forall_mem_cons.mpr ⟨reach55_3,
-      List.forall_mem_cons.mpr ⟨reach55_4, List.forall_mem_cons.mpr ⟨reach55_5,
-      List.forall_mem_cons.mpr ⟨reach55_6, List.forall_mem_cons.mpr ⟨reach55_7,
-      List.forall_mem_cons.mpr ⟨reach55_8, List.forall_mem_cons.mpr ⟨reach55_9, fun _ h => absurd
-      h List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩) b hb
-  simpa [hcb] using this
+      List.forall_mem_cons.mpr ⟨reach55_2, List.forall_mem_cons.mpr ⟨reach55_3, fun _ h => absurd
+      h List.not_mem_nil⟩⟩⟩⟩) blk55_cover
 
-/-- The nodes of part 0 are certified. -/
-theorem nd55_0_isPS : nd55_0.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 0 are prime by trial division. -/
+theorem nd55_0_isPS : nd55_0.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 1 are certified. -/
-theorem nd55_1_isPS : nd55_1.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 1 are prime by trial division. -/
+theorem nd55_1_isPS : nd55_1.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 2 are certified. -/
-theorem nd55_2_isPS : nd55_2.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 2 are prime by trial division. -/
+theorem nd55_2_isPS : nd55_2.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 3 are certified. -/
-theorem nd55_3_isPS : nd55_3.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 3 are prime by trial division. -/
+theorem nd55_3_isPS : nd55_3.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 4 are certified. -/
-theorem nd55_4_isPS : nd55_4.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 4 are prime by trial division. -/
+theorem nd55_4_isPS : nd55_4.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 5 are certified. -/
-theorem nd55_5_isPS : nd55_5.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 5 are prime by trial division. -/
+theorem nd55_5_isPS : nd55_5.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 6 are certified. -/
-theorem nd55_6_isPS : nd55_6.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 6 are prime by trial division. -/
+theorem nd55_6_isPS : nd55_6.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 7 are certified. -/
-theorem nd55_7_isPS : nd55_7.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 7 are prime by trial division. -/
+theorem nd55_7_isPS : nd55_7.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 8 are certified. -/
-theorem nd55_8_isPS : nd55_8.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 8 are prime by trial division. -/
+theorem nd55_8_isPS : nd55_8.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 9 are certified. -/
-theorem nd55_9_isPS : nd55_9.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 9 are prime by trial division. -/
+theorem nd55_9_isPS : nd55_9.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 10 are certified. -/
-theorem nd55_10_isPS : nd55_10.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 10 are prime by trial division. -/
+theorem nd55_10_isPS : nd55_10.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 11 are certified. -/
-theorem nd55_11_isPS : nd55_11.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 11 are prime by trial division. -/
+theorem nd55_11_isPS : nd55_11.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 12 are certified. -/
-theorem nd55_12_isPS : nd55_12.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 12 are prime by trial division. -/
+theorem nd55_12_isPS : nd55_12.all (fastPrime oddP) = true := by decide +kernel
 
-/-- The nodes of part 13 are certified. -/
-theorem nd55_13_isPS : nd55_13.all (isPS []) = true := by decide +kernel
+/-- The nodes of part 13 are prime by trial division. -/
+theorem nd55_13_isPS : nd55_13.all (fastPrime oddP) = true := by decide +kernel
 
 /-- The nodes of the `d = 55` table are prime. -/
 theorem nodes55_prime : ∀ t ∈ nodes55, t.Prime := fun t ht =>
-  isPS_sound rfl (all_of_parts _ nd55_eq (by
+  prime_of_fastPrime (all_of_parts _ nd55_eq (by
     exact List.forall_mem_cons.mpr ⟨nd55_0_isPS, List.forall_mem_cons.mpr ⟨nd55_1_isPS,
       List.forall_mem_cons.mpr ⟨nd55_2_isPS, List.forall_mem_cons.mpr ⟨nd55_3_isPS,
       List.forall_mem_cons.mpr ⟨nd55_4_isPS, List.forall_mem_cons.mpr ⟨nd55_5_isPS,
@@ -1325,6 +1319,8 @@ theorem not_all_exponents_eq_of_fifty_five_dvd_succ {N q E : ℕ} (h : OddPerfec
 end OddPerfect
 
 #print axioms OddPerfect.FamInst.zp55_eq
+#print axioms OddPerfect.FamInst.nd55_eq
+#print axioms OddPerfect.FamInst.ndp55_lens
 #print axioms OddPerfect.FamInst.rows55_0
 #print axioms OddPerfect.FamInst.rows55_1
 #print axioms OddPerfect.FamInst.rows55_2
@@ -1338,18 +1334,12 @@ end OddPerfect
 #print axioms OddPerfect.FamInst.hrows55
 #print axioms OddPerfect.FamInst.nodes55_ne2
 #print axioms OddPerfect.FamInst.src55_eq
-#print axioms OddPerfect.FamInst.nd55_eq
 #print axioms OddPerfect.FamInst.reach55_0
 #print axioms OddPerfect.FamInst.reach55_1
 #print axioms OddPerfect.FamInst.reach55_2
 #print axioms OddPerfect.FamInst.reach55_3
-#print axioms OddPerfect.FamInst.reach55_4
-#print axioms OddPerfect.FamInst.reach55_5
-#print axioms OddPerfect.FamInst.reach55_6
-#print axioms OddPerfect.FamInst.reach55_7
-#print axioms OddPerfect.FamInst.reach55_8
-#print axioms OddPerfect.FamInst.reach55_9
 #print axioms OddPerfect.FamInst.reach55_none
+#print axioms OddPerfect.FamInst.blk55_cover
 #print axioms OddPerfect.FamInst.hcand55
 #print axioms OddPerfect.FamInst.nd55_0_isPS
 #print axioms OddPerfect.FamInst.nd55_1_isPS

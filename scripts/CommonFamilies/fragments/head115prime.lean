@@ -4,8 +4,8 @@ import OddPerfect.CommonOneFifteenData
 # Common exponent families: primality of the `115` table
 
 The nodes of the forcing table of the common `115` family in
-`OddPerfect.CommonOneFifteenData` are prime, by trial division over odd numbers up to the
-square root, checked in parts.
+`OddPerfect.CommonOneFifteenData` are prime, by trial division over the odd primes up to
+`4201` (`OddPerfect.FamInst.fastPrime`), checked in parts.
 -/
 
 open ArithmeticFunction

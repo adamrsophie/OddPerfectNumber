@@ -1,4 +1,4 @@
-import OddPerfect.CommonFiveSeven
+import OddPerfect.CommonFastChecks
 
 /-!
 # Common exponent families: the table of the common `115` family

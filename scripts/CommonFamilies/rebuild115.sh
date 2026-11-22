@@ -5,7 +5,8 @@
 # certificate certs/cert_d115.json.xz and compares them byte for byte with the checkout.
 # Steps (the manual steps of the original run done here in Python): decompress the
 # certificate; gen2.py; insert "set_option maxRecDepth 20000 in" before the docstrings of
-# nodes115 and rows115 and set "zc": 50 in 115.meta.json; mktail.py; split115.py; join each
+# nodes115 and rows115, set "zc": 50 and "fast": {"P": 4099} in 115.meta.json (the cheaper
+# checks of OddPerfect/CommonFastChecks.lean); mktail.py; split115.py; join each
 # part with its fragments head115*.lean and fin115*.lean; axioms.py on each module; cmp.
 # Used by: OddPerfect/CommonOneFifteenData.lean, CommonOneFifteenPrime.lean,
 # CommonOneFifteen.lean.
@@ -40,7 +41,7 @@ for name in ('nodes115', 'rows115'):
     j = s.rfind('\n/-- ', 0, i) + 1  # 0 when the docstring opens the file
     s = s[:j] + 'set_option maxRecDepth 20000 in\n' + s[j:]
 open('115.lean.txt', 'w').write(s)
-m = json.load(open('115.meta.json')); m['zc'] = 50
+m = json.load(open('115.meta.json')); m['zc'] = 50; m['fast'] = {'P': 4099}
 json.dump(m, open('115.meta.json', 'w'))
 EOF
 

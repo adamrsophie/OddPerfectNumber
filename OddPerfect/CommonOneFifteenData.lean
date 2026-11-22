@@ -1,4 +1,4 @@
-import OddPerfect.CommonFiveSeven
+import OddPerfect.CommonFastChecks
 
 /-!
 # Common exponent families: the table of the common `115` family
@@ -2323,150 +2323,135 @@ theorem zp115_eq : nodes115.zip rows115 =
       zp115_33, zp115_34, zp115_35, zp115_36, zp115_37, zp115_38, zp115_39].flatten := by
   decide +kernel
 
+/-- The node parts as one list. -/
+def ndp115 : List (List ℕ) :=
+  [nd115_0, nd115_1, nd115_2, nd115_3, nd115_4, nd115_5, nd115_6, nd115_7, nd115_8,
+      nd115_9, nd115_10, nd115_11, nd115_12, nd115_13, nd115_14, nd115_15, nd115_16,
+      nd115_17, nd115_18, nd115_19, nd115_20, nd115_21, nd115_22, nd115_23, nd115_24,
+      nd115_25, nd115_26, nd115_27]
+
+/-- The node parts have length `100`, the last one at most `100`. -/
+theorem ndp115_lens : lensOK 100 ndp115 = true := by decide +kernel
+
 /-- The divisibility checks of the rows, part 0. -/
-theorem rows115_0 : zp115_0.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_0 : zp115_0.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 1. -/
-theorem rows115_1 : zp115_1.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_1 : zp115_1.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 2. -/
-theorem rows115_2 : zp115_2.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_2 : zp115_2.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 3. -/
-theorem rows115_3 : zp115_3.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_3 : zp115_3.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 4. -/
-theorem rows115_4 : zp115_4.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_4 : zp115_4.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 5. -/
-theorem rows115_5 : zp115_5.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_5 : zp115_5.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 6. -/
-theorem rows115_6 : zp115_6.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_6 : zp115_6.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 7. -/
-theorem rows115_7 : zp115_7.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_7 : zp115_7.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 8. -/
-theorem rows115_8 : zp115_8.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_8 : zp115_8.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 9. -/
-theorem rows115_9 : zp115_9.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_9 : zp115_9.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 10. -/
-theorem rows115_10 : zp115_10.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_10 : zp115_10.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 11. -/
-theorem rows115_11 : zp115_11.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_11 : zp115_11.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 12. -/
-theorem rows115_12 : zp115_12.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_12 : zp115_12.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 13. -/
-theorem rows115_13 : zp115_13.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_13 : zp115_13.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 14. -/
-theorem rows115_14 : zp115_14.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_14 : zp115_14.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 15. -/
-theorem rows115_15 : zp115_15.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_15 : zp115_15.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 16. -/
-theorem rows115_16 : zp115_16.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_16 : zp115_16.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 17. -/
-theorem rows115_17 : zp115_17.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_17 : zp115_17.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 18. -/
-theorem rows115_18 : zp115_18.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_18 : zp115_18.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 19. -/
-theorem rows115_19 : zp115_19.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_19 : zp115_19.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 20. -/
-theorem rows115_20 : zp115_20.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_20 : zp115_20.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 21. -/
-theorem rows115_21 : zp115_21.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_21 : zp115_21.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 22. -/
-theorem rows115_22 : zp115_22.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_22 : zp115_22.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 23. -/
-theorem rows115_23 : zp115_23.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_23 : zp115_23.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 24. -/
-theorem rows115_24 : zp115_24.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_24 : zp115_24.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 25. -/
-theorem rows115_25 : zp115_25.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_25 : zp115_25.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 26. -/
-theorem rows115_26 : zp115_26.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_26 : zp115_26.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 27. -/
-theorem rows115_27 : zp115_27.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_27 : zp115_27.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 28. -/
-theorem rows115_28 : zp115_28.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_28 : zp115_28.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 29. -/
-theorem rows115_29 : zp115_29.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_29 : zp115_29.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 30. -/
-theorem rows115_30 : zp115_30.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_30 : zp115_30.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 31. -/
-theorem rows115_31 : zp115_31.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_31 : zp115_31.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 32. -/
-theorem rows115_32 : zp115_32.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_32 : zp115_32.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 33. -/
-theorem rows115_33 : zp115_33.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_33 : zp115_33.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 34. -/
-theorem rows115_34 : zp115_34.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_34 : zp115_34.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 35. -/
-theorem rows115_35 : zp115_35.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_35 : zp115_35.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 36. -/
-theorem rows115_36 : zp115_36.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_36 : zp115_36.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 37. -/
-theorem rows115_37 : zp115_37.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_37 : zp115_37.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 38. -/
-theorem rows115_38 : zp115_38.all (rowChk 115 nodes115) = true := by decide +kernel
+theorem rows115_38 : zp115_38.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- The divisibility checks of the rows, part 39. -/
-theorem rows115_39 : zp115_39.all (rowChk 115 nodes115) = true := by decide +kernel
-
-/-- The divisibility checks of all rows. -/
-theorem hrows115 : ∀ e ∈ nodes115.zip rows115, rowChk 115 nodes115 e = true :=
-  all_of_parts _ zp115_eq (by
-    exact List.forall_mem_cons.mpr ⟨rows115_0, List.forall_mem_cons.mpr ⟨rows115_1,
-      List.forall_mem_cons.mpr ⟨rows115_2, List.forall_mem_cons.mpr ⟨rows115_3,
-      List.forall_mem_cons.mpr ⟨rows115_4, List.forall_mem_cons.mpr ⟨rows115_5,
-      List.forall_mem_cons.mpr ⟨rows115_6, List.forall_mem_cons.mpr ⟨rows115_7,
-      List.forall_mem_cons.mpr ⟨rows115_8, List.forall_mem_cons.mpr ⟨rows115_9,
-      List.forall_mem_cons.mpr ⟨rows115_10, List.forall_mem_cons.mpr ⟨rows115_11,
-      List.forall_mem_cons.mpr ⟨rows115_12, List.forall_mem_cons.mpr ⟨rows115_13,
-      List.forall_mem_cons.mpr ⟨rows115_14, List.forall_mem_cons.mpr ⟨rows115_15,
-      List.forall_mem_cons.mpr ⟨rows115_16, List.forall_mem_cons.mpr ⟨rows115_17,
-      List.forall_mem_cons.mpr ⟨rows115_18, List.forall_mem_cons.mpr ⟨rows115_19,
-      List.forall_mem_cons.mpr ⟨rows115_20, List.forall_mem_cons.mpr ⟨rows115_21,
-      List.forall_mem_cons.mpr ⟨rows115_22, List.forall_mem_cons.mpr ⟨rows115_23,
-      List.forall_mem_cons.mpr ⟨rows115_24, List.forall_mem_cons.mpr ⟨rows115_25,
-      List.forall_mem_cons.mpr ⟨rows115_26, List.forall_mem_cons.mpr ⟨rows115_27,
-      List.forall_mem_cons.mpr ⟨rows115_28, List.forall_mem_cons.mpr ⟨rows115_29,
-      List.forall_mem_cons.mpr ⟨rows115_30, List.forall_mem_cons.mpr ⟨rows115_31,
-      List.forall_mem_cons.mpr ⟨rows115_32, List.forall_mem_cons.mpr ⟨rows115_33,
-      List.forall_mem_cons.mpr ⟨rows115_34, List.forall_mem_cons.mpr ⟨rows115_35,
-      List.forall_mem_cons.mpr ⟨rows115_36, List.forall_mem_cons.mpr ⟨rows115_37,
-      List.forall_mem_cons.mpr ⟨rows115_38, List.forall_mem_cons.mpr ⟨rows115_39, fun _ h =>
-      absurd h List.not_mem_nil⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩⟩)
+theorem rows115_39 : zp115_39.all (rowChkP 100 ndp115 115) = true := by decide +kernel
 
 /-- No node is `2`. -/
 theorem nodes115_ne2 : ∀ t ∈ nodes115, t ≠ 2 := by
@@ -2506,6 +2491,7 @@ end FamInst
 end OddPerfect
 
 #print axioms OddPerfect.FamInst.zp115_eq
+#print axioms OddPerfect.FamInst.ndp115_lens
 #print axioms OddPerfect.FamInst.rows115_0
 #print axioms OddPerfect.FamInst.rows115_1
 #print axioms OddPerfect.FamInst.rows115_2
@@ -2546,7 +2532,6 @@ end OddPerfect
 #print axioms OddPerfect.FamInst.rows115_37
 #print axioms OddPerfect.FamInst.rows115_38
 #print axioms OddPerfect.FamInst.rows115_39
-#print axioms OddPerfect.FamInst.hrows115
 #print axioms OddPerfect.FamInst.nodes115_ne2
 #print axioms OddPerfect.FamInst.src115_eq
 #print axioms OddPerfect.FamInst.nd115_eq
