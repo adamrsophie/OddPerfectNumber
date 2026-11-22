@@ -124,6 +124,8 @@
 <li class="event"><time datetime="2026-11-21T21:32">21:32</time><p class="ev-title"><b>The family of 95 excluded.</b> <code class="hash">d8863db</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The module <code>CommonNinetyFive</code> excludes the family of 95 with a kernel checked table of 3200 rows, split over 19 modules to keep each below 9 GB. We did not locate a published proof for this family (novelty unverified).</p></li>
 <li class="event minor"><time datetime="2026-11-21T22:03">22:03</time><p class="ev-title"><b>Generators for the family of 95.</b> <code class="hash">42aa01d</code> <span class="cls known">known result formalized</span></p><p>Rerunning the published pipeline on the frozen certificate reproduces the modules byte for byte. The certificate itself (60 MB) is not in the repository.</p></li>
 <li class="event"><time datetime="2026-11-21T23:10">23:10</time><p class="ev-title"><b>Three exceptions force 3.</b> <code class="hash">24cd4fc</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The new module <code>ThreeFreeThree</code> proves that if every prime factor other than the special prime and three further primes has exponent exactly 2, then 3 divides N, with no condition on the three exceptions. A verified checker rechecks a case analysis with 1223 leaves in the kernel, split over 11 data modules. Whether the statement is new has not been checked (novelty unverified).</p></li>
+<li class="event minor"><time datetime="2026-11-21T23:11">23:11</time><p class="ev-title"><b>Longer time limit for the axiom gate.</b> <code class="hash">9e1280f</code> <span class="cls known">known result formalized</span></p><p>The library has 135 modules and the workflow builds them one at a time, so the time limit of the axiom gate workflow was raised from 120 to 180 minutes.</p></li>
+<li class="event minor"><time datetime="2026-11-21T23:24">23:24</time><p class="ev-title"><b>Scripts and controls for three exceptions.</b> <code class="hash">e0ab537</code> <span class="cls known">known result formalized</span></p><p>Rerunning the published search reproduces the certificate, and rerunning the converter reproduces the 12 generated modules byte for byte. Nine new controls show that the checker rejects corrupted weights, pins, children and excluded values.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -137,7 +139,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 21 November 2026, from commit <code>24cd4fc</code> on the main branch.</p>
+<p>Last updated 21 November 2026, from commit <code>e0ab537</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
