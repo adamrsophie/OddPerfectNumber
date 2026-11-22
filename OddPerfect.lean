@@ -184,3 +184,9 @@ import OddPerfect.MixedIndexCheck
 import OddPerfect.MixedIndexData
 import OddPerfect.MixedIndex
 import OddPerfect.SpecialBelow
+import OddPerfect.FiveExceptionCore
+import OddPerfect.FiveExceptionData0
+import OddPerfect.FiveExceptionData79
+import OddPerfect.FiveExceptionDataT
+import OddPerfect.FiveExceptionScan
+import OddPerfect.FiveExceptionThirteen

@@ -1,0 +1,199 @@
+import OddPerfect.FiveExceptionCore
+
+/-!
+# Five exceptional primes with special prime 13: the enumerations for 67 and 307 and the interval tables
+
+Kernel checks (`decide +kernel`) used by `OddPerfect.FiveExceptionThirteen`, written by
+`scripts/FiveException/gen.py`.
+-/
+
+namespace OddPerfect
+
+namespace FiveException
+
+/-- The hits with a positive exponent of 67. -/
+def hits67 : List ℕ := [29]
+
+/-- Starting values, chunk 0. -/
+def g67L0 : List ℕ := [67, 469, 3283,
+    22981, 160867, 1126069]
+
+theorem g67_c0 : g67L0.all (smoothOK (sqOK hits67) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- Starting values, chunk 1. -/
+def g67L1 : List ℕ := [7882483, 55177381, 386241667,
+    2703691669, 18925841683, 132480891781,
+    927366242467, 6491563697269, 45440945880883,
+    318086621166181, 2226606348163267, 15586244437142869,
+    109103711060000083, 763725977420000581, 5346081841940004067,
+    37422572893580028469, 4489, 31423,
+    219961, 1539727]
+
+theorem g67_c1 : g67L1.all (smoothOK (sqOK hits67) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- Starting values, chunk 2. -/
+def g67L2 : List ℕ := [10778089, 75446623, 528126361,
+    3696884527, 25878191689, 181147341823,
+    1268031392761, 8876219749327, 62133538245289,
+    434934767717023, 3044543374019161, 21311803618134127,
+    149182625326938889, 1044278377288572223, 7309948641020005561,
+    51169640487140038927, 300763, 2105341,
+    14737387, 103161709, 722131963,
+    5054923741, 35384466187, 247691263309,
+    1733838843163]
+
+theorem g67_c2 : g67L2.all (smoothOK (sqOK hits67) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- Starting values, chunk 3. -/
+def g67L3 : List ℕ := [12136871902141, 84958103314987, 594706723204909,
+    4162947062434363, 29140629437040541, 203984406059283787,
+    1427890842414986509, 9995235896904905563, 69966651278334338941,
+    20151121, 141057847, 987404929,
+    6911834503, 48382841521, 338679890647,
+    2370759234529, 16595314641703, 116167202491921,
+    813170417443447, 5692192922104129, 39845350454728903,
+    278917453183102321, 1952422172281716247, 13666955205972013729,
+    95668686441804096103, 1350125107, 9450875749,
+    66156130243, 463092911701, 3241650381907,
+    22691552673349, 158840868713443, 1111886080994101,
+    7783202566958707, 54482417968710949, 381376925780976643,
+    2669638480466836501, 18687469363267855507, 90458382169,
+    633208675183, 4432460726281, 31027225083967,
+    217190575587769, 1520334029114383, 10642338203800681,
+    74496367426604767, 521474571986233369, 3650322003903633583,
+    25552254027325435081, 6060711605323, 42424981237261,
+    296974868660827, 2078824080625789, 14551768564380523,
+    101862379950663661, 713036659654645627, 4991256617582519389,
+    34938796323077635723, 406067677556641, 2842473742896487,
+    19897316200275409, 139281213401927863, 974968493813495041,
+    6824779456694465287, 47773456196861257009, 27206534396294947,
+    190445740774064629, 1333120185418452403, 9331841297929166821,
+    65322889085504167747, 1822837804551761449, 12759864631862330143,
+    89319052423036311001]
+
+theorem g67_c3 : g67L3.all (smoothOK (sqOK hits67) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- All starting values `67 * 67^j * 7^i ≤ 100000 ^ 4`. -/
+def g67L : List ℕ :=
+  g67L0 ++ g67L1 ++ g67L2 ++ g67L3
+
+/-- Every product `67^(e+1) 7^a 13^b 19^c 31^d ≤ 100000^4` passes the square test with the hits
+`hits67` (11357 products, 4 chunks). -/
+theorem g67_ok : smoothOK (sqOK hits67) (100000 ^ 4) (67 :: 7 :: [13, 19, 31]) 67 = true :=
+  smoothOK_two_of (k₁ := 10) (k₂ := 22) (by norm_num) (by norm_num) (by norm_num)
+    (by norm_num) (by norm_num) (by norm_num) g67L
+    (by simp only [g67L, List.all_append,
+      g67_c0, g67_c1, g67_c2, g67_c3, Bool.and_self])
+    (by decide +kernel)
+
+/-- The hits with a positive exponent of 307. -/
+def hits307 : List ℕ := [17]
+
+/-- Starting values, chunk 0. -/
+def g307L0 : List ℕ := [307, 2149, 15043,
+    105301, 737107, 5159749,
+    36118243, 252827701]
+
+theorem g307_c0 : g307L0.all (smoothOK (sqOK hits307) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- Starting values, chunk 1. -/
+def g307L1 : List ℕ := [1769793907, 12388557349, 86719901443,
+    607039310101, 4249275170707, 29744926194949,
+    208214483364643, 1457501383552501, 10202509684867507,
+    71417567794072549, 499922974558507843, 3499460821909554901,
+    24496225753366884307, 94249, 659743,
+    4618201, 32327407, 226291849,
+    1584042943, 11088300601, 77618104207,
+    543326729449, 3803287106143, 26623009743001,
+    186361068201007, 1304527477407049, 9131692341849343,
+    63921846392945401, 447452924750617807, 3132170473254324649,
+    21925193312780272543]
+
+theorem g307_c1 : g307L1.all (smoothOK (sqOK hits307) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- Starting values, chunk 2. -/
+def g307L2 : List ℕ := [28934443, 202541101, 1417787707,
+    9924513949, 69471597643, 486301183501,
+    3404108284507, 23828757991549, 166801305940843,
+    1167609141585901, 8173263991101307, 57212847937709149,
+    400489935563964043, 2803429548947748301, 19624006842634238107,
+    8882874001, 62180118007, 435260826049,
+    3046825782343, 21327780476401, 149294463334807,
+    1045061243343649, 7315428703405543, 51208000923838801,
+    358456006466871607, 2509192045268101249, 17564344316876708743,
+    2727042318307, 19089296228149, 133625073597043,
+    935375515179301, 6547628606255107, 45833400243785749,
+    320833801706500243, 2245836611945501701, 15720856283618511907,
+    837201991720249, 5860413942041743, 41022897594292201,
+    287160283160045407, 2010121982120317849, 14070853874842224943,
+    98495977123895574601, 257021011458116443, 1799147080206815101,
+    12594029561447705707, 88158206930133939949, 78905450517641748001]
+
+theorem g307_c2 : g307L2.all (smoothOK (sqOK hits307) (100000 ^ 4) [13, 19, 31]) = true := by
+  decide +kernel
+
+/-- All starting values `307 * 307^j * 7^i ≤ 100000 ^ 4`. -/
+def g307L : List ℕ :=
+  g307L0 ++ g307L1 ++ g307L2
+
+/-- Every product `307^(e+1) 7^a 13^b 19^c 31^d ≤ 100000^4` passes the square test with the hits
+`hits307` (7671 products, 3 chunks). -/
+theorem g307_ok : smoothOK (sqOK hits307) (100000 ^ 4) (307 :: 7 :: [13, 19, 31]) 307 = true :=
+  smoothOK_two_of (k₁ := 8) (k₂ := 21) (by norm_num) (by norm_num) (by norm_num)
+    (by norm_num) (by norm_num) (by norm_num) g307L
+    (by simp only [g307L, List.all_append,
+      g307_c0, g307_c1, g307_c2, Bool.and_self])
+    (by decide +kernel)
+
+/-- The hits of the interval table for the fourth prime 17. -/
+def hitsT17 : List ℕ := [5, 11, 191, 653]
+
+/-- The interval table for the fourth prime 17 passes (324 combinations). -/
+theorem tab17_ok :
+    ivOK (tabOf 17 hitsT17
+      (6841380936879, 6841355936879)) (1, 1) (1, 1) = true := by
+  decide +kernel
+
+/-- The hits of the interval table for the fourth prime 67. -/
+def hitsT67 : List ℕ := [5, 11, 29, 191, 653]
+
+/-- The interval table for the fourth prime 67 passes (972 combinations). -/
+theorem tab67_ok :
+    ivOK (tabOf 67 hitsT67
+      (38052052909398495014977901133, 38044439676969912641802901133)) (1, 1) (1, 1) = true := by
+  decide +kernel
+
+/-- The hits of the interval table for the fourth prime 79. -/
+def hitsT79 : List ℕ := [5, 11, 23, 191, 653]
+
+/-- The interval table for the fourth prime 79 passes (972 combinations). -/
+theorem tab79_ok :
+    ivOK (tabOf 79 hitsT79
+      (62203171361120049046624391889, 62201796418780009789599391889)) (1, 1) (1, 1) = true := by
+  decide +kernel
+
+/-- The hits of the interval table for the fourth prime 307. -/
+def hitsT307 : List ℕ := [5, 11, 17, 191, 653]
+
+/-- The interval table for the fourth prime 307 passes (972 combinations). -/
+theorem tab307_ok :
+    ivOK (tabOf 307 hitsT307
+      (356228997162892921966785738651, 356186835420802147487560738651)) (1, 1) (1, 1) = true := by
+  decide +kernel
+
+end FiveException
+
+end OddPerfect
+
+#print axioms OddPerfect.FiveException.g67_ok
+#print axioms OddPerfect.FiveException.g307_ok
+#print axioms OddPerfect.FiveException.tab17_ok
+#print axioms OddPerfect.FiveException.tab67_ok
+#print axioms OddPerfect.FiveException.tab79_ok
+#print axioms OddPerfect.FiveException.tab307_ok
