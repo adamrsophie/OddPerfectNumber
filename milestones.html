@@ -135,6 +135,7 @@
 <li class="event minor"><time datetime="2026-11-22T01:48">01:48</time><p class="ev-title"><b>Scripts of the restrained leaves published.</b> <code class="hash">a32b124</code> <span class="cls known">known result formalized</span></p><p>The folder <code>scripts/Restrained</code> gains the generator of the forcing trees and Pratt certificate of <code>RestrainedFive</code>, which reproduces the embedded data byte for byte, and exact mirrors of the certificates of <code>RestrainedThree</code>, <code>RestrainedFour</code> and <code>RestrainedFive</code>.</p></li>
 <li class="event minor"><time datetime="2026-11-22T02:18">02:18</time><p class="ev-title"><b>A root table criterion for the largest prime factor.</b> <code class="hash">2df5b07</code> <span class="cls known">known result formalized</span></p><p>The new module <code>LargestPrimeRoots</code> proves a general criterion: a prime P = 2<sup>a</sup>m + 1 dividing an odd perfect number is not its largest prime factor unless some smaller prime p satisfies p<sup>2m</sup> ≡ 1 (mod P). A table of 2m roots of unity decides this. Instances: 167772161 and 12289. The method is elementary; the statements exclude single values only.</p></li>
 <li class="event minor"><time datetime="2026-11-22T02:46">02:46</time><p class="ev-title"><b>Published sources stated; validators fail closed.</b> <code class="hash">ca908ef</code> <span class="cls known">known result formalized</span></p><p>The modules of the families with common divisor 55, 85, 95 and 115 now cite the theorem of Fletcher, Nielsen and Ochem (2012) with Kanold's theorem and call their proofs independent certificates; the restrained modules cite Theorem 1 of Ochem and Zelinsky. No proof text changed. The Python validators under <code>scripts/</code> exit 1 on a rejected certificate and 2 on malformed input, in normal and optimized interpreter mode, and a control script tests this. The checker controls are compared with a manifest of required groups. The generator input of the family of 95 is archived, and <code>rebuild95.sh</code> regenerates its 19 modules byte for byte.</p></li>
+<li class="event"><time datetime="2026-11-22T02:59">02:59</time><p class="ev-title"><b>Three exceptions force 3, for exponents 2 modulo 3.</b> <code class="hash">836e70c</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>The theorem of <code>ThreeFreeThree</code> now needs only that every prime factor other than the special prime and three further primes has an exponent e with 3 dividing e + 1; exponents exactly 2 are a special case. The same 1223 leaves are rechecked in the kernel with a corrected closing test; the eleven data modules are unchanged. Whether the statement is new has not been checked (novelty unverified).</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -148,7 +149,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>ca908ef</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>836e70c</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
