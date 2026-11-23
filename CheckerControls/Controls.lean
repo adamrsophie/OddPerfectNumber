@@ -17,6 +17,7 @@ import OddPerfect.LargestPrimeFactorTwo
 import OddPerfect.SecondLargestPrimeFast
 import OddPerfect.MixedIndexData
 import OddPerfect.MixedIndexThreePrimes
+import OddPerfect.TwoExcEngineCode
 
 /-!
 # Checker controls
@@ -704,3 +705,229 @@ example : Pratt.checkAux [] [(1017061, 18, [2, 2, 3, 5, 11, 23, 67])] = true := 
 example : Pratt.checkAux [] [(1017147, 18, [2, 13, 19, 29, 71])] = false := by decide +kernel
 
 end CheckerControls
+
+/-! ## The two exception checker engine (`OddPerfect.TwoExcEngine.go`, `check`, `checkV`) -/
+
+namespace CheckerControls.Engine
+
+open OddPerfect.TwoExcEngine
+
+/-- Exponent 2 at 3, two exceptions, landed facts off. -/
+def pA : Params := { E := 2, MHIT := 0, KCAP := 64, landed := false }
+/-- As `pA` with the landed facts on. -/
+def pL : Params := { pA with landed := true }
+/-- No exception allowed. -/
+def p0 : Params := { pA with E := 0 }
+/-- Exponent 4 at 3, every other exception of exponent 4 (the family S2a). -/
+def p4e : Params := { E := 3, MHIT := 0, KCAP := 64, landed := false, V3 := 4, e4 := true }
+/-- The parameters of the published certificate of the family S1 (exponent 6 at 3). -/
+def pS1 : Params :=
+  { E := 2, MHIT := 1000000000000000000000000000000, KCAP := 64, landed := false, V3 := 6,
+    e4 := true }
+/-- A recognizer that accepts every state. It does not satisfy the hypothesis `hdone` of
+`check_sound` and `checkV_sound`: the controls that use it isolate a Boolean guard and are not
+sound certificates. -/
+def doneAll : List Key → ℕ → Bool := fun _ _ => true
+/-- A record without items that hands its state to `done`. -/
+def stub : Cert := .apply [] (.closed .ext)
+/-- A key list with the special prime `5` (not exact) and the squares `3, 7, 11, 17`. -/
+def ksS : List Key :=
+  [⟨3, .sq, []⟩, ⟨5, .fr true 2 false 1 false, []⟩, ⟨7, .sq, []⟩, ⟨11, .sq, []⟩,
+    ⟨17, .sq, []⟩]
+/-- A square key. -/
+def sqKey (p : ℕ) : Key := ⟨p, .sq, []⟩
+/-- The odd primes from `3` through `997` (167 numbers). -/
+def oddPrimesTo997 : List ℕ :=
+  [3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
+    101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191,
+    193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283,
+    293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401,
+    409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509,
+    521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631,
+    641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751,
+    757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877,
+    881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997]
+/-- The state of the deficient leaf of record 342 of
+`scripts/ExcessFour/cert_ex_S1_100000_nojump_nolanded.jsonl`, as the Python mirror of the
+checker computes it (the record stores no state). -/
+def ksS1 : List Key :=
+  [⟨3, .fr false 7 false 6 true, [(1093, 1), (5, 1)]⟩,
+    ⟨5, .fr true 2 false 1 false, [(398581, 1)]⟩,
+    ⟨1093, .sq, [(3, 1)]⟩, ⟨398581, .fr false 5 true 4 true, [(1093, 1)]⟩]
+/-- The leaf data of that record, as `scripts/TwoExceptionTwo/engine.py` (`defdata_trivial`)
+translates it. -/
+def ddS1 : DefData :=
+  { k := 24, B := 1000000, rs := [], rx := 1000001, mL := (1, 1), mM := (1, 10000000000000),
+    comps := [] }
+
+-- `paramsOK`: the exponent of 3 is 2 or an even number at least 4.
+example : [2, 4, 6, 36].all (fun v => paramsOK { pA with V3 := v }) = true := by decide +kernel
+example : [0, 1, 3, 5, 7, 35].any (fun v => paramsOK { pA with V3 := v }) = false := by
+  decide +kernel
+-- `Params.lan`: the landed facts are used only when asked for and with exponent 2 at 3.
+example : pL.lan = true := by decide +kernel
+example : [pA, { pL with V3 := 4 }, { pL with V3 := 6 }].any Params.lan = false := by
+  decide +kernel
+-- The root role of 3: a square for `V3 = 2`, an exact exception of exponent `V3` otherwise.
+example : root3 pA = .sq ∧ rootKeysV pA = rootKeys := by decide +kernel
+example : root3 pS1 = .fr false 7 false 6 true ∧
+    rootKeysV p4e = [⟨3, .fr false 5 false 4 true, []⟩] := by decide +kernel
+-- `budget3`: 2 for a square, `kmin` for an exact exception; none for a free prime that is not
+-- exact or is the special prime.
+example : budget3 .sq = some 2 ∧ budget3 (root3 pS1) = some 6 := by decide +kernel
+example : [Role.fr false 7 false 6 false, .fr true 2 false 1 true, .fr true 6 false 5 false].all
+    (fun r => (budget3 r).isNone) = true := by decide +kernel
+-- 3 consumes exception budget exactly when `V3 ≠ 2`: with `E = 1` and `V3 = 6` no exception role
+-- is left for `7`; with `V3 = 2` both classes of `7 ≡ 1 (mod 3)` are offered.
+example : nexc (rootKeysV pS1) = 1 ∧ nexc (rootKeysV pA) = 0 := by decide +kernel
+example : rolesOf { pA with E := 1, V3 := 6 } (rootKeysV { pA with E := 1, V3 := 6 }) 7 =
+    [.sq] := by decide +kernel
+example : rolesOf { pA with E := 1 } (rootKeysV { pA with E := 1 }) 7 =
+    [.sq, .fr false 1 true 4 false, .fr false 3 false 8 false] := by decide +kernel
+-- Ordinary and special roles: `13 ≡ 1 (mod 4)` and `≡ 1 (mod 3)` gets both special classes and
+-- both exception classes; `5 ≡ 2 (mod 3)` one of each.
+example : rolesOf pA rootKeys 13 = [.sq, .fr true 2 true 1 false, .fr true 6 false 5 false,
+    .fr false 1 true 4 false, .fr false 3 false 8 false] := by decide +kernel
+example : rolesOf pA rootKeys 5 = [.sq, .fr true 2 false 1 false, .fr false 1 false 4 false] := by
+  decide +kernel
+-- With the landed facts, `5` and `17 ≡ 8 (mod 9)` cannot be special, and the special class of
+-- `29 ≡ 2 (mod 3)` gets `no3`.
+example : rolesOf pL rootKeys 5 = [.sq, .fr false 1 false 4 false] ∧
+    rolesOf pL rootKeys 17 = [.sq, .fr false 1 false 4 false] := by decide +kernel
+example : rolesOf pL rootKeys 29 = [.sq, .fr true 2 true 1 false, .fr false 1 false 4 false] := by
+  decide +kernel
+-- The landed shortcut is off for `V3 ≠ 2` even when `landed`: `5` may be special again.
+example : rolesOf { pL with V3 := 4 } (rootKeysV { pL with V3 := 4 }) 5 =
+    [.sq, .fr true 2 false 1 false, .fr false 1 false 4 false] := by decide +kernel
+-- Once the special prime is a key, no special role is offered.
+example : rolesOf pA [⟨3, .sq, []⟩, ⟨5, .fr true 2 false 1 false, []⟩] 13 =
+    [.sq, .fr false 1 true 4 false, .fr false 3 false 8 false] := by decide +kernel
+-- `e4`: an exception other than 3 has the single role of exponent exactly 4; 3 keeps the general
+-- class.
+example : rolesOf p4e (rootKeysV p4e) 13 = [.sq, .fr true 2 true 1 false, .fr true 6 false 5 false,
+    .fr false 5 true 4 true] := by decide +kernel
+example : rolesOf p4e [] 7 = [.sq, .fr false 5 true 4 true] ∧
+    rolesOf p4e [] 3 = [.sq, .fr false 1 false 4 false] := by decide +kernel
+-- The guards of `check` and `checkV` (with `doneAll`, see its docstring): `check` only for
+-- `V3 = 2` without `e4`; `checkV` for every admissible `V3`.
+example : check pA primeB doneAll stub = true := by decide +kernel
+example : [{ pA with V3 := 4 }, { pA with e4 := true }, p4e, pS1].any
+    (fun P => check P primeB doneAll stub) = false := by decide +kernel
+example : [pA, { pA with e4 := true }, p4e, pS1].all
+    (fun P => checkV P primeB doneAll stub) = true := by decide +kernel
+example : [{ pA with V3 := 0 }, { pA with V3 := 3 }, { p4e with V3 := 5 }].any
+    (fun P => checkV P primeB doneAll stub) = false := by decide +kernel
+-- Old `check` versus `checkV` on the same term: both start from `rootKeys` at `x = 5` when
+-- `V3 = 2`; for `V3 = 6`, `checkV` starts from `rootKeysV pS1` and not from `rootKeys`. Like
+-- `doneAll`, these recognizers do not satisfy `hdone`: they isolate the root state only.
+example : check pA primeB (fun ks x => ks == rootKeys && x == 5) stub = true ∧
+    checkV pA primeB (fun ks x => ks == rootKeys && x == 5) stub = true := by decide +kernel
+example : checkV pS1 primeB (fun ks x => ks == rootKeys && x == 5) stub = false ∧
+    checkV pS1 primeB (fun ks x => ks == rootKeysV pS1 && x == 5) stub = true := by
+  decide +kernel
+-- Malformed first constructors: the root must be a record.
+example : [Cert.leaf, .ext, .closed .ext, .apply [] .ext, .force .nil, .abundant].any
+    (checkV pA primeB doneAll) = false := by decide +kernel
+example : [Cert.leaf, .ext, .closed .ext, .apply [] .ext, .force .nil, .abundant].any
+    (check pA primeB doneAll) = false := by decide +kernel
+-- Contributions of the root record (component 3, `σ(3 ^ 2) = 13`): `13 ^ 1` is accepted and
+-- left pending, and it is no contradiction (the outcome `.nil` fails).
+example : go pA primeB doneAll (.apply rootKeys 5 [] 3) (.apply [(13, 1)] (.closed .ext)) = true :=
+  by decide +kernel
+example : go pA primeB doneAll (.apply rootKeys 5 [] 3) (.apply [(13, 1)] .nil) = false := by
+  decide +kernel
+-- An excessive contribution `13 ^ 2 ∤ 13`, a duplicated one (merged to `13 ^ 2`), a zero weight.
+example : go pA primeB doneAll (.apply rootKeys 5 [] 3) (.apply [(13, 2)] (.closed .ext)) = false :=
+  by decide +kernel
+example : go pA primeB doneAll (.apply rootKeys 5 [] 3)
+    (.apply [(13, 1), (13, 1)] (.closed .ext)) = false := by decide +kernel
+example : go pA primeB doneAll (.apply rootKeys 5 [] 3) (.apply [(13, 0)] (.closed .ext)) = false :=
+  by decide +kernel
+-- A prime below `x` that is not a key is a contradiction, if the oracle certifies it.
+example : go pA primeB doneAll (.apply rootKeys 17 [] 3) (.apply [(13, 1)] .nil) = true := by
+  decide +kernel
+example : go pA (fun _ => false) doneAll (.apply rootKeys 17 [] 3)
+    (.apply [(13, 1)] (.closed .ext)) = false := by decide +kernel
+-- A square key over its budget 2 is a contradiction. The earlier contribution `(5, 2)` is made
+-- up: this isolates the budget guard.
+example : go pA primeB doneAll (.apply [⟨3, .sq, []⟩, ⟨13, .sq, [(5, 2)]⟩] 5 [] 3)
+    (.apply [(13, 1)] .nil) = true := by decide +kernel
+example : go pA primeB doneAll (.apply [⟨3, .sq, []⟩, ⟨13, .sq, [(5, 1)]⟩] 5 [] 3)
+    (.apply [(13, 1)] .nil) = false := by decide +kernel
+-- Role lists: with `E = 0` the forced prime `13` has three roles (square and two special
+-- classes); exactly three children are accepted, two or four are not.
+example : go p0 primeB doneAll (.apply rootKeys 5 [] 3)
+    (.apply [(13, 1)] (.force (.cons stub (.cons stub (.cons stub .nil))))) = true := by
+  decide +kernel
+example : go p0 primeB doneAll (.apply rootKeys 5 [] 3)
+    (.apply [(13, 1)] (.force (.cons stub (.cons stub .nil)))) = false := by decide +kernel
+example : go p0 primeB doneAll (.apply rootKeys 5 [] 3)
+    (.apply [(13, 1)] (.force (.cons stub (.cons stub (.cons stub (.cons stub .nil)))))) = false :=
+  by decide +kernel
+-- Nothing pending: no prime to force.
+example : go p0 primeB doneAll (.apply rootKeys 5 [] 3) (.apply [] (.force (.cons stub .nil))) =
+    false := by decide +kernel
+-- Senders. `5` has order 16 modulo 17 and is special (`D = 2`), so `4 ∣ lcm 2 16` and it
+-- cannot send to 17.
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 17 (.cons (.inf 5 16) .nil)) = true := by
+  decide +kernel
+-- `5` has order 5 modulo 11; `lcm 2 5 = 10` is admissible, so it is not infeasible, and the
+-- feasible sender branch is accepted (with `doneAll`), but not with a wrong order.
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 11 (.cons (.inf 5 5) .nil)) = false := by
+  decide +kernel
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 11 (.cons (.snd 5 5 stub) .nil)) = true :=
+  by decide +kernel
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 11 (.cons (.snd 5 4 stub) .nil)) =
+    false := by decide +kernel
+-- A truncated sender list, a sender that is not the next free key.
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 11 .nil) = false := by decide +kernel
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 11 (.cons (.snd 3 5 stub) .nil)) =
+    false := by decide +kernel
+-- The receiver must be `≡ 2 (mod 3)` (`5` has order 6 modulo 7 and could send), and the
+-- exceptions must be complete (`nexc ksS = 0 < 2`).
+example : go p0 primeB doneAll (.out ksS 19 []) (.receipt 7 (.cons (.snd 5 6 stub) .nil)) =
+    false := by decide +kernel
+example : go pA primeB doneAll (.out ksS 19 []) (.receipt 17 (.cons (.inf 5 16) .nil)) = false := by
+  decide +kernel
+-- Splits of the free prime `5` (`D = 2`, `kmin = 1`): exact exponent 1, or the next admissible
+-- exponent `5` (`6 ≡ 2 (mod 4)`). The recognizers read the new role only and do not satisfy
+-- `hdone`.
+example : go p0 primeB (fun ks _ => (findKey 5 ks).any fun k =>
+    k.role == .fr true 2 false 1 true || k.role == .fr true 2 false 5 false) (.step ksS 19)
+    (.split 5 stub stub) = true := by decide +kernel
+example : go p0 primeB (fun ks _ => (findKey 5 ks).any fun k => k.role == .fr true 2 false 1 false)
+    (.step ksS 19) (.split 5 stub stub) = false := by decide +kernel
+-- Invalid splits: at a square key, at a prime that is not a key, at an exact key.
+example : [11, 13].any (fun p => go p0 primeB doneAll (.step ksS 19) (.split p stub stub)) =
+    false := by decide +kernel
+example : go pS1 primeB doneAll (.step (rootKeysV pS1) 5) (.split 3 stub stub) = false := by
+  decide +kernel
+-- The scan: from `5` past the keys `5, 7, 11` to `13`.
+example : scanNext ksS 5 = some 13 := by decide +kernel
+-- The scan fuel: `scanNext` is the scan with exactly 1000 positions (pinned by definition).
+example (ks : List Key) (x : ℕ) : scanNext ks x = scanAux ks 1000 x := rfl
+-- With a key at every odd prime through 997, the scan from `3` (positions 3 to 1002) finds
+-- nothing, and it finds `997` once its key is removed. Each costs about 4 s of kernel time.
+example : scanNext (oddPrimesTo997.map sqKey) 3 = none := by decide +kernel
+example : scanNext ((oddPrimesTo997.erase 997).map sqKey) 3 = some 997 := by decide +kernel
+-- A real deficient leaf (record 342 of the S1 certificate, `x = 251`), directly and through the
+-- step that scans from `242` to `251`.
+example : deficientB pS1 ksS1 251 ddS1 = true := by decide +kernel
+example : go pS1 primeB (fun _ _ => false) (.step ksS1 242) (.check ddS1) = true := by
+  decide +kernel
+-- The same leaf with one damaged witness. A zero denominator (this also makes `Sd = 0`, so the
+-- test `Sn < Sd` fails as well; the two guards cannot be separated).
+example : [{ ddS1 with mL := (1, 0) }, { ddS1 with mM := (1, 0) }].any
+    (deficientB pS1 ksS1 251) = false := by decide +kernel
+-- Underestimated tail witnesses: `m_M = 10 ^ -14` and `m_L = 10 ^ -3` are too small.
+example : [{ ddS1 with mM := (1, 100000000000000) }, { ddS1 with mL := (1, 1000) }].any
+    (deficientB pS1 ksS1 251) = false := by decide +kernel
+-- Wrong Rankin exponents: `k = 0` fails only `3 ≤ k`; `k = 6` fails only the bound on `m_M`.
+example : [{ ddS1 with k := 0 }, { ddS1 with k := 6 }].any (deficientB pS1 ksS1 251) = false := by
+  decide +kernel
+-- `r_x = B` violates `B < r_x`.
+example : deficientB pS1 ksS1 251 { ddS1 with rx := 1000000 } = false := by decide +kernel
+-- The leaf needs the key 3 with a budget.
+example : deficientB pS1 ksS1.tail 251 ddS1 = false := by decide +kernel
+
+end CheckerControls.Engine
