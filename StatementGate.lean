@@ -15,6 +15,12 @@ theorem up to definitional equality, or if the check at the end of the file find
 restatement that mentions a project definition outside `allowedDefinitions`, or finds that the
 restatements differ from the inventory `expected`.
 
+The restatements of the two exception checker engine (`OddPerfect.TwoExcEngine`) mention its
+parameters, family predicates, state meaning and checker; those definitions are in
+`allowedDefinitions`, and the `example`s below pin the family predicates `Fam` and `FamV`, the
+state meaning `Holds`, the deficient leaf statement `DefSound`, the guard `paramsOK` and the root
+state `rootKeysV`, so that a later change of one of these definitions breaks this file.
+
 The file opens no namespace and uses no notation of the library. Every name is written in
 full; `_root_` is put in front of `OddPerfect` and `Nat.Prime`, so that a declaration of the
 library in another namespace cannot take their place. The `example`s fix the meaning of the
@@ -51,6 +57,45 @@ example (p N : ℕ) : OddPerfect.Cert.Fact.Holds (OddPerfect.Cert.Fact.notDvd p)
 
 example (s : List OddPerfect.Cert.Fact) (N : ℕ) :
     OddPerfect.Cert.State.Holds s N ↔ ∀ f ∈ s, OddPerfect.Cert.Fact.Holds f N := Iff.rfl
+
+example (E N q : ℕ) :
+    OddPerfect.TwoExcEngine.Fam E N q ↔
+      _root_.OddPerfect N ∧ _root_.Nat.Prime q ∧ Odd (Nat.factorization N q) ∧
+        Nat.factorization N 3 = 2 ∧
+        (Finset.filter (fun p => p ≠ q ∧ Nat.factorization N p ≠ 2) (Nat.primeFactors N)).card ≤
+          E := Iff.rfl
+
+example (P : OddPerfect.TwoExcEngine.Params) (N q : ℕ) :
+    OddPerfect.TwoExcEngine.FamV P N q ↔
+      _root_.OddPerfect N ∧ _root_.Nat.Prime q ∧ Odd (Nat.factorization N q) ∧
+        Nat.factorization N 3 = P.V3 ∧
+        (Finset.filter (fun p => p ≠ q ∧ Nat.factorization N p ≠ 2) (Nat.primeFactors N)).card ≤
+          P.E ∧ (3 : ℕ) ≠ q ∧
+        (P.e4 = true → ∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ 3 → Nat.factorization N p ≠ 2 →
+          Nat.factorization N p = 4) := Iff.rfl
+
+example (P : OddPerfect.TwoExcEngine.Params) (N q : ℕ) (ks : List OddPerfect.TwoExcEngine.Key)
+    (x : ℕ) :
+    OddPerfect.TwoExcEngine.Holds P N q ks x ↔
+      OddPerfect.TwoExcEngine.FamV P N q ∧
+        (∀ k ∈ ks, OddPerfect.TwoExcEngine.KeyHolds N q ks k) ∧
+        (List.map OddPerfect.TwoExcEngine.Key.p ks).Nodup ∧
+        ∀ p, _root_.Nat.Prime p → p < x → p ∣ N → p ∈ List.map OddPerfect.TwoExcEngine.Key.p ks :=
+  Iff.rfl
+
+example (P : OddPerfect.TwoExcEngine.Params) :
+    OddPerfect.TwoExcEngine.DefSound P ↔
+      ∀ (ks : List OddPerfect.TwoExcEngine.Key) (x : ℕ) (dd : OddPerfect.TwoExcEngine.DefData)
+        (N q : ℕ), OddPerfect.TwoExcEngine.deficientB P ks x dd = true →
+          OddPerfect.TwoExcEngine.Holds P N q ks x → False := Iff.rfl
+
+example (P : OddPerfect.TwoExcEngine.Params) :
+    OddPerfect.TwoExcEngine.paramsOK P = true ↔ P.V3 = 2 ∨ (P.V3 % 2 = 0 ∧ 4 ≤ P.V3) := by
+  simp [OddPerfect.TwoExcEngine.paramsOK, Nat.ble_eq]
+
+example (P : OddPerfect.TwoExcEngine.Params) :
+    OddPerfect.TwoExcEngine.rootKeysV P =
+      [⟨3, cond (P.V3 == 2) .sq (.fr false (P.V3 + 1) false P.V3 true), []⟩] := rfl
 
 /-! ## Size and number of prime factors -/
 
@@ -521,6 +566,93 @@ theorem StatementGate.two_mul_omega_add_seven_le_Omega :
       2 * ArithmeticFunction.cardDistinctFactors N + 7 ≤ ArithmeticFunction.cardFactors N :=
   @OddPerfect.two_mul_omega_add_seven_le_Omega
 
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      q % 3 = 2 →
+      (Nat.primeFactors N).card + 2 *
+        padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 5 :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five
+
+theorem StatementGate.card_primeFactors_le_five_excess_add_three :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      q % 3 = 2 →
+      (Nat.primeFactors N).card ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 3 :=
+  @OddPerfect.card_primeFactors_le_five_excess_add_three
+
+theorem StatementGate.cardDistinctFactors_le_five_mul_sub_add_three :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → ¬ q ∣ m → N = q ^ a * m ^ 2 →
+      q % 3 = 2 →
+      ArithmeticFunction.cardDistinctFactors N ≤
+        5 * (ArithmeticFunction.cardFactors m - ArithmeticFunction.cardDistinctFactors m) + 3 :=
+  @OddPerfect.cardDistinctFactors_le_five_mul_sub_add_three
+
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_escape :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Nat.primeFactors N).card + 2 *
+        padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) + 5 +
+          (Finset.filter (fun p : ℕ => ∀ r ∈ (p ^ 2 + p + 1).primeFactors, r = 3 ∨ r = q)
+            (Finset.filter (fun p => p ≠ q ∧ Nat.factorization N p = 2)
+              (Nat.primeFactors N))).card :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_escape
+
+theorem StatementGate.conditional_card_primeFactors_le_five_excess_add_six :
+    (∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = r ^ a → a = 1) →
+    (∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = 3 * r ^ a →
+      a ≤ 2) →
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Nat.primeFactors N).card ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 6 :=
+  @OddPerfect.conditional_card_primeFactors_le_five_excess_add_six
+
+theorem StatementGate.conditional_finite_of_excess_le :
+    (∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = r ^ a → a = 1) →
+    (∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = 3 * r ^ a →
+      a ≤ 2) →
+    ∀ T : ℕ, {N : ℕ | ∃ q, _root_.OddPerfect N ∧ _root_.Nat.Prime q ∧
+      Odd (Nat.factorization N q) ∧
+      Finset.sum ((Nat.primeFactors N).erase q)
+        (fun p => Nat.factorization N p / 2 - 1) ≤ T}.Finite :=
+  @OddPerfect.conditional_finite_of_excess_le
+
+theorem StatementGate.not_all_pure_common_index :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ Nat.factorization N p + 1) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q →
+        ∃ r w, _root_.Nat.Prime r ∧
+          ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p) = r ^ w) → False :=
+  @OddPerfect.not_all_pure_common_index
+
+theorem StatementGate.three_cycle_excess_or_outside :
+    ∀ {N r s t : ℕ}, _root_.OddPerfect N → r ∈ Nat.primeFactors N → s ∈ Nat.primeFactors N →
+      t ∈ Nat.primeFactors N → r ≠ s → s ≠ t → t ≠ r → r % 12 = 7 → s % 12 = 7 → t % 12 = 7 →
+      s ∣ r ^ 2 + r + 1 → t ∣ s ^ 2 + s + 1 → r ∣ t ^ 2 + t + 1 →
+      (4 ≤ Nat.factorization N r ∨ 4 ≤ Nat.factorization N s ∨ 4 ≤ Nat.factorization N t) ∨
+        ∃ u, _root_.Nat.Prime u ∧ u ≠ 3 ∧ u ≠ r ∧ u ≠ s ∧ u ≠ t ∧
+          (u ∣ r ^ 2 + r + 1 ∨ u ∣ s ^ 2 + s + 1 ∨ u ∣ t ^ 2 + t + 1) :=
+  @OddPerfect.three_cycle_excess_or_outside
+
+theorem StatementGate.card_divisors_filter_three_add_le :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Finset.filter (fun d => 3 ∣ d) (Nat.divisors (Nat.factorization N q + 1))).card +
+          padicValNat 3 (Nat.factorization N q + 1) ≤
+        2 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 2 :=
+  @OddPerfect.card_divisors_filter_three_add_le
+
+theorem StatementGate.card_divisors_special_index_le_four_mul_excess :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      3 ∣ Nat.factorization N q + 1 →
+      (Nat.divisors (Nat.factorization N q + 1)).card ≤
+        4 * Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) :=
+  @OddPerfect.card_divisors_special_index_le_four_mul_excess
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -653,6 +785,37 @@ theorem StatementGate.cert_check_sound :
       ∀ N : ℕ, _root_.OddPerfect N → OddPerfect.Cert.State.Holds s N → False :=
   @OddPerfect.Cert.check_sound
 
+theorem StatementGate.famV_of_fam :
+    ∀ {P : OddPerfect.TwoExcEngine.Params} {N q : ℕ}, P.V3 = 2 ∧ P.e4 = false →
+      OddPerfect.TwoExcEngine.Fam P.E N q → OddPerfect.TwoExcEngine.FamV P N q :=
+  @OddPerfect.TwoExcEngine.famV_of_fam
+
+theorem StatementGate.holds_rootV :
+    ∀ {P : OddPerfect.TwoExcEngine.Params} {N q : ℕ}, OddPerfect.TwoExcEngine.paramsOK P = true →
+      OddPerfect.TwoExcEngine.FamV P N q →
+        OddPerfect.TwoExcEngine.Holds P N q (OddPerfect.TwoExcEngine.rootKeysV P) 5 :=
+  @OddPerfect.TwoExcEngine.holds_rootV
+
+theorem StatementGate.checkV_sound :
+    ∀ {P : OddPerfect.TwoExcEngine.Params} {pr : ℕ → Bool}
+      {done : List OddPerfect.TwoExcEngine.Key → ℕ → Bool},
+      OddPerfect.TwoExcEngine.DefSound P → (∀ n : ℕ, pr n = true → _root_.Nat.Prime n) →
+      (∀ (ks : List OddPerfect.TwoExcEngine.Key) (x N q : ℕ), done ks x = true →
+        OddPerfect.TwoExcEngine.Holds P N q ks x → False) →
+      (P.landed = true → P.E ≤ 2) → ∀ {c : OddPerfect.TwoExcEngine.Cert},
+      OddPerfect.TwoExcEngine.checkV P pr done c = true → ∀ {N q : ℕ},
+      OddPerfect.TwoExcEngine.FamV P N q → False :=
+  @OddPerfect.TwoExcEngine.checkV_sound
+
+theorem StatementGate.famV_of_named :
+    ∀ {P : OddPerfect.TwoExcEngine.Params} {N q : ℕ} (rs : List ℕ),
+      rs.length + (if P.V3 = 2 then 0 else 1) ≤ P.E → P.V3 % 2 = 0 → _root_.OddPerfect N →
+      _root_.Nat.Prime q → Odd (Nat.factorization N q) → Nat.factorization N 3 = P.V3 →
+      (∀ r ∈ rs, r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ 3 → p ∉ rs → Nat.factorization N p = 2) →
+        OddPerfect.TwoExcEngine.FamV P N q :=
+  @OddPerfect.TwoExcEngine.famV_of_named
+
 /-! ## The check of the statements -/
 
 namespace StatementGate
@@ -662,7 +825,14 @@ open Lean Elab Command
 /-- The project definitions that the statements above may mention. -/
 def allowedDefinitions : List Name :=
   [``OddPerfect, ``OddPerfectConjecture, ``OddPerfect.Cert.Fact,
-    ``OddPerfect.Cert.Cert, ``OddPerfect.Cert.check, ``OddPerfect.Cert.State.Holds]
+    ``OddPerfect.Cert.Cert, ``OddPerfect.Cert.check, ``OddPerfect.Cert.State.Holds,
+    ``OddPerfect.TwoExcEngine.Params, ``OddPerfect.TwoExcEngine.Params.E,
+    ``OddPerfect.TwoExcEngine.Params.V3, ``OddPerfect.TwoExcEngine.Params.e4,
+    ``OddPerfect.TwoExcEngine.Params.landed, ``OddPerfect.TwoExcEngine.Key,
+    ``OddPerfect.TwoExcEngine.Cert, ``OddPerfect.TwoExcEngine.Fam,
+    ``OddPerfect.TwoExcEngine.FamV, ``OddPerfect.TwoExcEngine.Holds,
+    ``OddPerfect.TwoExcEngine.DefSound, ``OddPerfect.TwoExcEngine.paramsOK,
+    ``OddPerfect.TwoExcEngine.rootKeysV, ``OddPerfect.TwoExcEngine.checkV]
 
 /-- The inventory: every restatement of this file, paired with the library theorem that proves
 it. The check requires the theorems `StatementGate.*` to be exactly the first components, each
@@ -785,6 +955,26 @@ def expected : List (Name × Name) :=
       ``OddPerfect.two_mul_omega_add_special_le_Omega),
     (`StatementGate.two_mul_omega_add_seven_le_Omega,
       ``OddPerfect.two_mul_omega_add_seven_le_Omega),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five),
+    (`StatementGate.card_primeFactors_le_five_excess_add_three,
+      ``OddPerfect.card_primeFactors_le_five_excess_add_three),
+    (`StatementGate.cardDistinctFactors_le_five_mul_sub_add_three,
+      ``OddPerfect.cardDistinctFactors_le_five_mul_sub_add_three),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_escape,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_escape),
+    (`StatementGate.conditional_card_primeFactors_le_five_excess_add_six,
+      ``OddPerfect.conditional_card_primeFactors_le_five_excess_add_six),
+    (`StatementGate.conditional_finite_of_excess_le,
+      ``OddPerfect.conditional_finite_of_excess_le),
+    (`StatementGate.not_all_pure_common_index,
+      ``OddPerfect.not_all_pure_common_index),
+    (`StatementGate.three_cycle_excess_or_outside,
+      ``OddPerfect.three_cycle_excess_or_outside),
+    (`StatementGate.card_divisors_filter_three_add_le,
+      ``OddPerfect.card_divisors_filter_three_add_le),
+    (`StatementGate.card_divisors_special_index_le_four_mul_excess,
+      ``OddPerfect.card_divisors_special_index_le_four_mul_excess),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
@@ -809,7 +999,11 @@ def expected : List (Name × Name) :=
       ``OddPerfect.eleven_le_card_exponents_of_sigma_prime),
     (`StatementGate.exists_prime_sigma_collision, ``OddPerfect.exists_prime_sigma_collision),
     (`StatementGate.restrained_not_dvd_of_lt, ``OddPerfect.restrained_not_dvd_of_lt),
-    (`StatementGate.cert_check_sound, ``OddPerfect.Cert.check_sound)]
+    (`StatementGate.cert_check_sound, ``OddPerfect.Cert.check_sound),
+    (`StatementGate.famV_of_fam, ``OddPerfect.TwoExcEngine.famV_of_fam),
+    (`StatementGate.holds_rootV, ``OddPerfect.TwoExcEngine.holds_rootV),
+    (`StatementGate.checkV_sound, ``OddPerfect.TwoExcEngine.checkV_sound),
+    (`StatementGate.famV_of_named, ``OddPerfect.TwoExcEngine.famV_of_named)]
 
 /-- Checks every theorem `StatementGate.*` of the environment against the inventory `exp` and
 the allowed list (see the module docstring). Throws an error listing every problem, or logs one
