@@ -806,6 +806,110 @@ theorem StatementGate.special_lt_of_noHighPureRow :
       q < m :=
   @OddPerfect.special_lt_of_noHighPureRow
 
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_six :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Nat.primeFactors N).card +
+          2 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 6 :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_six
+
+theorem StatementGate.card_primeFactors_le_five_excess_add_two_of_not_three_dvd :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      ¬ 3 ∣ N →
+      (Nat.primeFactors N).card ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 2 :=
+  @OddPerfect.card_primeFactors_le_five_excess_add_two_of_not_three_dvd
+
+theorem StatementGate.lt_two_pow_four_pow_excess_add_six :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      N < 2 ^ 4 ^ (5 * Finset.sum ((Nat.primeFactors N).erase q)
+        (fun p => Nat.factorization N p / 2 - 1) + 6) :=
+  @OddPerfect.lt_two_pow_four_pow_excess_add_six
+
+theorem StatementGate.phi3_both_shapes_mod_eight :
+    ∀ {q : ℕ}, _root_.Nat.Prime q → q % 4 = 1 → ∀ {p p' n m : ℕ}, Odd p → Odd p' → 1 ≤ n →
+      1 ≤ m → p ^ 2 + p + 1 = q ^ n → p' ^ 2 + p' + 1 = 3 * q ^ m → q % 8 = 5 :=
+  @OddPerfect.phi3_both_shapes_mod_eight
+
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five_of_mod_ne :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      q % 24 ≠ 13 →
+      (Nat.primeFactors N).card +
+          2 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 5 :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five_of_mod_ne
+
+theorem StatementGate.card_escapeRows_le_one :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      q % 24 ≠ 13 →
+      (Finset.filter (fun p : ℕ => ∀ r ∈ (p ^ 2 + p + 1).primeFactors, r = 3 ∨ r = q)
+        (Finset.filter (fun p => p ≠ q ∧ Nat.factorization N p = 2)
+          (Nat.primeFactors N))).card ≤ 1 :=
+  @OddPerfect.card_escapeRows_le_one
+
+theorem StatementGate.two_sq_ne_one_add_sigma_of_lt_sixteen :
+    ∀ {p e t : ℕ}, _root_.Nat.Prime p → p ≠ 2 → Odd t → Even e → 0 < e →
+      _root_.Nat.Prime (e + 1) → e < 16 → 2 * t ^ 2 ≠ 1 + ArithmeticFunction.sigma 1 (p ^ e) :=
+  @OddPerfect.two_sq_ne_one_add_sigma_of_lt_sixteen
+
+theorem StatementGate.sixteen_le_exponent_of_le_special :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      m ≤ q → ∃ p : ℕ, _root_.Nat.Prime p ∧ p ∣ m ∧
+        ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p) = q ∧
+        16 ≤ Nat.factorization N p :=
+  @OddPerfect.sixteen_le_exponent_of_le_special
+
+theorem StatementGate.nagellPrimePower_of_highPrimeExponent :
+    (∀ p y ℓ : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime ℓ → 5 ≤ ℓ → p ^ 2 + p + 1 ≠ y ^ ℓ) →
+      ∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = r ^ a →
+        a = 1 :=
+  @OddPerfect.nagellPrimePower_of_highPrimeExponent
+
+theorem StatementGate.phi3_prime_pow_exponent :
+    ∀ {p r a : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime r → p ^ 2 + p + 1 = r ^ a →
+      a = 1 ∨ (5 ≤ a ∧ ∀ ℓ, _root_.Nat.Prime ℓ → ℓ ∣ a → 5 ≤ ℓ) :=
+  @OddPerfect.phi3_prime_pow_exponent
+
+theorem StatementGate.orderOf_dvd_weight_of_shape :
+    ∀ {N q m p r w : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+      _root_.Nat.Prime r → r ∣ (q + 1) / 2 →
+      ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) = p ^ w →
+        orderOf (p : ZMod r) ∣ w ∧ Odd (orderOf (p : ZMod r)) :=
+  @OddPerfect.orderOf_dvd_weight_of_shape
+
+theorem StatementGate.three_le_orderOf_of_shape :
+    ∀ {N q m p r w : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+      _root_.Nat.Prime r → r ∣ (q + 1) / 2 →
+      ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) = p ^ w → p % r ≠ 1 →
+        3 ≤ orderOf (p : ZMod r) ∧ ¬ orderOf (p : ZMod r) ∣ Nat.factorization N p ∧ 3 ≤ w :=
+  @OddPerfect.three_le_orderOf_of_shape
+
+theorem StatementGate.not_dvd_weight_of_shape :
+    ∀ {N q m p r w : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+      _root_.Nat.Prime r → r ∣ (q + 1) / 2 →
+      ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) = p ^ w → ¬ r ∣ w :=
+  @OddPerfect.not_dvd_weight_of_shape
+
+theorem StatementGate.mod_eq_one_of_shape_of_fermat :
+    ∀ {N q m p r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+      _root_.Nat.Prime r → r ∣ (q + 1) / 2 → (∃ k, r = 2 ^ k + 1) →
+        p % r = 1 ∧ r ∣ Nat.factorization N p + 2 :=
+  @OddPerfect.mod_eq_one_of_shape_of_fermat
+
+theorem StatementGate.prod_dvd_index_add_two_of_shape :
+    ∀ {N q m p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+        Finset.prod (Finset.filter (fun r => p % r = 1) (Nat.primeFactors ((q + 1) / 2)))
+          (fun r => r) ∣ Nat.factorization N p + 2 :=
+  @OddPerfect.prod_dvd_index_add_two_of_shape
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1177,6 +1281,28 @@ def expected : List (Name × Name) :=
     (`StatementGate.exists_high_pure_row_of_le_special,
       ``OddPerfect.exists_high_pure_row_of_le_special),
     (`StatementGate.special_lt_of_noHighPureRow, ``OddPerfect.special_lt_of_noHighPureRow),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_six,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_six),
+    (`StatementGate.card_primeFactors_le_five_excess_add_two_of_not_three_dvd,
+      ``OddPerfect.card_primeFactors_le_five_excess_add_two_of_not_three_dvd),
+    (`StatementGate.lt_two_pow_four_pow_excess_add_six,
+      ``OddPerfect.lt_two_pow_four_pow_excess_add_six),
+    (`StatementGate.phi3_both_shapes_mod_eight, ``OddPerfect.phi3_both_shapes_mod_eight),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five_of_mod_ne,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five_of_mod_ne),
+    (`StatementGate.card_escapeRows_le_one, ``OddPerfect.card_escapeRows_le_one),
+    (`StatementGate.two_sq_ne_one_add_sigma_of_lt_sixteen,
+      ``OddPerfect.two_sq_ne_one_add_sigma_of_lt_sixteen),
+    (`StatementGate.sixteen_le_exponent_of_le_special,
+      ``OddPerfect.sixteen_le_exponent_of_le_special),
+    (`StatementGate.nagellPrimePower_of_highPrimeExponent,
+      ``OddPerfect.nagellPrimePower_of_highPrimeExponent),
+    (`StatementGate.phi3_prime_pow_exponent, ``OddPerfect.phi3_prime_pow_exponent),
+    (`StatementGate.orderOf_dvd_weight_of_shape, ``OddPerfect.orderOf_dvd_weight_of_shape),
+    (`StatementGate.three_le_orderOf_of_shape, ``OddPerfect.three_le_orderOf_of_shape),
+    (`StatementGate.not_dvd_weight_of_shape, ``OddPerfect.not_dvd_weight_of_shape),
+    (`StatementGate.mod_eq_one_of_shape_of_fermat, ``OddPerfect.mod_eq_one_of_shape_of_fermat),
+    (`StatementGate.prod_dvd_index_add_two_of_shape, ``OddPerfect.prod_dvd_index_add_two_of_shape),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
