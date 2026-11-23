@@ -260,3 +260,8 @@ import OddPerfect.TwoExceptionTwoThree
 import OddPerfect.SpecialIndexWitness
 import OddPerfect.SevenModTwelve
 import OddPerfect.ThreeFourthCapacity
+import OddPerfect.ExcessFourReduction
+import OddPerfect.ExcessFourS1
+import OddPerfect.ExcessFourS2a
+import OddPerfect.ExcessFourS2b
+import OddPerfect.ExcessFour
