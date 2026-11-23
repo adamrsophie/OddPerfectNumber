@@ -766,6 +766,30 @@ theorem StatementGate.ncard_oddPerfect_excess_le :
         (fun p => Nat.factorization N p / 2 - 1) ≤ T}.ncard ≤ 4 ^ ((5 * T + 7) ^ 2) :=
   @OddPerfect.ncard_oddPerfect_excess_le
 
+theorem StatementGate.finite_oddPerfect_le :
+    ∀ x : ℕ, {N : ℕ | _root_.OddPerfect N ∧ N ≤ x}.Finite :=
+  @OddPerfect.finite_oddPerfect_le
+
+theorem StatementGate.ncard_oddPerfect_le_sqrt :
+    ∀ x : ℕ, {N : ℕ | _root_.OddPerfect N ∧ N ≤ x}.ncard ≤ Nat.sqrt (x / 5) :=
+  @OddPerfect.ncard_oddPerfect_le_sqrt
+
+theorem StatementGate.factorization_mod_three_ne_two_of_not_three_dvd :
+    ∀ {N p : ℕ}, _root_.OddPerfect N → ¬ 3 ∣ N → _root_.Nat.Prime p → p ∣ N → p % 3 = 1 →
+      Nat.factorization N p % 3 ≠ 2 :=
+  @OddPerfect.factorization_mod_three_ne_two_of_not_three_dvd
+
+theorem StatementGate.even_factorization_of_mod_three_eq_two_of_not_three_dvd :
+    ∀ {N p : ℕ}, _root_.OddPerfect N → ¬ 3 ∣ N → _root_.Nat.Prime p → p ∣ N → p % 3 = 2 →
+      Even (Nat.factorization N p) :=
+  @OddPerfect.even_factorization_of_mod_three_eq_two_of_not_three_dvd
+
+theorem StatementGate.odd_card_one_mod_three_of_not_three_dvd :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ¬ 3 ∣ N →
+      Odd ((Nat.primeFactors N).filter
+        (fun p => p % 3 = 1 ∧ Nat.factorization N p % 3 = 1)).card :=
+  @OddPerfect.odd_card_one_mod_three_of_not_three_dvd
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1124,6 +1148,16 @@ def expected : List (Name × Name) :=
       ``OddPerfect.ncard_oddPerfect_card_primeFactors_le),
     (`StatementGate.ncard_oddPerfect_excess_le,
       ``OddPerfect.ncard_oddPerfect_excess_le),
+    (`StatementGate.finite_oddPerfect_le,
+      ``OddPerfect.finite_oddPerfect_le),
+    (`StatementGate.ncard_oddPerfect_le_sqrt,
+      ``OddPerfect.ncard_oddPerfect_le_sqrt),
+    (`StatementGate.factorization_mod_three_ne_two_of_not_three_dvd,
+      ``OddPerfect.factorization_mod_three_ne_two_of_not_three_dvd),
+    (`StatementGate.even_factorization_of_mod_three_eq_two_of_not_three_dvd,
+      ``OddPerfect.even_factorization_of_mod_three_eq_two_of_not_three_dvd),
+    (`StatementGate.odd_card_one_mod_three_of_not_three_dvd,
+      ``OddPerfect.odd_card_one_mod_three_of_not_three_dvd),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
