@@ -463,6 +463,12 @@ theorem StatementGate.two_exceptions_six_le_three :
         6 ≤ Nat.factorization N 3 :=
   @OddPerfect.two_exceptions_six_le_three
 
+theorem StatementGate.two_exceptions_three_exceptional :
+    ∀ {N q r₁ r₂ : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
+        r₁ = 3 ∨ r₂ = 3 :=
+  @OddPerfect.two_exceptions_three_exceptional
+
 theorem StatementGate.two_exceptions_five_three_sq_thirteen_ne_two :
     ∀ {N r₁ r₂ : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
       (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
@@ -688,6 +694,8 @@ def expected : List (Name × Name) :=
       ``OddPerfect.exists_pow_four_dvd_of_three_sq),
     (`StatementGate.two_exceptions_three_ne_two, ``OddPerfect.two_exceptions_three_ne_two),
     (`StatementGate.two_exceptions_six_le_three, ``OddPerfect.two_exceptions_six_le_three),
+    (`StatementGate.two_exceptions_three_exceptional,
+      ``OddPerfect.two_exceptions_three_exceptional),
     (`StatementGate.two_exceptions_five_three_sq_thirteen_ne_two,
       ``OddPerfect.two_exceptions_five_three_sq_thirteen_ne_two),
     (`StatementGate.not_mixed_index_three_five_seven,
