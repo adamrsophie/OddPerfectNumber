@@ -653,6 +653,24 @@ theorem StatementGate.card_divisors_special_index_le_four_mul_excess :
         4 * Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) :=
   @OddPerfect.card_divisors_special_index_le_four_mul_excess
 
+theorem StatementGate.orderOf_eq_of_geom_sum_eq_mul_prime_pow :
+    ∀ {w m p k s : ℕ}, _root_.Nat.Prime p → p ≠ 2 → 2 ≤ w → m ≠ 0 → 1 ≤ s → k < p →
+      Finset.sum (Finset.range m) (fun i => w ^ i) = k * p ^ s →
+      orderOf (w : ZMod p) = m :=
+  @OddPerfect.orderOf_eq_of_geom_sum_eq_mul_prime_pow
+
+theorem StatementGate.gcd_phi3_prime_pair :
+    ∀ {p q : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime q → 3 < p → 3 < q →
+      p ∣ q ^ 2 + q + 1 → q ∣ p ^ 2 + p + 1 →
+      ∃ m, Nat.gcd (p ^ 2 + p + 1) (q ^ 2 + q + 1) = 3 * 7 ^ m :=
+  @OddPerfect.gcd_phi3_prime_pair
+
+theorem StatementGate.not_dvd_sigma_of_dvd_special_succ :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r % 4 = 3 → r ∣ q + 1 →
+      ¬ q ∣ ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) :=
+  @OddPerfect.not_dvd_sigma_of_dvd_special_succ
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -975,6 +993,12 @@ def expected : List (Name × Name) :=
       ``OddPerfect.card_divisors_filter_three_add_le),
     (`StatementGate.card_divisors_special_index_le_four_mul_excess,
       ``OddPerfect.card_divisors_special_index_le_four_mul_excess),
+    (`StatementGate.orderOf_eq_of_geom_sum_eq_mul_prime_pow,
+      ``OddPerfect.orderOf_eq_of_geom_sum_eq_mul_prime_pow),
+    (`StatementGate.gcd_phi3_prime_pair,
+      ``OddPerfect.gcd_phi3_prime_pair),
+    (`StatementGate.not_dvd_sigma_of_dvd_special_succ,
+      ``OddPerfect.not_dvd_sigma_of_dvd_special_succ),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
