@@ -292,3 +292,4 @@ import OddPerfect.PerfectCount
 import OddPerfect.CountBelow
 import OddPerfect.ThreeFreeParity
 import OddPerfect.SpecialBelowRows
+import OddPerfect.ExcessSupportSharp
