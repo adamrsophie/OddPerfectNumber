@@ -8,6 +8,10 @@ The existence of an odd perfect number is an open problem. This repository does 
 
 Every theorem in the library compiles without `sorry`, and depends only on the axioms `propext`, `Classical.choice`, and `Quot.sound`.
 
+## Contributing
+
+Anyone can prove one of the open steps in `OddPerfect/Steps.lean` and submit it as one Lean file. See [CONTRIBUTING.md](CONTRIBUTING.md) and <https://adamrsophie.github.io/OddPerfectNumber/join.html>. No step settles the conjecture.
+
 ## Build
 
 Install [elan](https://github.com/leanprover/elan), then run:
@@ -33,6 +37,9 @@ Memory: the modules with large kernel checked tables (for example the `OmegaSeve
 | `StatementGate.lean` | The headline theorems restated with the definitions of mathlib and the predicate `OddPerfect`, each proved by reference to the library theorem, and a check that no restatement mentions another project definition outside a short allowed list. Run with `lake env lean StatementGate.lean` after the build. |
 | `GateControls/` | Control files for the gates: clean files that they must accept and files that they must reject, each for a stated reason, a control for the source scan `scripts/Controls/source_scan.py`, and a declaration that the kernel never checked, which the replay with `leanchecker` must reject. They are not part of the library and are never imported. Run with `sh GateControls/run.sh` after the build. |
 | `CheckerControls/` | Regression controls for the Boolean certificate checkers: small examples that fix the value of each checker on well formed and malformed inputs, checked against the inventory `manifest.txt`, and the five generated checks of the largest prime factor search. They are not part of the library and are never imported. Run with `sh CheckerControls/run.sh` after the build: it checks the inventory and compiles `Controls.lean`, and only counts the five generated checks; `sh CheckerControls/run.sh full` also compiles them, which needs about 15 GB of memory. |
+| `OddPerfect/Steps.lean` | Statements open for contribution, as definitions of type `Prop`. Nothing in the library uses one except as an explicit hypothesis. |
+| `Contributions/` | One file per proved step, compiled outside the library. `Example.lean` shows the format. |
+| `ContributionGate.lean` | The check of the contributed proofs: each proves exactly its step, with the three standard axioms only. Run by `scripts/Controls/contribution_gate.sh`. |
 | `scripts/` | The search and generator programs that found the certificates, trees and tables checked in the library. Nothing there is trusted; see `scripts/README.md`. |
 
 The module list changes often. The project site lists every module and every public theorem at a stated commit: <https://adamrsophie.github.io/OddPerfectNumber/>.

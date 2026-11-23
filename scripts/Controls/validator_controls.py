@@ -5,7 +5,8 @@
 # under ThreeFreeThree/ (check3.py, verify3.py, gen_lean.py, route3.py), SecondLargestPrimeFast/
 # (validate.py, knuth.py, reach.py, mkfast.py), LedgerThreeFree/check.py, MixedIndex/verify.py,
 # MixedIndexThree/ (verify3.py, cert3.py), the process count argument of
-# LargestPrimeFactor/gen6.py, and Controls/ (source_scan.py, replay.sh): every archived valid
+# LargestPrimeFactor/gen6.py, and Controls/ (source_scan.py, replay.sh, contribution_scan.py):
+# every archived valid
 # input must pass with exit status 0, and each mutated input must be rejected with the expected
 # nonzero status (1: a well formed input fails a check; 2: malformed input or usage), with no
 # Python traceback. The validators run as subprocesses with `sys.executable -I -B`, in normal and
@@ -49,6 +50,7 @@ MIX3_CERT = os.path.join(MIX3, 'cert3.py')
 GEN6 = os.path.join(SC, 'LargestPrimeFactor', 'gen6.py')
 SCAN = os.path.join(SC, 'Controls', 'source_scan.py')
 REPLAY = os.path.join(SC, 'Controls', 'replay.sh')
+CONTRIB_SCAN = os.path.join(SC, 'Controls', 'contribution_scan.py')
 TWO = os.path.join(SC, 'TwoExceptionTwo')
 TWO_ENGINE = os.path.join(TWO, 'engine.py')
 TF_CERT = os.path.join(TF, 'cert3_final.json.xz')
@@ -518,6 +520,72 @@ def source_scan(t):
                  'description = "moreLeanArgs in a value"\n')], 0, expect='source scan OK: 1 files')
 
 
+def contribution_scan(t):
+    """The format scan of contributed proofs must accept the format example, also with the
+    forbidden words in comments, and reject a file that runs code at elaboration time, skips
+    the kernel, hides text in a string or a quoted identifier, imports foreign code or does not
+    prove the step it is named after. In pull request mode the change must add exactly one
+    contributed file and touch nothing else."""
+    d = f'{t}/contrib'
+    os.mkdir(d)
+    head = 'import OddPerfect.Steps\nnamespace OddPerfect.Proofs\n'
+    tail = ('theorem Example : OddPerfect.Steps.Example := by\n  intro N h h2\n'
+            '  have h1 := Nat.odd_iff.mp h.odd\n  omega\nend OddPerfect.Proofs\n')
+
+    def case(key, name, mid, want, expect, head=head, tail=tail):
+        os.mkdir(f'{d}/{key}')
+        with open(f'{d}/{key}/Example.lean', 'w', encoding='utf-8') as f:
+            f.write(head + mid + tail)
+        control('contribution_scan.py: ' + name, CONTRIB_SCAN, [f'{d}/{key}/Example.lean'], want,
+                expect=expect)
+
+    case('ok', 'the format example', '', 0, '1 files, 0 findings')
+    case('words', 'forbidden words in comments only',
+         '/- #eval, run_cmd and "strings" are described here /- nested -/ -/\n-- open Lean\n', 0,
+         '1 files, 0 findings')
+    case('eval', 'an indented #eval', '  #eval 1\n', 1, 'start with #')
+    case('runcmd', 'run_cmd', 'run_cmd pure ()\n', 1, 'run_cmd is not allowed')
+    case('kernel', 'an option that skips the kernel', 'set_option debug.skipKernelTC true in\n', 1,
+         'set_option is allowed only')
+    case('string', 'a string literal', 'def s := "run_cmd"\n', 1, 'string literals')
+    case('quoted', 'a quoted identifier', 'def \u00abrun_cmd\u00bb := 1\n', 1, 'quoted identifiers')
+    case('lean', 'the metaprogramming namespace', 'open Lean in\n', 1, 'Lean is not allowed')
+    case('attr', 'an attribute other than simp', '@[implemented_by f] def g := 1\n', 1,
+         'the only attribute allowed')
+    case('import', 'a foreign import', '', 1, 'only Mathlib and OddPerfect modules',
+         head='import Evil.Module\n' + head)
+    case('native', 'decide +native', '', 1, 'native is not allowed',
+         tail=tail.replace('omega', 'decide +native'))
+    case('name', 'a theorem that is not named after the file', '', 1, 'exactly one line starting',
+         tail=tail.replace('theorem Example', 'theorem Other'))
+
+    # pull request mode, on a small repository built here
+    def git(repo, *args):
+        subprocess.run(['git', '-C', repo, '-c', 'user.name=control', '-c',
+                        'user.email=control@example.invalid', '-c', 'commit.gpgsign=false', *args],
+                       check=True, capture_output=True)
+
+    for key, extra, want, expect in (('pr_ok', False, 0, '1 files, 0 findings'),
+                                     ('pr_two', True, 1, 'changes nothing else')):
+        repo = f'{d}/{key}'
+        os.makedirs(f'{repo}/Contributions')
+        git(repo, 'init', '-q')
+        with open(f'{repo}/README.md', 'w', encoding='utf-8') as f:
+            f.write('base\n')
+        git(repo, 'add', '-A')
+        git(repo, 'commit', '-q', '-m', 'base')
+        with open(f'{repo}/Contributions/Example.lean', 'w', encoding='utf-8') as f:
+            f.write(head + tail)
+        if extra:
+            with open(f'{repo}/README.md', 'w', encoding='utf-8') as f:
+                f.write('changed\n')
+        git(repo, 'add', '-A')
+        git(repo, 'commit', '-q', '-m', 'change')
+        control('contribution_scan.py: pull request ' +
+                ('that also changes another file' if extra else 'that adds one contributed file'),
+                CONTRIB_SCAN, ['--pull-request', 'HEAD~1'], want, cwd=repo, expect=expect)
+
+
 def replay_list(t):
     """replay.sh with a stand in for lake: the default module list must be every library file,
     an import written with two spaces must still be listed, a file missing from the root file and
@@ -660,6 +728,7 @@ def main(argv):
         two_exception(t)
         gen6_jobs_argument(t)
         source_scan(t)
+        contribution_scan(t)
         replay_list(t)
     print(f'validator controls: {results["PASS"]} passed, {results["FAIL"]} failed, {results["SKIP"]} skipped')
     return 1 if results['FAIL'] else 0

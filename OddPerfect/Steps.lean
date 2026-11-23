@@ -1,0 +1,69 @@
+import OddPerfect.Basic
+import OddPerfect.ClassicalInputs
+
+/-!
+# Steps open for contribution
+
+Each definition below is a proposition that this library does not prove. A contribution is one
+file `Contributions/<Name>.lean` that proves `OddPerfect.Steps.<Name>` exactly as stated here
+(see `CONTRIBUTING.md`). The definitions are statements only: nothing in the library may use
+one of them except as an explicit hypothesis.
+
+None of these steps settles the odd perfect number conjecture, which is open. The steps marked
+"published" restate a theorem from the literature; the page reference was read, and the
+statement was tested on small cases, but a restatement can still be wrong: a counterexample
+is as welcome as a proof. The step marked "open" has no published proof known to the
+maintainers.
+-/
+
+open ArithmeticFunction
+open scoped ArithmeticFunction.sigma
+
+namespace OddPerfect.Steps
+
+/-- Format example; proved in `Contributions/Example.lean`. An odd perfect number is not
+even. -/
+def Example : Prop :=
+  ∀ N : ℕ, OddPerfect N → ¬ 2 ∣ N
+
+/-- Starter (published). If `σ(q ^ k)` is a power of an odd prime `p`, then `p ∤ q - 1`.
+Zhao and Chen, Front. Math. 20 (2025), Lemma 2.2, third assertion. The other two assertions
+are in the library (`OddPerfect/PureRows.lean`). -/
+def PureRowBase : Prop :=
+  ∀ p q k s : ℕ, p.Prime → p ≠ 2 → q.Prime → 1 ≤ k → 1 ≤ s →
+    σ 1 (q ^ k) = p ^ s → ¬ p ∣ q - 1
+
+/-- Starter (published). In Euler's form `N = q ^ k * m ^ 2` with `q ∤ m`, a special exponent
+other than `1` forces `q ^ 5 < 2 * m ^ 2`. Zelinsky, INTEGERS 25 (2025), A59, Proposition 11.
+The library has the weaker `q < m` (`special_lt_of_exponent_ne_one`). -/
+def SpecialFifthPower : Prop :=
+  ∀ N q k m : ℕ, OddPerfect N → q.Prime → N = q ^ k * m ^ 2 → ¬ q ∣ m → k ≠ 1 →
+    q ^ 5 < 2 * m ^ 2
+
+/-- Medium (published). If `σ(q ^ k) = 2 * p ^ s` with `p` an odd prime, then `k = 1` and
+`q ≥ 2 * p - 1`. Zhao and Chen, Front. Math. 20 (2025), Lemma 3.1. -/
+def TwicePrimePowerRow : Prop :=
+  ∀ p q k s : ℕ, p.Prime → p ≠ 2 → q.Prime → 1 ≤ k →
+    σ 1 (q ^ k) = 2 * p ^ s → k = 1 ∧ 2 * p ≤ q + 1
+
+/-- Hard (published, classical). The statement `OddPerfect.NagellPrimePower`: for primes
+`p`, `r`, the equation `p ^ 2 + p + 1 = r ^ a` forces `a = 1`. Nagell (1921). A proof removes
+one of the two hypotheses of the theorems named `conditional_…` in
+`OddPerfect/ConditionalSupport.lean`. -/
+def NagellPrimePower : Prop :=
+  OddPerfect.NagellPrimePower
+
+/-- Hard (published, classical). The statement `OddPerfect.LjunggrenThreePrimePower`: for
+primes `p`, `r`, the equation `p ^ 2 + p + 1 = 3 * r ^ a` forces `a ≤ 2`. Ljunggren (1943).
+A proof removes the other hypothesis of the theorems named `conditional_…`. -/
+def LjunggrenThreePrimePower : Prop :=
+  OddPerfect.LjunggrenThreePrimePower
+
+/-- Open. In Euler's form with special exponent `1`, `N = q * m ^ 2` and `q ∤ m`, the special
+prime is below `m`. The library proves this outside one explicit shape
+(`special_lt_or_shape` in `OddPerfect/SpecialBelow.lean`); no published proof of the full
+statement is known to the maintainers. -/
+def SpecialBelowRoot : Prop :=
+  ∀ N q m : ℕ, OddPerfect N → q.Prime → N = q * m ^ 2 → ¬ q ∣ m → q < m
+
+end OddPerfect.Steps

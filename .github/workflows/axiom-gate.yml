@@ -100,6 +100,23 @@ jobs:
       - name: Source scan
         run: python3 -I scripts/Controls/source_scan.py
 
+      # Contributed proofs (Contributions/<Name>.lean, see CONTRIBUTING.md) are compiled outside
+      # the library by the contribution gate below. This scan reads them first: it rejects what
+      # could run a program during elaboration or make Lean skip the kernel. On a pull request
+      # the change must add exactly one contributed file and touch nothing else; every other
+      # change reaches the main branch through the maintainers' own pushes. A pull request can
+      # edit this workflow, so a green run of a pull request is never the reason to accept it:
+      # the maintainers repeat the scan and the gate on the file itself.
+      - name: Contribution scan
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            git fetch --no-tags --depth=1 origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+            python3 -I scripts/Controls/contribution_scan.py --pull-request "origin/$BASE_REF"
+          fi
+          python3 -I scripts/Controls/contribution_scan.py
+
       - name: Build
         run: |
           start=$(date +%s)
@@ -148,6 +165,15 @@ jobs:
       # OddPerfect/LargestPrimeFactor.lean itself); the other runs only count them.
       - name: Checker controls
         run: sh CheckerControls/run.sh ${{ github.event_name == 'schedule' && 'full' || '' }}
+
+      # Compiles every contributed proof outside the library and checks the compiled result:
+      # the theorem exists, its statement is exactly the posted step of OddPerfect/Steps.lean,
+      # and every declaration of the file depends only on the three standard axioms. The
+      # controls run the gate on forged contributions, each of which must be rejected.
+      - name: Contribution gate
+        run: |
+          sh scripts/Controls/contribution_gate.sh
+          sh scripts/Controls/contribution_gate.sh controls
 
       # Saved only after every step above passed, and never from a pull request.
       - name: Save the library build
