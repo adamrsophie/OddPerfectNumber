@@ -257,3 +257,6 @@ import OddPerfect.TwoExceptionTwoData7
 import OddPerfect.TwoExceptionTwoData8
 import OddPerfect.TwoExceptionTwo
 import OddPerfect.TwoExceptionTwoThree
+import OddPerfect.SpecialIndexWitness
+import OddPerfect.SevenModTwelve
+import OddPerfect.ThreeFourthCapacity
