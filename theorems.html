@@ -288,6 +288,10 @@
   (hodd : Odd (N.factorization q)) :
   2 * ArithmeticFunction.cardDistinctFactors N + N.factorization q + 6 ≤
     ArithmeticFunction.cardFactors N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_mul_omega_add_special_le_Omega">OddPerfect.two_mul_omega_add_special_le_Omega</a> in <a href="reference.html#mod-ExcessFour">OddPerfect.ExcessFour</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">card_primeFactors_le_five_excess_add_three</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (hq : q.Prime) (hodd : Odd (N.factorization q)) (hq3 : q % 3 = 2) :
+  N.primeFactors.card ≤
+    5 * (<span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors.erase q, (N.factorization p / 2 - 1)) + 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.card_primeFactors_le_five_excess_add_three">OddPerfect.card_primeFactors_le_five_excess_add_three</a> in <a href="reference.html#mod-ExcessSupport">OddPerfect.ExcessSupport</a></p>
 <p>It also holds with three exceptional primes r₁, r₂ and r₃, again with no condition on them (module <a href="reference.html#mod-ThreeFreeThree"><code>ThreeFreeThree</code></a>). The proof is a case analysis with 1223 leaves over 102 class triples, found by a search outside Lean and rechecked in the kernel by a checker that is proved sound. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_three_exceptions</span> {N q r₁ r₂ r₃ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -416,7 +420,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>a3f7d66</code> on the main branch.</p>
+<p>Last updated 23 November 2026, from commit <code>05fab49</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

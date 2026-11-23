@@ -52,7 +52,7 @@
 <h2 id="trust">Trust policy</h2>
 <p class="sub">A reader should need to trust only the Lean kernel, mathlib, and the statements themselves.</p>
 <div class="grid">
-<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>a3f7d66</code> is 0.</p></div>
+<div class="card"><h3>No escape hatches</h3><p>The library contains no <code>sorry</code>, no <code>admit</code>, no added <code>axiom</code>, no <code>native_decide</code>, and no <code>unsafe</code> or <code>implemented_by</code> declarations. The site generator counts these tokens outside comments in every file of the main branch; the count for commit <code>05fab49</code> is 0.</p></div>
 <div class="card"><h3>Three axioms only</h3><p>The modules end with <code>#print axioms</code> lines for their theorems, and every report must list at most <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>. The exceptions are listed under <a href="#axiom-coverage">axiom report coverage</a> below.</p></div>
 <div class="card"><h3>Computation inside the kernel</h3><p>Finite case analyses are run by verified checkers and evaluated with kernel reduction (<code>decide +kernel</code>). Primality of large numbers uses Pratt certificates checked the same way, or primality witnesses checked through mathlib's <code>lucas_primality</code>.</p></div>
 <div class="card"><h3>Pinned environment</h3><p>leanprover/lean4:v4.33.1 with mathlib pinned to a fixed commit. The whole library is rebuilt before every commit.</p></div>
@@ -124,7 +124,7 @@ sh GateControls/run.sh AxiomGate.lean StatementGate.lean</code></pre>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>a3f7d66</code> on the main branch.</p>
+<p>Last updated 23 November 2026, from commit <code>05fab49</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
