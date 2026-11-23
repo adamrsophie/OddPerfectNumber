@@ -49,6 +49,8 @@ MIX3_CERT = os.path.join(MIX3, 'cert3.py')
 GEN6 = os.path.join(SC, 'LargestPrimeFactor', 'gen6.py')
 SCAN = os.path.join(SC, 'Controls', 'source_scan.py')
 REPLAY = os.path.join(SC, 'Controls', 'replay.sh')
+TWO = os.path.join(SC, 'TwoExceptionTwo')
+TWO_ENGINE = os.path.join(TWO, 'engine.py')
 TF_CERT = os.path.join(TF, 'cert3_final.json.xz')
 EQ_CERTS = sorted(os.path.join(SC, f, 'certs', n) for f in ('EqualExponentChain', 'EqualExponentChainMore')
                   for n in os.listdir(os.path.join(SC, f, 'certs')) if n.endswith('.json'))
@@ -117,7 +119,7 @@ def mutate_text(src, dst, old, new):
 
 def no_asserts():
     """The validators and this script must not rely on `assert`, which python -O removes."""
-    for path in (CHECKER, LBCHECK, VERIFY, EST, SLP_VALIDATE, LEDGER, MIX_VERIFY, MIX3_VERIFY,
+    for path in (CHECKER, LBCHECK, VERIFY, EST, SLP_VALIDATE, LEDGER, MIX_VERIFY, MIX3_VERIFY, TWO_ENGINE,
                  os.path.abspath(__file__)):
         with open(path) as f:
             tree = ast.parse(f.read(), path)
@@ -579,6 +581,68 @@ def replay_list(t):
         lambda got: None if not got else f'replayed {got}')
 
 
+def two_exception(t):
+    """The independent recheck and the mirror accept the archived certificate; the mirror
+    also accepts the three excess certificates. Negative rational witnesses and an out-of-range
+    strong pseudoprime must not be admitted as Lean Nat data and certified primes."""
+    cert = os.path.join(TWO, 'cert.jsonl.xz')
+    control('TwoExceptionTwo/check.py accepts the archived certificate', os.path.join(TWO, 'check.py'),
+            [cert], 0, expect='VERDICT PASS')
+    control('TwoExceptionTwo/engine.py accepts the archived certificate', TWO_ENGINE,
+            [cert], 0, expect='accepted True')
+    ex = os.path.join(SC, 'ExcessFour')
+    for name in sorted(n for n in os.listdir(ex) if n.startswith('cert_') and n.endswith('.jsonl')):
+        control('TwoExceptionTwo/engine.py accepts ' + name, TWO_ENGINE,
+                [os.path.join(ex, name)], 0, expect='accepted True')
+    state = {'x': 5, 'q': None, 'exq': [], 'S': {'3': []}, 'F': {}, 'R': {}}
+    records = [
+        {'id': 0, 'kind': 'header', 'root': 1, 'EMAX': 2, 'MHIT': 10**30, 'KCAP': 64,
+         'flags': ['cert']},
+        {'id': 1, 'kind': 'apply', 'state': state, 'values': [], 'items': [],
+         'outcome': 'closed', 'next_x': 5, 'children': [2]},
+        {'id': 2, 'kind': 'check', 'state': state, 'x': 5, 'reason': 'deficient',
+         'proof': {'x': 5, 'H': '13/9', 'U': '0', 'a': 1, 'b': 2, 'c': 2, 'd': 4,
+                   'u': 3, 'hits': [], 'K': [], 'extra_ab': 0, 'extra_cd': 0, 'nonhits': [],
+                   'rankin': {'mode': 'theta', 'alpha_x': [0, 11, 10], 'alpha': {},
+                              'k': 3, 'mL': '-1', 'mM': '-1'}}}]
+    negative = os.path.join(t, 'negative_rankin.jsonl')
+    with open(negative, 'w') as f:
+        for r in records:
+            f.write(json.dumps(r) + '\n')
+    control('TwoExceptionTwo/engine.py rejects negative Rankin numerators', TWO_ENGINE,
+            [negative], 1, expect='natural number')
+    control('TwoExceptionTwo/check.py rejects the forged root closure', os.path.join(TWO, 'check.py'),
+            [negative], 1, expect='VERDICT FAIL')
+    probe = os.path.join(t, 'pseudoprime.py')
+    with open(probe, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'n = 399165290221 * 798330580441\n'
+                'try:\n'
+                '    print("oracle result", m["pr"](n))\n'
+                'except m["Reject"] as e:\n'
+                '    print("REJECTED", e); sys.exit(1)\n')
+    control('TwoExceptionTwo/engine.py rejects out-of-range pseudoprime', probe,
+            [TWO_ENGINE], 1, expect='deterministic range')
+    # The mirror scans 1000 positions, like `scanNext` in TwoExcEngineCode.lean: with every odd
+    # prime through 997 a key, a scan from 3 ends at 1002 and rejects; without the key 997 it
+    # returns 997.
+    fuel = os.path.join(t, 'scan_fuel.py')
+    with open(fuel, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'odd = [p for p in range(3, 998) if all(p % d for d in range(2, p))]\n'
+                'keys = [(p,) for p in odd if p <= int(sys.argv[2])]\n'
+                'try:\n'
+                '    print("scan result", m["scan_next"]({"x": 3, "keys": keys}))\n'
+                'except m["Reject"] as e:\n'
+                '    print("REJECTED", e); sys.exit(1)\n')
+    control('TwoExceptionTwo/engine.py scan stops after 1000 positions', fuel,
+            [TWO_ENGINE, '997'], 1, expect='REJECTED scan')
+    control('TwoExceptionTwo/engine.py scan finds a prime inside 1000 positions', fuel,
+            [TWO_ENGINE, '996'], 0, expect='scan result 997')
+
+
 def main(argv):
     if argv[1:] not in ([], ['--stdlib-only']):
         print('usage: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]', file=sys.stderr)
@@ -593,6 +657,7 @@ def main(argv):
         second_largest_prime(t)
         ledger_three_free(t, argv[1:] == ['--stdlib-only'])
         mixed_index(t, argv[1:] == ['--stdlib-only'])
+        two_exception(t)
         gen6_jobs_argument(t)
         source_scan(t)
         replay_list(t)

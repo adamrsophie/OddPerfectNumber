@@ -36,6 +36,9 @@ def load(fn):
     recs = {}
     for l in read_lines(fn):
         r = json.loads(l)
+        req(isinstance(r, dict), 'record must be an object')
+        req(type(r.get('id')) is int and r['id'] >= 0, 'record id must be a natural number')
+        req(r['id'] not in recs, 'duplicate record id')
         recs[r['id']] = r
     return recs
 
@@ -66,11 +69,11 @@ def defdata_trivial(pr):
     (K empty, u = 0), where the search writes no Rankin data: the Rankin part of the bound is
     zero, and the checks on the witnesses are met by k = 24, B = 10^6, the least admissible
     r_x, m_L = 1 and m_M = 10^-13 (S is then below 10^-12)."""
-    assert pr['K'] == [] and pr['u'] == 0 and pr['a'] == 0 and pr['b'] == 0, pr
-    assert pr['extra_ab'] == 0 and pr['extra_cd'] == 0 and pr['hits'] == []
+    req(pr['K'] == [] and pr['u'] == 0 and pr['a'] == 0 and pr['b'] == 0, 'trivial tail slots')
+    req(pr['extra_ab'] == 0 and pr['extra_cd'] == 0 and pr['hits'] == [], 'trivial tail extras')
     k, B, x = 24, 10 ** 6, pr['x']
     rx = B + 1
-    assert rx ** k <= B ** k * x
+    req(rx ** k <= B ** k * x, 'trivial tail alpha_x')
     return ('dd', k, B, [], rx, (1, 1), (1, 10 ** 13), [])
 
 class Translator:
@@ -83,11 +86,11 @@ class Translator:
 
     def apply_node(self, rid, comp):
         r = self.recs[rid]
-        assert r['kind'] == 'apply', r
+        req(r['kind'] == 'apply', 'expected apply record')
         items = [(p, e) for p, e, src in r['items'] if comp_of(src) == comp]
         # positional check: the own items are a suffix of the record's items
         own = [(p, e) for p, e, src in r['items']]
-        assert own[len(own) - len(items):] == items, rid
+        req(own[len(own) - len(items):] == items, 'own items must be a suffix')
         if self.sort_items:
             items = sorted(items)
         return ('apply', items, self.out(r))
@@ -120,7 +123,7 @@ class Translator:
                 ent[g] = ('snd', g, a['d'], self.apply_node(c, g))
             return ('receipt', p, [ent[g] for g in sorted(ent)])
         if oc == 'closed':
-            assert len(r['children']) == 1
+            req(len(r['children']) == 1, 'closed record must have one child')
             return ('closed', self.step(r['children'][0]))
         raise ValueError(oc)
 
@@ -133,7 +136,7 @@ class Translator:
             return ('decide', ch, self.step(r['absent']))
         if k == 'check':
             if r['reason'] == 'landedL': return ('checkL',)
-            assert r['reason'] == 'deficient', r['reason']
+            req(r['reason'] == 'deficient', 'expected deficient leaf')
             return ('check', self.defdata(r['proof']))
         if k == 'split':
             p = r['prime']
@@ -149,13 +152,13 @@ class Translator:
         if 'rankin' not in pr:
             return defdata_trivial(pr)
         rk = pr['rankin']
-        assert rk['mode'] == 'theta'
-        assert pr['extra_ab'] == 0 and pr['extra_cd'] == 0
+        req(rk['mode'] == 'theta', 'unsupported Rankin mode')
+        req(pr['extra_ab'] == 0 and pr['extra_cd'] == 0, 'unsupported extra slots')
         base = rk['alpha_x'][2]
         rs = []
         for g in pr['K']:
             a = rk['alpha'][str(g)]
-            assert a[2] == base
+            req(a[2] == base, 'Rankin bases differ')
             rs.append(a[1])
         def frac(s):
             n, d = s.split('/') if '/' in s else (s, '1')
@@ -166,7 +169,9 @@ class Translator:
 
     def root(self):
         r = self.recs[self.hdr['root']]
-        return self.apply_node(r['id'], 3)
+        term = self.apply_node(r['id'], 3)
+        natural_term(term)
+        return term
 
 # ---------------------------------------------------------------- mirror checker
 
@@ -176,6 +181,25 @@ class Reject(Exception):
 def req(b, msg='reject'):
     if not b:
         raise Reject(msg)
+
+def natural_term(term):
+    """Lean certificate terms have only constructor tags and natural-number fields.
+    In particular the numerators of mL and mM are Nat, not signed integers.
+    Reject values Python arithmetic would accept but Lean's input type cannot express.
+    """
+    tags = {'apply', 'leaf', 'abundant', 'landedL', 'checkL', 'ext', 'force', 'receipt',
+            'inf', 'snd', 'closed', 'decide', 'check', 'split', 'dd'}
+    pending = [term]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, (tuple, list)):
+            pending.extend(value)
+        elif isinstance(value, str):
+            req(value in tags, 'unexpected string in certificate term')
+        else:
+            req(type(value) is int and value >= 0,
+                'certificate field must be a natural number: %r' % (value,))
+
 
 COUNT = collections.Counter()
 
@@ -190,6 +214,9 @@ def is_prime_small(n):
     return True
 
 def miller(n):
+    req(type(n) is int, 'primality candidate must be an integer')
+    # Enforce the conservative exactness range stated in the module docstring.
+    req(n < 310000000000000000000000, 'primality candidate exceeds deterministic range')
     if n < 2: return False
     for p in (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37):
         if n % p == 0: return n == p
@@ -368,8 +395,9 @@ def landedL(P, st):
     return all(p < st['x'] or key_find(st, p) is not None for p in LSET)
 
 def scan_next(st):
+    # 1000 positions, the fuel of `scanNext` in TwoExcEngineCode.lean; exhaustion rejects.
     y = st['x']
-    for _ in range(100000):
+    for _ in range(1000):
         if key_find(st, y) is None and is_prime_small(y): return y
         COUNT['scan'] += 1
         y += 1
@@ -590,6 +618,9 @@ class Mirror:
         raise Reject('bad step ' + t)
 
 def params(hdr):
+    for key in ('EMAX', 'MHIT', 'KCAP') + (('V3',) if 'V3' in hdr else ()):
+        req(type(hdr.get(key)) is int and hdr[key] >= 0,
+            'header %s must be a natural number' % key)
     if hdr.get('kind') != 'header':
         raise ValueError('not a header: %r' % (hdr,))
     if 'V3' in hdr:
@@ -693,6 +724,8 @@ def main():
         recs, term, P, M, ok = run(sys.argv[1])
     except Reject as e:
         print('REJECTED', e); return 1
+    except (OSError, ValueError, KeyError, TypeError, IndexError, lzma.LZMAError) as e:
+        print('MALFORMED', e); return 2
     print('accepted', ok, 'params', P, 'time %.1fs' % (time.time() - t0))
     print('leaves', dict(M.leaves))
     print('counts', dict(COUNT))
