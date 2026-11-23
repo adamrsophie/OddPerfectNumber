@@ -281,3 +281,5 @@ import OddPerfect.EisensteinInt
 import OddPerfect.EisensteinRows
 import OddPerfect.EisensteinLocal
 import OddPerfect.UnconditionalSupport
+import OddPerfect.FermatSpecial
+import OddPerfect.FermatFactor
