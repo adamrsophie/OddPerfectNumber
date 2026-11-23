@@ -510,6 +510,17 @@ theorem StatementGate.four_le_cardFactors_sub :
       ArithmeticFunction.cardDistinctFactors m + 4 ≤ ArithmeticFunction.cardFactors m :=
   @OddPerfect.four_le_cardFactors_sub
 
+theorem StatementGate.two_mul_omega_add_special_le_Omega :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      2 * ArithmeticFunction.cardDistinctFactors N + Nat.factorization N q + 6 ≤
+        ArithmeticFunction.cardFactors N :=
+  @OddPerfect.two_mul_omega_add_special_le_Omega
+
+theorem StatementGate.two_mul_omega_add_seven_le_Omega :
+    ∀ {N : ℕ}, _root_.OddPerfect N →
+      2 * ArithmeticFunction.cardDistinctFactors N + 7 ≤ ArithmeticFunction.cardFactors N :=
+  @OddPerfect.two_mul_omega_add_seven_le_Omega
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -770,6 +781,10 @@ def expected : List (Name × Name) :=
       ``OddPerfect.four_exceptions_of_three_sq_of_nine_dvd),
     (`StatementGate.four_le_excess, ``OddPerfect.four_le_excess),
     (`StatementGate.four_le_cardFactors_sub, ``OddPerfect.four_le_cardFactors_sub),
+    (`StatementGate.two_mul_omega_add_special_le_Omega,
+      ``OddPerfect.two_mul_omega_add_special_le_Omega),
+    (`StatementGate.two_mul_omega_add_seven_le_Omega,
+      ``OddPerfect.two_mul_omega_add_seven_le_Omega),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
