@@ -279,3 +279,4 @@ import OddPerfect.PairGcd
 import OddPerfect.SpecialSuccSender
 import OddPerfect.EisensteinInt
 import OddPerfect.EisensteinRows
+import OddPerfect.EisensteinLocal
