@@ -277,6 +277,13 @@
   (hodd : Odd (N.factorization q))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
   r₁ = 3 ∨ r₂ = 3</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_exceptional">OddPerfect.two_exceptions_three_exceptional</a> in <a href="reference.html#mod-TwoExceptionTwoThree">OddPerfect.TwoExceptionTwoThree</a></p>
+<p>Together with the theorem on three exceptional primes below, these results combine into a bound for every odd perfect number N = q<sup>a</sup>m²: the exponents of m exceed the minimum by at least 4 in total, Ω(m) − ω(m) ≥ 4 (module <a href="reference.html#mod-ExcessFour"><code>ExcessFour</code></a>). Three families with fixed exponents remain after the reduction and are excluded by kernel checked certificates. For a special exponent a at most 45 the bound follows from the published inequality Ω(N) ≥ 2ω(N) + 51 of Ochem and Rao; the statement here does not depend on a (<span class="tag unver">novelty unverified</span>).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">four_le_excess</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) :
+  4 ≤ <span class="k"><span class="k">∑</span></span> p ∈ N.primeFactors.erase q, (N.factorization p / 2 - 1)</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.four_le_excess">OddPerfect.four_le_excess</a> in <a href="reference.html#mod-ExcessFour">OddPerfect.ExcessFour</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">four_le_cardFactors_sub</span> {N q a m : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime) (hqm : ¬ q ∣ m)
+  (hN : N = q ^ a * m ^ 2) :
+  ArithmeticFunction.cardDistinctFactors m + 4 ≤ ArithmeticFunction.cardFactors m</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.four_le_cardFactors_sub">OddPerfect.four_le_cardFactors_sub</a> in <a href="reference.html#mod-ExcessFour">OddPerfect.ExcessFour</a></p>
 <p>It also holds with three exceptional primes r₁, r₂ and r₃, again with no condition on them (module <a href="reference.html#mod-ThreeFreeThree"><code>ThreeFreeThree</code></a>). The proof is a case analysis with 1223 leaves over 102 class triples, found by a search outside Lean and rechecked in the kernel by a checker that is proved sound. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_three_exceptions</span> {N q r₁ r₂ r₃ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -405,7 +412,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>8c7864b</code> on the main branch.</p>
+<p>Last updated 23 November 2026, from commit <code>837ab44</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
