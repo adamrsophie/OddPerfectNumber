@@ -7,8 +7,11 @@ import OddPerfect.TwoExcEngineTail
 Let `N` be an odd perfect number with special prime `q` and exponent 6 at 3, at most one further
 prime `r` of exponent 4, every other prime factor except `q` of exponent 2. This module proves
 that no such `N` exists (`excessS1 : ExcessS1`, the statement of `ExcessFourReduction`). This
-concerns only this restricted family, not odd perfect numbers in general. Whether this result is
-new has not been verified against the literature.
+concerns only this restricted family, not odd perfect numbers in general. In this family the
+special exponent `a` satisfies `Ω(N) - 2 * ω(N) ≤ a + 4`, so for `a ≤ 45` this exclusion also
+follows from the published inequality `Ω(N) ≥ 2 * ω(N) + 51` of Ochem and Rao (Math. Comp. 83,
+2014). Whether the case of a larger special exponent is new has not been verified against the
+literature.
 
 ## The proof
 
