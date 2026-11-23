@@ -286,3 +286,4 @@ import OddPerfect.FermatFactor
 import OddPerfect.LeastOddFactor
 import OddPerfect.LeastPrimeSeven
 import OddPerfect.SpecialExponentDivisor
+import OddPerfect.PerfectRigidity
