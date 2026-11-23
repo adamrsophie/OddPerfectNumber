@@ -299,3 +299,4 @@ import OddPerfect.EisensteinMixed
 import OddPerfect.NagellReduction
 import OddPerfect.ShapeSeries
 import OddPerfect.ShapeSmall
+import OddPerfect.SpecialBelowOrder
