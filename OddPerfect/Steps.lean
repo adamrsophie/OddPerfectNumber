@@ -48,11 +48,12 @@ def TwicePrimePowerRow : Prop :=
   ∀ p q k s : ℕ, p.Prime → p ≠ 2 → q.Prime → 1 ≤ k →
     σ 1 (q ^ k) = 2 * p ^ s → k = 1 ∧ 2 * p ≤ q + 1
 
-/-- Medium (published). An odd perfect number `N` with special prime `q` cannot have every
+/-- Starter (published). An odd perfect number `N` with special prime `q` cannot have every
 divisor sum `σ(p ^ v_p(N))`, `p ≠ q`, a power of a prime while `σ(q ^ v_q(N)) / 2` is a power of
 a prime too. R. J. Levit, Bull. Amer. Math. Soc. 53 (1947), 392 to 396, Theorem. The library has
 a counting inequality for the case that every ordinary row is a prime power
-(`card_add_inDegree_le_of_all_pure` in `OddPerfect/PureRows.lean`). -/
+(`card_add_inDegree_le_of_all_pure` in `OddPerfect/PureRows.lean`); with
+`seven_le_card_primeFactors` (`OddPerfect/OmegaSevenFinal.lean`) it should give a short proof. -/
 def AllRowsPrimePower : Prop :=
   ∀ N q : ℕ, OddPerfect N → q.Prime → Odd (N.factorization q) →
     (∀ p ∈ N.primeFactors, p ≠ q → ∃ r w, r.Prime ∧ σ 1 (p ^ N.factorization p) = r ^ w) →

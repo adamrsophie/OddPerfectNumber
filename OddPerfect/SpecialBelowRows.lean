@@ -19,8 +19,9 @@ contains a prime `r` whose component has divisor sum `p ^ w` with `w` odd and `w
   `σ(r ^ v_r(N)) = p ^ w`, `w` odd, `w ≥ 3` and `σ(p ^ v_p(N)) = q`.
 * `special_lt_of_noHighPureRow`: under the hypothesis `NoHighPureRow`, `q < m`.
 
-`NoHighPureRow` is an unproved hypothesis: it is not proved in this library, and whether it is
-settled in the literature was not checked. So `q < m` is proved here only conditionally. The
+`NoHighPureRow` is an unproved hypothesis and a research target: it is a case of the equation
+of Nagell and Ljunggren, for which finiteness of the solutions is not known (see the docstring
+of the definition). So `q < m` is proved here only conditionally. The
 odd perfect number conjecture is open, and nothing here decides it.
 
 The argument: put `W = (q + 1) / 2`, so `m ^ 2 = p ^ e W`. Each prime `r ∣ W` has a component
@@ -39,8 +40,10 @@ namespace OddPerfect
 
 /-- Hypothesis, not proved in this library: for odd primes `r` and `p` and an even exponent
 `g ≠ 0`, the divisor sum `σ(r ^ g) = (r ^ (g + 1) - 1) / (r - 1)` is not `p ^ w` with `w ≥ 3`.
-This is a case of the equation `(x ^ n - 1) / (x - 1) = y ^ w`; whether it is settled in the
-literature was not checked here. -/
+This is a case of the equation `(x ^ n - 1) / (x - 1) = y ^ w` of Nagell and Ljunggren. It is
+not known whether that equation has finitely many solutions (Bennett and Levin, The Nagell and
+Ljunggren equation via Runge's method, 2015, introduction); four solutions are known, among
+them `(3 ^ 5 - 1) / 2 = 11 ^ 2`. A research target, not a published theorem. -/
 def NoHighPureRow : Prop :=
   ∀ r p g w : ℕ, r.Prime → r ≠ 2 → p.Prime → Even g → g ≠ 0 → σ 1 (r ^ g) = p ^ w → w ≤ 2
 
