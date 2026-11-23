@@ -283,3 +283,6 @@ import OddPerfect.EisensteinLocal
 import OddPerfect.UnconditionalSupport
 import OddPerfect.FermatSpecial
 import OddPerfect.FermatFactor
+import OddPerfect.LeastOddFactor
+import OddPerfect.LeastPrimeSeven
+import OddPerfect.SpecialExponentDivisor
