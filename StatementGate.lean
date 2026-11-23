@@ -500,6 +500,40 @@ theorem StatementGate.four_exceptions_of_three_sq_of_nine_dvd :
           (Nat.primeFactors N)).card :=
   @OddPerfect.four_exceptions_of_three_sq_of_nine_dvd
 
+theorem StatementGate.four_le_excess :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      4 ≤ Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) :=
+  @OddPerfect.four_le_excess
+
+theorem StatementGate.four_le_cardFactors_sub :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → ¬ q ∣ m → N = q ^ a * m ^ 2 →
+      ArithmeticFunction.cardDistinctFactors m + 4 ≤ ArithmeticFunction.cardFactors m :=
+  @OddPerfect.four_le_cardFactors_sub
+
+theorem StatementGate.excessS1 :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
+        (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ 3 → p ≠ r → Nat.factorization N p = 2) → False :=
+  @OddPerfect.excessS1
+
+theorem StatementGate.excessS2a :
+    ∀ {N q r₁ r₂ : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      Nat.factorization N 3 = 4 → (r₁ ∈ Nat.primeFactors N → Nat.factorization N r₁ = 4) →
+        (r₂ ∈ Nat.primeFactors N → Nat.factorization N r₂ = 4) →
+          (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ 3 → p ≠ r₁ → p ≠ r₂ →
+            Nat.factorization N p = 2) → False :=
+  @OddPerfect.excessS2a
+
+theorem StatementGate.excessS2b :
+    ∀ {N q r₁ r₂ r₃ : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q →
+      Odd (Nat.factorization N q) → Nat.factorization N 3 = 2 →
+        (r₁ ∈ Nat.primeFactors N → Nat.factorization N r₁ = 4) →
+          (r₂ ∈ Nat.primeFactors N → Nat.factorization N r₂ = 4) →
+            (r₃ ∈ Nat.primeFactors N → Nat.factorization N r₃ = 4) →
+              (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ →
+                Nat.factorization N p = 2) → False :=
+  @OddPerfect.excessS2b
+
 theorem StatementGate.two_exceptions_five_three_sq_thirteen_ne_two :
     ∀ {N r₁ r₂ : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
       (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
@@ -734,6 +768,11 @@ def expected : List (Name × Name) :=
     (`StatementGate.special_index_witnesses, ``OddPerfect.special_index_witnesses),
     (`StatementGate.four_exceptions_of_three_sq_of_nine_dvd,
       ``OddPerfect.four_exceptions_of_three_sq_of_nine_dvd),
+    (`StatementGate.four_le_excess, ``OddPerfect.four_le_excess),
+    (`StatementGate.four_le_cardFactors_sub, ``OddPerfect.four_le_cardFactors_sub),
+    (`StatementGate.excessS1, ``OddPerfect.excessS1),
+    (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
+    (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
     (`StatementGate.two_exceptions_five_three_sq_thirteen_ne_two,
       ``OddPerfect.two_exceptions_five_three_sq_thirteen_ne_two),
     (`StatementGate.not_mixed_index_three_five_seven,
