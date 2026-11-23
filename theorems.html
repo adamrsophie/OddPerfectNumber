@@ -244,6 +244,26 @@
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_pow_four_dvd_of_three_sq</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
   (h3 : N.factorization 3 = 2) :
   <span class="k"><span class="k">∃</span></span> p ∈ ({7, 13, 19, 31, 61, 97, 127, 331} : Finset <span class="t"><span class="t">ℕ</span></span>), p ^ 4 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_pow_four_dvd_of_three_sq">OddPerfect.exists_pow_four_dvd_of_three_sq</a> in <a href="reference.html#mod-ThreeSquareCapacity">OddPerfect.ThreeSquareCapacity</a></p>
+<p>The same counting works when the exponent of 3 is 4, with six named primes (module <a href="reference.html#mod-ThreeFourthCapacity"><code>ThreeFourthCapacity</code></a>), and two further statements hold for every odd perfect number: a chain of primes that are 7 modulo 12 (module <a href="reference.html#mod-SevenModTwelve"><code>SevenModTwelve</code></a>) and an inequality that links the exponent of the special prime to the exponent of 3 (module <a href="reference.html#mod-SpecialIndexWitness"><code>SpecialIndexWitness</code></a>).</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_pow_four_dvd_of_three_pow_four</span> (h : OddPerfect N)
+  (h3 : N.factorization 3 = 4) :
+  <span class="k"><span class="k">∃</span></span> p ∈ ({7, 11, 19, 31, 127, 5419} : Finset <span class="t"><span class="t">ℕ</span></span>), p ^ 4 ∣ N ∧
+    ¬ 3 ∣ N.factorization p + 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_pow_four_dvd_of_three_pow_four">OddPerfect.exists_pow_four_dvd_of_three_pow_four</a> in <a href="reference.html#mod-ThreeFourthCapacity">OddPerfect.ThreeFourthCapacity</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_seven_mod_twelve_exception</span> {N q p : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (h3N : N.factorization 3 ≤ 2)
+  (hp : p ∈ N.primeFactors) (hmod : p % 12 = 5 ∨ p % 12 = 7)
+  (h3 : 3 ∣ N.factorization p + 1) :
+  <span class="k"><span class="k">∃</span></span> r ∈ N.primeFactors, r % 12 = 7 ∧ 4 ≤ N.factorization r ∧ ¬ 3 ∣ N.factorization r + 1</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_seven_mod_twelve_exception">OddPerfect.exists_seven_mod_twelve_exception</a> in <a href="reference.html#mod-SevenModTwelve">OddPerfect.SevenModTwelve</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">special_index_witnesses</span> {N q l : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (hl : l.Prime) (hl2 : l ≠ 2) :
+  2 * padicValNat l (N.factorization q + 1) +
+      padicValNat l (σ 1 (q ^ N.factorization q)) ≤
+    N.factorization l + (N.primeFactors.filter <span class="k"><span class="k">fun</span></span> p =&gt;
+      p ≠ q ∧ p % l = 1 ∧ ¬ l ∣ N.factorization p + 1).card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.special_index_witnesses">OddPerfect.special_index_witnesses</a> in <a href="reference.html#mod-SpecialIndexWitness">OddPerfect.SpecialIndexWitness</a></p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">four_exceptions_of_three_sq_of_nine_dvd</span> {N q : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
+  (hodd : Odd (N.factorization q)) (h3 : N.factorization 3 = 2)
+  (h9 : 9 ∣ N.factorization q + 1) :
+  4 ≤ (N.primeFactors.filter <span class="k"><span class="k">fun</span></span> p =&gt; p ≠ q ∧ p % 3 = 1 ∧ 4 ≤ N.factorization p).card</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.four_exceptions_of_three_sq_of_nine_dvd">OddPerfect.four_exceptions_of_three_sq_of_nine_dvd</a> in <a href="reference.html#mod-SpecialIndexWitness">OddPerfect.SpecialIndexWitness</a></p>
 <p>With two exceptional primes, exponent 2 at 3 is excluded as well, by a kernel checked certificate (module <a href="reference.html#mod-TwoExceptionTwo"><code>TwoExceptionTwo</code></a>). Together with the two statements above, the exponent of 3 is at least 6 in this family. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">two_exceptions_three_ne_two</span> {N q r₁ r₂ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -385,7 +405,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>eff79f1</code> on the main branch.</p>
+<p>Last updated 23 November 2026, from commit <code>d2530a0</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
