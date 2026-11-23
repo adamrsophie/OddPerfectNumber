@@ -735,6 +735,37 @@ theorem StatementGate.special_exponent_add_two_sq_dvd :
       (Nat.factorization N q + 2) ^ 2 ∣ N :=
   @OddPerfect.special_exponent_add_two_sq_dvd
 
+theorem StatementGate.perfect_eq_of_factorization_eq_on_common :
+    ∀ {N N' : ℕ}, ArithmeticFunction.sigma 1 N = 2 * N →
+      ArithmeticFunction.sigma 1 N' = 2 * N' → N ≠ 0 → N' ≠ 0 →
+      (∃ p, _root_.Nat.Prime p ∧ p ∣ N ∧ p ∣ N') →
+      (∀ p, _root_.Nat.Prime p → p ∣ N → p ∣ N' →
+        Nat.factorization N p = Nat.factorization N' p) → N = N' :=
+  @OddPerfect.perfect_eq_of_factorization_eq_on_common
+
+theorem StatementGate.even_card_one_mod_four_iff :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Even (((Nat.primeFactors N).erase q).filter
+        (fun p => p % 4 = 1 ∧ Nat.factorization N p % 4 = 2)).card ↔
+        q % 8 = Nat.factorization N q % 8) :=
+  @OddPerfect.even_card_one_mod_four_iff
+
+theorem StatementGate.finite_oddPerfect_card_primeFactors_le :
+    ∀ k : ℕ, {N : ℕ | _root_.OddPerfect N ∧ (Nat.primeFactors N).card ≤ k}.Finite :=
+  @OddPerfect.finite_oddPerfect_card_primeFactors_le
+
+theorem StatementGate.ncard_oddPerfect_card_primeFactors_le :
+    ∀ k : ℕ, {N : ℕ | _root_.OddPerfect N ∧ (Nat.primeFactors N).card ≤ k}.ncard ≤
+      4 ^ (k ^ 2) :=
+  @OddPerfect.ncard_oddPerfect_card_primeFactors_le
+
+theorem StatementGate.ncard_oddPerfect_excess_le :
+    ∀ T : ℕ, {N : ℕ | ∃ q, _root_.OddPerfect N ∧ _root_.Nat.Prime q ∧
+      Odd (Nat.factorization N q) ∧
+      Finset.sum ((Nat.primeFactors N).erase q)
+        (fun p => Nat.factorization N p / 2 - 1) ≤ T}.ncard ≤ 4 ^ ((5 * T + 7) ^ 2) :=
+  @OddPerfect.ncard_oddPerfect_excess_le
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1083,6 +1114,16 @@ def expected : List (Name × Name) :=
       ``OddPerfect.seven_mul_minFac_lt),
     (`StatementGate.special_exponent_add_two_sq_dvd,
       ``OddPerfect.special_exponent_add_two_sq_dvd),
+    (`StatementGate.perfect_eq_of_factorization_eq_on_common,
+      ``OddPerfect.perfect_eq_of_factorization_eq_on_common),
+    (`StatementGate.even_card_one_mod_four_iff,
+      ``OddPerfect.even_card_one_mod_four_iff),
+    (`StatementGate.finite_oddPerfect_card_primeFactors_le,
+      ``OddPerfect.finite_oddPerfect_card_primeFactors_le),
+    (`StatementGate.ncard_oddPerfect_card_primeFactors_le,
+      ``OddPerfect.ncard_oddPerfect_card_primeFactors_le),
+    (`StatementGate.ncard_oddPerfect_excess_le,
+      ``OddPerfect.ncard_oddPerfect_excess_le),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
