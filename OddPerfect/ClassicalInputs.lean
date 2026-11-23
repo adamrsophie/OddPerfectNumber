@@ -23,7 +23,9 @@ namespace OddPerfect
 
 /-- For primes `p`, `r` and `a ≥ 1`: `p ^ 2 + p + 1 = r ^ a` forces `a = 1`. A consequence of
 the classical theorem that `x ^ 2 + x + 1 = y ^ n` with `n > 1` has only the solution
-`18 ^ 2 + 18 + 1 = 7 ^ 3` in positive integers. Not proved in this library. -/
+`18 ^ 2 + 18 + 1 = 7 ^ 3` in positive integers. For a prime `p` this is Lemma 1 of A. Brauer,
+Bull. Amer. Math. Soc. 49 (1943), 712 to 718, which relies on a theorem of Nagell. Not proved in
+this library; the cube case is `phi3_ne_cube_of_prime`. -/
 def NagellPrimePower : Prop :=
   ∀ p r a : ℕ, p.Prime → r.Prime → 1 ≤ a → p ^ 2 + p + 1 = r ^ a → a = 1
 

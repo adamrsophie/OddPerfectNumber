@@ -440,7 +440,9 @@ theorem no_phi3_eq_three_mul_phi3_mul_phi3 {a b c : ℕ} (ha : a % 2 = 1) (hb : 
   nlinarith
 
 /-- Zelinsky, arXiv 1810.13063, Lemma "x2+x+1 not a cube of a prime": if `x` is prime then
-`x ^ 2 + x + 1` is not a perfect cube. (Primality matters: `18 ^ 2 + 18 + 1 = 7 ^ 3`.) -/
+`x ^ 2 + x + 1` is not a perfect cube. (Primality matters: `18 ^ 2 + 18 + 1 = 7 ^ 3`.) An earlier
+source for the statement is A. Brauer, Bull. Amer. Math. Soc. 49 (1943), 712 to 718, Lemma 1,
+which treats every exponent above 1 and relies on a theorem of Nagell. -/
 theorem phi3_ne_cube_of_prime {x : ℕ} (hx : x.Prime) (k : ℕ) : phi3 x ≠ k ^ 3 := by
   intro h
   have hx2 := hx.two_le
