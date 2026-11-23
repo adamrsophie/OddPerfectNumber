@@ -54,7 +54,9 @@ theorem four_le_cardFactors_sub {N q a m : ℕ} (h : OddPerfect N) (hq : q.Prime
 
 /-- For an odd perfect number `N` with special prime `q` of exponent `a`,
 `2 * ω(N) + a + 6 ≤ Ω(N)`. The published inequality `Ω(N) ≥ 2 * ω(N) + 51` of Ochem and Rao
-(Math. Comp. 83, 2014) is stronger unless the special exponent is at least 49. -/
+(Math. Comp. 83, 2014) is stronger for `a ≤ 41`, equal for `a = 45` and weaker for `a ≥ 49`
+(the special exponent is 1 modulo 4). This is the bound `four_le_excess` in other variables,
+not a second obstruction. -/
 theorem two_mul_omega_add_special_le_Omega {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) :
     2 * ArithmeticFunction.cardDistinctFactors N + N.factorization q + 6 ≤
@@ -81,8 +83,8 @@ theorem two_mul_omega_add_special_le_Omega {N q : ℕ} (h : OddPerfect N) (hq : 
   omega
 
 /-- For an odd perfect number `N`, `2 * ω(N) + 7 ≤ Ω(N)`. The published inequality
-`Ω(N) ≥ 2 * ω(N) + 51` of Ochem and Rao (Math. Comp. 83, 2014) is stronger unless the special
-exponent is at least 49. -/
+`Ω(N) ≥ 2 * ω(N) + 51` of Ochem and Rao (Math. Comp. 83, 2014) is stronger for every special
+exponent. -/
 theorem two_mul_omega_add_seven_le_Omega {N : ℕ} (h : OddPerfect N) :
     2 * ArithmeticFunction.cardDistinctFactors N + 7 ≤ ArithmeticFunction.cardFactors N := by
   obtain ⟨q, hq, -, -, h4, -⟩ := exists_special_prime h

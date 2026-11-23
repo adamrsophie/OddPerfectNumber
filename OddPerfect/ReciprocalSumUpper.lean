@@ -23,7 +23,7 @@ upper bounds for `∑_{p ∣ N} 1/p`, read from the source (`0.693148` is `log 2
 * `1980`: Table 2 (page 370) of the same paper, Cohen's improved bounds.
 * `2024`: Proposition 1 (page 3) of J. Zelinsky, "The sum of the reciprocals of the prime
   divisors of an odd perfect or odd primitive non-deficient number", arXiv:2402.14234 (version
-  5, 2025), which summarizes the results of Cohen, Hagis and Suryanarayana; its values are those
+  5, 2025; INTEGERS 25 (2025), A59), which summarizes the results of Cohen, Hagis and Suryanarayana; its values are those
   of the column `1970`.
 * `this file`: the constants proved here.
 

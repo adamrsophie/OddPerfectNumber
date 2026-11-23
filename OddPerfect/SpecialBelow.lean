@@ -11,7 +11,9 @@ Dris conjectured `q ^ k < m`; the weaker `q < m` is claimed by Brown (2016 prepr
 1602.01591). This module does not use that preprint. It proves `q < m` outside one exceptional
 shape with `k = 1`, and it proves that in that shape `m < q` holds; so `q < m` for every odd
 perfect number is equivalent to the impossibility of the shape, which is not decided here.
-How the literature treats that shape was not checked.
+How the literature treats that shape was not checked. For `k ≠ 1` a stronger inequality is
+published: J. Zelinsky (INTEGERS 25 (2025), A59, Proposition 11) proves that `k = 1` or
+`q < 2 ^ (1 / 5) * m ^ (2 / 5)` (real exponents).
 
 Here:
 

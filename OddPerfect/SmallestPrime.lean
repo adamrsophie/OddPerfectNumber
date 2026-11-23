@@ -7,6 +7,12 @@ Classical bounds on the smallest prime factor of an odd perfect number `N` in te
 number `ω(N)` of distinct prime factors: Servais (`p₁ ≤ ω`) and Grün (`3 p₁ < 2 ω + 6`),
 together with the lower bounds `ω ≥ 7` when `3 ∤ N` and `ω ≥ 15` when `3 ∤ N` and `5 ∤ N`.
 All rest on `2 < ∏ p/(p-1)` over the prime factors and finite set product bounds.
+
+Stronger bounds are published and are not proved here: J. Zelinsky (INTEGERS 21 (2021), A76,
+Corollary 4) proves `ω(N) ≥ 2 * p₁ + 2` for an odd perfect number with smallest prime factor
+`p₁`, which is stronger than both bounds of Servais and of Grün. The bounds `7` and `15` below
+use only the product inequality, so they hold for every odd number of abundancy at least 2
+that is not divisible by 3 (respectively by 3 and 5).
 -/
 
 namespace OddPerfect

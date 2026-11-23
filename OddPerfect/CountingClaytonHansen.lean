@@ -4,7 +4,7 @@ import OddPerfect.Phi3Algebra
 /-!
 # Clayton and Hansen: `99 ω ≤ 37 Ω + 187` for odd perfect numbers
 
-Following Clayton and Hansen (arXiv 2303.11974), we prove `(99/37) ω(N) - 187/37 ≤ Ω(N)`
+Following Clayton and Hansen (arXiv 2303.11974; INTEGERS 23 (2023), A79), we prove `(99/37) ω(N) - 187/37 ≤ Ω(N)`
 for every odd perfect number `N`, and `(51/19) ω(N) - 46/19 ≤ Ω(N)` when `3 ∤ N`.
 
 The primes of `S` (exponent exactly `2`, other than `3`) are sorted by `Ω(p ^ 2 + p + 1)` and

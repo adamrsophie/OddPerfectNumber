@@ -7,7 +7,8 @@ import OddPerfect.OmegaSevenPilot
 This is the theorem of
 C. Pomerance (Odd perfect numbers are divisible by at least seven distinct primes, Acta Arith. 25
 (1973/74), 265 to 300). (The bound eight is due to Chein 1979 and Hagis 1980 and is not proved
-here.) With `six_le_card_primeFactors`
+here. The published record is ten: P. P. Nielsen, Math. Comp. 84 (2015), 2549 to 2567, as quoted
+by J. Zelinsky, INTEGERS 21 (2021), A76, proof of Corollary 4.) With `six_le_card_primeFactors`
 (`OddPerfect/OmegaSix.lean`) and `exists_prime_dvd_of_card_eq_six` (`OddPerfect/OmegaSeven.lean`),
 an odd perfect number with exactly six prime factors has `3, 5` as its two smallest prime factors,
 and every other prime factor exceeds `7` (since `105 ∤ N`). The state `[3, 5]` with four further
