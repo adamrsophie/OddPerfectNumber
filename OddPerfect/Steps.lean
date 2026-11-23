@@ -28,7 +28,7 @@ def Example : Prop :=
 
 /-- Starter (published). If `σ(q ^ k)` is a power of an odd prime `p`, then `p ∤ q - 1`.
 Zhao and Chen, Front. Math. 20 (2025), Lemma 2.2, third assertion. The other two assertions
-are in the library (`OddPerfect/PureRows.lean`). -/
+are in the library (`OddPerfect/PureRows.lean`). Proved in `Contributions/PureRowBase.lean`. -/
 def PureRowBase : Prop :=
   ∀ p q k s : ℕ, p.Prime → p ≠ 2 → q.Prime → 1 ≤ k → 1 ≤ s →
     σ 1 (q ^ k) = p ^ s → ¬ p ∣ q - 1
@@ -41,10 +41,32 @@ def SpecialFifthPower : Prop :=
     q ^ 5 < 2 * m ^ 2
 
 /-- Medium (published). If `σ(q ^ k) = 2 * p ^ s` with `p` an odd prime, then `k = 1` and
-`q ≥ 2 * p - 1`. Zhao and Chen, Front. Math. 20 (2025), Lemma 3.1. -/
+`q ≥ 2 * p - 1`. Zhao and Chen, Front. Math. 20 (2025), Lemma 3.1. The conclusion `k = 1`
+also follows from Lemma 2 of R. J. Levit, Bull. Amer. Math. Soc. 53 (1947), 392 to 396. Proved in
+`Contributions/TwicePrimePowerRow.lean`. -/
 def TwicePrimePowerRow : Prop :=
   ∀ p q k s : ℕ, p.Prime → p ≠ 2 → q.Prime → 1 ≤ k →
     σ 1 (q ^ k) = 2 * p ^ s → k = 1 ∧ 2 * p ≤ q + 1
+
+/-- Medium (published). An odd perfect number `N` with special prime `q` cannot have every
+divisor sum `σ(p ^ v_p(N))`, `p ≠ q`, a power of a prime while `σ(q ^ v_q(N)) / 2` is a power of
+a prime too. R. J. Levit, Bull. Amer. Math. Soc. 53 (1947), 392 to 396, Theorem. The library has
+a counting inequality for the case that every ordinary row is a prime power
+(`card_add_inDegree_le_of_all_pure` in `OddPerfect/PureRows.lean`). -/
+def AllRowsPrimePower : Prop :=
+  ∀ N q : ℕ, OddPerfect N → q.Prime → Odd (N.factorization q) →
+    (∀ p ∈ N.primeFactors, p ≠ q → ∃ r w, r.Prime ∧ σ 1 (p ^ N.factorization p) = r ^ w) →
+    ¬ ∃ r w, r.Prime ∧ σ 1 (q ^ N.factorization q) = 2 * r ^ w
+
+/-- Medium (published). Let `p` and `q` be primes with `q` odd, `σ(q ^ x)` a power of `p` for
+some `x ≥ 1`, and `q ∣ σ(p ^ c)`. Then `v_q(σ(p ^ c)) = v_q(c + 1)` when `p ≡ 1 (mod q)`, and
+`v_q(σ(p ^ c)) = v_q(c + 1) + 1` otherwise. Dandapat, Hunsucker and Pomerance, Pacific J. Math.
+57 (1975), 359 to 364, Lemma 2 (its two valuation statements). -/
+def RowValuationTransfer : Prop :=
+  ∀ p q x y c : ℕ, p.Prime → q.Prime → q ≠ 2 → 1 ≤ x → σ 1 (q ^ x) = p ^ y →
+    q ∣ σ 1 (p ^ c) →
+      (p % q = 1 → padicValNat q (σ 1 (p ^ c)) = padicValNat q (c + 1)) ∧
+      (p % q ≠ 1 → padicValNat q (σ 1 (p ^ c)) = padicValNat q (c + 1) + 1)
 
 /-- Hard (published, classical). The statement `OddPerfect.NagellPrimePower`: for primes
 `p`, `r`, the equation `p ^ 2 + p + 1 = r ^ a` forces `a = 1`. Nagell (1921). A proof removes
