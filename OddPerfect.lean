@@ -270,3 +270,5 @@ import OddPerfect.PureCommonIndex
 import OddPerfect.ThreeCycleSpill
 import OddPerfect.SpecialIndexDivisors
 import OddPerfect.ProductBound
+import OddPerfect.ClassicalInputs
+import OddPerfect.ConditionalSupport
