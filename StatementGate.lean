@@ -910,6 +910,45 @@ theorem StatementGate.prod_dvd_index_add_two_of_shape :
           (fun r => r) ∣ Nat.factorization N p + 2 :=
   @OddPerfect.prod_dvd_index_add_two_of_shape
 
+theorem StatementGate.prod_primeFactors_mod_of_shape :
+    ∀ {N q m p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+        Finset.prod (Nat.primeFactors ((q + 1) / 2)) (fun r => r) % p = 1 :=
+  @OddPerfect.prod_primeFactors_mod_of_shape
+
+theorem StatementGate.two_mul_add_one_le_prod_primeFactors_of_shape :
+    ∀ {N q m p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+        2 * p + 1 ≤ Finset.prod (Nat.primeFactors ((q + 1) / 2)) (fun r => r) :=
+  @OddPerfect.two_mul_add_one_le_prod_primeFactors_of_shape
+
+theorem StatementGate.exists_row_not_mod_one_of_shape :
+    ∀ {N q m p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime p → p ∣ m → 2 * m ^ 2 = p ^ Nat.factorization N p * (q + 1) →
+        ∃ r w : ℕ, _root_.Nat.Prime r ∧ r ∣ (q + 1) / 2 ∧
+          ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) = p ^ w ∧ p % r ≠ 1 ∧
+          3 ≤ orderOf (p : ZMod r) ∧ ¬ orderOf (p : ZMod r) ∣ Nat.factorization N p ∧ 3 ≤ w ∧
+          7 ≤ r :=
+  @OddPerfect.exists_row_not_mod_one_of_shape
+
+theorem StatementGate.conditional_card_primeFactors_add_two_mul_le_five_excess_add_five :
+    (∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = r ^ a → a = 1) →
+    (∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = 3 * r ^ a →
+      a ≤ 2) →
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Nat.primeFactors N).card +
+          2 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 5 :=
+  @OddPerfect.conditional_card_primeFactors_add_two_mul_le_five_excess_add_five
+
+theorem StatementGate.special_lt_of_noOrderPureRow :
+    (∀ r p g s u : ℕ, _root_.Nat.Prime r → _root_.Nat.Prime p → _root_.Nat.Prime s → s ≠ 2 →
+      s ∣ r - 1 → Even g → g ≠ 0 → 1 ≤ u → ArithmeticFunction.sigma 1 (r ^ g) ≠ p ^ (s * u)) →
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      q < m :=
+  @OddPerfect.special_lt_of_noOrderPureRow
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1303,6 +1342,13 @@ def expected : List (Name × Name) :=
     (`StatementGate.not_dvd_weight_of_shape, ``OddPerfect.not_dvd_weight_of_shape),
     (`StatementGate.mod_eq_one_of_shape_of_fermat, ``OddPerfect.mod_eq_one_of_shape_of_fermat),
     (`StatementGate.prod_dvd_index_add_two_of_shape, ``OddPerfect.prod_dvd_index_add_two_of_shape),
+    (`StatementGate.prod_primeFactors_mod_of_shape, ``OddPerfect.prod_primeFactors_mod_of_shape),
+    (`StatementGate.two_mul_add_one_le_prod_primeFactors_of_shape,
+      ``OddPerfect.two_mul_add_one_le_prod_primeFactors_of_shape),
+    (`StatementGate.exists_row_not_mod_one_of_shape, ``OddPerfect.exists_row_not_mod_one_of_shape),
+    (`StatementGate.conditional_card_primeFactors_add_two_mul_le_five_excess_add_five,
+      ``OddPerfect.conditional_card_primeFactors_add_two_mul_le_five_excess_add_five),
+    (`StatementGate.special_lt_of_noOrderPureRow, ``OddPerfect.special_lt_of_noOrderPureRow),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
