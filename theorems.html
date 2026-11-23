@@ -240,6 +240,10 @@
   (hodd : Odd (N.factorization q))
   (hsq : <span class="k"><span class="k">∀</span></span> p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
   N.factorization 3 ≠ 4</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.two_exceptions_three_ne_four">OddPerfect.two_exceptions_three_ne_four</a> in <a href="reference.html#mod-TwoExceptionFourEmpty">OddPerfect.TwoExceptionFourEmpty</a></p>
+<p>For exponent 2 at 3 a counting of the factors 3 gives a statement with no condition on the other primes: the fourth power of one of eight named primes divides N (module <a href="reference.html#mod-ThreeSquareCapacity"><code>ThreeSquareCapacity</code></a>). Whether this statement is new has not been checked.</p>
+<pre class="lean"><code><code><span class="k">theorem</span> <span class="n">exists_pow_four_dvd_of_three_sq</span> {N : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N)
+  (h3 : N.factorization 3 = 2) :
+  <span class="k"><span class="k">∃</span></span> p ∈ ({7, 13, 19, 31, 61, 97, 127, 331} : Finset <span class="t"><span class="t">ℕ</span></span>), p ^ 4 ∣ N</code></code></pre><p class="src-link"><a href="reference.html#OddPerfect.exists_pow_four_dvd_of_three_sq">OddPerfect.exists_pow_four_dvd_of_three_sq</a> in <a href="reference.html#mod-ThreeSquareCapacity">OddPerfect.ThreeSquareCapacity</a></p>
 <p>It also holds with three exceptional primes r₁, r₂ and r₃, again with no condition on them (module <a href="reference.html#mod-ThreeFreeThree"><code>ThreeFreeThree</code></a>). The proof is a case analysis with 1223 leaves over 102 class triples, found by a search outside Lean and rechecked in the kernel by a checker that is proved sound. Whether this statement is new has not been checked.</p>
 <pre class="lean"><code><code><span class="k">theorem</span> <span class="n">three_dvd_of_three_exceptions</span> {N q r₁ r₂ r₃ : <span class="t"><span class="t">ℕ</span></span>} (h : OddPerfect N) (hq : q.Prime)
   (hodd : Odd (N.factorization q))
@@ -368,7 +372,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 22 November 2026, from commit <code>558930b</code> on the main branch.</p>
+<p>Last updated 22 November 2026, from commit <code>ede952e</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
