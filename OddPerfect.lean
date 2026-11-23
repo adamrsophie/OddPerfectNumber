@@ -297,3 +297,5 @@ import OddPerfect.ExcessDefect
 import OddPerfect.ZeroDefect
 import OddPerfect.EisensteinMixed
 import OddPerfect.NagellReduction
+import OddPerfect.ShapeSeries
+import OddPerfect.ShapeSmall
