@@ -709,6 +709,35 @@ def two_exception(t):
             [TWO_ENGINE, '997'], 1, expect='REJECTED scan')
     control('TwoExceptionTwo/engine.py scan finds a prime inside 1000 positions', fuel,
             [TWO_ENGINE, '996'], 0, expect='scan result 997')
+    # The second path of the tail test. No archived certificate reaches it, so the leaf is built
+    # here: only the key 3 as a square, x = 1000, Rankin witnesses k = 3, B = 1, rx = 10,
+    # mL = 1/10 and mM = 1/n. With n = 4 the first path fails (U0/(1 - S) is about 2.05) and
+    # the second passes (about 1.94); with n = 3 both fail (the second is about 2.11).
+    tail = os.path.join(t, 'tail_paths.py')
+    with open(tail, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'P = {"E": 2, "MHIT": 10**30, "KCAP": 64}\n'
+                'st = {"x": 1000, "keys": [(3, ("sq",), [])]}\n'
+                'dd = (None, 3, 1, [], 10, (1, 10), (1, int(sys.argv[2])), [])\n'
+                'try:\n'
+                '    print("deficient", m["deficient"](P, st, dd), dict(m["COUNT"]))\n'
+                'except m["Reject"] as e:\n'
+                '    print("REJECTED", e); sys.exit(1)\n')
+    control('TwoExceptionTwo/engine.py accepts a leaf on the second tail path', tail,
+            [TWO_ENGINE, '4'], 0, expect="'pade_accepted': 1")
+    control('TwoExceptionTwo/engine.py rejects a leaf that fails both tail paths', tail,
+            [TWO_ENGINE, '3'], 1, expect='fails on both paths')
+    # The same failure through the whole pipeline of engine.py: a root leaf at x = 5 with valid
+    # witnesses, where the bound is about 10. (check.py computes its own witnesses and stops
+    # earlier on this leaf, at S >= 3; its second path has no control here.)
+    both = os.path.join(t, 'both_paths_fail.jsonl')
+    records[2]['proof']['rankin'].update(mL='1', mM='1')
+    with open(both, 'w') as f:
+        for r in records:
+            f.write(json.dumps(r) + '\n')
+    control('TwoExceptionTwo/engine.py rejects a certificate whose leaf fails both tail paths',
+            TWO_ENGINE, [both], 1, expect='fails on both paths')
 
 
 def main(argv):
