@@ -241,3 +241,4 @@ import OddPerfect.PureRows
 import OddPerfect.TwoExceptionFourChains
 import OddPerfect.TwoExceptionFourEmpty
 import OddPerfect.ThreeSquareCapacity
+import OddPerfect.RankinTailGeneral
