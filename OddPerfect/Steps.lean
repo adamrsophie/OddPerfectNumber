@@ -54,8 +54,10 @@ def NagellPrimePower : Prop :=
   OddPerfect.NagellPrimePower
 
 /-- Hard (published, classical). The statement `OddPerfect.LjunggrenThreePrimePower`: for
-primes `p`, `r`, the equation `p ^ 2 + p + 1 = 3 * r ^ a` forces `a ≤ 2`. Ljunggren (1943).
-A proof removes the other hypothesis of the theorems named `conditional_…`. -/
+primes `p`, `r`, the equation `p ^ 2 + p + 1 = 3 * r ^ a` forces `a ≤ 2`. Nagell (1921), as
+quoted by Bennett, Patel and Siksek (Mathematika 63 (2017), Section 3); the name of the
+definition is historical. A proof removes the other hypothesis of the theorems named
+`conditional_…`. -/
 def LjunggrenThreePrimePower : Prop :=
   OddPerfect.LjunggrenThreePrimePower
 
