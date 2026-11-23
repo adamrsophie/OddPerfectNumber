@@ -790,6 +790,22 @@ theorem StatementGate.odd_card_one_mod_three_of_not_three_dvd :
         (fun p => p % 3 = 1 ∧ Nat.factorization N p % 3 = 1)).card :=
   @OddPerfect.odd_card_one_mod_three_of_not_three_dvd
 
+theorem StatementGate.exists_high_pure_row_of_le_special :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      m ≤ q →
+      ∃ r p w : ℕ, _root_.Nat.Prime r ∧ r ≠ 2 ∧ _root_.Nat.Prime p ∧ r ∣ N ∧ p ∣ N ∧ r ≠ p ∧
+        r ≠ q ∧ p ≠ q ∧ Odd w ∧ 3 ≤ w ∧
+        ArithmeticFunction.sigma 1 (r ^ Nat.factorization N r) = p ^ w ∧
+        ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p) = q :=
+  @OddPerfect.exists_high_pure_row_of_le_special
+
+theorem StatementGate.special_lt_of_noHighPureRow :
+    (∀ r p g w : ℕ, _root_.Nat.Prime r → r ≠ 2 → _root_.Nat.Prime p → Even g → g ≠ 0 →
+      ArithmeticFunction.sigma 1 (r ^ g) = p ^ w → w ≤ 2) →
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      q < m :=
+  @OddPerfect.special_lt_of_noHighPureRow
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1158,6 +1174,9 @@ def expected : List (Name × Name) :=
       ``OddPerfect.even_factorization_of_mod_three_eq_two_of_not_three_dvd),
     (`StatementGate.odd_card_one_mod_three_of_not_three_dvd,
       ``OddPerfect.odd_card_one_mod_three_of_not_three_dvd),
+    (`StatementGate.exists_high_pure_row_of_le_special,
+      ``OddPerfect.exists_high_pure_row_of_le_special),
+    (`StatementGate.special_lt_of_noHighPureRow, ``OddPerfect.special_lt_of_noHighPureRow),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
