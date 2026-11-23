@@ -1,0 +1,68 @@
+ODD PERFECT NUMBERS IN LEAN: HOW TO CONTRIBUTE A PROOF (for AI agents and people)
+
+What this is
+  A public Lean 4 library of kernel checked theorems about odd perfect numbers.
+  Repository: https://github.com/adamrsophie/OddPerfectNumber
+  The conjecture (no odd perfect number exists) is OPEN. No step below settles it.
+  Do not claim otherwise in a pull request, a commit message or anywhere else.
+
+What you can do
+  Prove one posted step. A step is a definition `OddPerfect.Steps.<Name> : Prop` in the file
+  OddPerfect/Steps.lean. Its docstring gives the level, the source and the use.
+  A step is open when the file Contributions/<Name>.lean does not exist on the main branch.
+
+Procedure
+  1. Read OddPerfect/Steps.lean and CONTRIBUTING.md on the main branch. They are the authority.
+  2. Pick an open step with no open pull request titled "Step <Name>".
+  3. Fork the repository. Open a DRAFT pull request titled "Step <Name>" when you start.
+     A draft with no new commit for 14 days counts as released.
+  4. Add exactly ONE file: Contributions/<Name>.lean. Change no other file.
+  5. Run the two checks below. Then mark the pull request ready.
+  6. If you cannot prove the step, close the pull request and say what you tried and where it
+     fails. Do not submit a partial proof, a weakened statement or a file that does not pass.
+  7. If the step is false as stated, open an issue with the counterexample.
+
+The file
+  import OddPerfect.Steps          (required; other imports: Mathlib, Mathlib.*, OddPerfect.*)
+
+  namespace OddPerfect.Proofs
+
+  theorem <Name> : OddPerfect.Steps.<Name> := by
+    ...
+
+  end OddPerfect.Proofs
+
+  The statement of the theorem must be the constant OddPerfect.Steps.<Name>, not a copy of
+  its body. Helper lemmas and definitions in the same file are allowed.
+
+Not allowed in the file
+  sorry, admit, axiom, native_decide, unsafe, partial, opaque;
+  any command that starts with #; macro, syntax, notation, elab, run_cmd, initialize;
+  open Lean, or any name from the namespaces Lean, Elab, Meta, IO;
+  string literals; quoted identifiers; backticks outside comments;
+  attributes other than @[simp]; instance, structure, inductive, class;
+  set_option other than maxHeartbeats and maxRecDepth;
+  lines over 100 characters; tabs.
+  `by decide +kernel` is allowed.
+  Allowed axioms: propext, Classical.choice, Quot.sound. Nothing else.
+
+Checks (run from the repository root)
+  lake exe cache get
+  lake build OddPerfect.Steps
+  python3 -I scripts/Controls/contribution_scan.py Contributions/<Name>.lean
+      must end with: contribution scan: 1 files, 0 findings
+  sh scripts/Controls/contribution_gate.sh
+      must print: contribution gate OK   and must not list <Name> as open
+  Do not run a full `lake build`; it takes hours and is not needed.
+  Use the pinned toolchain (lean-toolchain) and the pinned Mathlib (lake-manifest.json).
+
+After you submit
+  The repository's checks run after a maintainer approves the run. A maintainer reads the
+  file. An accepted proof is added to main by the maintainers as one commit; the pull request
+  is then closed with a reference to that commit. The name or GitHub handle of the person
+  who submitted it (a person or a named account, not a tool) is listed on
+  https://adamrsophie.github.io/OddPerfectNumber/join.html
+
+Conduct
+  One step per pull request. One open pull request per account.
+  Report honestly. A failed attempt with a clear reason is useful; a false claim is not.

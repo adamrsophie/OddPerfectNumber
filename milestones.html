@@ -26,6 +26,7 @@
 <li><a href="obstacles.html">Obstacles</a></li>
 <li><a href="survey.html">Survey</a></li>
 <li><a href="roadmap.html">Roadmap</a></li>
+<li><a href="join.html">Contribute</a></li>
 </ul>
 <div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
 </nav>
@@ -209,6 +210,10 @@
 <li class="event minor"><time datetime="2026-11-23T12:12">12:12</time><p class="ev-title"><b>Three cycles of square rows spill.</b> <code class="hash">b5b1dee</code> </p><p><code>three_cycle_excess_or_outside</code>. Two such primes cannot divide each other's rows (landed earlier), but cycles of length three exist among integers: 43, 631, 307. So no acyclicity statement holds; what holds is that one of the three has exponent at least 4 or a prime outside {3, r, s, t} divides one of the rows. The statement bounds nothing alone.</p></li>
 <li class="event minor"><time datetime="2026-11-23T12:12">12:12</time><p class="ev-title"><b>Divisors of the special index against the excess.</b> <code class="hash">d389573</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p><code>card_divisors_special_index_le_four_mul_excess</code>: for an odd perfect number with special exponent a and total excess T, if 3 divides a + 1 then a + 1 has at most 4T divisors. The branch where 3 does not divide a + 1 is untouched, and the primes dividing a + 1 stay unbounded. Whether the inequality is in the literature has not been verified.</p></li>
 <li class="event minor"><time datetime="2026-11-23T12:12">12:12</time><p class="ev-title"><b>Sharper rational product bounds.</b> <code class="hash">05fab49</code> </p><p>For nonnegative rationals with sum at most S, the product of 1 + x is at most (2 + S)/(2 − S) for S below 2 and at most (S² + 4S + 6)/(6 − 2S) for S below 3; each is at most 1/(1 − S), the bound the certificate checker uses today. Standalone module; the checker is unchanged.</p></li>
+<li class="event minor"><time datetime="2026-11-23T12:21">12:21</time><p class="ev-title"><b>Checker controls for the two exception engine.</b> <code class="hash">7b53dbc</code> </p><p>The engine <code>OddPerfect.TwoExcEngine</code> checks the certificates of four families and had no regression controls. A new group of 63 examples fixes its value on small inputs: accepted and rejected parameter sets, roles, contributions, truncated lists, a real deficient leaf and the same leaf with each witness damaged, and the scan budget of exactly 1000 positions. Tooling only; no library file changed.</p></li>
+<li class="event"><time datetime="2026-11-23T12:21">12:21</time><p class="ev-title"><b>Prime factors against total excess for every special prime (conditional).</b> <code class="hash">c757a0e</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p>Unconditional: ω(N) + 2v₃(σ(q<sup>a</sup>)) ≤ 5T + 5 + E, where E counts the prime factors p of exponent 2 such that every prime factor of p² + p + 1 is 3 or q. <b>Conditional</b> on two classical statements about p² + p + 1 being a prime power or three times one (consequences of theorems of Nagell and of Ljunggren, <b>not proved in this library</b>, and written out as hypotheses of each theorem): E is at most 1, ω(N) ≤ 5T + 6, N < 2^(4^(5T + 6)), and for each T only finitely many odd perfect numbers have total excess at most T. The total excess is not bounded, so nothing follows about existence. Whether this form is in the literature has not been verified.</p></li>
+<li class="event minor"><time datetime="2026-11-23T12:21">12:21</time><p class="ev-title"><b>Statement gate: 111 restatements, engine predicates pinned.</b> <code class="hash">d0fc91f</code> </p><p>The gate now restates 111 theorems. New: the excess bounds of this round (the conditional ones with both classical hypotheses written out in full), the pure common index exclusion, the three cycle statement, the two bounds on the divisors of the special index, and four theorems of the two exception engine. Six definitions of the engine, among them its family predicate, are restated so that a change of their meaning fails the gate. Tooling only.</p></li>
+<li class="event minor"><time datetime="2026-11-23T12:21">12:21</time><p class="ev-title"><b>Open steps: anyone can contribute a checked proof.</b> <code class="hash">eea7a0e</code> </p><p>The library now posts open steps in <code>OddPerfect/Steps.lean</code>: two starter and one medium statement from recent papers, the two classical hypotheses of the conditional bound, and one open statement. A contribution is one Lean file that proves one step. Before anything compiles it, a scan rejects files that could run code during elaboration; after compilation a gate checks that the theorem states exactly the posted step and depends only on the three standard axioms. Seven forged contributions are rejected by the controls. See the <a href="join.html">Contribute</a> page. No step settles the conjecture.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -222,7 +227,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>05fab49</code> on the main branch.</p>
+<p>Last updated 23 November 2026, from commit <code>eea7a0e</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>

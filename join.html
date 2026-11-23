@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contribute a proof: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="Open steps that anyone, person or AI agent, can prove in Lean and submit as one file; how a contribution is checked and credited.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="site-header">
+<nav class="navbar" aria-label="Main">
+<a class="brand" href="index.html"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-family="Georgia, serif" font-style="italic" fill="currentColor">σ</text></svg><span>Odd Perfect Numbers <small>in Lean</small></span></a>
+<ul class="tabs" id="site-tabs">
+<li><a href="background.html">Background</a></li>
+<li><a href="network.html">Network</a></li>
+<li><a href="methods.html">Methods</a></li>
+<li><a href="theorems.html">Highlights</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="procedure.html">Procedure</a></li>
+<li><a href="milestones.html">Milestones</a></li>
+<li><a href="obstacles.html">Obstacles</a></li>
+<li><a href="survey.html">Survey</a></li>
+<li><a href="roadmap.html">Roadmap</a></li>
+<li><a href="join.html" aria-current="page">Contribute</a></li>
+</ul>
+<div class="nav-end"><a class="source" href="https://github.com/adamrsophie/OddPerfectNumber">Source</a></div>
+</nav>
+</header>
+<div class="status-strip" role="note"><div class="wrap"><strong>Open problem.</strong> Whether an odd perfect number exists is unknown. This project does not claim a proof; it formalizes necessary conditions.</div></div>
+<div class="page wrap with-toc">
+<aside class="toc-col"><details class="toc" open><summary>On this page</summary><nav aria-label="On this page"><ul><li class="l2"><a href="#how">How it works</a></li><li class="l2"><a href="#steps">Open steps</a></li><li class="l2"><a href="#checked">How a contribution is checked</a></li><li class="l2"><a href="#credit">Credit</a></li></ul></nav></details></aside>
+<main id="content" tabindex="-1">
+<h1>Contribute a proof</h1>
+<p class="lead">The library grows one checked theorem at a time, and you can add one. Each open step below is an exact Lean statement that the library does not prove yet. A contribution is one Lean file that proves one step. The Lean kernel decides whether it is accepted; who wrote it, a person or an AI agent, makes no difference.</p>
+<div class="callout"><p><strong>What this is not.</strong> No step settles the conjecture. Whether an odd perfect number exists is open, and this project has not solved it. Most steps restate a published theorem that the library lacks; the ones marked open have no published proof known to us.</p></div>
+
+<h2 id="how">How it works</h2>
+<ol class="steps">
+<li><b>Pick a step.</b>Choose one from the table that has no proof yet and no open pull request titled <code>Step &lt;Name&gt;</code>.</li>
+<li><b>Say you took it.</b>Fork the <a href="https://github.com/adamrsophie/OddPerfectNumber">repository</a> and open a draft pull request with that title. A draft with no new commit for 14 days counts as released.</li>
+<li><b>Write one file.</b>Add <code>Contributions/&lt;Name&gt;.lean</code> with one theorem <code>OddPerfect.Proofs.&lt;Name&gt;</code> whose statement is exactly <code>OddPerfect.Steps.&lt;Name&gt;</code>. Change nothing else.</li>
+<li><b>Check it.</b>Run the format scan and the contribution gate on your machine; both ship with the repository.</li>
+<li><b>Submit.</b>Mark the pull request ready. The repository's checks run, a maintainer reads the file, and an accepted proof is added to the main branch by the maintainers and credited to you here.</li>
+</ol>
+<p>The full rules, the file format and the commands are in <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>. AI agents can read the same rules as plain text: <a href="assets/join.txt">join.txt</a>.</p>
+
+<h2 id="steps">Open steps</h2>
+<p>The statements live in <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/main/OddPerfect/Steps.lean"><code>OddPerfect/Steps.lean</code></a>; that file is the authority, and the table is a summary.</p>
+<table>
+<thead><tr><th>Step</th><th>Level</th><th>Statement</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td><code>PureRowBase</code></td><td>Starter</td><td>If σ(q<sup>k</sup>) is a power of an odd prime p, then p does not divide q − 1.</td><td>Zhao and Chen (2025), Lemma 2.2</td></tr>
+<tr><td><code>SpecialFifthPower</code></td><td>Starter</td><td>For N = q<sup>k</sup>m² odd perfect with q not dividing m and k other than 1: q<sup>5</sup> &lt; 2m².</td><td>Zelinsky (2025), Proposition 11</td></tr>
+<tr><td><code>TwicePrimePowerRow</code></td><td>Medium</td><td>If σ(q<sup>k</sup>) = 2p<sup>s</sup> with p an odd prime, then k = 1 and q ≥ 2p − 1.</td><td>Zhao and Chen (2025), Lemma 3.1</td></tr>
+<tr><td><code>NagellPrimePower</code></td><td>Hard</td><td>For primes p and r, p² + p + 1 = r<sup>a</sup> forces a = 1.</td><td>Nagell (1921)</td></tr>
+<tr><td><code>LjunggrenThreePrimePower</code></td><td>Hard</td><td>For primes p and r, p² + p + 1 = 3r<sup>a</sup> forces a ≤ 2.</td><td>Ljunggren (1943)</td></tr>
+<tr><td><code>SpecialBelowRoot</code></td><td>Open</td><td>For N = q·m² odd perfect with q not dividing m: q &lt; m. The library proves it outside one explicit shape.</td><td>No published proof known to us</td></tr>
+</tbody>
+</table>
+<p>The two hard steps are the hypotheses of the conditional theorems in <code>ConditionalSupport</code>: with both proved, the library would show that for each fixed total excess only finitely many odd perfect numbers can exist. That would still leave the conjecture open.</p>
+<p>The published steps were restated by us from the cited page and tested on small cases. A restatement can still be wrong. If you find a counterexample to a step, open an issue; it is credited like a proof.</p>
+
+<h2 id="checked">How a contribution is checked</h2>
+<ul>
+<li><b>Format scan.</b> Before anything compiles the file, a scan rejects whatever could run a program during elaboration or switch off the kernel: commands that start with #, new syntax, attributes other than <code>@[simp]</code>, options other than two resource limits, string literals.</li>
+<li><b>Gate.</b> The file is compiled outside the library. A gate then reads the compiled result: the theorem must exist, its statement must be the posted step and nothing else, and every declaration in the file may depend only on the three standard axioms.</li>
+<li><b>Review.</b> A passing check is necessary and not sufficient. A maintainer reads the whole file and repeats the checks on a separate machine.</li>
+</ul>
+
+<h2 id="credit">Credit</h2>
+<p>The person who submitted an accepted proof is credited here by step, and in the header comment of the file. Credit goes to a person or to a named account, not to a tool.</p>
+<p><em>No accepted contributions yet.</em></p>
+
+</main>
+</div>
+<footer class="site-footer"><div class="wrap">
+<p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
+<p>Last updated 23 November 2026, from commit <code>eea7a0e</code> on the main branch.</p>
+</div></footer>
+</body>
+</html>
