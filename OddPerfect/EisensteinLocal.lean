@@ -344,7 +344,29 @@ theorem eisenstein_pow_linear_star_ne_one {z : QuadraticAlgebra ℤ (-1) (-1)} (
   have e : w.re - (w.re + -1 * w.im + ℓ' * -w.im) - ℓ' * w.im = w.im := by ring
   rwa [e] at this
 
+/-- Public restatement of the binomial expansion of `L ((1 + 2 ^ h * w) ^ n)`. -/
+theorem eisLin_pow_expand_range (ℓ : ℤ) (h : ℕ) (w : Eis) {n N : ℕ} (hN : n < N) :
+    eisLin ℓ ((1 + (((2 : ℤ) ^ h : ℤ) : Eis) * w) ^ n) =
+      ∑ r ∈ range N, (n.choose r : ℤ) * 2 ^ (h * r) * eisLin ℓ (w ^ r) :=
+  eisLin_pow_expand ℓ h w hN
+
+/-- Public restatement: cancel the odd part of `F` in a power of `2` dividing `F * X`. -/
+theorem two_pow_dvd_of_mul_odd_part {F : ℕ} (hF : F ≠ 0) {K e v : ℕ}
+    (hk : ∀ k, 2 ^ k ∣ F → k + K ≤ e)
+    {X : ℤ} (hX : (2 : ℤ) ^ v ∣ (F : ℤ) * X) : (2 : ℤ) ^ (v + K) ∣ 2 ^ e * X :=
+  two_pow_dvd_of_mul hF hk hX
+
+/-- Public restatement: `z ≡ 1 (mod 4)`, `z ≠ 1`, is `1 + 2 ^ h w` with `h ≥ 2` and `w` not
+divisible by `2`. -/
+theorem eisenstein_decomp {z : Eis} (hz : z ≠ 1) (hre : (4 : ℤ) ∣ z.re - 1)
+    (him : (4 : ℤ) ∣ z.im) :
+    ∃ h, 2 ≤ h ∧ ∃ w : Eis, z = 1 + (((2 : ℤ) ^ h : ℤ) : Eis) * w ∧ ¬ (2 ∣ w.re ∧ 2 ∣ w.im) :=
+  eis_decomp hz hre him
+
 end OddPerfect
 
 #print axioms OddPerfect.eisenstein_pow_linear_eq_one_unique
 #print axioms OddPerfect.eisenstein_pow_linear_star_ne_one
+#print axioms OddPerfect.eisLin_pow_expand_range
+#print axioms OddPerfect.two_pow_dvd_of_mul_odd_part
+#print axioms OddPerfect.eisenstein_decomp

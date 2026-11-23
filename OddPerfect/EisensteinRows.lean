@@ -260,6 +260,57 @@ theorem exists_normalized_root {q : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1) :
     · intro p j _ hj
       exact ⟨fun h => absurd ⟨p, j, hj, Or.inl h⟩ hex, fun h => absurd ⟨p, j, hj, Or.inr h⟩ hex⟩
 
+open EisRows in
+/-- The root of `exists_normalized_root` when at least one row exists: it has norm `q`. -/
+theorem exists_normalized_root_of_row {q : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
+    (hex : ∃ p j : ℕ, 1 ≤ j ∧ (p ^ 2 + p + 1 = q ^ j ∨ p ^ 2 + p + 1 = 3 * q ^ j)) :
+    ∃ ρ : Eis, nrm ρ = q ∧ ρ ≠ 1 ∧ (4 : ℤ) ∣ ρ.re - 1 ∧ (4 : ℤ) ∣ ρ.im ∧
+      ∀ p j : ℕ, Odd p → 1 ≤ j →
+        (p ^ 2 + p + 1 = q ^ j → (ρ ^ j).re = 1 ∨ ((star ρ) ^ j).re = 1) ∧
+        (p ^ 2 + p + 1 = 3 * q ^ j →
+          (ρ ^ j).re - 2 * (ρ ^ j).im = 1 ∨ ((star ρ) ^ j).re - 2 * ((star ρ) ^ j).im = 1) := by
+  have hq3 : q ≠ 3 := by omega
+  obtain ⟨p0, j0, hj0, h0⟩ := hex
+  have hd : (q : ℤ) ∣ nrm ⟨(p0 : ℤ), -1⟩ := by
+    have hnat : q ∣ p0 ^ 2 + p0 + 1 := by
+      have hqj : q ∣ q ^ j0 := dvd_pow_self q (by omega)
+      rcases h0 with h0 | h0 <;> rw [h0]
+      · exact hqj
+      · exact hqj.mul_left 3
+    rw [nrm_row]; exact_mod_cast hnat
+  obtain ⟨π, hπ⟩ := exists_nrm_eq hq p0 hd
+  obtain ⟨X, Y, hXY, hX, hY⟩ := normalize (q : ℤ) π.re π.im (by rw [← hπ]; rfl) (by omega)
+  have hρ : nrm (⟨X, Y⟩ : Eis) = q := hXY
+  have hn4 : 4 ∣ (⟨X, Y⟩ : Eis).re - 1 ∧ 4 ∣ (⟨X, Y⟩ : Eis).im := ⟨hX, hY⟩
+  refine ⟨⟨X, Y⟩, hρ, ?_, hX, hY, ?_⟩
+  · intro h1
+    have := congrArg nrm h1
+    rw [hρ, nrm_one] at this
+    have := hq.one_lt
+    omega
+  · intro p j hp hj
+    have hp' : Odd (p : ℤ) := by
+      obtain ⟨k, hk⟩ := hp
+      exact ⟨k, by rw [hk]; push_cast; ring⟩
+    have hA := norm4_pow hn4 j
+    have hB := norm4_pow (norm4_star hn4) j
+    constructor
+    · intro he
+      obtain ⟨θ, hθ, hor⟩ := core hq hq3 hρ p j hj 1 (by rw [nrm_row, he]; push_cast; ring)
+      rcases hor with hα | hα
+      · left
+        exact (read_off p _ _ hp' hA.1 hA.2 θ (by rw [mk_eta]; exact hα)).1 hθ
+      · right
+        exact (read_off p _ _ hp' hB.1 hB.2 θ (by rw [mk_eta]; exact hα)).1 hθ
+    · intro he
+      obtain ⟨θ, hθ, hor⟩ := core hq hq3 hρ p j hj 3 (by rw [nrm_row, he]; push_cast; ring)
+      rcases hor with hα | hα
+      · left
+        exact (read_off p _ _ hp' hA.1 hA.2 θ (by rw [mk_eta]; exact hα)).2 hθ
+      · right
+        exact (read_off p _ _ hp' hB.1 hB.2 θ (by rw [mk_eta]; exact hα)).2 hθ
+
 end OddPerfect
 
 #print axioms OddPerfect.exists_normalized_root
+#print axioms OddPerfect.exists_normalized_root_of_row
