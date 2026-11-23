@@ -916,7 +916,8 @@ example : deficientB pS1 ksS1 251 ddS1 = true := by decide +kernel
 example : go pS1 primeB (fun _ _ => false) (.step ksS1 242) (.check ddS1) = true := by
   decide +kernel
 -- The same leaf with one damaged witness. A zero denominator (this also makes `Sd = 0`, so the
--- test `Sn < Sd` fails as well; the two guards cannot be separated).
+-- tests `Sn < Sd` and `Sn < 3 * Sd` of both paths fail as well; the guards cannot be
+-- separated).
 example : [{ ddS1 with mL := (1, 0) }, { ddS1 with mM := (1, 0) }].any
     (deficientB pS1 ksS1 251) = false := by decide +kernel
 -- Underestimated tail witnesses: `m_M = 10 ^ -14` and `m_L = 10 ^ -3` are too small.
@@ -929,5 +930,23 @@ example : [{ ddS1 with k := 0 }, { ddS1 with k := 6 }].any (deficientB pS1 ksS1 
 example : deficientB pS1 ksS1 251 { ddS1 with rx := 1000000 } = false := by decide +kernel
 -- The leaf needs the key 3 with a budget.
 example : deficientB pS1 ksS1.tail 251 ddS1 = false := by decide +kernel
+-- The Padé path of the final test. With `m_M = 2/9753` the same leaf has
+-- `S = 252^2 * 2/(251^2 * 9753) ≈ 2.06702 * 10^-4` and `U0 ≈ 1.99959` (`u = 0`, `c + d = 16`, no
+-- hits). The old path fails: `U0/(1 - S) ≥ 2`, as the literal test below shows. The Padé path
+-- accepts: `U0 (S^2 + 4 S + 6)/(6 - 2 S) < 2`. Only the Padé path accepts for `S` from about
+-- `2.06683 * 10^-4` (the old path fails from there on) to about `2.06705 * 10^-4` (exact
+-- rational arithmetic).
+example : (decide (252 ^ 2 * 2 < 251 * 251 * 9753) &&
+    decide ((hiProd pS1 ksS1).1 * (251 * 251 + 251 + 1) ^ 16 * (251 * 251 * 9753) <
+      2 * ((hiProd pS1 ksS1).2 * 251 ^ 32 * (251 * 251 * 9753 - 252 ^ 2 * 2)))) = false := by
+  decide +kernel
+example : deficientB pS1 ksS1 251 { ddS1 with mM := (2, 9753) } = true := by decide +kernel
+example : go pS1 primeB (fun _ _ => false) (.step ksS1 242) (.check { ddS1 with mM := (2, 9753) }) =
+    true := by decide +kernel
+-- Both paths reject: `m_M = 1/2` (`S ≈ 0.504`, both product tests fail), `m_M = 3/2`
+-- (`1 ≤ S ≈ 1.512 < 3`: only the Padé path is tried, and its product test fails), `m_M = 3`
+-- (`S ≈ 3.024 ≥ 3`, both guards on `S` fail).
+example : [{ ddS1 with mM := (1, 2) }, { ddS1 with mM := (3, 2) }, { ddS1 with mM := (3, 1) }].any
+    (deficientB pS1 ksS1 251) = false := by decide +kernel
 
 end CheckerControls.Engine
