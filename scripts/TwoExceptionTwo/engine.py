@@ -10,6 +10,10 @@ modules from the term; the mirror run gives the subtree costs and the primes the
 asks its primality oracle about (here a Miller Rabin test with the first twelve prime bases,
 exact below 3.1 * 10^23; the Lean oracle is a Pratt certificate written by gen.py).
 
+The mirror also follows `TwoExcEngine.checkV` for the fixed exponent families (a header with a
+field V3: exponent V3 at 3, every further exception of exponent exactly 4, landed facts off).
+For V3 != 2 the prime 3 is a key with an exact exponent and counts as one exception.
+
 Run: python3 -I engine.py CERT   (CERT is cert.jsonl.xz or the decompressed file; prints
 `accepted True`, the leaf counts, the operation counts and the number of oracle primes)
 Requires: Python 3 standard library only. Running time: a few seconds.
@@ -37,6 +41,7 @@ def load(fn):
 
 def comp_of(src):
     if src[0] == 'row': return src[1]
+    if src[0] == 'sig': return src[1]
     if src[0] == 'cyc': return src[2]
     if src[0] == 'receipt': return src[3]
     raise ValueError(src)
@@ -56,10 +61,25 @@ def role_of_class(cls, f, landed):
 
 # ---------------------------------------------------------------- translator
 
+def defdata_trivial(pr):
+    """Leaf data for a deficient leaf without generators and without undecided free primes
+    (K empty, u = 0), where the search writes no Rankin data: the Rankin part of the bound is
+    zero, and the checks on the witnesses are met by k = 24, B = 10^6, the least admissible
+    r_x, m_L = 1 and m_M = 10^-13 (S is then below 10^-12)."""
+    assert pr['K'] == [] and pr['u'] == 0 and pr['a'] == 0 and pr['b'] == 0, pr
+    assert pr['extra_ab'] == 0 and pr['extra_cd'] == 0 and pr['hits'] == []
+    k, B, x = 24, 10 ** 6, pr['x']
+    rx = B + 1
+    assert rx ** k <= B ** k * x
+    return ('dd', k, B, [], rx, (1, 1), (1, 10 ** 13), [])
+
 class Translator:
     def __init__(self, recs):
         self.recs = recs
         self.hdr = recs[0]
+        # the fixed exponent families: factor lists sorted, so the term does not depend on the
+        # order in which the factoring library lists the factors
+        self.sort_items = 'V3' in self.hdr
 
     def apply_node(self, rid, comp):
         r = self.recs[rid]
@@ -68,6 +88,8 @@ class Translator:
         # positional check: the own items are a suffix of the record's items
         own = [(p, e) for p, e, src in r['items']]
         assert own[len(own) - len(items):] == items, rid
+        if self.sort_items:
+            items = sorted(items)
         return ('apply', items, self.out(r))
 
     def out(self, r):
@@ -124,6 +146,8 @@ class Translator:
         raise ValueError(k)
 
     def defdata(self, pr):
+        if 'rankin' not in pr:
+            return defdata_trivial(pr)
         rk = pr['rankin']
         assert rk['mode'] == 'theta'
         assert pr['extra_ab'] == 0 and pr['extra_cd'] == 0
@@ -268,15 +292,21 @@ def apply_items(P, st, pend, comp, items):
             if not found: pend.append([p, comp, w])
     return ('ok', st, pend)
 
+def lan(P):
+    """Params.lan: the landed facts are used only with exponent 2 at 3."""
+    return P['landed'] and P['V3'] == 2
+
 def roles_of(P, st, f):
     rs = [('sq',)]
-    if not q_decided(st) and f % 4 == 1 and (not P['landed'] or (f != 5 and f % 9 != 8)):
+    if not q_decided(st) and f % 4 == 1 and (not lan(P) or (f != 5 and f % 9 != 8)):
         if f % 3 == 1:
             rs += [('fr', True, 2, True, 1, False), ('fr', True, 6, False, 5, False)]
         else:
-            rs += [('fr', True, 2, P['landed'], 1, False)]
+            rs += [('fr', True, 2, lan(P), 1, False)]
     if nexc(st) < P['E']:
-        if f % 3 == 1:
+        if P['e4'] and f != 3:
+            rs += [('fr', False, 5, True, 4, True)]
+        elif f % 3 == 1:
             rs += [('fr', False, 1, True, 4, False), ('fr', False, 3, False, 8, False)]
         else:
             rs += [('fr', False, 1, False, 4, False)]
@@ -330,7 +360,7 @@ def abundant(P, st):
 LSET = [7, 13, 19, 31, 61, 97, 127, 331]
 
 def landedL(P, st):
-    if not P['landed'] or P['E'] > 2: return False
+    if not lan(P) or P['E'] > 2: return False
     for p in LSET:
         k = key_find(st, p)
         if k is not None and is_exc(k[1]) and k[1][2] % 3 != 0: return False
@@ -366,6 +396,12 @@ def square_root_if_square(z):
     s = isqrt_newton(z)
     return s if s * s == z else None
 
+def budget3(role):
+    """Mirror of budget3: 2 for a square, kmin for an exact exception, None otherwise."""
+    if role[0] == 'sq': return 2
+    _, isQ, D, no3, kmin, ex = role
+    return kmin if (not isQ and ex) else None
+
 def deficient(P, st, dd):
     _, k, B, rs, rx, mL, mM, comps = dd
     x = st['x']
@@ -373,8 +409,9 @@ def deficient(P, st, dd):
     keys = st['keys']
     a = 0 if q_decided(st) else 1
     b = P['E'] - nexc(st); req(b >= 0)
-    k3 = key_find(st, 3); req(k3 is not None and k3[1][0] == 'sq')
-    c = max(0, 2 - csum(k3[2]))
+    k3 = key_find(st, 3); req(k3 is not None, 'no key 3')
+    b3 = budget3(k3[1]); req(b3 is not None, 'budget of 3')
+    c = max(0, b3 - csum(k3[2]))
     d = 2 * c
     for p, role, cs in keys:
         if role[0] == 'sq' and p % 3 == 1: d += max(0, 2 - csum(cs))
@@ -553,11 +590,40 @@ class Mirror:
         raise Reject('bad step ' + t)
 
 def params(hdr):
-    if hdr.get('kind') != 'header' or hdr.get('flags') != ['cert']:
+    if hdr.get('kind') != 'header':
+        raise ValueError('not a header: %r' % (hdr,))
+    if 'V3' in hdr:
+        # search_ex.py: exponent V3 at 3, at most EMAX further exceptions, each of exponent 4.
+        # For V3 != 2 the prime 3 is an exception key too, so E = EMAX + 1.
+        flags = set(hdr['flags'])
+        if not flags <= {'cert', 'nojump', 'nolanded', 'ruleL'} or 'nolanded' not in flags:
+            raise ValueError('unexpected flags %r' % (hdr['flags'],))
+        V3 = hdr['V3']
+        return {'E': hdr['EMAX'] + (0 if V3 == 2 else 1), 'MHIT': hdr['MHIT'], 'KCAP': hdr['KCAP'],
+                'landed': False, 'V3': V3, 'e4': True}
+    if hdr.get('flags') != ['cert']:
         raise ValueError('not a header of search.py: %r' % (hdr,))
-    return {'E': hdr['EMAX'], 'MHIT': hdr['MHIT'], 'KCAP': hdr['KCAP'], 'landed': True}
+    return {'E': hdr['EMAX'], 'MHIT': hdr['MHIT'], 'KCAP': hdr['KCAP'], 'landed': True,
+            'V3': 2, 'e4': False}
 
 ROOT_STATE = {'x': 5, 'keys': [[3, ('sq',), []]]}
+
+def root3(P):
+    """Mirror of root3."""
+    return ('sq',) if P['V3'] == 2 else ('fr', False, P['V3'] + 1, False, P['V3'], True)
+
+def params_ok(P):
+    return P['V3'] == 2 or (P['V3'] % 2 == 0 and P['V3'] >= 4)
+
+def check(P, M, term):
+    """Mirror of check: the guard, then the root record with 3 a square key."""
+    req(P['V3'] == 2 and not P['e4'], 'check guard')
+    return M.go_apply(ROOT_STATE, [], 3, term)
+
+def checkV(P, M, term):
+    """Mirror of checkV: the guard, then the root record with 3 of role root3 P."""
+    req(params_ok(P), 'paramsOK')
+    return M.go_apply({'x': 5, 'keys': [[3, root3(P), []]]}, [], 3, term)
 
 def run(fn):
     recs = load(fn)
@@ -565,7 +631,7 @@ def run(fn):
     term = T.root()
     P = params(recs[0])
     M = Mirror(P)
-    ok = M.go_apply(ROOT_STATE, [], 3, term)
+    ok = (checkV if 'V3' in recs[0] else check)(P, M, term)
     return recs, term, P, M, ok
 
 # ---------------------------------------------------------------- serializers
@@ -610,8 +676,12 @@ def lean_keys(keys):
                               for p, r, cs in keys)
 
 def lean_params(P):
-    return '{ E := %d, MHIT := %d, KCAP := %d, landed := %s }' % (
+    s = '{ E := %d, MHIT := %d, KCAP := %d, landed := %s' % (
         P['E'], P['MHIT'], P['KCAP'], 'true' if P['landed'] else 'false')
+    if P.get('V3', 2) != 2 or P.get('e4', False):
+        s += ', V3 := %d, e4 := %s' % (P['V3'], 'true' if P['e4'] else 'false')
+    return s + ' }'
+
 
 
 def main():

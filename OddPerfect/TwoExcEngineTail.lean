@@ -27,8 +27,10 @@ perfect, `σ(N)/N = 2`, and this is the product of `σ(p^v)/p^v` over the prime 
   `t ≡ 1` or `t ≡ 2 (mod 3)`, and each contributes `fv t ≤ fv x = (x^2 + x + 1)/x^2`.
 * (c) A square `t ≡ 1 (mod 3)` sends a factor 3 to the budget of 3. By the conservation law
   `sigmaWeight_sum_eq`, the weights of the distinct components sending to 3 add up to at most
-  `v_3(N) = 2`; the key components of 3 already use `csum cs3`, and the new squares are other
-  components. So there are at most `c = 2 - csum cs3` of them.
+  `v_3(N) = b3`, where `b3 = budget3` of the role of the key 3: 2 for a square, `kmin` for an
+  exception of exact exponent `kmin` (the role fixes the exponent; nothing else about 3 is
+  used). The key components of 3 already use `csum cs3`, and the new squares are other
+  components. So there are at most `c = b3 - csum cs3` of them.
 * (d) A square `t ≡ 2 (mod 3)` whose row `t^2 + t + 1` has a prime factor `g` that is a square
   key `≡ 1 (mod 3)`, an exact free key `≡ 1 (mod 3)`, or a square of class (c). Each such `t`
   uses one unit of the budget of `g`: the remaining budget of a key is at most
@@ -562,7 +564,7 @@ private theorem exc_card {P : Params} {N q : ℕ} {ks : List Key} {x : ℕ} (hH 
     (hX : ∀ t ∈ X, t ∈ N.primeFactors ∧ t ∉ ks.map Key.p ∧ t ≠ q ∧ N.factorization t ≠ 2) :
     X.card + nexc ks ≤ P.E := by
   classical
-  obtain ⟨⟨hN, -, -, -, hcard⟩, hK, hnd, -⟩ := hH
+  obtain ⟨⟨hN, -, -, -, hcard, -⟩, hK, hnd, -⟩ := hH
   set XK := ((ks.filter isExc).map Key.p).toFinset with hXK
   have hndX : ((ks.filter isExc).map Key.p).Nodup :=
     hnd.sublist (List.filter_sublist.map Key.p)
@@ -855,13 +857,24 @@ private theorem alpha_facts {k B : ℕ} : ∀ (gs rs : List ℕ), alphaOK k B gs
 
 /-! ## Counting the slots (c) and (d) -/
 
+/-- The budget of 3 from its role: `budget3 r3 = some b3` gives `v_3(N) = b3`. -/
+private theorem budget3_spec {r3 : Role} {b3 k : ℕ} {hq : Prop} (hr : RoleHolds r3 k hq)
+    (hb : budget3 r3 = some b3) : k = b3 := by
+  unfold budget3 at hb
+  split at hb
+  · cases hb; exact hr.2
+  · cases hb; exact hr.2.2.2.2.1 rfl
+  · cases hb
+
 private theorem card_C3 {P : Params} {N q : ℕ} {ks : List Key} {x : ℕ} (hH : Holds P N q ks x)
-    {cs3 : List (ℕ × ℕ)} (hk3 : (⟨3, .sq, cs3⟩ : Key) ∈ ks) (C : Finset ℕ)
+    {r3 : Role} {b3 : ℕ} {cs3 : List (ℕ × ℕ)} (hk3 : (⟨3, r3, cs3⟩ : Key) ∈ ks)
+    (hb : budget3 r3 = some b3) (C : Finset ℕ)
     (hC : ∀ t ∈ C, t ∈ N.primeFactors ∧ t ∉ ks.map Key.p ∧ N.factorization t = 2 ∧ t % 3 = 1) :
-    C.card ≤ 2 - csum cs3 := by
-  obtain ⟨⟨hN, -, -, h3, -⟩, hK, -, -⟩ := hH
-  obtain ⟨-, -, -, hcs, hcsnd⟩ := hK _ hk3
-  simp only at hcs hcsnd
+    C.card ≤ b3 - csum cs3 := by
+  obtain ⟨⟨hN, -, -, -, -⟩, hK, -, -⟩ := hH
+  obtain ⟨-, -, hr3, hcs, hcsnd⟩ := hK _ hk3
+  simp only at hcs hcsnd hr3
+  have h3 := budget3_spec hr3 hb
   have := budget hN.perfect Nat.prime_three (by decide) cs3
     (fun e he => ⟨Nat.mem_primeFactors.mpr ⟨(hcs e he).1, (hcs e he).2.1, hN.ne_zero⟩,
       (hcs e he).2.2.2⟩) hcsnd C (fun t ht => (hC t ht).1)
@@ -962,8 +975,8 @@ private theorem card_D {P : Params} {N q : ℕ} {ks : List Key} {x : ℕ} (hH : 
 
 /-! ## The rational part -/
 
-private def cdOf (ks : List Key) (cs3 : List (ℕ × ℕ)) : ℕ :=
-  (2 - csum cs3) + (dCap ks + 2 * (2 - csum cs3))
+private def cdOf (ks : List Key) (b3 : ℕ) (cs3 : List (ℕ × ℕ)) : ℕ :=
+  (b3 - csum cs3) + (dCap ks + 2 * (b3 - csum cs3))
 
 /-- `S` of the tail bound as (numerator, denominator), computed as in `tailOK`. -/
 private def sPair (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) : ℕ × ℕ :=
@@ -980,14 +993,14 @@ private def sPair (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) : ℕ ×
   ((x + 1) ^ 2 * (t1n * t2d + t2n * t1d), x * x * (t1d * t2d))
 
 private theorem tailOK_spec {P : Params} {ks : List Key} {x : ℕ} {dd : DefData}
-    {cs3 : List (ℕ × ℕ)} {hn hd : ℕ} (h : tailOK P ks x dd cs3 hn hd = true) :
+    {b3 : ℕ} {cs3 : List (ℕ × ℕ)} {hn hd : ℕ} (h : tailOK P ks x dd b3 cs3 hn hd = true) :
     2 ≤ x ∧ 3 ≤ dd.k ∧ nexc ks ≤ P.E ∧ alphaOK dd.k dd.B (genK ks) dd.rs = true ∧
     dd.B < dd.rx ∧ dd.rx ^ dd.k ≤ dd.B ^ dd.k * x ∧ 0 < dd.mL.2 ∧ 0 < dd.mM.2 ∧
     dd.mL.2 ^ (2 * dd.k) ≤ dd.mL.1 ^ (2 * dd.k) * (x * x + x + 1) ^ (dd.k - 2) ∧
     dd.mM.2 ^ (2 * dd.k) ≤ dd.mM.1 ^ (2 * dd.k) * (max (x * x + x + 1) P.MHIT) ^ (dd.k - 2) ∧
     (sPair P ks x dd).1 < (sPair P ks x dd).2 ∧
-    (hiProd P ks).1 * x ^ uOf P ks * (x * x + x + 1) ^ cdOf ks cs3 * hn * (sPair P ks x dd).2 <
-      2 * ((hiProd P ks).2 * (x - 1) ^ uOf P ks * x ^ (2 * cdOf ks cs3) * hd *
+    (hiProd P ks).1 * x ^ uOf P ks * (x * x + x + 1) ^ cdOf ks b3 cs3 * hn * (sPair P ks x dd).2 <
+      2 * ((hiProd P ks).2 * (x - 1) ^ uOf P ks * x ^ (2 * cdOf ks b3 cs3) * hd *
         ((sPair P ks x dd).2 - (sPair P ks x dd).1)) := by
   unfold tailOK at h
   simp only [Bool.and_eq_true, decide_eq_true_eq] at h
@@ -1084,7 +1097,10 @@ theorem defSound (P : Params) : DefSound P := by
   unfold deficientB at hdef
   split at hdef
   case h_2 => exact absurd hdef Bool.false_ne_true
-  rename_i p3 cs3 hfk
+  rename_i p3 r3 cs3 hfk
+  split at hdef
+  case h_2 => exact absurd hdef Bool.false_ne_true
+  rename_i bud3 hb3
   obtain ⟨hk3, hp3⟩ := findKey_some hfk
   simp only at hp3
   subst hp3
@@ -1157,7 +1173,7 @@ theorem defSound (P : Params) : DefSound P := by
   have cU : Ufs.card ≤ uOf P ks := card_U hH Ufs fun t ht => by
     obtain ⟨htN, hc⟩ := Finset.mem_filter.mp ht
     exact ⟨(hNKm t htN).1, (hNKm t htN).2.2.1, hc⟩
-  have cC3 : C3.card ≤ 2 - csum cs3 := card_C3 hH hk3 C3 fun t ht => by
+  have cC3 : C3.card ≤ bud3 - csum cs3 := card_C3 hH hk3 hb3 C3 fun t ht => by
     obtain ⟨htR, h1⟩ := Finset.mem_filter.mp ht
     obtain ⟨a, -, c, -, -, f⟩ := hR1m t htR
     exact ⟨a, c, f, h1⟩
@@ -1169,7 +1185,7 @@ theorem defSound (P : Params) : DefSound P := by
     · obtain ⟨htR, -, hex⟩ := Finset.mem_filter.mp ht
       obtain ⟨a, -, c, -, -, f⟩ := hR1m t htR
       exact ⟨a, c, f, hex⟩
-  have cCD : CD.card ≤ cdOf ks cs3 := by
+  have cCD : CD.card ≤ cdOf ks bud3 cs3 := by
     have hsub : CD ⊆ C3 ∪ R1.filter fun t => ¬ t % 3 = 1 ∧ ∃ g ∈ PF, Wp g ∧ g ∣ phi3 t := by
       intro t ht
       obtain ⟨htR, hc⟩ := Finset.mem_filter.mp ht
@@ -1208,7 +1224,7 @@ theorem defSound (P : Params) : DefSound P := by
             exact ab_le_x htp hx2 hxt
       _ = ((x : ℚ) / (x - 1)) ^ Ufs.card := Finset.prod_const _
       _ ≤ _ := pow_le_pow_right₀ h1 cU
-  have b3 : ∏ t ∈ CD, fv t ≤ fv x ^ cdOf ks cs3 := by
+  have b3 : ∏ t ∈ CD, fv t ≤ fv x ^ cdOf ks bud3 cs3 := by
     calc ∏ t ∈ CD, fv t ≤ ∏ t ∈ CD, fv x :=
           Finset.prod_le_prod (fun t _ => fv_nonneg t) fun t ht =>
             fv_anti (by omega) (hR1m t (Finset.mem_filter.mp ht).1).2.2.2.1
@@ -1309,7 +1325,7 @@ theorem defSound (P : Params) : DefSound P := by
   have n1 : 0 ≤ ∏ t ∈ Ufs, abundancy (t ^ N.factorization t) :=
     Finset.prod_nonneg fun t _ => abund_nonneg _
   have hprod : (2 : ℚ) ≤ ((hiProd P ks).1 : ℚ) / (hiProd P ks).2 *
-      (((x : ℚ) / (x - 1)) ^ uOf P ks * (fv x ^ cdOf ks cs3 *
+      (((x : ℚ) / (x - 1)) ^ uOf P ks * (fv x ^ cdOf ks bud3 cs3 *
         ((hn : ℚ) / hd * (1 / (1 - ((sPair P ks x dd).1 : ℚ) / (sPair P ks x dd).2))))) := by
     rw [hab, mul_comm]
     have hx1 : (0 : ℚ) ≤ (x : ℚ) / (x - 1) := div_nonneg (by linarith) (by linarith)

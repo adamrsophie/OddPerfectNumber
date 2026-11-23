@@ -6,13 +6,17 @@ import OddPerfect.TwoExceptionThreeB
 import OddPerfect.Cyclotomic
 
 /-!
-# A certificate checker for the family "at most E exceptional primes, exponent 2 at 3": soundness
+# A certificate checker for families "at most E exceptional primes, fixed exponent at 3": soundness
 
 This module proves `check_sound`: if `TwoExcEngine.check P pr done c` returns `true`, then no
 odd perfect number lies in the family `Fam P.E N q`. The hypotheses are the deficient leaf
 theorem `DefSound P` (proved in its own module), a sound primality oracle `pr`, a sound
 recognizer `done` of states refuted elsewhere, and `P.E ≤ 2` when the landed facts are used
-(`P.landed`), because those facts are library theorems about two named exceptions.
+(`P.landed`), because those facts are library theorems about two named exceptions. It also
+proves `checkV_sound`, the same statement for `checkV` and the family `FamV P N q` of the
+parameters, and the bridges `famV_S1`, `famV_S2a`, `famV_S2b` from named exceptions of
+exponent 4 to that family. The landed facts are used only when `P.lan`, that is with exponent
+2 at 3.
 
 The engine is a tool. An accepted certificate refutes exactly the states it is run on. The
 one exception statement that the pilot certificate reproduces was already in the library before
@@ -29,13 +33,13 @@ this engine was written; the pilot is a test of the engine, not a new result.
   changes of the checker (contributions, roles, new keys, larger `x`).
 * One lemma per rule: items and budgets (`applyItems_sound`, with `csum_le` from the
   conservation law `sigmaWeight_sum_eq`), the roles of a forced or decided prime with
-  exhaustiveness (`roles_exh`, using the landed facts on `q` only when `P.landed`), the receipt
+  exhaustiveness (`roles_exh`, using the landed facts on `q` only when `P.lan`), the receipt
   rule (`receipt_exists`, `ordOK_dvd`, `infeasible_false`, `nextAllowed_le`), exponent
   splitting (inside `go_sound`), abundancy (`abundant_false`) and rule L (`landedL_false`).
 * `go_sound`: every checker context `ctx` with `go P pr done ctx c = true` refutes the states
   that `CtxOK` assigns to it, by induction on the certificate.
 * The bridge `fam_of_named` from named exceptions to the family, for every `E`, with the cases
-  `fam_one` and `fam_two`.
+  `fam_one` and `fam_two`, and the bridge `famV_of_named` to the family of the parameters.
 -/
 
 open ArithmeticFunction
@@ -884,7 +888,7 @@ private theorem exc_new {ks : List Key} {x : ℕ} (hH : Holds P N q ks x) {f : �
   have h1 := Finset.card_le_card hsub
   rw [Finset.card_insert_of_notMem hfT, List.toFinset_card_of_nodup hnd, List.length_map,
     ← nexc_eq] at h1
-  exact h1.trans hH.1.2.2.2.2
+  exact h1.trans hH.1.2.2.2.2.1
 
 theorem exc_all {ks : List Key} {x : ℕ} (hH : Holds P N q ks x) (hE : nexc ks = P.E) {f : ℕ}
     (hf : f ∈ excSet N q) : f ∈ ks.map Key.p := by
@@ -921,6 +925,14 @@ private theorem exists_two {s : Finset ℕ} (h : s.card ≤ 2) : ∃ r₁ r₂, 
       have h1 : (s.erase a).card ≤ 1 := by rw [Finset.card_erase_of_mem ha]; omega
       exact Finset.card_le_one.mp h1 p (Finset.mem_erase.mpr ⟨hpa, hp⟩) b hb
 
+/-- With exponent 2 at 3 the family of the parameters gives the family `Fam`. -/
+theorem fam_of_famV {P : Params} (hF : FamV P N q) (h : P.V3 = 2) : Fam P.E N q :=
+  ⟨hF.1, hF.2.1, hF.2.2.1, hF.2.2.2.1.trans h, hF.2.2.2.2.1⟩
+
+/-- The landed facts are used only with exponent 2 at 3. -/
+theorem lan_spec {P : Params} (h : P.lan = true) : P.landed = true ∧ P.V3 = 2 := by
+  simpa [Params.lan] using h
+
 /-- With at most two exceptions they can be named. -/
 theorem named_two {E : ℕ} (hF : Fam E N q) (hE : E ≤ 2) :
     ∃ r₁ r₂, ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2 := by
@@ -943,23 +955,31 @@ private theorem nine_dvd_sigma_five {q : ℕ} (hq : q.Prime) (h3 : q % 3 = 2) : 
 /-! ## Roles -/
 
 private theorem mem_rolesOf_q {ks : List Key} {f : ℕ}
-    (hc : (!qDec ks && f % 4 == 1 && (!P.landed || (f != 5 && f % 9 != 8))) = true) {r : Role}
+    (hc : (!qDec ks && f % 4 == 1 && (!P.lan || (f != 5 && f % 9 != 8))) = true) {r : Role}
     (hr : r ∈ (if f % 3 == 1 then [Role.fr true 2 true 1 false, .fr true 6 false 5 false]
-      else [.fr true 2 P.landed 1 false])) : r ∈ rolesOf P ks f := by
+      else [.fr true 2 P.lan 1 false])) : r ∈ rolesOf P ks f := by
   unfold rolesOf
   rw [if_pos hc]
   exact List.mem_append_left _ (List.mem_append_right _ hr)
 
-private theorem mem_rolesOf_e {ks : List Key} {f : ℕ} (hc : nexc ks < P.E) {r : Role}
+private theorem mem_rolesOf_e {ks : List Key} {f : ℕ} (hc : nexc ks < P.E)
+    (hn : (P.e4 && f != 3) = false) {r : Role}
     (hr : r ∈ (if f % 3 == 1 then [Role.fr false 1 true 4 false, .fr false 3 false 8 false]
       else [.fr false 1 false 4 false])) : r ∈ rolesOf P ks f := by
   unfold rolesOf
-  rw [if_pos hc]
+  rw [if_pos hc, if_neg (show ¬ (P.e4 && f != 3) = true by simp [hn])]
   exact List.mem_append_right _ hr
 
+private theorem mem_rolesOf_e4 {ks : List Key} {f : ℕ} (hc : nexc ks < P.E)
+    (hn : (P.e4 && f != 3) = true) : Role.fr false 5 true 4 true ∈ rolesOf P ks f := by
+  unfold rolesOf
+  rw [if_pos hc, if_pos hn]
+  exact List.mem_append_right _ (List.mem_singleton_self _)
+
 /-- Exhaustiveness of the roles: a prime factor of `N` that is not a key has one of the roles
-listed by `rolesOf`. The landed facts on the special prime are used only when `P.landed`, and
-they need `P.E ≤ 2`. -/
+listed by `rolesOf`. The landed facts on the special prime are used only when `P.lan` (they need
+`P.E ≤ 2` and exponent 2 at 3). When `P.e4`, a prime other than 3 with exponent other than 2
+has exponent 4 by the family `FamV`. -/
 theorem roles_exh (hL : P.landed = true → P.E ≤ 2) {ks : List Key} {x : ℕ}
     (hH : Holds P N q ks x) {f : ℕ} (hf : f.Prime) (hfN : f ∣ N) (hfk : f ∉ ks.map Key.p) :
     ∃ r ∈ rolesOf P ks f, RoleHolds r (N.factorization f) (f = q) := by
@@ -972,13 +992,12 @@ theorem roles_exh (hL : P.landed = true → P.E ≤ 2) {ks : List Key} {x : ℕ}
       cases h : qDec ks
       · rfl
       · exact absurd (qDec_key hH h) hfk
-    have hf3 : f ≠ 3 := by
-      rintro rfl
-      rw [h3] at hodd
-      exact (by decide : ¬ Odd 2) hodd
-    have hland : P.landed = true → f ≠ 5 ∧ f % 9 ≠ 8 ∧ (f % 3 = 2 → ¬ 3 ∣ N.factorization f + 1) := by
+    have hf3 : f ≠ 3 := fun h => hH.1.2.2.2.2.2.1 h.symm
+    have hland : P.lan = true → f ≠ 5 ∧ f % 9 ≠ 8 ∧ (f % 3 = 2 → ¬ 3 ∣ N.factorization f + 1) := by
       intro hl
-      obtain ⟨r₁, r₂, hsq⟩ := named_two hH.1 (hL hl)
+      obtain ⟨hl1, hl2⟩ := lan_spec hl
+      have h3 := h3.trans hl2
+      obtain ⟨r₁, r₂, hsq⟩ := named_two (fam_of_famV hH.1 hl2) (hL hl1)
       refine ⟨?_, fun h9 => two_exceptions_three_ne_two_of_mod_nine hOP hq hodd h9 hsq h3,
         fun h32 h3d => ?_⟩
       · rintro rfl
@@ -987,8 +1006,8 @@ theorem roles_exh (hL : P.landed = true → P.E ≤ 2) {ks : List Key} {x : ℕ}
         refine (nine_dvd_sigma_five hq h32).trans (OPNExample.sigma_prime_pow_dvd hq ?_)
         obtain ⟨j, hj⟩ := hodd
         omega
-    have hc : (!qDec ks && f % 4 == 1 && (!P.landed || (f != 5 && f % 9 != 8))) = true := by
-      cases hl : P.landed
+    have hc : (!qDec ks && f % 4 == 1 && (!P.lan || (f != 5 && f % 9 != 8))) = true := by
+      cases hl : P.lan
       · simp [hqD, hq4]
       · obtain ⟨h5, h9, -⟩ := hland hl
         simp [hqD, hq4, h5, h9]
@@ -1001,7 +1020,7 @@ theorem roles_exh (hL : P.landed = true → P.E ≤ 2) {ks : List Key} {x : ℕ}
         · omega
       · refine ⟨.fr true 2 true 1 false, mem_rolesOf_q hc (by simp [hm3]), ?_⟩
         exact ⟨by simp, ⟨j + 1, by omega⟩, hk1, fun _ => h3k, by simp, fun _ => by omega, by simp⟩
-    · refine ⟨.fr true 2 P.landed 1 false, mem_rolesOf_q hc (by simp [hm3]), ?_⟩
+    · refine ⟨.fr true 2 P.lan 1 false, mem_rolesOf_q hc (by simp [hm3]), ?_⟩
       refine ⟨by simp, ⟨j + 1, by omega⟩, hk1, fun hl => ?_, by simp, fun _ => by omega, by simp⟩
       have : f % 3 ≠ 0 := fun h => hf3
         ((Nat.prime_dvd_prime_iff_eq Nat.prime_three hf).mp (Nat.dvd_of_mod_eq_zero h)).symm
@@ -1014,14 +1033,23 @@ theorem roles_exh (hL : P.landed = true → P.E ≤ 2) {ks : List Key} {x : ℕ}
     have hev := even_factorization_of_ne hOP hq hodd hf hfq
     obtain ⟨j, hj⟩ := hev
     have hiq : (false = true ↔ f = q) := iff_of_false (by decide) hfq
+    cases he4 : (P.e4 && f != 3)
+    case true =>
+      simp only [Bool.and_eq_true, bne_iff_ne, ne_eq] at he4
+      have hv4 := hH.1.2.2.2.2.2.2 he4.1 f (Nat.mem_primeFactors.mpr ⟨hf, hfN, hOP.ne_zero⟩) hfq
+        he4.2 hk2
+      refine ⟨.fr false 5 true 4 true, mem_rolesOf_e4 (by omega) (by simp [he4]), ?_⟩
+      rw [hv4]
+      exact ⟨hiq, dvd_rfl, le_rfl, fun _ => by decide, fun _ => rfl, by simp,
+        fun _ => ⟨⟨2, rfl⟩, le_rfl⟩⟩
     by_cases hm3 : f % 3 = 1
     · by_cases h3k : 3 ∣ N.factorization f + 1
-      · refine ⟨.fr false 3 false 8 false, mem_rolesOf_e (by omega) (by simp [hm3]), ?_⟩
+      · refine ⟨.fr false 3 false 8 false, mem_rolesOf_e (by omega) he4 (by simp [hm3]), ?_⟩
         refine ⟨hiq, h3k, by omega, by simp, by simp, by simp, fun _ => ⟨⟨j, hj⟩, by omega⟩⟩
-      · refine ⟨.fr false 1 true 4 false, mem_rolesOf_e (by omega) (by simp [hm3]), ?_⟩
+      · refine ⟨.fr false 1 true 4 false, mem_rolesOf_e (by omega) he4 (by simp [hm3]), ?_⟩
         exact ⟨hiq, one_dvd _, by omega, fun _ => h3k, by simp, by simp,
           fun _ => ⟨⟨j, hj⟩, by omega⟩⟩
-    · refine ⟨.fr false 1 false 4 false, mem_rolesOf_e (by omega) (by simp [hm3]), ?_⟩
+    · refine ⟨.fr false 1 false 4 false, mem_rolesOf_e (by omega) he4 (by simp [hm3]), ?_⟩
       exact ⟨hiq, one_dvd _, by omega, by simp, by simp, by simp, fun _ => ⟨⟨j, hj⟩, by omega⟩⟩
 
 /-! ## The receipt rule -/
@@ -1080,8 +1108,9 @@ theorem landedL_false {ks : List Key} {x : ℕ} (hH : Holds P N q ks x)
   unfold landedLB at h
   simp only [Bool.and_eq_true, Bool.or_eq_true, beq_iff_eq, decide_eq_true_eq,
     List.all_eq_true] at h
-  obtain ⟨⟨-, hall⟩, hcomp⟩ := h
+  obtain ⟨⟨⟨hlan, -⟩, hall⟩, hcomp⟩ := h
   obtain ⟨hOP, hq, hodd, h3, -⟩ := hH.1
+  have h3 := h3.trans (lan_spec hlan).2
   refine false_of_three_sq_of_index_three hOP hq hodd h3 (fun p hpL hpN hpq => ?_)
   simp only [Finset.mem_insert, Finset.mem_singleton] at hpL
   have hpL' : p ∈ LSET := by
@@ -1489,9 +1518,25 @@ theorem check_sound {P : Params} {pr : ℕ → Bool} {done : List Key → ℕ �
     (hdef : DefSound P) (hpr : ∀ n, pr n = true → n.Prime)
     (hdone : ∀ ks x N q, done ks x = true → Holds P N q ks x → False)
     (hL : P.landed = true → P.E ≤ 2) {c : Cert} (hc : check P pr done c = true) {N q : ℕ}
-    (hF : Fam P.E N q) : False :=
-  go_sound (N := N) (q := q) hdef hpr (fun ks x => hdone ks x N q) hL c _ hc (holds_root hF)
-    pendOK_nil
+    (hF : Fam P.E N q) : False := by
+  unfold check at hc
+  simp only [Bool.and_eq_true, beq_iff_eq, Bool.not_eq_true'] at hc
+  obtain ⟨hP, hc⟩ := hc
+  exact go_sound (N := N) (q := q) hdef hpr (fun ks x => hdone ks x N q) hL c _ hc
+    (holds_root hP hF) pendOK_nil
+
+/-- Soundness of the checker for any admissible parameters: if `checkV` accepts a certificate,
+no member of the family `FamV P` exists. The hypotheses are those of `check_sound`. -/
+theorem checkV_sound {P : Params} {pr : ℕ → Bool} {done : List Key → ℕ → Bool}
+    (hdef : DefSound P) (hpr : ∀ n, pr n = true → n.Prime)
+    (hdone : ∀ ks x N q, done ks x = true → Holds P N q ks x → False)
+    (hL : P.landed = true → P.E ≤ 2) {c : Cert} (hc : checkV P pr done c = true) {N q : ℕ}
+    (hF : FamV P N q) : False := by
+  unfold checkV at hc
+  simp only [Bool.and_eq_true] at hc
+  obtain ⟨hP, hc⟩ := hc
+  exact go_sound (N := N) (q := q) hdef hpr (fun ks x => hdone ks x N q) hL c _ hc
+    (holds_rootV hP hF) pendOK_nil
 
 /-! ## The bridge to named exceptions -/
 
@@ -1507,6 +1552,99 @@ theorem fam_of_named {E N q : ℕ} (rs : List ℕ) (hlen : rs.length ≤ E) (h :
     by_contra hpr
     exact hv (hsq p hpN hpq (by simpa using hpr))
   exact (Finset.card_le_card hsub).trans ((List.toFinset_card_le rs).trans hlen)
+
+/-- Named exceptions of exponent 4 give the family of the parameters: the exponent of 3 is
+`P.V3` (even), every prime factor `p ≠ q`, `p ≠ 3` of `N` outside the list `rs` has exponent
+2, and each listed number that divides `N` has exponent 4. The prime 3 counts as one more
+exception when `P.V3 ≠ 2`. -/
+theorem famV_of_named {P : Params} {N q : ℕ} (rs : List ℕ)
+    (hlen : rs.length + (if P.V3 = 2 then 0 else 1) ≤ P.E) (hV : P.V3 % 2 = 0)
+    (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization q))
+    (h3 : N.factorization 3 = P.V3) (hr : ∀ r ∈ rs, r ∈ N.primeFactors → N.factorization r = 4)
+    (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ 3 → p ∉ rs → N.factorization p = 2) :
+    FamV P N q := by
+  classical
+  have h3q : (3 : ℕ) ≠ q := by
+    rintro rfl
+    rw [h3] at hodd
+    obtain ⟨j, hj⟩ := hodd
+    omega
+  refine ⟨h, hq, hodd, h3, ?_, h3q, fun _ p hp hpq hp3 hv => ?_⟩
+  · have hsub : (N.primeFactors.filter fun p => p ≠ q ∧ N.factorization p ≠ 2) ⊆
+        insert 3 rs.toFinset := by
+      intro p hp
+      obtain ⟨hpN, hpq, hv⟩ := Finset.mem_filter.mp hp
+      by_cases hp3 : p = 3
+      · exact Finset.mem_insert.mpr (Or.inl hp3)
+      by_contra hpr
+      exact hv (hsq p hpN hpq hp3 (by simpa [hp3] using hpr))
+    by_cases h2 : P.V3 = 2
+    · rw [if_pos h2] at hlen
+      have hsub2 : (N.primeFactors.filter fun p => p ≠ q ∧ N.factorization p ≠ 2) ⊆
+          rs.toFinset := by
+        intro p hp
+        have hp' := hsub hp
+        rcases Finset.mem_insert.mp hp' with rfl | hp'
+        · exact absurd (h3.trans h2) (Finset.mem_filter.mp hp).2.2
+        · exact hp'
+      exact (Finset.card_le_card hsub2).trans ((List.toFinset_card_le rs).trans hlen)
+    · rw [if_neg h2] at hlen
+      exact (Finset.card_le_card hsub).trans ((Finset.card_insert_le _ _).trans
+        (by have := List.toFinset_card_le rs; omega))
+  · by_cases hpr : p ∈ rs
+    · exact hr p hpr hp
+    · exact absurd (hsq p hp hpq hp3 hpr) hv
+
+/-- The family of the parameters from the hypotheses of `ExcessS1`: exponent 6 at 3, one
+further prime `r` of exponent 4 if it divides `N`, every other prime factor except `q` of
+exponent 2. -/
+theorem famV_S1 {P : Params} (hV : P.V3 = 6) (hE : 2 ≤ P.E) {N q r : ℕ} (h : OddPerfect N)
+    (hq : q.Prime) (hodd : Odd (N.factorization q)) (h3 : N.factorization 3 = 6)
+    (hr : r ∈ N.primeFactors → N.factorization r = 4)
+    (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ 3 → p ≠ r → N.factorization p = 2) :
+    FamV P N q :=
+  famV_of_named [r] (by simp [hV]; omega) (by omega) h hq hodd (h3.trans hV.symm)
+    (fun r' hr' => by simp only [List.mem_singleton] at hr'; subst hr'; exact hr)
+    fun p hp hpq hp3 hpr => hsq p hp hpq hp3 (by simpa using hpr)
+
+/-- The family of the parameters from the hypotheses of `ExcessS2a`: exponent 4 at 3, two
+further primes of exponent 4 if they divide `N`, every other prime factor except `q` of
+exponent 2. -/
+theorem famV_S2a {P : Params} (hV : P.V3 = 4) (hE : 3 ≤ P.E) {N q r₁ r₂ : ℕ}
+    (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization q))
+    (h3 : N.factorization 3 = 4) (hr₁ : r₁ ∈ N.primeFactors → N.factorization r₁ = 4)
+    (hr₂ : r₂ ∈ N.primeFactors → N.factorization r₂ = 4)
+    (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ 3 → p ≠ r₁ → p ≠ r₂ → N.factorization p = 2) :
+    FamV P N q :=
+  famV_of_named [r₁, r₂] (by simp [hV]; omega) (by omega) h hq hodd (h3.trans hV.symm)
+    (fun r' hr' => by
+      simp only [List.mem_cons, List.not_mem_nil, or_false] at hr'
+      rcases hr' with rfl | rfl
+      · exact hr₁
+      · exact hr₂)
+    fun p hp hpq hp3 hpr => by
+      simp only [List.mem_cons, List.not_mem_nil, or_false, not_or] at hpr
+      exact hsq p hp hpq hp3 hpr.1 hpr.2
+
+/-- The family of the parameters from the hypotheses of `ExcessS2b`: exponent 2 at 3, three
+primes of exponent 4 if they divide `N`, every other prime factor except `q` of exponent 2. -/
+theorem famV_S2b {P : Params} (hV : P.V3 = 2) (hE : 3 ≤ P.E) {N q r₁ r₂ r₃ : ℕ}
+    (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization q))
+    (h3 : N.factorization 3 = 2) (hr₁ : r₁ ∈ N.primeFactors → N.factorization r₁ = 4)
+    (hr₂ : r₂ ∈ N.primeFactors → N.factorization r₂ = 4)
+    (hr₃ : r₃ ∈ N.primeFactors → N.factorization r₃ = 4)
+    (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r₁ → p ≠ r₂ → p ≠ r₃ → N.factorization p = 2) :
+    FamV P N q :=
+  famV_of_named [r₁, r₂, r₃] (by simp [hV]; omega) (by omega) h hq hodd (h3.trans hV.symm)
+    (fun r' hr' => by
+      simp only [List.mem_cons, List.not_mem_nil, or_false] at hr'
+      rcases hr' with rfl | rfl | rfl
+      · exact hr₁
+      · exact hr₂
+      · exact hr₃)
+    fun p hp hpq _ hpr => by
+      simp only [List.mem_cons, List.not_mem_nil, or_false, not_or] at hpr
+      exact hsq p hp hpq hpr.1 hpr.2.1 hpr.2.2
 
 /-- The bridge for one named exception. -/
 theorem fam_one {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization q))
@@ -1564,6 +1702,13 @@ end OddPerfect
 #print axioms OddPerfect.TwoExcEngine.abundant_false
 #print axioms OddPerfect.TwoExcEngine.go_sound
 #print axioms OddPerfect.TwoExcEngine.check_sound
+#print axioms OddPerfect.TwoExcEngine.checkV_sound
+#print axioms OddPerfect.TwoExcEngine.fam_of_famV
+#print axioms OddPerfect.TwoExcEngine.lan_spec
+#print axioms OddPerfect.TwoExcEngine.famV_of_named
+#print axioms OddPerfect.TwoExcEngine.famV_S1
+#print axioms OddPerfect.TwoExcEngine.famV_S2a
+#print axioms OddPerfect.TwoExcEngine.famV_S2b
 #print axioms OddPerfect.TwoExcEngine.fam_of_named
 #print axioms OddPerfect.TwoExcEngine.fam_one
 #print axioms OddPerfect.TwoExcEngine.fam_two

@@ -1,10 +1,12 @@
 import OddPerfect.Pratt
 
 /-!
-# A certificate checker for the family "at most E exceptional primes, exponent 2 at 3": code
+# A certificate checker for families "at most E exceptional primes, fixed exponent at 3": code
 
 This module holds only the computable part of the engine: the search state, the certificate
-term and the Boolean checker `go`/`check`. It imports nothing but `OddPerfect.Pratt`, so that
+term and the Boolean checkers `go`, `check` (exponent 2 at 3) and `checkV` (exponent `V3` at
+3 given by the parameters, with `3` an exception of exact exponent `V3` when `V3 ≠ 2`, and
+every other exception of exponent exactly 4 when `e4`). It imports nothing but `OddPerfect.Pratt`, so that
 data modules that only evaluate the checker load quickly. The meaning of a state and the
 soundness theorem live in later modules. The engine is a tool: an accepted certificate refutes
 exactly the states it is run on, nothing more.
@@ -46,14 +48,22 @@ namespace OddPerfect
 namespace TwoExcEngine
 
 /-- Checker parameters, read from the certificate header: the number `E` of allowed
-exceptions, the enumeration limit `MHIT`, the exponent cap `KCAP`, and whether the landed facts
-on the special prime and rule L are used. -/
+exceptions, the enumeration limit `MHIT`, the exponent cap `KCAP`, whether the landed facts
+on the special prime and rule L are used, the exponent `V3` of 3, and whether every exception
+has exponent exactly 4 (`e4`). The defaults `V3 = 2` and `e4 = false` give the family with
+exponent 2 at 3 and exceptions of any admissible exponent. When `V3 ≠ 2` the prime 3 is an
+exception key of exact exponent `V3`, so it counts towards `E`. -/
 structure Params where
   E : ℕ
   MHIT : ℕ
   KCAP : ℕ
   landed : Bool
+  V3 : ℕ := 2
+  e4 : Bool := false
   deriving DecidableEq, Repr
+
+/-- The landed facts are used: they need exponent 2 at 3. -/
+def Params.lan (P : Params) : Bool := P.landed && P.V3 == 2
 
 /-- The role of a key: a square prime, or a free prime with its exponent data. -/
 inductive Role where
@@ -295,15 +305,17 @@ def csOf (f : ℕ) (pend : List (ℕ × ℕ × ℕ)) : List (ℕ × ℕ) :=
 
 /-- The admissible roles of a prime `f` that divides `N` and is not a key (section 4 of the
 format): square; the special prime classes when it is undecided; the exception classes while
-fewer than `E` exceptions are listed. -/
+fewer than `E` exceptions are listed (when `e4`, the single class of exponent exactly 4 for every
+prime other than 3; the prime 3 keeps the general classes, since its exponent is `V3`). -/
 def rolesOf (P : Params) (ks : List Key) (f : ℕ) : List Role :=
   [.sq] ++
-  (if !qDec ks && f % 4 == 1 && (!P.landed || (f != 5 && f % 9 != 8)) then
+  (if !qDec ks && f % 4 == 1 && (!P.lan || (f != 5 && f % 9 != 8)) then
     (if f % 3 == 1 then [.fr true 2 true 1 false, .fr true 6 false 5 false]
-     else [.fr true 2 P.landed 1 false])
+     else [.fr true 2 P.lan 1 false])
    else []) ++
   (if nexc ks < P.E then
-    (if f % 3 == 1 then [.fr false 1 true 4 false, .fr false 3 false 8 false]
+    (if P.e4 && f != 3 then [.fr false 5 true 4 true]
+     else if f % 3 == 1 then [.fr false 1 true 4 false, .fr false 3 false 8 false]
      else [.fr false 1 false 4 false])
    else [])
 
@@ -360,7 +372,7 @@ def LSET : List ℕ := [7, 13, 19, 31, 61, 97, 127, 331]
 /-- Rule L fails: every listed exception in L has `3 ∣ D`, and either the exceptions are
 complete or every prime of L is below `x` or a key. -/
 def landedLB (P : Params) (ks : List Key) (x : ℕ) : Bool :=
-  P.landed && decide (P.E ≤ 2) &&
+  P.lan && decide (P.E ≤ 2) &&
     LSET.all (fun p => match findKey p ks with
       | some ⟨_, .fr false D _ _ _, _⟩ => D % 3 == 0
       | _ => true) &&
@@ -484,13 +496,13 @@ def alphaOK (k B : ℕ) : List ℕ → List ℕ → Bool
 
 /-- The rational part of a deficient leaf: the witnesses, `S < 1` and `U < 2`, given the hit
 product `(hn, hd)`. -/
-def tailOK (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (cs3 : List (ℕ × ℕ))
+def tailOK (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (b3 : ℕ) (cs3 : List (ℕ × ℕ))
     (hn hd : ℕ) : Bool :=
   let k := dd.k
   let B := dd.B
   let a := if qDec ks then 0 else 1
   let b := P.E - nexc ks
-  let c := 2 - csum cs3
+  let c := b3 - csum cs3
   let d := dCap ks + 2 * c
   let u := a + b
   let L := x * x + x + 1
@@ -517,13 +529,23 @@ def tailOK (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (cs3 : List (�
     decide (Sn < Sd) &&
     decide (H.1 * x ^ u * L ^ cd * hn * Sd < 2 * (H.2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn)))
 
+/-- The budget of 3, its exponent, read from its role: 2 for a square, `kmin` for an exact
+exception; none otherwise. -/
+def budget3 : Role → Option ℕ
+  | .sq => some 2
+  | .fr false _ _ kmin true => some kmin
+  | _ => none
+
 /-- The deficient leaf at `x` (rule 6 with the tail bound). -/
 def deficientB (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) : Bool :=
   match findKey 3 ks with
-  | some ⟨_, .sq, cs3⟩ =>
-    match enumG P.MHIT (visit ks x dd.comps) (genK ks) 1 (true, 1, 1) with
-    | (ok, hn, hd) => ok && tailOK P ks x dd cs3 hn hd
-  | _ => false
+  | some ⟨_, r3, cs3⟩ =>
+    match budget3 r3 with
+    | some b3 =>
+      match enumG P.MHIT (visit ks x dd.comps) (genK ks) 1 (true, 1, 1) with
+      | (ok, hn, hd) => ok && tailOK P ks x dd b3 cs3 hn hd
+    | none => false
+  | none => false
 
 /-! ## The checker -/
 
@@ -613,9 +635,25 @@ def go (P : Params) (pr : ℕ → Bool) (done : List Key → ℕ → Bool) : Ctx
 /-- The root state: `3` is a square key with no contributions, and `x = 5` (`2 ∤ N`). -/
 def rootKeys : List Key := [⟨3, .sq, []⟩]
 
-/-- Check a certificate from the root record (the row of `3`, component `3`). -/
+/-- Check a certificate from the root record (the row of `3`, component `3`), for the family
+with exponent 2 at 3 and no exponent condition on the exceptions. -/
 def check (P : Params) (pr : ℕ → Bool) (done : List Key → ℕ → Bool) (c : Cert) : Bool :=
-  go P pr done (.apply rootKeys 5 [] 3) c
+  (P.V3 == 2 && !P.e4) && go P pr done (.apply rootKeys 5 [] 3) c
+
+/-- The role of 3 at the root: a square when `V3 = 2`, otherwise an exception key of exact
+exponent `V3`. -/
+def root3 (P : Params) : Role := cond (P.V3 == 2) .sq (.fr false (P.V3 + 1) false P.V3 true)
+
+/-- The root state for the parameters `P`: `3` is a key with the role `root3 P` and no
+contributions. -/
+def rootKeysV (P : Params) : List Key := [⟨3, root3 P, []⟩]
+
+/-- The admissible exponents of 3: `2`, or an even number at least 4. -/
+def paramsOK (P : Params) : Bool := P.V3 == 2 || (P.V3 % 2 == 0 && Nat.ble 4 P.V3)
+
+/-- Check a certificate from the root record for the parameters `P`, any admissible `V3`. -/
+def checkV (P : Params) (pr : ℕ → Bool) (done : List Key → ℕ → Bool) (c : Cert) : Bool :=
+  paramsOK P && go P pr done (.apply (rootKeysV P) 5 [] 3) c
 
 /-! ## A primality table -/
 
