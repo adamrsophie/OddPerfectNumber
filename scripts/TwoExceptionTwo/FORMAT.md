@@ -69,7 +69,8 @@ Sources:
 ## 3. Records (JSON lines)
 
 Every line has an `id` and a `kind`. Line 0 is the header: `root` (id of the root record),
-`EMAX`, `flags` (the flags of the run of `search.py`, `["cert"]`), `MHIT` = 10^30, `DMAX` = 300,
+`EMAX`, `flags` (the flags of the run of `search.py`: `["cert"]` for the published certificate,
+`["cert", "pade"]` for a run with the flag `pade`, see rule 6), `MHIT` = 10^30, `DMAX` = 300,
 `KCAP` = 64. These three constants are fixed in `search.py`; a checker must still read them
 from the header and not assume them. Everywhere below, "KCAP", "DMAX" and "MHIT" mean the
 header values. Lines are not ordered. Children are referenced by id. A record whose `outcome` is
@@ -291,13 +292,19 @@ The values of a free class are Φ_d(f) for d | D, d > 1, d ≤ DMAX. The `roles`
    undecided odd prime ≡ 2 (mod 3) ≥ x.
 
    The remaining rows of type (e) form the set T of `TAIL_BOUND.md`. Each has a factor
-   from P, or n_t ≥ MHIT. That statement bounds ∏_{t∈T} n_t/t² ≤ 1/(1 − S), with
-   S = ((x+1)/x)² · R and R = m_L·G·((1 − α_x)^{−u} − 1) + m_M·G, where G = ∏_{g∈K} 1/(1 − α_g).
-   The leaf requires S < 1 and U < 2, where
+   from P, or n_t ≥ MHIT. That statement bounds ∏_{t∈T} n_t/t² ≤ 1/(1 − S) when S < 1 and
+   ∏_{t∈T} n_t/t² ≤ (S² + 4S + 6)/(6 − 2S) when S < 3, with S = ((x+1)/x)² · R and
+   R = m_L·G·((1 − α_x)^{−u} − 1) + m_M·G, where G = ∏_{g∈K} 1/(1 − α_g). With
 
-   U = H · (x/(x−1))^{a+b+extra_ab} · ((x²+x+1)/x²)^{c+d+extra_cd} · ∏_hits n/t² / (1 − S)
+   U0 = H · (x/(x−1))^{a+b+extra_ab} · ((x²+x+1)/x²)^{c+d+extra_cd} · ∏_hits n/t²
 
-   and H = hi of the leaf's state. `extra_ab` and `extra_cd` are nonnegative integers that
+   and H = hi of the leaf's state, the leaf requires U < 2 for one of two paths, tested in this
+   order: the old path, S < 1 and U = U0/(1 − S); or else the Padé path, S < 3 and
+   U = U0 · (S² + 4S + 6)/(6 − 2S). The second factor is at most the first for 0 ≤ S < 1, so the
+   Padé path accepts every leaf the old path accepts and some more. The published certificate
+   is written without the flag `pade`, and `search.py` then closes a leaf only by the old path;
+   with the flag it also closes a leaf by the Padé path and writes that U. The checkers try
+   both paths whatever the flags. `extra_ab` and `extra_cd` are nonnegative integers that
    only weaken the bound; `search.py` always writes 0 for both.
 
    If K is empty and u = 0, the proof has S = "0" and no `rankin`, `generated` or `nonhits`
@@ -362,7 +369,7 @@ The values of a free class are Φ_d(f) for d | D, d > 1, d ≤ DMAX. The `roles`
   rule 8.
 * **Deficient.** Recompute H, a, b, c, d, K and u from the state. Enumerate the generated
   values, check `generated`, the hits and each nonhit reason. Check the rational witnesses, R,
-  S < 1 and U < 2 exactly.
+  and U < 2 exactly by the old path (S < 1) or the Padé path (S < 3) of rule 6.
 * **Abundant.** Each divisor exponent is 2 for a square prime and between 1 and kmin for a free
   prime. The ratio of the divisor equals the stored ratio, which equals lo and exceeds 2.
 

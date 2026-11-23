@@ -15,18 +15,20 @@ their prime and as allowed. Every leaf is recomputed from its core state: budget
 valuations of sigma of every listed component (not from the stored contribution lists), absent
 forced primes, abundant divisors, rule L, receipt leaves without a feasible sender, and every
 deficient leaf with exact rational arithmetic (its own a, b, c, d, K, u, H, its own enumeration
-of the hits, its own Rankin witnesses, S < 1 and U < 2). The values and factor lists of every
-record are recomputed; the stored contribution lists, slots, hits and bounds are compared as
-hints, and a stored value that would weaken the argument is an error.
+of the hits, its own Rankin witnesses, and U < 2 either with S < 1 and the tail factor
+1/(1 - S), or else with S < 3 and the tail factor (S^2 + 4 S + 6)/(6 - 2 S)). The values and
+factor lists of every record are recomputed; the stored contribution lists, slots, hits and
+bounds are compared as hints, and a stored value that would weaken the argument is an error.
 
 What it does not check: the tail bound statement itself (TAIL_BOUND.md; its Lean counterpart is
-in OddPerfect/RankinTailGeneral.lean) and the rules of FORMAT.md, which it takes as given; the
-landed theorems behind rule L and the q rules; the fields `generated` and `nonhits` with their
-composite witnesses (it enumerates the hits itself instead); the header values DMAX and KCAP (it
-does not need them). It also does not follow the bookkeeping of section 3.1 of FORMAT.md that
-soundness does not need: the order of the items, the order in which the outcomes are tested,
-and that the forced prime is the least pending one (it checks that the forced prime is an odd
-prime at least x, unlisted, and dividing a guaranteed component value).
+in OddPerfect/RankinTailGeneral.lean and OddPerfect/RankinTailPade.lean) and the rules of
+FORMAT.md, which it takes as given; the landed theorems behind rule L and the q rules; the
+fields `generated` and `nonhits` with their composite witnesses (it enumerates the hits itself
+instead); the header values DMAX and KCAP (it does not need them). It also does not follow the
+bookkeeping of section 3.1 of FORMAT.md that soundness does not need: the order of the items,
+the order in which the outcomes are tested, and that the forced prime is the least pending one
+(it checks that the forced prime is an odd prime at least x, unlisted, and dividing a guaranteed
+component value).
 Primality is by a Miller Rabin test with the first thirteen prime bases, exact below
 3.3 * 10^24 (larger numbers raise an error); the certificate needs it only below 2^64.
 
@@ -858,12 +860,21 @@ class Checker:
         mM = Fr(iroot(M, k) + 1, isqrt(M))
         R = mL * G * ((1 / (1 - ax)) ** u - 1) + mM * G
         Sb = Fr((x + 1) ** 2, x * x) * R
-        if not Sb < 1:
-            self.err(rid, "S >= 1")
+        if not Sb < 3:
+            self.err(rid, "S >= 3")
             return
-        U = H * Fr(x, x - 1) ** (a + b) * Fr(L, x * x) ** (c + d) * hitfac / (1 - Sb)
-        if not U < 2:
-            self.err(rid, "U = %s >= 2 (cert U %s)" % (float(U), pf.get("U")))
+        # the old path (S < 1, tail product at most 1/(1 - S)) first, then the Pade path
+        # (S < 3, tail product at most (S^2 + 4 S + 6)/(6 - 2 S)), as in the Lean checker
+        U0 = H * Fr(x, x - 1) ** (a + b) * Fr(L, x * x) ** (c + d) * hitfac
+        U = U0 / (1 - Sb) if Sb < 1 else None
+        if U is None or not U < 2:
+            Up = U0 * (Sb ** 2 + 4 * Sb + 6) / (6 - 2 * Sb)
+            if Up < 2:
+                self.pade_leaves = getattr(self, "pade_leaves", 0) + 1
+            else:
+                self.err(rid, "U >= 2 on both paths: old %s, Pade %s (cert U %s)"
+                         % (None if U is None else float(U), float(Up), pf.get("U")))
+            U = Up
         if "U" in pf and Fr(pf["U"]) != U:
             self.hint_mismatch["deficient U"] += 1
             if Fr(pf["U"]) < U:
@@ -902,6 +913,8 @@ def main():
     if hasattr(rp, "max_U"):
         print("max U over deficient leaves", float(rp.max_U), "at record", rp.max_U_rid,
               "(x, a, b, c, d, K, u, k, S) =", rp.max_U_info)
+    if hasattr(rp, "pade_leaves"):
+        print("deficient leaves accepted by the Pade path only", rp.pade_leaves)
     print("max x", rp.max_x)
     print("time %.1f s" % dt)
     print("VERDICT", "PASS" if not rp.errors else "FAIL")

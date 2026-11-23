@@ -2,7 +2,8 @@
 
 This is the single statement that every `deficient` leaf of the certificate (`cert.jsonl.xz`,
 format in `FORMAT.md`) instantiates. Its Lean counterpart is `rankin_tail_general` with
-`prod_fv_le_of_rankin_tail_general` in `OddPerfect/RankinTailGeneral.lean` (with the hypotheses
+`prod_fv_le_of_rankin_tail_general` in `OddPerfect/RankinTailGeneral.lean` and
+`prod_fv_le_of_rankin_tail_general_pade` in `OddPerfect/RankinTailPade.lean` (with the hypotheses
 on the rows stated through their prime factors), used through `defSound` of
 `OddPerfect/TwoExcEngineTail.lean`; the text below is the specification the search follows. All hypotheses are rational or integral; no real root
 appears. The hits and the bounded slots (a, b, c, d) are outside the statement (section 3).
@@ -32,7 +33,7 @@ Define
     R = m_L · G · ((1 − α_x)^{−u} − 1) + m_M · G,
     S = ((x + 1)/x)² · R.
 
-* (H5) S < 1.
+* (H5) S < 1 (old form) or S < 3 (Padé form).
 
 **Rows.** Let T be a finite set of integers t ≥ x, and write n_t = t² + t + 1.
 
@@ -42,7 +43,8 @@ Define
 
 **Conclusion.**
 
-    ∏_{t ∈ T} n_t / t² ≤ 1/(1 − S).
+    ∏_{t ∈ T} n_t / t² ≤ 1/(1 − S)                  (old form, S < 1),
+    ∏_{t ∈ T} n_t / t² ≤ (S² + 4S + 6)/(6 − 2S)     (Padé form, S < 3).
 
 ## 2. Proof sketch (natural powers only)
 
@@ -61,7 +63,8 @@ Define
    This equals G · ((1 − α_x)^{−|P|} − 1) ≤ G · ((1 − α_x)^{−u} − 1). Similarly
    Σ_{(B)} ∏ α_g^{e_g} ≤ G. These are geometric series, since all α < 1. So Σ_{t∈T} y_t ≤ S.
 6. **Conclusion.** n_t/t² = 1 + y_t, and ∏ (1 + y) ≤ ∏ 1/(1 − y) ≤ 1/(1 − Σ y) for y ≥ 0 with
-   Σ y < 1.
+   Σ y < 1. For the Padé form, `prod_one_add_le_pade21` (`OddPerfect/ProductBound.lean`) gives
+   ∏ (1 + y) ≤ (s² + 4s + 6)/(6 − 2s) for y ≥ 0 and Σ y ≤ s < 3, by induction on T.
 
 ## 3. How a deficient leaf instantiates it
 
@@ -86,7 +89,10 @@ not hits.
 **The leaf inequality.** The leaf combines the statement with factors outside it:
 
     σ(N)/N < H · (x/(x−1))^{a+b} · ((x²+x+1)/x²)^{c+d} · ∏_{hits} n/t² · ∏_{t∈T} n_t/t²
-           ≤ U = H · (x/(x−1))^{a+b} · ((x²+x+1)/x²)^{c+d} · ∏_{hits} n/t² / (1 − S) < 2.
+           ≤ U = H · (x/(x−1))^{a+b} · ((x²+x+1)/x²)^{c+d} · ∏_{hits} n/t² · V < 2,
+
+with V = 1/(1 − S) (old path, S < 1) or, when that U is not below 2,
+V = (S² + 4S + 6)/(6 − 2S) (Padé path, S < 3).
 
 The factors outside the statement are:
 
@@ -102,8 +108,8 @@ The bound contradicts σ(N)/N = 2.
 The Python mirror of the Lean checker in `engine.py` checks, for each of the 707 `deficient`
 leaves, (H1) to (H5) with the stored rationals, recomputes G, R and S from them, and checks that
 U < 2 for the product of section 3, as the Lean checker does; `check.py` recomputes the
-witnesses itself from the definitions of `FORMAT.md` rule 6 and checks S < 1 and U < 2. Both
-accept all 707 leaves. (H6) is not checked by a script; it follows from the argument in section
+witnesses itself from the definitions of `FORMAT.md` rule 6 and checks U < 2 by one of the two
+paths. Both accept all 707 leaves, each by the old path. (H6) is not checked by a script; it follows from the argument in section
 3 and from the enumeration of the hits.
 
 * Every leaf is in mode `theta`. extra_ab = extra_cd = 0, M = max(L, 10^30) and k ≥ 3.

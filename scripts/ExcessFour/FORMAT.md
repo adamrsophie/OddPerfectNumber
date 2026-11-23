@@ -22,6 +22,9 @@ has exponent exactly 2. The tree claims that no such N exists.
 The header has three more fields: `FAM` (`S1`, `S2a` or `S2b`), `V3` and `EMAX` (the number of
 primes of exponent 4 other than 3). `flags` holds `nolanded` always, `ruleL` for S2b, `cert`,
 and `nojump` for S1 and S2a (a name only: `search.py` has no step that this flag switches off).
+A run with the flag `pade` (no published certificate) also records `pade`: the search may then
+close a deficient leaf by the Padé path of the tail test (`../TwoExceptionTwo/FORMAT.md`,
+rule 6); the pure q bound keeps 1/(1 − S).
 `MHIT`, `DMAX` and `KCAP` are as in the two exception format.
 
 ## 3. The prime 3 and the root
@@ -67,5 +70,5 @@ deficient leaf.
   of the Rankin part trivially (k = 24, B = 10^6, r_x = B + 1, m_L = 1, m_M = 10^−13), so S is
   below 10^−12 in the checker. Its d has no term for undecided exceptions; none exists in these
   leaves.
-* The flags `nojump` and `ruleL` are only checked for being allowed: the checker runs with the
+* The flags `nojump`, `ruleL` and `pade` are only checked for being allowed: the checker runs with the
   landed facts off and would reject a `landedL` leaf.

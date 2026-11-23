@@ -465,7 +465,6 @@ def deficient(P, st, dd):
     t2n = mM[0] * Gn; t2d = mM[1] * Gd
     Rn = t1n * t2d + t2n * t1d; Rd = t1d * t2d
     Sn = (x + 1) ** 2 * Rn; Sd = x * x * Rd
-    req(Sn < Sd, 'S<1')
     # hits by enumeration
     hn, hd = 1, 1
     compd = dict(comps)
@@ -505,9 +504,18 @@ def deficient(P, st, dd):
         else:
             Hn *= p; Hd *= p - 1
     cd = c + d
-    Un = Hn * x ** u * L ** cd * hn * Sd
-    Ud = Hd * (x - 1) ** u * x ** (2 * cd) * hd * (Sd - Sn)
-    req(Un < 2 * Ud, 'U<2')
+    # the final test of tailOK: the old path (S < 1 and U0/(1 - S) < 2), then the Pade path
+    # (S < 3 and U0 (S^2 + 4 S + 6)/(6 - 2 S) < 2), with S = Sn/Sd, both cross multiplied
+    Un0 = Hn * x ** u * L ** cd * hn
+    Ud0 = Hd * (x - 1) ** u * x ** (2 * cd) * hd
+    old = Sn < Sd and Un0 * Sd < 2 * (Ud0 * (Sd - Sn))
+    if not old:
+        COUNT['pade_tested'] += 1
+        pade = (Sn < 3 * Sd and Un0 * (Sn ** 2 + 4 * Sn * Sd + 6 * Sd ** 2)
+                < 2 * (Ud0 * (6 * Sd ** 2 - 2 * Sn * Sd)))
+        req(pade, 'U<2 fails on both paths: old (S<1, U0/(1-S)<2) and Pade '
+            '(S<3, U0(S^2+4S+6)/(6-2S)<2)')
+        COUNT['pade_accepted'] += 1
     return True
 
 class Mirror:
@@ -627,12 +635,15 @@ def params(hdr):
         # search_ex.py: exponent V3 at 3, at most EMAX further exceptions, each of exponent 4.
         # For V3 != 2 the prime 3 is an exception key too, so E = EMAX + 1.
         flags = set(hdr['flags'])
-        if not flags <= {'cert', 'nojump', 'nolanded', 'ruleL'} or 'nolanded' not in flags:
+        if (not flags <= {'cert', 'nojump', 'nolanded', 'ruleL', 'pade'}
+                or 'nolanded' not in flags):
             raise ValueError('unexpected flags %r' % (hdr['flags'],))
         V3 = hdr['V3']
         return {'E': hdr['EMAX'] + (0 if V3 == 2 else 1), 'MHIT': hdr['MHIT'], 'KCAP': hdr['KCAP'],
                 'landed': False, 'V3': V3, 'e4': True}
-    if hdr.get('flags') != ['cert']:
+    # the flag pade of search.py changes only which leaves the search closes; the checker
+    # always tries both paths of the tail test
+    if hdr.get('flags') not in (['cert'], ['cert', 'pade']):
         raise ValueError('not a header of search.py: %r' % (hdr,))
     return {'E': hdr['EMAX'], 'MHIT': hdr['MHIT'], 'KCAP': hdr['KCAP'], 'landed': True,
             'V3': 2, 'e4': False}

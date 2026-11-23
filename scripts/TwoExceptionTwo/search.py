@@ -12,8 +12,12 @@
 # receiver) or by the tail bound of a deficient leaf. The format of the certificate and every
 # rule are in FORMAT.md.
 #
-# Run: python3 -I search.py EMAX LIMIT [cert]
+# Run: python3 -I search.py EMAX LIMIT [cert] [pade]
 #   the landed certificate: python3 -I search.py 2 100000 cert
+#   The flag pade (off by default; no landed certificate uses it) lets a deficient leaf close
+#   by the second path of the Lean tail test: when S < 1 and U < 2 with the tail factor
+#   1/(1 - S) fail, S < 3 and U < 2 with the factor (S^2 + 4 S + 6)/(6 - 2 S). It adds `pade`
+#   to the header flags and `_pade` to the file names.
 #   writes cert_e<EMAX>_<LIMIT>.jsonl (with cert) and result_e<EMAX>_<LIMIT>.json in the current
 #   folder and prints the summary; a branch whose scan passes LIMIT is left open (none is for the
 #   landed arguments). With EMAX = 2, LIMIT = 100000 the certificate is cert.jsonl.xz of this
@@ -34,13 +38,14 @@ from fractions import Fraction as F
 from math import isqrt, gcd
 from sympy import factorint, isprime, nextprime, n_order, divisors, mobius, primerange
 
-USAGE = 'usage: python3 -I search.py EMAX LIMIT [cert]'
-if len(sys.argv) < 3 or any(f != 'cert' for f in sys.argv[3:]):
+USAGE = 'usage: python3 -I search.py EMAX LIMIT [cert] [pade]'
+if len(sys.argv) < 3 or any(f not in ('cert', 'pade') for f in sys.argv[3:]):
     print(USAGE); sys.exit(2)
 EMAX = int(sys.argv[1]); LIMIT = int(sys.argv[2])
 FLAGS = set(sys.argv[3:])
 CERT = 'cert' in FLAGS
-TAG = 'e%d_%d' % (EMAX, LIMIT)
+PADE = 'pade' in FLAGS     # the Pade path of the tail test (off by default)
+TAG = 'e%d_%d' % (EMAX, LIMIT) + ('_pade' if PADE else '')
 L8 = (7, 13, 19, 31, 61, 97, 127, 331)
 B64 = 2**64
 MHIT = 10**30     # bound of the enumerated products of the tail bound
@@ -387,6 +392,15 @@ def rankin(K, u, x, want=False):
               'L': L, 'M': max(L, MHIT), 'R': fstr(term)}
     return best[0], pr
 
+def tail_factor(U0, S):
+    """U0 times the bound of the tail product as the Lean checker tests it (tailOK): the old path
+    1/(1 - S) when S < 1 and it gives U < 2; otherwise, with the flag pade and S < 3, the Pade
+    path (S^2 + 4 S + 6)/(6 - 2 S); None when no path applies (S >= 1 without the flag)."""
+    if S < 1 and U0 / (1 - S) < 2: return U0 / (1 - S)
+    if PADE and S < 3: return U0 * (S * S + 4 * S + 6) / (6 - 2 * S)
+    if S < 1: return U0 / (1 - S)
+    return None
+
 def upper(s, x, hi, want=False):
     a = 1 if s.q is None else 0
     b = EMAX - nexc(s)
@@ -430,8 +444,8 @@ def upper(s, x, hi, want=False):
     R, rp = rankin(K, u, x, want)
     if R is None: return None, None
     S = R * F((x + 1)**2, x*x)
-    if S >= 1: return None, None
-    U = U / (1 - S)
+    U = tail_factor(U, S)
+    if U is None: return None, None
     if want: pr['rankin'] = rp; pr['S'] = fstr(S); pr['U'] = fstr(U)
     return U, pr
 

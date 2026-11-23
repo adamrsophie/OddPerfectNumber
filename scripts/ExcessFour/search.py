@@ -19,7 +19,7 @@
 # of FORMAT.md). The format of the certificates is ../TwoExceptionTwo/FORMAT.md with the changes
 # in FORMAT.md of this folder.
 #
-# Run: python3 -I search.py FAM LIMIT [cert] [nojump]
+# Run: python3 -I search.py FAM LIMIT [cert] [nojump] [pade]
 #   the three certificates of the library:
 #     python3 -I search.py S1 100000 cert nojump    writes cert_ex_S1_100000_nojump_nolanded.jsonl
 #     python3 -I search.py S2a 100000 cert nojump   writes cert_ex_S2a_100000_nojump_nolanded.jsonl
@@ -28,8 +28,12 @@
 #   flags: those given, `nolanded` always and `ruleL` for S2b. The flag `nojump` changes nothing
 #   in this script but the header and the file name: it switched off a step that skipped a range
 #   of primes, which no certificate of the library uses, which the checker does not read, and
-#   which is not part of this script. A branch whose scan passes LIMIT is left open (exit status
-#   1); none is for these arguments.
+#   which is not part of this script. The flag `pade` (off by default; no certificate of the
+#   library uses it) lets a deficient leaf close by the second path of the Lean tail test: when
+#   S < 1 and U < 2 with the tail factor 1/(1 - S) fail, S < 3 and U < 2 with the factor
+#   (S^2 + 4 S + 6)/(6 - 2 S); the pure q bound (field `pureq`) keeps 1/(1 - S). Like every
+#   flag it is recorded in the header and the file name. A branch whose scan passes LIMIT is
+#   left open (exit status 1); none is for these arguments.
 # Requires: Python 3 and sympy (factorint, isprime, nextprime, n_order, divisors, mobius,
 #   primerange; checked with sympy 1.14.0). Factoring is by sympy factorint for values below 2^64
 #   and for the cofactor left after trial division by the odd primes below 20000 when a value is
@@ -43,9 +47,9 @@ from fractions import Fraction as F
 from math import isqrt, gcd
 from sympy import factorint, isprime, nextprime, n_order, divisors, mobius, primerange
 
-USAGE = 'usage: python3 -I search.py FAM LIMIT [cert] [nojump]   (FAM is S1, S2a or S2b)'
+USAGE = 'usage: python3 -I search.py FAM LIMIT [cert] [nojump] [pade]   (FAM is S1, S2a or S2b)'
 if (len(sys.argv) < 3 or sys.argv[1] not in ('S1', 'S2a', 'S2b')
-        or any(f not in ('cert', 'nojump') for f in sys.argv[3:])):
+        or any(f not in ('cert', 'nojump', 'pade') for f in sys.argv[3:])):
     print(USAGE); sys.exit(2)
 FAM = sys.argv[1]; LIMIT = int(sys.argv[2])
 V3, EMAX = {'S1': (6, 1), 'S2a': (4, 2), 'S2b': (2, 3)}[FAM]
@@ -54,6 +58,7 @@ FLAGS = set(sys.argv[3:]) | {'nolanded'}
 if FAM == 'S2b': FLAGS.add('ruleL')
 RULEL = 'ruleL' in FLAGS   # rule L (false_of_three_sq_of_index_three) for S2b only
 CERT = 'cert' in FLAGS
+PADE = 'pade' in FLAGS     # the Pade path of the tail test (off by default)
 TAG = 'ex_%s_%d%s' % (FAM, LIMIT, ''.join('_' + f.replace('=', '') for f in sorted(FLAGS) if f != 'cert'))
 L8 = (7, 13, 19, 31, 61, 97, 127, 331)
 B64 = 2**64
@@ -400,6 +405,15 @@ def rankin(K, u, x, want=False):
               'L': L, 'M': max(L, MHIT), 'R': fstr(term)}
     return best[0], pr
 
+def tail_factor(U0, S):
+    """U0 times the bound of the tail product as the Lean checker tests it (tailOK): the old path
+    1/(1 - S) when S < 1 and it gives U < 2; otherwise, with the flag pade and S < 3, the Pade
+    path (S^2 + 4 S + 6)/(6 - 2 S); None when no path applies (S >= 1 without the flag)."""
+    if S < 1 and U0 / (1 - S) < 2: return U0 / (1 - S)
+    if PADE and S < 3: return U0 * (S * S + 4 * S + 6) / (6 - 2 * S)
+    if S < 1: return U0 / (1 - S)
+    return None
+
 def upper(s, x, hi, want=False):
     a = 1 if s.q is None else 0
     b = EMAX - nexc(s)
@@ -451,8 +465,8 @@ def upper(s, x, hi, want=False):
     R, rp = rankin(K, u, x, want)
     if R is None: return None, None
     S = R * F((x + 1)**2, x*x)
-    if S >= 1: return None, None
-    U = U / (1 - S)
+    U = tail_factor(U, S)
+    if U is None: return None, None
     if want: pr['rankin'] = rp; pr['S'] = fstr(S); pr['U'] = fstr(U)
     return U, pr
 

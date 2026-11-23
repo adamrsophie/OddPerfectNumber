@@ -1,5 +1,5 @@
 import OddPerfect.TwoExcEngineState
-import OddPerfect.RankinTailGeneral
+import OddPerfect.RankinTailPade
 
 /-!
 # Soundness of the deficient leaf of the two exception checker
@@ -41,11 +41,14 @@ perfect, `σ(N)/N = 2`, and this is the product of `σ(p^v)/p^v` over the prime 
   `K = genK ks`) or an element of `U`. If the row is a product of powers of `K` below `MHIT`,
   the enumeration visited it, found the square `4 n - 3 = (2 t + 1)^2` and counted `t` as a hit:
   the product over these `t` is at most `hn/hd`. Otherwise `t` lies in the set `T` of
-  `prod_fv_le_of_rankin_tail_general`, whose hypotheses are the checks of `tailOK`, so the
-  product over `T` is at most `1/(1 - S)`.
+  `rankin_tail_general`, whose hypotheses are the checks of `tailOK`. So the product over `T`
+  is at most `(S^2 + 4 S + 6)/(6 - 2 S)` when `S < 3` (`prod_fv_le_of_rankin_tail_general_pade`),
+  and hence at most `1/(1 - S)` when `0 ≤ S < 1` (`pade21_le_pade11`, `pade11_le_inv`).
 
-Hence `2 ≤ H (x/(x - 1))^u ((x^2 + x + 1)/x^2)^(c + d) (hn/hd)/(1 - S)`, and the last check of
-`tailOK` says that this bound is below 2.
+Hence `2 ≤ H (x/(x - 1))^u ((x^2 + x + 1)/x^2)^(c + d) (hn/hd) V` for either bound `V` of the
+product over `T` whose condition on `S` holds, and the last check of `tailOK` says that this
+bound is below 2 for one of them: the old path with `V = 1/(1 - S)` or the Padé path with
+`V = (S^2 + 4 S + 6)/(6 - 2 S)`.
 
 The enumeration needs no assumption on the parameters: running out of fuel sets the flag to
 false, so an accepting run has visited every product of the generators below `MHIT`.
@@ -998,14 +1001,21 @@ private theorem tailOK_spec {P : Params} {ks : List Key} {x : ℕ} {dd : DefData
     dd.B < dd.rx ∧ dd.rx ^ dd.k ≤ dd.B ^ dd.k * x ∧ 0 < dd.mL.2 ∧ 0 < dd.mM.2 ∧
     dd.mL.2 ^ (2 * dd.k) ≤ dd.mL.1 ^ (2 * dd.k) * (x * x + x + 1) ^ (dd.k - 2) ∧
     dd.mM.2 ^ (2 * dd.k) ≤ dd.mM.1 ^ (2 * dd.k) * (max (x * x + x + 1) P.MHIT) ^ (dd.k - 2) ∧
-    (sPair P ks x dd).1 < (sPair P ks x dd).2 ∧
-    (hiProd P ks).1 * x ^ uOf P ks * (x * x + x + 1) ^ cdOf ks b3 cs3 * hn * (sPair P ks x dd).2 <
-      2 * ((hiProd P ks).2 * (x - 1) ^ uOf P ks * x ^ (2 * cdOf ks b3 cs3) * hd *
-        ((sPair P ks x dd).2 - (sPair P ks x dd).1)) := by
+    (((sPair P ks x dd).1 < (sPair P ks x dd).2 ∧
+      (hiProd P ks).1 * x ^ uOf P ks * (x * x + x + 1) ^ cdOf ks b3 cs3 * hn *
+          (sPair P ks x dd).2 <
+        2 * ((hiProd P ks).2 * (x - 1) ^ uOf P ks * x ^ (2 * cdOf ks b3 cs3) * hd *
+          ((sPair P ks x dd).2 - (sPair P ks x dd).1))) ∨
+     ((sPair P ks x dd).1 < 3 * (sPair P ks x dd).2 ∧
+      (hiProd P ks).1 * x ^ uOf P ks * (x * x + x + 1) ^ cdOf ks b3 cs3 * hn *
+          ((sPair P ks x dd).1 ^ 2 + 4 * (sPair P ks x dd).1 * (sPair P ks x dd).2 +
+            6 * (sPair P ks x dd).2 ^ 2) <
+        2 * ((hiProd P ks).2 * (x - 1) ^ uOf P ks * x ^ (2 * cdOf ks b3 cs3) * hd *
+          (6 * (sPair P ks x dd).2 ^ 2 - 2 * (sPair P ks x dd).1 * (sPair P ks x dd).2)))) := by
   unfold tailOK at h
-  simp only [Bool.and_eq_true, decide_eq_true_eq] at h
-  obtain ⟨⟨⟨⟨⟨⟨⟨⟨⟨⟨⟨h1, h2⟩, h3⟩, h4⟩, h5⟩, h6⟩, h7⟩, h8⟩, h9⟩, h10⟩, h11⟩, h12⟩ := h
-  exact ⟨h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12⟩
+  simp only [Bool.and_eq_true, Bool.or_eq_true, decide_eq_true_eq] at h
+  obtain ⟨⟨⟨⟨⟨⟨⟨⟨⟨⟨h1, h2⟩, h3⟩, h4⟩, h5⟩, h6⟩, h7⟩, h8⟩, h9⟩, h10⟩, h11⟩ := h
+  exact ⟨h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11⟩
 
 private theorem S_eq (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (hx : 0 < x)
     (hB : dd.B < dd.rx) (hGd : 0 < (dd.rs.map (· - dd.B)).prod) (hmL : 0 < dd.mL.2)
@@ -1042,30 +1052,28 @@ private theorem S_eq (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (hx :
   generalize ((rx : ℚ)) ^ u = Q
   field_simp
 
-private theorem final_contra {H1 H2 x u cd hn hd Sn Sd : ℕ} (hx : 2 ≤ x) (hH2 : 0 < H2)
-    (hhd : 0 < hd) (hS : Sn < Sd)
-    (hlt : H1 * x ^ u * (x * x + x + 1) ^ cd * hn * Sd <
-      2 * (H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn)))
+/-- The final contradiction, for a bound `Vn/Vd` of the product over the tail. -/
+private theorem final_contra {H1 H2 x u cd hn hd Vn Vd : ℕ} (hx : 2 ≤ x) (hH2 : 0 < H2)
+    (hhd : 0 < hd) (hV : 0 < Vd)
+    (hlt : H1 * x ^ u * (x * x + x + 1) ^ cd * hn * Vn <
+      2 * (H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * Vd))
     (hprod : (2 : ℚ) ≤ (H1 : ℚ) / H2 * (((x : ℚ) / (x - 1)) ^ u * (fv x ^ cd *
-      ((hn : ℚ) / hd * (1 / (1 - (Sn : ℚ) / Sd)))))) : False := by
+      ((hn : ℚ) / hd * ((Vn : ℚ) / Vd))))) : False := by
   have hx' : (2 : ℚ) ≤ x := by exact_mod_cast hx
   have hx1 : (0 : ℚ) < x - 1 := by linarith
   have hx0 : (0 : ℚ) < x := by linarith
   have hH2' : (0 : ℚ) < H2 := by exact_mod_cast hH2
   have hhd' : (0 : ℚ) < hd := by exact_mod_cast hhd
-  have hS' : (Sn : ℚ) < Sd := by exact_mod_cast hS
-  have hSd : (0 : ℚ) < Sd := lt_of_le_of_lt (Nat.cast_nonneg Sn) hS'
-  have hSS : (0 : ℚ) < Sd - Sn := sub_pos.mpr hS'
-  have hlt' : ((H1 * x ^ u * (x * x + x + 1) ^ cd * hn * Sd : ℕ) : ℚ) <
-      ((2 * (H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn)) : ℕ) : ℚ) := by exact_mod_cast hlt
-  push_cast [Nat.cast_sub (by omega : 1 ≤ x), Nat.cast_sub hS.le] at hlt'
+  have hSS : (0 : ℚ) < Vd := by exact_mod_cast hV
+  have hlt' : ((H1 * x ^ u * (x * x + x + 1) ^ cd * hn * Vn : ℕ) : ℚ) <
+      ((2 * (H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * Vd) : ℕ) : ℚ) := by exact_mod_cast hlt
+  push_cast [Nat.cast_sub (by omega : 1 ≤ x)] at hlt'
   have e : (H1 : ℚ) / H2 * (((x : ℚ) / (x - 1)) ^ u * (fv x ^ cd *
-      ((hn : ℚ) / hd * (1 / (1 - (Sn : ℚ) / Sd))))) =
-      (H1 * x ^ u * (x * x + x + 1) ^ cd * hn * Sd) /
-        (H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn)) := by
+      ((hn : ℚ) / hd * ((Vn : ℚ) / Vd)))) =
+      (H1 * x ^ u * (x * x + x + 1) ^ cd * hn * Vn) /
+        (H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * Vd) := by
     unfold fv
-    rw [one_sub_div hSd.ne', one_div_div, div_pow, div_pow, ← pow_mul,
-      show (x : ℚ) * x = x ^ 2 by ring]
+    rw [div_pow, div_pow, ← pow_mul, show (x : ℚ) * x = x ^ 2 by ring]
     have hA : (0 : ℚ) < ((x : ℚ) - 1) ^ u := pow_pos hx1 u
     have hBq : (0 : ℚ) < (x : ℚ) ^ (2 * cd) := pow_pos hx0 _
     generalize ((x : ℚ) - 1) ^ u = A at hA ⊢
@@ -1073,7 +1081,7 @@ private theorem final_contra {H1 H2 x u cd hn hd Sn Sd : ℕ} (hx : 2 ≤ x) (hH
     generalize ((x : ℚ) ^ 2 + x + 1) ^ cd = C
     generalize (x : ℚ) ^ u = X
     field_simp
-  have hden : (0 : ℚ) < H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn) :=
+  have hden : (0 : ℚ) < H2 * (x - 1) ^ u * x ^ (2 * cd) * hd * Vd :=
     mul_pos (mul_pos (mul_pos (mul_pos hH2' (pow_pos hx1 u)) (pow_pos hx0 _)) hhd') hSS
   rw [e, le_div_iff₀ hden] at hprod
   linarith
@@ -1108,8 +1116,12 @@ theorem defSound (P : Params) : DefSound P := by
   obtain ⟨ok, hn, hd⟩ := res
   simp only [Bool.and_eq_true] at hdef
   obtain ⟨rfl, htail⟩ := hdef
-  obtain ⟨hx2, hk, -, halpha, hBrx, hrxk, hmL2, hmM2, hmL, hmM, hSlt, hfin⟩ :=
+  obtain ⟨hx2, hk, -, halpha, hBrx, hrxk, hmL2, hmM2, hmL, hmM, hfin⟩ :=
     tailOK_spec htail
+  set Sn := (sPair P ks x dd).1 with hSn
+  set Sd := (sPair P ks x dd).2 with hSdd
+  have hSlt3 : Sn < 3 * Sd := by
+    rcases hfin with ⟨h, -⟩ | ⟨h, -⟩ <;> omega
   have hN0 := hN.ne_zero
   set PF := N.primeFactors with hPF
   set KS := (ks.map Key.p).toFinset with hKS
@@ -1270,9 +1282,11 @@ theorem defSound (P : Params) : DefSound P := by
       · exact Or.inr (Finset.mem_filter.mpr ⟨hgNK, hgU⟩)
       · have hgC : g ∈ C3 := Finset.mem_filter.mpr ⟨Finset.mem_filter.mpr ⟨hgNK, hgU⟩, hg1⟩
         exact absurd hgd (hW _ hgP ⟨hg1, Or.inl hgC⟩)
-  have hSd : 0 < (sPair P ks x dd).2 := lt_of_le_of_lt (Nat.zero_le _) hSlt
-  have b5 : ∏ t ∈ T, fv t ≤ 1 / (1 - ((sPair P ks x dd).1 : ℚ) / (sPair P ks x dd).2) := by
-    refine prod_fv_le_of_rankin_tail_general T Kf Ufs (x := x) (k := dd.k)
+  have hSd : 0 < Sd := by omega
+  have hSd' : (0 : ℚ) < Sd := by exact_mod_cast hSd
+  have b5' : ∏ t ∈ T, fv t ≤
+      (((Sn : ℚ) / Sd) ^ 2 + 4 * ((Sn : ℚ) / Sd) + 6) / (6 - 2 * ((Sn : ℚ) / Sd)) := by
+    refine prod_fv_le_of_rankin_tail_general_pade T Kf Ufs (x := x) (k := dd.k)
       (M := max (x * x + x + 1) P.MHIT) (u := uOf P ks)
       (α := fun g => (dd.B : ℚ) / rOf (genK ks) dd.rs g) (αx := (dd.B : ℚ) / dd.rx)
       (mL := (dd.mL.1 : ℚ) / dd.mL.2) (mM := (dd.mM.1 : ℚ) / dd.mM.2) hx2 (by omega) ?_ cU
@@ -1316,8 +1330,25 @@ theorem defSound (P : Params) : DefSound P := by
       exact max_le hL hM
     · rw [hG]
       exact S_eq P ks x dd (by omega) hBrx hGd hmL2 hmM2
-    · rw [div_lt_one (by exact_mod_cast hSd)]
-      exact_mod_cast hSlt
+    · rw [div_lt_iff₀ hSd']
+      exact_mod_cast hSlt3
+  -- the bound `Vn/Vd` of the product over `T` used by the accepting path
+  obtain ⟨Vn, Vd, hVd, b5, hfin'⟩ : ∃ Vn Vd : ℕ, 0 < Vd ∧ ∏ t ∈ T, fv t ≤ (Vn : ℚ) / Vd ∧
+      (hiProd P ks).1 * x ^ uOf P ks * (x * x + x + 1) ^ cdOf ks bud3 cs3 * hn * Vn <
+        2 * ((hiProd P ks).2 * (x - 1) ^ uOf P ks * x ^ (2 * cdOf ks bud3 cs3) * hd * Vd) := by
+    rcases hfin with ⟨h1, h2⟩ | ⟨h1, h2⟩
+    · refine ⟨_, _, Nat.sub_pos_of_lt h1, ?_, h2⟩
+      have hS0 : (0 : ℚ) ≤ (Sn : ℚ) / Sd := by positivity
+      have hS1 : (Sn : ℚ) / Sd < 1 := by
+        rw [div_lt_one hSd']
+        exact_mod_cast h1
+      calc ∏ t ∈ T, fv t ≤ _ := b5'
+        _ ≤ _ := pade21_le_pade11 hS0 (by linarith)
+        _ ≤ 1 / (1 - (Sn : ℚ) / Sd) := pade11_le_inv hS0 hS1
+        _ = _ := by rw [one_sub_div hSd'.ne', one_div_div, Nat.cast_sub h1.le]
+    · refine ⟨_, _, ?_, b5'.trans_eq (pade21_nat_eq hSd h1).symm, h2⟩
+      have : 2 * Sn * Sd < 6 * Sd ^ 2 := by nlinarith
+      omega
   -- assembly
   have n4 : 0 ≤ ∏ t ∈ T, fv t := Finset.prod_nonneg fun t _ => fv_nonneg t
   have n3 : 0 ≤ ∏ t ∈ Hits, fv t := Finset.prod_nonneg fun t _ => fv_nonneg t
@@ -1326,7 +1357,7 @@ theorem defSound (P : Params) : DefSound P := by
     Finset.prod_nonneg fun t _ => abund_nonneg _
   have hprod : (2 : ℚ) ≤ ((hiProd P ks).1 : ℚ) / (hiProd P ks).2 *
       (((x : ℚ) / (x - 1)) ^ uOf P ks * (fv x ^ cdOf ks bud3 cs3 *
-        ((hn : ℚ) / hd * (1 / (1 - ((sPair P ks x dd).1 : ℚ) / (sPair P ks x dd).2))))) := by
+        ((hn : ℚ) / hd * ((Vn : ℚ) / Vd)))) := by
     rw [hab, mul_comm]
     have hx1 : (0 : ℚ) ≤ (x : ℚ) / (x - 1) := div_nonneg (by linarith) (by linarith)
     exact mul_le_mul b1
@@ -1334,7 +1365,7 @@ theorem defSound (P : Params) : DefSound P := by
         (pow_nonneg (fv_nonneg x) _)) (mul_nonneg n2 (mul_nonneg n3 n4)) (pow_nonneg hx1 _))
       (mul_nonneg n1 (mul_nonneg n2 (mul_nonneg n3 n4)))
       (div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
-  exact final_contra hx2 hH2 hhd hSlt hfin hprod
+  exact final_contra hx2 hH2 hhd hVd hfin' hprod
 
 end TwoExcEngine
 

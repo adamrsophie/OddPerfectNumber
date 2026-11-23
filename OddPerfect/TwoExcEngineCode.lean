@@ -494,8 +494,11 @@ def alphaOK (k B : ℕ) : List ℕ → List ℕ → Bool
   | g :: gs, r :: rs => decide (B < r) && decide (r ^ k ≤ B ^ k * g) && alphaOK k B gs rs
   | _, _ => false
 
-/-- The rational part of a deficient leaf: the witnesses, `S < 1` and `U < 2`, given the hit
-product `(hn, hd)`. -/
+/-- The rational part of a deficient leaf: the witnesses and the final test, given the hit
+product `(hn, hd)`. With `S = Sn/Sd` and `U0 = H (x/(x - 1))^u ((x^2 + x + 1)/x^2)^(c + d) hn/hd`
+the final test accepts either by the old path, `S < 1` and `U0/(1 - S) < 2`, or, when that
+fails, by the Padé path, `S < 3` and `U0 (S^2 + 4 S + 6)/(6 - 2 S) < 2` (both in cross
+multiplied form; each truncated subtraction is guarded by its first test). -/
 def tailOK (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (b3 : ℕ) (cs3 : List (ℕ × ℕ))
     (hn hd : ℕ) : Bool :=
   let k := dd.k
@@ -526,8 +529,12 @@ def tailOK (P : Params) (ks : List Key) (x : ℕ) (dd : DefData) (b3 : ℕ) (cs3
     decide (0 < dd.mL.2) && decide (0 < dd.mM.2) &&
     decide (dd.mL.2 ^ (2 * k) ≤ dd.mL.1 ^ (2 * k) * L ^ (k - 2)) &&
     decide (dd.mM.2 ^ (2 * k) ≤ dd.mM.1 ^ (2 * k) * M ^ (k - 2)) &&
-    decide (Sn < Sd) &&
-    decide (H.1 * x ^ u * L ^ cd * hn * Sd < 2 * (H.2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn)))
+    ((decide (Sn < Sd) &&
+      decide (H.1 * x ^ u * L ^ cd * hn * Sd <
+        2 * (H.2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (Sd - Sn)))) ||
+     (decide (Sn < 3 * Sd) &&
+      decide (H.1 * x ^ u * L ^ cd * hn * (Sn ^ 2 + 4 * Sn * Sd + 6 * Sd ^ 2) <
+        2 * (H.2 * (x - 1) ^ u * x ^ (2 * cd) * hd * (6 * Sd ^ 2 - 2 * Sn * Sd)))))
 
 /-- The budget of 3, its exponent, read from its role: 2 for a square, `kmin` for an exact
 exception; none otherwise. -/
