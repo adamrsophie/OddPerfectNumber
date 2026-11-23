@@ -709,6 +709,68 @@ def two_exception(t):
             [TWO_ENGINE, '997'], 1, expect='REJECTED scan')
     control('TwoExceptionTwo/engine.py scan finds a prime inside 1000 positions', fuel,
             [TWO_ENGINE, '996'], 0, expect='scan result 997')
+    # Trial division fuel: `findDiv 65536 n 2` tries the divisors 2 .. 65537 and returns 0 when
+    # none decides. The prime 4295098403 lies above 65537^2 = 4295098369, so `smallPrime` is
+    # false and a scan reaching it is `none`; the largest prime below 65537^2, 4295098349, is
+    # found by a scan from 4295098310 that skips 39 composites.
+    tdiv = os.path.join(t, 'tdiv_fuel.py')
+    with open(tdiv, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'y = int(sys.argv[2])\n'
+                'print("smallPrime", m["small_prime"](y))\n'
+                'try:\n'
+                '    print("scan result", m["scan_next"]({"x": y, "keys": []}))\n'
+                'except m["Reject"] as e:\n'
+                '    print("REJECTED", e); sys.exit(1)\n')
+    control('TwoExceptionTwo/engine.py scan rejects a prime beyond the trial division fuel', tdiv,
+            [TWO_ENGINE, '4295098403'], 1, expect='REJECTED scan: trial division fuel')
+    control('TwoExceptionTwo/engine.py smallPrime is false beyond the trial division fuel', tdiv,
+            [TWO_ENGINE, '4295098403'], 1, expect='smallPrime False')
+    control('TwoExceptionTwo/engine.py scan finds the largest prime inside the fuel', tdiv,
+            [TWO_ENGINE, '4295098310'], 0, expect='scan result 4295098349')
+    # Square root fuel: `sqrtIfSq` starts Newton at 2^51 below 2^102 and at z above, with 400
+    # steps, after Lean's own square filter (moduli of `qrTable`, product Q). From about 2^786
+    # on Newton does not settle and the leaf is rejected, for a square and for a nonsquare that
+    # passes the filter, such as (2^500 + 1)^2 + Q (2 mod 4, so a filter with the modulus 64
+    # would call it a nonsquare and accept).
+    sq = os.path.join(t, 'sqrt_fuel.py')
+    with open(sq, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'a, b, c = map(int, sys.argv[2:5])\n'
+                'z = (2 ** a + b) ** 2 + c * 33263 * 7429 * 5005 * 1763 * 2491 * 3599 * 4757\n'
+                'try:\n'
+                '    print("square root", m["square_root_if_square"](z))\n'
+                'except m["Reject"] as e:\n'
+                '    print("REJECTED", e); sys.exit(1)\n')
+    for name, abc, want, expect in (
+            ('rejects the square (2^500 + 1)^2', ('500', '1', '0'), 1, 'Newton fuel'),
+            ('rejects the nonsquare (2^500 + 1)^2 + Q that passes the filter', ('500', '1', '1'), 1,
+             'Newton fuel'),
+            ('finds the root of (2^50 + 3)^2', ('50', '3', '0'), 0, 'square root 1125899906842627'),
+            ('reports the nonsquare (2^50 + 3)^2 + Q', ('50', '3', '1'), 0, 'square root None'),
+            ('reports the nonsquare (2^200 + 1)^2 + Q', ('200', '1', '1'), 0, 'square root None')):
+        control('TwoExceptionTwo/engine.py square root ' + name, sq, [TWO_ENGINE, *abc], want,
+                expect=expect)
+    # Composite witnesses: `visitSq` reads `comps.lookup t`, the first pair for t, and the
+    # translator sorts the pairs. Record 7817 has the valid nonhit [338143, 581, "composite", 7]
+    # (338143 = 581^2 + 581 + 1); a second witness 1 for 581 comes first and must reject.
+    import lzma
+    with lzma.open(cert, 'rt') as f:
+        lines = f.read().splitlines()
+    i = next((i for i, line in enumerate(lines) if line.startswith('{"id":7817,')), None)
+    rec = json.loads(lines[i]) if i is not None else {}
+    nonhits = rec.get('proof', {}).get('nonhits', [])
+    if [338143, 581, 'composite', 7] not in nonhits:
+        raise SystemExit('control setup: record 7817 no longer has the nonhit 338143, 581')
+    nonhits.append([338143, 581, 'composite', 1])
+    lines[i] = json.dumps(rec)
+    dup = os.path.join(t, 'dup_witness.jsonl')
+    with open(dup, 'w') as f:
+        f.write('\n'.join(lines) + '\n')
+    control('TwoExceptionTwo/engine.py rejects a first composite witness that fails', TWO_ENGINE,
+            [dup], 1, expect='composite witness')
     # The second path of the tail test. No archived certificate reaches it, so the leaf is built
     # here: only the key 3 as a square, x = 1000, Rankin witnesses k = 3, B = 1, rx = 10,
     # mL = 1/10 and mM = 1/n. With n = 4 the first path fails (U0/(1 - S) is about 2.05) and
@@ -728,9 +790,33 @@ def two_exception(t):
             [TWO_ENGINE, '4'], 0, expect="'pade_accepted': 1")
     control('TwoExceptionTwo/engine.py rejects a leaf that fails both tail paths', tail,
             [TWO_ENGINE, '3'], 1, expect='fails on both paths')
+    # The second path of check.py, on a leaf passed to its deficient leaf check: no archived
+    # certificate reaches that path, and a certificate holding only this leaf fails earlier
+    # (with only the key 3 the root leaf is at x = 5, where S >= 3, and a leaf at a larger x
+    # skips unlisted primes below x). The leaf has only the
+    # square key 3, x = 107 or 101, EMAX = 2, MHIT = 10^30, Rankin k = 3, and the witnesses
+    # check.py computes. Exactly: at x = 107 S is about 0.226, the first path gives about 2.031
+    # and the second about 1.971; at x = 101 they give about 2.069 and 2.0016.
+    cleaf = os.path.join(t, 'check_tail.py')
+    with open(cleaf, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'x = int(sys.argv[2])\n'
+                'C = m["Checker"](recs={0: {"id": 0, "kind": "header", "EMAX": 2,\n'
+                '                           "flags": ["cert"], "MHIT": 10 ** 30}})\n'
+                'core = m["Core"](x, None, frozenset(), frozenset({3}), {})\n'
+                'pf = {"x": x, "a": 1, "b": 2, "c": 2, "d": 4, "u": 3, "K": [], "H": "13/9",\n'
+                '      "hits": [], "rankin": {"mode": "theta", "k": 3}}\n'
+                'C.check_deficient(1, {}, core, pf)\n'
+                'print("errors", C.errors, "second path", getattr(C, "pade_leaves", 0))\n'
+                'sys.exit(1 if C.errors else 0)\n')
+    control('TwoExceptionTwo/check.py accepts a leaf on the second tail path', cleaf,
+            [os.path.join(TWO, 'check.py'), '107'], 0, expect='errors [] second path 1')
+    control('TwoExceptionTwo/check.py rejects a leaf that fails both tail paths', cleaf,
+            [os.path.join(TWO, 'check.py'), '101'], 1, expect='U >= 2 on both paths')
     # The same failure through the whole pipeline of engine.py: a root leaf at x = 5 with valid
     # witnesses, where the bound is about 10. (check.py computes its own witnesses and stops
-    # earlier on this leaf, at S >= 3; its second path has no control here.)
+    # earlier on this leaf, at S >= 3.)
     both = os.path.join(t, 'both_paths_fail.jsonl')
     records[2]['proof']['rankin'].update(mL='1', mM='1')
     with open(both, 'w') as f:

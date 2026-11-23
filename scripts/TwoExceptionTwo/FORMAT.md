@@ -395,3 +395,6 @@ about the primes it needs; `engine.py` lists them (426 primes).
 * `check.py`: an independent recheck written from an earlier text of this format; see its
   header for what it checks and what it does not.
 * `engine.py`: the translator to the Lean term and an exact Python mirror of the Lean checker.
+  The translator sorts the composite witnesses of a leaf and both read the first pair for a
+  candidate t, so of several witnesses for one t the smallest must be a divisor of t strictly between 1
+  and t.

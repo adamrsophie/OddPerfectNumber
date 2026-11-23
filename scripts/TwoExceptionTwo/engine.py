@@ -203,15 +203,21 @@ def natural_term(term):
 
 COUNT = collections.Counter()
 
-def is_prime_small(n):
-    """Trial division up to the square root (mirror of minFacB)."""
-    if n < 2: return False
-    d = 2
-    while d * d <= n:
+def find_div(n, d=2, fuel=65536):
+    """Mirror of `findDiv fuel n d`: the least divisor d' >= d of n with d' * d' <= n, n when
+    there is none, 0 when the fuel runs out (with the fuel 65536 of the callers, the candidates
+    are 2 .. 65537)."""
+    for _ in range(fuel):
         COUNT['tdiv'] += 1
-        if n % d == 0: return False
+        if n < d * d: return n
+        if n % d == 0: return d
         d += 1
-    return True
+    return 0
+
+def small_prime(n):
+    """Mirror of `smallPrime`, and of `primeB` (below 4096 the fuel never runs out, so trial
+    division agrees with the table there). A prime above 65537^2 is reported not prime."""
+    return n >= 2 and find_div(n) == n
 
 def miller(n):
     req(type(n) is int, 'primality candidate must be an integer')
@@ -368,7 +374,7 @@ def ord_ok(d, g, p):
     if g % p == 1: return d == p
     if d < 1 or pow(g, d, p) != 1: return False
     fs = pfacs(d)
-    req(math.prod(fs) == d and all(is_prime_small(r) for r in fs))
+    req(math.prod(fs) == d and all(small_prime(r) for r in fs))
     return all(pow(g, d // r, p) != 1 for r in fs)
 
 def infeasible(role, d):
@@ -395,34 +401,51 @@ def landedL(P, st):
     return all(p < st['x'] or key_find(st, p) is not None for p in LSET)
 
 def scan_next(st):
-    # 1000 positions, the fuel of `scanNext` in TwoExcEngineCode.lean; exhaustion rejects.
+    """Mirror of `scanNext` (`scanAux` with 1000 positions; exhaustion rejects). A position that
+    is not a key and at least 2 is tested by `findDiv 65536` (below 4096 the table, which agrees
+    with it): the result y returns y, a divisor skips y, and 0 (fuel out) makes the scan `none`,
+    which rejects."""
     y = st['x']
     for _ in range(1000):
-        if key_find(st, y) is None and is_prime_small(y): return y
+        if key_find(st, y) is None and y >= 2:
+            m = find_div(y)
+            if m == y: return y
+            req(m != 0, 'scan: trial division fuel runs out at %d' % y)
         COUNT['scan'] += 1
         y += 1
     raise Reject('scan')
 
-# quadratic residue filter moduli
-QR_MODS = [64, 63, 65, 11, 17, 19, 23, 29, 31, 37, 41, 43, 47]
-QR_SETS = {m: {(s * s) % m for s in range(m)} for m in QR_MODS}
+# the moduli of `qrTable`; its masks are the sets of squares modulo each (checked in Lean)
+QR_MODS = [33263, 7429, 5005, 1763, 2491, 3599, 4757]
+QR_SETS = {m: frozenset((s * s) % m for s in range(m)) for m in QR_MODS}
 
-def isqrt_newton(z):
-    x = z
-    while True:
-        COUNT['newton'] += 1
-        y = (x + z // x) // 2
-        if y >= x: return x
-        x = y
-
-def square_root_if_square(z):
-    """Mirror of the filtered square test. Returns s with s*s == z, or None."""
+def qr_pass(z):
+    """Mirror of `qrPass`. The filter must be Lean's own: a nonsquare that passes it reaches
+    Newton, whose fuel can run out."""
     for m in QR_MODS:
         COUNT['qr'] += 1
-        if (z % m) not in QR_SETS[m]: return None
+        if (z % m) not in QR_SETS[m]: return False
+    return True
+
+def newton(fuel, z, s):
+    """Mirror of `newton fuel z s`: s' = (s + z // s) // 2 while s' < s, at most fuel steps."""
+    for _ in range(fuel):
+        COUNT['newton'] += 1
+        t = (s + z // s) // 2
+        if t >= s: return s
+        s = t
+    return s
+
+def square_root_if_square(z):
+    """Mirror of `qrPass` then `sqrtIfSq`: s with s * s == z, None when z is not a square, and a
+    rejection where Lean's result is the outer `none` (Newton, started at 2^51 below 2^102 and
+    at z above, did not settle in 400 steps; the leaf is rejected)."""
+    if not qr_pass(z): return None
     COUNT['qr_survive'] += 1
-    s = isqrt_newton(z)
-    return s if s * s == z else None
+    s = newton(400, z, 2 ** 51 if z < 2 ** 102 else z)
+    if s * s == z: return s
+    req(s * s < z < (s + 1) * (s + 1), 'square root: Newton fuel runs out')
+    return None
 
 def budget3(role):
     """Mirror of budget3: 2 for a square, kmin for an exact exception, None otherwise."""
@@ -467,7 +490,9 @@ def deficient(P, st, dd):
     Sn = (x + 1) ** 2 * Rn; Sd = x * x * Rd
     # hits by enumeration
     hn, hd = 1, 1
-    compd = dict(comps)
+    compd = {}
+    for t, w in comps:
+        compd.setdefault(t, w)  # `comps.lookup t` in `visitSq`: the first pair for t decides
     def visit(n):
         nonlocal hn, hd
         COUNT['gen'] += 1
