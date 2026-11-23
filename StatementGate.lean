@@ -469,6 +469,37 @@ theorem StatementGate.two_exceptions_three_exceptional :
         r₁ = 3 ∨ r₂ = 3 :=
   @OddPerfect.two_exceptions_three_exceptional
 
+theorem StatementGate.exists_pow_four_dvd_of_three_pow_four :
+    ∀ {N : ℕ}, _root_.OddPerfect N → Nat.factorization N 3 = 4 →
+      ∃ p ∈ ({7, 11, 19, 31, 127, 5419} : Finset ℕ),
+        p ^ 4 ∣ N ∧ ¬ 3 ∣ Nat.factorization N p + 1 :=
+  @OddPerfect.exists_pow_four_dvd_of_three_pow_four
+
+theorem StatementGate.exists_seven_mod_twelve_exception :
+    ∀ {N q p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      Nat.factorization N 3 ≤ 2 → p ∈ Nat.primeFactors N → (p % 12 = 5 ∨ p % 12 = 7) →
+        3 ∣ Nat.factorization N p + 1 →
+          ∃ r ∈ Nat.primeFactors N,
+            r % 12 = 7 ∧ 4 ≤ Nat.factorization N r ∧ ¬ 3 ∣ Nat.factorization N r + 1 :=
+  @OddPerfect.exists_seven_mod_twelve_exception
+
+theorem StatementGate.special_index_witnesses :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+        2 * padicValNat l (Nat.factorization N q + 1) +
+            padicValNat l (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+          Nat.factorization N l +
+            (Finset.filter (fun p => p ≠ q ∧ p % l = 1 ∧ ¬ l ∣ Nat.factorization N p + 1)
+              (Nat.primeFactors N)).card :=
+  @OddPerfect.special_index_witnesses
+
+theorem StatementGate.four_exceptions_of_three_sq_of_nine_dvd :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      Nat.factorization N 3 = 2 → 9 ∣ Nat.factorization N q + 1 →
+        4 ≤ (Finset.filter (fun p => p ≠ q ∧ p % 3 = 1 ∧ 4 ≤ Nat.factorization N p)
+          (Nat.primeFactors N)).card :=
+  @OddPerfect.four_exceptions_of_three_sq_of_nine_dvd
+
 theorem StatementGate.two_exceptions_five_three_sq_thirteen_ne_two :
     ∀ {N r₁ r₂ : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
       (∀ p ∈ Nat.primeFactors N, p ≠ 5 → p ≠ r₁ → p ≠ r₂ → Nat.factorization N p = 2) →
@@ -696,6 +727,13 @@ def expected : List (Name × Name) :=
     (`StatementGate.two_exceptions_six_le_three, ``OddPerfect.two_exceptions_six_le_three),
     (`StatementGate.two_exceptions_three_exceptional,
       ``OddPerfect.two_exceptions_three_exceptional),
+    (`StatementGate.exists_pow_four_dvd_of_three_pow_four,
+      ``OddPerfect.exists_pow_four_dvd_of_three_pow_four),
+    (`StatementGate.exists_seven_mod_twelve_exception,
+      ``OddPerfect.exists_seven_mod_twelve_exception),
+    (`StatementGate.special_index_witnesses, ``OddPerfect.special_index_witnesses),
+    (`StatementGate.four_exceptions_of_three_sq_of_nine_dvd,
+      ``OddPerfect.four_exceptions_of_three_sq_of_nine_dvd),
     (`StatementGate.two_exceptions_five_three_sq_thirteen_ne_two,
       ``OddPerfect.two_exceptions_five_three_sq_thirteen_ne_two),
     (`StatementGate.not_mixed_index_three_five_seven,
