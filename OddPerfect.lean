@@ -274,3 +274,5 @@ import OddPerfect.ClassicalInputs
 import OddPerfect.ConditionalSupport
 import OddPerfect.Steps
 import OddPerfect.RankinTailPade
+import OddPerfect.RepunitOrder
+import OddPerfect.PairGcd
