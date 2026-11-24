@@ -61,7 +61,7 @@ private lemma add_two_lt_three_pow {e : ℕ} (he : 2 ≤ e) : e + 2 < 3 ^ e := b
   | succ e _ ih => rw [pow_succ]; omega
 
 /-- The normal form of the shape: `(q + 1) / 2 = t ^ 2` with `p ∤ t`, `q ∤ t`, `t` odd. -/
-private theorem shape_data {N q m p : ℕ} (h : OddPerfect N) (hq : q.Prime) (hN : N = q * m ^ 2)
+theorem shape_data {N q m p : ℕ} (h : OddPerfect N) (hq : q.Prime) (hN : N = q * m ^ 2)
     (hqm : ¬ q ∣ m) (hp : p.Prime) (hpm : p ∣ m)
     (h2 : 2 * m ^ 2 = p ^ N.factorization p * (q + 1)) :
     ∃ t, (q + 1) / 2 = t ^ 2 ∧ q + 1 = 2 * t ^ 2 ∧ m ^ 2 = p ^ N.factorization p * t ^ 2 ∧

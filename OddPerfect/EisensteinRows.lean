@@ -310,7 +310,21 @@ theorem exists_normalized_root_of_row {q : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
       · right
         exact (read_off p _ _ hp' hB.1 hB.2 θ (by rw [mk_eta]; exact hα)).2 hθ
 
+open EisRows in
+/-- Factorization of a row: if `nrm (x - ω) = c * q ^ j` with `q ≠ 3` prime and `j ≥ 1`, then
+`x - ω = ρ ^ j * θ` with `nrm ρ = q` and `nrm θ = c`. -/
+theorem exists_root_pow_mul_of_row {q : ℕ} (hq : q.Prime) (hq3 : q ≠ 3) (x : ℤ) (j : ℕ)
+    (hj : 1 ≤ j) (c : ℤ) (h : Eis.nrm ⟨x, -1⟩ = c * (q : ℤ) ^ j) :
+    ∃ ρ θ : Eis, Eis.nrm ρ = q ∧ Eis.nrm θ = c ∧ (⟨x, -1⟩ : Eis) = ρ ^ j * θ := by
+  have hd : (q : ℤ) ∣ nrm ⟨x, -1⟩ := by
+    rw [h]; exact Dvd.dvd.mul_left (dvd_pow_self _ (by omega)) c
+  obtain ⟨π, hπ⟩ := exists_nrm_eq hq x hd
+  obtain ⟨θ, hθ, hor | hor⟩ := core hq hq3 hπ x j hj c h
+  · exact ⟨π, θ, hπ, hθ, hor⟩
+  · exact ⟨star π, θ, by rw [nrm_star, hπ], hθ, hor⟩
+
 end OddPerfect
 
 #print axioms OddPerfect.exists_normalized_root
 #print axioms OddPerfect.exists_normalized_root_of_row
+#print axioms OddPerfect.exists_root_pow_mul_of_row
