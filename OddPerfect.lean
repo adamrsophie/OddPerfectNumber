@@ -303,3 +303,4 @@ import OddPerfect.SpecialBelowOrder
 import OddPerfect.SpecialBelowRadical
 import OddPerfect.ConditionalDefect
 import OddPerfect.EscapeRowUnique
+import OddPerfect.SquareCycleDigit
