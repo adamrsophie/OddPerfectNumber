@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Roadmap: Odd Perfect Numbers in Lean</title>
-<meta name="description" content="Work in progress and next targets of the Lean library on odd perfect numbers. Nothing on this page is verified yet.">
+<title>Status: Odd Perfect Numbers in Lean</title>
+<meta name="description" content="One table with the status of every main line of the Lean library on odd perfect numbers: what is a formal theorem, what is a paper proof awaiting formalization, what is a research target, and which parameter stays unbounded.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/style.css">
@@ -35,20 +35,51 @@
 <div class="page wrap no-toc">
 
 <main id="content" tabindex="-1">
-<h1>In progress and next targets</h1>
-<p class="lead">Work under way. Nothing on this page is verified yet, and some of it may fail. Items move to the <a href="milestones.html">milestones</a> only when they land on the main branch after the full build.</p>
-<div class="callout"><p><strong>Unverified work in progress.</strong> None of these items is on the main branch. Each may fail or change before it lands.</p></div>
+<h1>Status</h1>
+<p class="lead">One table for the whole project. The conjecture that no odd perfect number exists is open, and nothing below decides it. Every row names the parameter that stays unbounded.</p>
+<div class="callout"><p><strong>Three labels, nothing else.</strong> <em>Formal theorem</em>: on the main branch, checked by the Lean kernel, with the three standard axioms only. <em>Paper proof awaiting formalization</em>: an argument checked by hand, not yet compiled; it may still fail. <em>Research target</em>: no proof is known to us. A named proposition in the library is not a proof of that proposition.</p></div>
+
+<h2 id="notation">Notation</h2>
+<p>An odd perfect number has the form N = q<sup>a</sup> m<sup>2</sup> with q prime, q not dividing m, and q and a both 1 modulo 4 (Euler). The prime q is the <em>special</em> prime; the other primes are <em>ordinary</em> and have even exponents. ω is the number of distinct prime factors and Ω the number counted with multiplicity. The <em>excess</em> is T = ∑ (e<sub>p</sub>/2 − 1) over the ordinary primes p, so that Ω = a + 2(ω − 1) + 2T.</p>
+
+<h2 id="table">The table</h2>
+<table>
+<thead><tr><th>Line</th><th>Statement</th><th>Label</th><th>Lean name</th><th>What stays unbounded</th></tr></thead>
+<tbody>
+<tr><td>Conjecture</td><td>No odd perfect number exists.</td><td>Research target</td><td>the proposition <code>OddPerfectConjecture</code> has no proof</td><td>Everything below.</td></tr>
+<tr><td>Size</td><td>N &gt; 10<sup>150</sup>.</td><td>Formal theorem</td><td><code>LowerBoundTwo.lower_bound</code></td><td>Published: N &gt; 10<sup>1500</sup> (Ochem and Rao, 2012). The library is far behind.</td></tr>
+<tr><td>Largest prime</td><td>Some prime factor exceeds 200000.</td><td>Formal theorem</td><td><code>exists_primeFactor_gt_200000</code></td><td>Published: above 10<sup>8</sup> (Goto and Ohno, 2008).</td></tr>
+<tr><td>Excess</td><td>T ≥ 7; equivalently Ω ≥ 2ω + a + 12.</td><td>Formal theorem</td><td><code>seven_le_excess</code></td><td>T has no upper bound. Ochem and Rao (2014) prove Ω ≥ 2ω + 51, which is stronger unless a ≥ 41.</td></tr>
+<tr><td>Excess</td><td>ω + 2 v<sub>3</sub>(σ(q<sup>a</sup>)) ≤ 5T + 5.</td><td>Formal theorem</td><td><code>card_primeFactors_add_two_mul_le_five_excess_add_five_all</code></td><td>Bounds ω by T, not T itself.</td></tr>
+<tr><td>Excess</td><td>For each fixed T, only finitely many odd perfect numbers have excess at most T.</td><td>Formal theorem</td><td><code>finite_of_excess_le</code></td><td>The bound is doubly exponential in T; no value of T is excluded beyond T ≤ 6.</td></tr>
+<tr><td>Special prime</td><td>q &lt; m.</td><td>Formal theorem</td><td><code>special_lt_root</code></td><td>This is not q<sup>a</sup> &lt; m, which is open. The exponent a stays unbounded.</td></tr>
+<tr><td>Special prime</td><td>3 q<sup>a</sup> &lt; 2 m<sup>2</sup>.</td><td>Formal theorem</td><td><code>special_pow_lt_sq</code></td><td>Same.</td></tr>
+<tr><td>Restrained family (every ordinary prime but one has exponent 2)</td><td>v<sub>3</sub>(N) ≥ 137624, ω ≥ 275251, Ω ≥ 688123, and ω ≤ 2 v<sub>3</sub>(N) + 3.</td><td>Formal theorem</td><td><code>restrained_sieve_le_three</code>, <code>restrained_omega_ge_sieve</code>, <code>restrained_Omega_ge_sieve</code>, <code>restrained_omega_le</code></td><td>v<sub>3</sub>(N) has a lower bound only. Ochem and Zelinsky (arXiv 2607.19746) state a far larger lower bound from a long computation; it is not proved here. The family is not excluded.</td></tr>
+<tr><td>Restrained family</td><td>ω ≥ 360548, v<sub>3</sub>(N) ≥ 180274, Ω ≥ 901367, from the same sieve data by keeping the factors of the primes above 10<sup>6</sup>.</td><td>Paper proof awaiting formalization</td><td>none yet</td><td>Still a lower bound only.</td></tr>
+<tr><td>Two exceptions (every ordinary prime but two has exponent 2)</td><td>3 divides N and v<sub>3</sub>(N) ≥ 6.</td><td>Formal theorem</td><td><code>three_dvd_of_two_exceptions</code>, <code>two_exceptions_six_le_three</code></td><td>The family is not excluded; the two exceptional exponents are free.</td></tr>
+<tr><td>Three exceptions</td><td>3 divides N.</td><td>Formal theorem</td><td><code>three_dvd_of_three_exceptions</code></td><td>Nothing more is known to us; four or more exceptions are untouched.</td></tr>
+<tr><td>Common index (a prime l divides every ordinary e + 1)</td><td>Impossible when every ordinary row σ(p<sup>e</sup>) is a prime power.</td><td>Formal theorem</td><td><code>not_all_pure_common_index</code></td><td>Mixed rows are open for a general l.</td></tr>
+<tr><td>Mixed indices 3, 5, 7</td><td>No odd perfect number has 3<sup>2</sup> and 5<sup>1</sup> exactly and every other e + 1 divisible by 3, 5 or 7.</td><td>Formal theorem</td><td><code>not_mixed_index_three_five_seven</code></td><td>One profile at the primes 3 and 5 only.</td></tr>
+<tr><td>Largest prime P, special exponent 1, ordinary exponents 2 or 4</td><td>v<sub>P</sub>(N) ≤ 8.</td><td>Formal theorem</td><td><code>factorization_largest_le_eight</code></td><td>Needs a = 1 and a fixed palette of exponents.</td></tr>
+<tr><td>Largest prime P, special exponent 1, ordinary exponents l − 1 for odd primes l of a finite set L</td><td>v<sub>P</sub>(N) ≤ ∑<sub>l ∈ L</sub> C<sub>l</sub> with C<sub>l</sub> = ∑<sub>j = 1..l−2</sub> ⌊(l−1)/j⌋ (so 22 for exponents 2, 4, 6).</td><td>Paper proof awaiting formalization</td><td>none yet</td><td>An unbounded palette of exponents, or a &gt; 1, escapes it.</td></tr>
+<tr><td>Classical inputs</td><td>The equations of Nagell and Ljunggren for prime powers, in the cases the library uses.</td><td>Formal theorem</td><td><code>nagellPrimePower</code>, <code>ljunggrenThreePrimePower</code></td><td>Tools, not bounds.</td></tr>
+</tbody>
+</table>
+
+<h2 id="open">What no row reaches</h2>
 <ul class="roadmap-list">
-<li>Excluding further families where a product of two primes divides every ordinary e + 1 (25 and 77 are out of reach of the table method)</li>
-<li>The last open case of the restrained family: the exceptional prime is 3</li>
+<li>An upper bound for the excess T, or the exclusion of any T above 6.</li>
+<li>An upper bound for the special exponent a, or the inequality q<sup>a</sup> &lt; m.</li>
+<li>An upper bound for v<sub>3</sub>(N) in the restrained family; lower bounds alone cannot close it.</li>
+<li>Three or more exceptions beyond divisibility by 3; common index families with mixed rows.</li>
 </ul>
-<p class="sub">These are attempts on an open problem. The expected outcome is new partial results, not a resolution.</p>
+<p class="sub">These are attempts on an open problem. The expected outcome is further partial results, not a resolution. Rows labeled as paper proofs move to the <a href="milestones.html">milestones</a> only when they land on the main branch after the full build.</p>
 
 </main>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 24 November 2026, from commit <code>fed812d</code> on the main branch.</p>
+<p>Last updated 24 November 2026, from commit <code>f53dffd</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
