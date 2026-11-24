@@ -313,3 +313,4 @@ import OddPerfect.ThreeRowPrime
 import OddPerfect.ExcessSupportEleven
 import OddPerfect.DefectRules
 import OddPerfect.SecondDefect
+import OddPerfect.EulerIndexSquare
