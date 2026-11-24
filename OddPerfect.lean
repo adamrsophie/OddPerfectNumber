@@ -413,3 +413,7 @@ import OddPerfect.TuringOPNMacro
 import OddPerfect.TuringOPN
 import OddPerfect.RestrainedNineData
 import OddPerfect.RestrainedNine
+import OddPerfect.SpecialFiveCode
+import OddPerfect.SpecialFiveCheck
+import OddPerfect.SpecialFiveData
+import OddPerfect.SpecialFive
