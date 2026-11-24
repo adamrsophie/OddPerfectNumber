@@ -652,7 +652,9 @@ def replay_list(t):
 def two_exception(t):
     """The independent recheck and the mirror accept the archived certificate; the mirror
     also accepts the three excess certificates. Negative rational witnesses and an out-of-range
-    strong pseudoprime must not be admitted as Lean Nat data and certified primes."""
+    strong pseudoprime must not be admitted as Lean Nat data and certified primes, an item of
+    the wrong type must reject even where evaluation never reaches it, and the helpers must
+    give Lean's values at zero inputs."""
     cert = os.path.join(TWO, 'cert.jsonl.xz')
     control('TwoExceptionTwo/check.py accepts the archived certificate', os.path.join(TWO, 'check.py'),
             [cert], 0, expect='VERDICT PASS')
@@ -771,6 +773,34 @@ def two_exception(t):
         f.write('\n'.join(lines) + '\n')
     control('TwoExceptionTwo/engine.py rejects a first composite witness that fails', TWO_ENGINE,
             [dup], 1, expect='composite witness')
+    # Structural check of the term: the Lean constructor `apply` takes `List (ℕ × ℕ)`. Record 12
+    # has the items [3, 1], [3169, 1], and the first already closes the node (3 over its budget),
+    # so the second is never evaluated; replaced by ["leaf", 1] or [[], 1] it must still reject.
+    with lzma.open(cert, 'rt') as f:
+        fresh = f.read().splitlines()
+    i = next((i for i, line in enumerate(fresh) if line.startswith('{"id":12,')), None)
+    rec = json.loads(fresh[i]) if i is not None else {}
+    if [it[:2] for it in rec.get('items', [])] != [[3, 1], [3169, 1]]:
+        raise SystemExit('control setup: record 12 no longer has the items [3, 1], [3169, 1]')
+    for name, bad in (('leaf', 'leaf'), ('list', [])):
+        rec['items'][1][0] = bad
+        lines2 = list(fresh)
+        lines2[i] = json.dumps(rec)
+        path = os.path.join(t, f'bad_item_{name}.jsonl')
+        with open(path, 'w') as f:
+            f.write('\n'.join(lines2) + '\n')
+        control(f'TwoExceptionTwo/engine.py rejects the unreached item [{json.dumps(bad)}, 1]',
+                TWO_ENGINE, [path], 1, expect='certificate field must be a natural number')
+    # Zero inputs, with Lean's `n / 0 = 0` and `n % 0 = n`: `sqrtIfSq 0` has the root 0,
+    # `newton 1 7 0` is 0, and `findDiv 2 7 0` is 1 (7 % 0 = 7, then 7 % 1 = 0).
+    zero = os.path.join(t, 'zero_inputs.py')
+    with open(zero, 'w') as f:
+        f.write('import runpy, sys\n'
+                'm = runpy.run_path(sys.argv[1])\n'
+                'print("zero", m["square_root_if_square"](0), m["newton"](1, 7, 0),\n'
+                '      m["find_div"](7, 0, 2))\n')
+    control('TwoExceptionTwo/engine.py gives the Lean values at zero inputs', zero, [TWO_ENGINE], 0,
+            expect='zero 0 0 1')
     # The second path of the tail test. No archived certificate reaches it, so the leaf is built
     # here: only the key 3 as a square, x = 1000, Rankin witnesses k = 3, B = 1, rx = 10,
     # mL = 1/10 and mM = 1/n. With n = 4 the first path fails (U0/(1 - S) is about 2.05) and

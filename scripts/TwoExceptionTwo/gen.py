@@ -294,7 +294,11 @@ def main():
     if len(a) in (1, 2) and a[0] == 'plan':
         plan(a[1] if len(a) == 2 else CERT)
     elif len(a) in (2, 3) and a[0] == 'two' and os.path.isdir(a[1]):
-        two(a[1], a[2] if len(a) == 3 else CERT)
+        try:
+            two(a[1], a[2] if len(a) == 3 else CERT)
+        except engine.Reject as e:
+            print('REJECTED', e)
+            return 1
     else:
         print(USAGE)
         return 2
@@ -316,6 +320,27 @@ def pack(parts, steps, k):
     return [g for g in groups if g]
 
 
+def write_all(outdir, outs):
+    """Writes each text to a temporary file `.NAME.tmp` in OUTDIR, and only after all of them
+    were written renames each onto NAME. A failure before the renames (in the input, the
+    mirror, the formatting or a write) leaves every old file in OUTDIR unchanged and removes
+    the temporary files. The renames themselves are one per file (os.replace), so a crash
+    between two of them can still leave a mixed set of old and new files."""
+    tmps = []
+    try:
+        for name, text in outs:
+            tmp = os.path.join(outdir, '.%s.tmp' % name)
+            with open(tmp, 'w') as f:
+                tmps.append(tmp)  # created by this run, so removed on failure
+                f.write(text)
+    except BaseException:
+        for tmp in tmps:
+            os.unlink(tmp)
+        raise
+    for (name, _), tmp in zip(outs, tmps):
+        os.replace(tmp, os.path.join(outdir, name))
+
+
 def two(outdir, cert):
     lines = engine.read_lines(cert)
     sha = hashlib.sha256(''.join(lines).encode()).hexdigest()
@@ -326,8 +351,8 @@ def two(outdir, cert):
     kinds = count(term, {})
     orc, n = oracle_lean(primes, 'Two')
     groups = pack(parts, steps, K)
-    od = os.path.join(outdir, '')
-    open(od + 'TwoExceptionTwoPrimes.lean', 'w').write(f"""import OddPerfect.TwoExcEngineCheck
+    outs = []  # (file name, text): every text is built before any file is touched
+    outs.append(('TwoExceptionTwoPrimes.lean', f"""import OddPerfect.TwoExcEngineCheck
 
 /-!
 # The two exception certificate: parameters and primality oracle
@@ -362,7 +387,7 @@ end OddPerfect
 #print axioms OddPerfect.TwoExceptionTwo.prattTwo_ok
 #print axioms OddPerfect.TwoExceptionTwo.treeTwo_toList
 #print axioms OddPerfect.TwoExceptionTwo.prTwo_sound
-""")
+"""))
     j = 0
     for g, grp in enumerate(groups):
         k = g + 1
@@ -390,7 +415,7 @@ private theorem refuteTwo_{j} : RefutedTwo keysTwo_{j} {st['x']} := fun N q h =>
         pats = ' | '.join('rfl' for _ in names)
         exs = ', '.join('refuteTwo_%d' % i for i, _ in names)
         sep = '\n'
-        open(od + 'TwoExceptionTwoData%d.lean' % k, 'w').write(f"""import OddPerfect.TwoExceptionTwoPrimes
+        outs.append(('TwoExceptionTwoData%d.lean' % k, f"""import OddPerfect.TwoExceptionTwoPrimes
 import OddPerfect.TwoExcEngineTail
 
 /-!
@@ -428,7 +453,7 @@ end TwoExceptionTwo
 end OddPerfect
 
 #print axioms OddPerfect.TwoExceptionTwo.rootsTwo{k}_refuted
-""")
+"""))
     K2 = len(groups)
     imports = '\n'.join('import OddPerfect.TwoExceptionTwoData%d' % k for k in range(1, K2 + 1))
     app = 'rootsTwo%d' % K2
@@ -444,7 +469,7 @@ end OddPerfect
         ('force', 'forced nodes'), ('receipt', 'receipt nodes'), ('snd', 'sender nodes'),
         ('inf', 'infeasible sender leaves'), ('closed', 'closed nodes'),
         ('decide', 'decide nodes'), ('split', 'exponent splits')])
-    open(od + 'TwoExceptionTwo.lean', 'w').write(f"""{imports}
+    outs.append(('TwoExceptionTwo.lean', f"""{imports}
 import OddPerfect.TwoExceptionFourEmpty
 
 /-!
@@ -553,7 +578,8 @@ end OddPerfect
 #print axioms OddPerfect.TwoExceptionTwo.doneTwo_sound
 #print axioms OddPerfect.two_exceptions_three_ne_two
 #print axioms OddPerfect.two_exceptions_six_le_three
-""")
+"""))
+    write_all(outdir, outs)
     print('sha256', sha, 'lines', nrec, 'subtrees', len(parts), 'files', K2, 'pratt', n, 'kinds', kinds)
 
 

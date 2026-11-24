@@ -182,23 +182,59 @@ def req(b, msg='reject'):
     if not b:
         raise Reject(msg)
 
+# The field types of each constructor of the Lean inductive type `TwoExcEngine.Cert` and of the
+# structure `TwoExcEngine.DefData` (OddPerfect/TwoExcEngineCode.lean). 'nat' is a natural number,
+# 'pairs' a `List (ℕ × ℕ)` (a Python list of 2-tuples), 'nats' a `List ℕ`, 'pair' an `ℕ × ℕ`,
+# 'cert' a subterm (a tagged tuple), 'dd' a `DefData`, and 'chain' a `Cert` field built from
+# `cons` and `nil` (force, receipt, decide), which the translator holds as a Python list of
+# subterms and `lean_chain` writes out.
+CERT_FIELDS = {
+    'leaf': (), 'abundant': (), 'landedL': (), 'checkL': (), 'ext': (),
+    'apply': ('pairs', 'cert'),          # items : List (ℕ × ℕ), out : Cert
+    'force': ('chain',),                 # children
+    'receipt': ('nat', 'chain'),         # p, senders
+    'inf': ('nat', 'nat'),               # g, d
+    'snd': ('nat', 'nat', 'cert'),       # g, d, child
+    'closed': ('cert',),                 # step
+    'decide': ('chain', 'cert'),         # children, absent
+    'check': ('dd',),                    # dd : DefData
+    'split': ('nat', 'cert', 'cert'),    # p, ex, atl
+}
+DD_FIELDS = ('nat', 'nat', 'nats', 'nat', 'pair', 'pair', 'pairs')  # k B rs rx mL mM comps
+
 def natural_term(term):
-    """Lean certificate terms have only constructor tags and natural-number fields.
-    In particular the numerators of mL and mM are Nat, not signed integers.
-    Reject values Python arithmetic would accept but Lean's input type cannot express.
-    """
-    tags = {'apply', 'leaf', 'abundant', 'landedL', 'checkL', 'ext', 'force', 'receipt',
-            'inf', 'snd', 'closed', 'decide', 'check', 'split', 'dd'}
-    pending = [term]
+    """Structural check of a certificate term against the Lean types `Cert` and `DefData`:
+    every node is a tuple whose tag is a constructor, with exactly that constructor's fields,
+    each of its fixed type (CERT_FIELDS, DD_FIELDS). Anything else rejects, before any
+    evaluation and before any output, whether or not the checker would reach it. In
+    particular the numerators of mL and mM are Nat, not signed integers."""
+    def nat(v):
+        req(type(v) is int and v >= 0, 'certificate field must be a natural number: %r' % (v,))
+    def pair(v):
+        req(type(v) is tuple and len(v) == 2, 'certificate field must be a pair: %r' % (v,))
+        nat(v[0]); nat(v[1])
+    def seq(v):
+        req(type(v) is list, 'certificate field must be a list: %r' % (v,))
+        return v
+    pending = [('cert', term)]
     while pending:
-        value = pending.pop()
-        if isinstance(value, (tuple, list)):
-            pending.extend(value)
-        elif isinstance(value, str):
-            req(value in tags, 'unexpected string in certificate term')
+        ty, v = pending.pop()
+        if ty == 'nat': nat(v)
+        elif ty == 'pair': pair(v)
+        elif ty == 'nats':
+            for e in seq(v): nat(e)
+        elif ty == 'pairs':
+            for e in seq(v): pair(e)
+        elif ty == 'chain':
+            pending.extend(('cert', e) for e in seq(v))
         else:
-            req(type(value) is int and value >= 0,
-                'certificate field must be a natural number: %r' % (value,))
+            fields = DD_FIELDS if ty == 'dd' else (
+                CERT_FIELDS.get(v[0]) if type(v) is tuple and v and type(v[0]) is str else None)
+            ok = (type(v) is tuple and fields is not None and len(v) == 1 + len(fields)
+                  and (v[0] == 'dd') == (ty == 'dd'))
+            req(ok, 'malformed certificate term: expected %s, got %.200r' % (
+                'DefData' if ty == 'dd' else 'a Cert constructor', v))
+            pending.extend(zip(fields, v[1:]))
 
 
 COUNT = collections.Counter()
@@ -206,11 +242,11 @@ COUNT = collections.Counter()
 def find_div(n, d=2, fuel=65536):
     """Mirror of `findDiv fuel n d`: the least divisor d' >= d of n with d' * d' <= n, n when
     there is none, 0 when the fuel runs out (with the fuel 65536 of the callers, the candidates
-    are 2 .. 65537)."""
+    are 2 .. 65537). As in Lean, `n % 0` is `n`."""
     for _ in range(fuel):
         COUNT['tdiv'] += 1
         if n < d * d: return n
-        if n % d == 0: return d
+        if (n % d if d else n) == 0: return d
         d += 1
     return 0
 
@@ -428,10 +464,11 @@ def qr_pass(z):
     return True
 
 def newton(fuel, z, s):
-    """Mirror of `newton fuel z s`: s' = (s + z // s) // 2 while s' < s, at most fuel steps."""
+    """Mirror of `newton fuel z s`: s' = (s + z // s) // 2 while s' < s, at most fuel steps.
+    As in Lean, `z / 0` is 0."""
     for _ in range(fuel):
         COUNT['newton'] += 1
-        t = (s + z // s) // 2
+        t = (s + (z // s if s else 0)) // 2
         if t >= s: return s
         s = t
     return s
