@@ -30,8 +30,8 @@ below 132257. The bound stops at `d = 199`: bounded factoring found no prime fac
 `σ(3 ^ 198) = (3 ^ 199 - 1) / 2`.
 
 No novelty is claimed: Ochem and Zelinsky (arXiv 2607.19746, 2026) treat this family in depth
-and prove that the exponent of 3 is at least 23,000,000,000; the bound here is far weaker, is
-subsumed by theirs, and theirs is not proved here.
+and state that the exponent of 3 is at least 23,000,000,000; the bound here is far weaker, and
+theirs is not proved here.
 -/
 
 open ArithmeticFunction
@@ -119,7 +119,7 @@ theorem restrained_not_dvd_succ_of_mem {N q r d : ℕ} (h : OddPerfect N) (hq : 
 /-- **Restrained family: `198 ≤ v_3(N)`.** The exponent `E = v_3(N)` is even and at least 6,
 so the least prime factor `p` of `E + 1` is odd; every prime `3 ≤ p < 199` is in `dList` and does
 not divide `E + 1`, so `199 ≤ p ≤ E + 1`.
-Conditional family result; no novelty is claimed: the bound of Ochem and Zelinsky
+Conditional family result; no novelty is claimed: the bound stated by Ochem and Zelinsky
 (arXiv 2607.19746, 2026), 23,000,000,000, is far stronger and is not proved here. -/
 theorem restrained_one_ninety_eight_le_three {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hr : r.Prime) (hrq : r ≠ q)
