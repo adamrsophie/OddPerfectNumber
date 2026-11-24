@@ -1116,6 +1116,18 @@ theorem StatementGate.size_of_forall_gt_thousand :
       1499 ≤ (Nat.primeFactors N).card ∧ 1001 ^ 2999 ≤ N :=
   @OddPerfect.size_of_forall_gt_thousand
 
+theorem StatementGate.restrained_one_ninety_eight_le_three :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        198 ≤ Nat.factorization N 3 :=
+  @OddPerfect.restrained_one_ninety_eight_le_three
+
+theorem StatementGate.exists_component_gt_of_factorization_five_eq_one :
+    ∀ {N : ℕ}, _root_.OddPerfect N → Nat.factorization N 5 = 1 →
+      ∃ p ∈ Nat.primeFactors N, 10 ^ 24 < p ^ Nat.factorization N p :=
+  @OddPerfect.exists_component_gt_of_factorization_five_eq_one
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1555,6 +1567,10 @@ def expected : List (Name × Name) :=
     (`StatementGate.fermat_row, ``OddPerfect.fermat_row),
     (`StatementGate.exists_pow_dvd_of_safe_prime, ``OddPerfect.exists_pow_dvd_of_safe_prime),
     (`StatementGate.size_of_forall_gt_thousand, ``OddPerfect.size_of_forall_gt_thousand),
+    (`StatementGate.restrained_one_ninety_eight_le_three,
+      ``OddPerfect.restrained_one_ninety_eight_le_three),
+    (`StatementGate.exists_component_gt_of_factorization_five_eq_one,
+      ``OddPerfect.exists_component_gt_of_factorization_five_eq_one),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
