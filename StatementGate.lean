@@ -967,6 +967,35 @@ theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five_all 
           (fun p => Nat.factorization N p / 2 - 1)) + 5 :=
   @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five_all
 
+theorem StatementGate.special_lt_root :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      q < m :=
+  @OddPerfect.special_lt_root
+
+theorem StatementGate.noSquareCycle :
+    ∀ p e t : ℕ, _root_.Nat.Prime p → 1 ≤ e → Odd t →
+      ArithmeticFunction.sigma 1 (t ^ 2) = p ^ e →
+      2 * t ^ 2 = 1 + ArithmeticFunction.sigma 1 (p ^ e) → False :=
+  @OddPerfect.noSquareCycle
+
+theorem StatementGate.repunit_rows_size :
+    ∀ (p : ℕ) (I : Finset ℕ) (ℓ : ℕ → ℕ), I.Nonempty →
+      (∀ r ∈ I, _root_.Nat.Prime r ∧ r ≠ 2 ∧ _root_.Nat.Prime (ℓ r) ∧ ℓ r ≠ 2 ∧
+        ∑ i ∈ Finset.range (ℓ r), r ^ i = p) →
+      2 * (∏ r ∈ I, ℓ r) * (∑ r ∈ I, (r - 1)) < p :=
+  @OddPerfect.repunit_rows_size
+
+theorem StatementGate.prime_index_of_sigma_prime_pow :
+    ∀ {r p g w : ℕ}, _root_.Nat.Prime r → _root_.Nat.Prime p → p ≠ 2 → 1 ≤ g → 1 ≤ w →
+      ArithmeticFunction.sigma 1 (r ^ g) = p ^ w →
+      _root_.Nat.Prime (g + 1) ∧ g + 1 ∣ p - 1 ∧ r ^ (g + 1) = 1 + (r - 1) * p ^ w :=
+  @OddPerfect.prime_index_of_sigma_prime_pow
+
+theorem StatementGate.nagellPrimePower :
+    ∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a → p ^ 2 + p + 1 = r ^ a →
+      a = 1 :=
+  @OddPerfect.nagellPrimePower
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1372,6 +1401,12 @@ def expected : List (Name × Name) :=
       ``OddPerfect.not_phi3_eq_special_and_three_mul_pow),
     (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five_all,
       ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five_all),
+    (`StatementGate.special_lt_root, ``OddPerfect.special_lt_root),
+    (`StatementGate.noSquareCycle, ``OddPerfect.noSquareCycle),
+    (`StatementGate.repunit_rows_size, ``OddPerfect.repunit_rows_size),
+    (`StatementGate.prime_index_of_sigma_prime_pow,
+      ``OddPerfect.prime_index_of_sigma_prime_pow),
+    (`StatementGate.nagellPrimePower, ``OddPerfect.nagellPrimePower),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
