@@ -9,9 +9,9 @@ use one of them except as an explicit hypothesis. A contribution is one file
 `Contributions/<Name>.lean` that proves `OddPerfect.Steps.<Name>` exactly as stated here (see
 `CONTRIBUTING.md`).
 
-Status. Proved, each in `Contributions/<Name>.lean`: `Example`, `PureRowBase`,
-`TwicePrimePowerRow`, `NagellPrimePower`, `LjunggrenThreePrimePower`, `SpecialBelowRoot`.
-Without a proof here: `SpecialFifthPower`, `AllRowsPrimePower`, `RowValuationTransfer`.
+Status. All nine steps are proved, each in `Contributions/<Name>.lean`: `Example`,
+`PureRowBase`, `SpecialFifthPower`, `TwicePrimePowerRow`, `AllRowsPrimePower`,
+`RowValuationTransfer`, `NagellPrimePower`, `LjunggrenThreePrimePower`, `SpecialBelowRoot`.
 
 None of these steps settles the odd perfect number conjecture, which is open. The steps marked
 "published" restate a theorem from the literature; the page reference was read, and the
@@ -38,7 +38,8 @@ def PureRowBase : Prop :=
 
 /-- Starter (published). In Euler's form `N = q ^ k * m ^ 2` with `q ∤ m`, a special exponent
 other than `1` forces `q ^ 5 < 2 * m ^ 2`. Zelinsky, INTEGERS 25 (2025), A59, Proposition 11.
-The library has the weaker `q < m` (`special_lt_of_exponent_ne_one`). -/
+The library has the weaker `q < m` (`special_lt_of_exponent_ne_one`). Proved in
+`Contributions/SpecialFifthPower.lean`. -/
 def SpecialFifthPower : Prop :=
   ∀ N q k m : ℕ, OddPerfect N → q.Prime → N = q ^ k * m ^ 2 → ¬ q ∣ m → k ≠ 1 →
     q ^ 5 < 2 * m ^ 2
@@ -56,7 +57,8 @@ divisor sum `σ(p ^ v_p(N))`, `p ≠ q`, a power of a prime while `σ(q ^ v_q(N)
 a prime too. R. J. Levit, Bull. Amer. Math. Soc. 53 (1947), 392 to 396, Theorem. The library has
 a counting inequality for the case that every ordinary row is a prime power
 (`card_add_inDegree_le_of_all_pure` in `OddPerfect/PureRows.lean`); with
-`seven_le_card_primeFactors` (`OddPerfect/OmegaSevenFinal.lean`) it should give a short proof. -/
+`seven_le_card_primeFactors` (`OddPerfect/OmegaSevenFinal.lean`) it gives the proof in
+`Contributions/AllRowsPrimePower.lean`. -/
 def AllRowsPrimePower : Prop :=
   ∀ N q : ℕ, OddPerfect N → q.Prime → Odd (N.factorization q) →
     (∀ p ∈ N.primeFactors, p ≠ q → ∃ r w, r.Prime ∧ σ 1 (p ^ N.factorization p) = r ^ w) →
@@ -65,7 +67,8 @@ def AllRowsPrimePower : Prop :=
 /-- Medium (published). Let `p` and `q` be primes with `q` odd, `σ(q ^ x)` a power of `p` for
 some `x ≥ 1`, and `q ∣ σ(p ^ c)`. Then `v_q(σ(p ^ c)) = v_q(c + 1)` when `p ≡ 1 (mod q)`, and
 `v_q(σ(p ^ c)) = v_q(c + 1) + 1` otherwise. Dandapat, Hunsucker and Pomerance, Pacific J. Math.
-57 (1975), 359 to 364, Lemma 2 (its two valuation statements). -/
+57 (1975), 359 to 364, Lemma 2 (its two valuation statements). Proved in
+`Contributions/RowValuationTransfer.lean`. -/
 def RowValuationTransfer : Prop :=
   ∀ p q x y c : ℕ, p.Prime → q.Prime → q ≠ 2 → 1 ≤ x → σ 1 (q ^ x) = p ^ y →
     q ∣ σ 1 (p ^ c) →
