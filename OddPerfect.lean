@@ -418,3 +418,6 @@ import OddPerfect.SpecialFiveCheck
 import OddPerfect.SpecialFiveData
 import OddPerfect.SpecialFive
 import OddPerfect.RestrainedTen
+import OddPerfect.ClassicalSmall
+import OddPerfect.ClassicalSmallTwo
+import OddPerfect.MutualRowsSmall
