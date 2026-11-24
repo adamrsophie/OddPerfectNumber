@@ -1006,6 +1006,28 @@ theorem StatementGate.three_mul_prime_pow_exponent_le_two :
       a ≤ 2 :=
   @OddPerfect.three_mul_prime_pow_exponent_le_two
 
+theorem StatementGate.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_ten_add_exponent :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      2 * (Nat.primeFactors N).card +
+          3 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        7 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 10 + Nat.factorization N q :=
+  @OddPerfect.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_ten_add_exponent
+
+theorem StatementGate.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_nine :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      q % 3 = 2 →
+      2 * (Nat.primeFactors N).card +
+          3 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        7 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 9 :=
+  @OddPerfect.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_nine
+
+theorem StatementGate.not_isSquare_eulerIndex :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      k ≠ 1 → ¬ IsSquare (ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k) :=
+  @OddPerfect.not_isSquare_eulerIndex
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1420,6 +1442,11 @@ def expected : List (Name × Name) :=
     (`StatementGate.ljunggrenThreePrimePower, ``OddPerfect.ljunggrenThreePrimePower),
     (`StatementGate.three_mul_prime_pow_exponent_le_two,
       ``OddPerfect.three_mul_prime_pow_exponent_le_two),
+    (`StatementGate.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_ten_add_exponent,
+      ``OddPerfect.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_ten_add_exponent),
+    (`StatementGate.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_nine,
+      ``OddPerfect.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_nine),
+    (`StatementGate.not_isSquare_eulerIndex, ``OddPerfect.not_isSquare_eulerIndex),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
