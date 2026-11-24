@@ -1077,6 +1077,45 @@ theorem StatementGate.two_mul_omega_add_special_add_ten_le_Omega :
         ArithmeticFunction.cardFactors N :=
   @OddPerfect.two_mul_omega_add_special_add_ten_le_Omega
 
+theorem StatementGate.seven_le_excess :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      7 ≤ Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) :=
+  @OddPerfect.seven_le_excess
+
+theorem StatementGate.seven_le_cardFactors_sub :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → ¬ q ∣ m → N = q ^ a * m ^ 2 →
+      ArithmeticFunction.cardDistinctFactors m + 7 ≤ ArithmeticFunction.cardFactors m :=
+  @OddPerfect.seven_le_cardFactors_sub
+
+theorem StatementGate.two_mul_omega_add_special_add_twelve_le_Omega :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      2 * ArithmeticFunction.cardDistinctFactors N + Nat.factorization N q + 12 ≤
+        ArithmeticFunction.cardFactors N :=
+  @OddPerfect.two_mul_omega_add_special_add_twelve_le_Omega
+
+theorem StatementGate.le_succ_of_safe_prime_row :
+    ∀ {p s t a : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime s → _root_.Nat.Prime t →
+      t = 2 * s + 1 → Even a → t ∣ ArithmeticFunction.sigma 1 (p ^ a) → s ≤ a + 1 :=
+  @OddPerfect.le_succ_of_safe_prime_row
+
+theorem StatementGate.fermat_row :
+    ∀ {p r e k : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime r → r = 2 ^ k + 1 → Even e →
+      r ∣ ArithmeticFunction.sigma 1 (p ^ e) → p % r = 1 ∧ r ∣ e + 1 :=
+  @OddPerfect.fermat_row
+
+theorem StatementGate.exists_pow_dvd_of_safe_prime :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {s t : ℕ}, _root_.Nat.Prime s → _root_.Nat.Prime t →
+      t = 2 * s + 1 → t ∣ N →
+      ∃ p ∈ Nat.primeFactors N, p ≠ t ∧
+        ((s ≤ Nat.factorization N p + 1 ∧ p ^ (s - 1) ∣ N) ∨
+          (Odd (Nat.factorization N p) ∧ t ∣ p + 1)) :=
+  @OddPerfect.exists_pow_dvd_of_safe_prime
+
+theorem StatementGate.size_of_forall_gt_thousand :
+    ∀ {N : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, 1000 < p) →
+      1499 ≤ (Nat.primeFactors N).card ∧ 1001 ^ 2999 ≤ N :=
+  @OddPerfect.size_of_forall_gt_thousand
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1508,6 +1547,14 @@ def expected : List (Name × Name) :=
     (`StatementGate.six_le_cardFactors_sub, ``OddPerfect.six_le_cardFactors_sub),
     (`StatementGate.two_mul_omega_add_special_add_ten_le_Omega,
       ``OddPerfect.two_mul_omega_add_special_add_ten_le_Omega),
+    (`StatementGate.seven_le_excess, ``OddPerfect.seven_le_excess),
+    (`StatementGate.seven_le_cardFactors_sub, ``OddPerfect.seven_le_cardFactors_sub),
+    (`StatementGate.two_mul_omega_add_special_add_twelve_le_Omega,
+      ``OddPerfect.two_mul_omega_add_special_add_twelve_le_Omega),
+    (`StatementGate.le_succ_of_safe_prime_row, ``OddPerfect.le_succ_of_safe_prime_row),
+    (`StatementGate.fermat_row, ``OddPerfect.fermat_row),
+    (`StatementGate.exists_pow_dvd_of_safe_prime, ``OddPerfect.exists_pow_dvd_of_safe_prime),
+    (`StatementGate.size_of_forall_gt_thousand, ``OddPerfect.size_of_forall_gt_thousand),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
