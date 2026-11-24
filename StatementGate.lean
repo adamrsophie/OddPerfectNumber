@@ -996,6 +996,16 @@ theorem StatementGate.nagellPrimePower :
       a = 1 :=
   @OddPerfect.nagellPrimePower
 
+theorem StatementGate.ljunggrenThreePrimePower :
+    ∀ p r a : ℕ, _root_.Nat.Prime p → _root_.Nat.Prime r → 1 ≤ a →
+      p ^ 2 + p + 1 = 3 * r ^ a → a ≤ 2 :=
+  @OddPerfect.ljunggrenThreePrimePower
+
+theorem StatementGate.three_mul_prime_pow_exponent_le_two :
+    ∀ {p r a : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime r → p ^ 2 + p + 1 = 3 * r ^ a →
+      a ≤ 2 :=
+  @OddPerfect.three_mul_prime_pow_exponent_le_two
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1407,6 +1417,9 @@ def expected : List (Name × Name) :=
     (`StatementGate.prime_index_of_sigma_prime_pow,
       ``OddPerfect.prime_index_of_sigma_prime_pow),
     (`StatementGate.nagellPrimePower, ``OddPerfect.nagellPrimePower),
+    (`StatementGate.ljunggrenThreePrimePower, ``OddPerfect.ljunggrenThreePrimePower),
+    (`StatementGate.three_mul_prime_pow_exponent_le_two,
+      ``OddPerfect.three_mul_prime_pow_exponent_le_two),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
