@@ -52,14 +52,14 @@ The listed theorems are necessary conditions that any odd perfect number would h
 <span class="k">def</span> <span class="n">OddPerfectConjecture</span> : <span class="k">Prop</span> := <span class="k">∀</span> N : <span class="t">ℕ</span>, ¬ OddPerfect N</code></pre>
 
 <div class="stats" aria-label="Library statistics">
-<div class="stat"><b>362</b><small>Lean files on the main branch: 316 library modules, the root import file, the axiom check file, the control files and the Lean fragments of the generators under <code>scripts/</code></small></div>
-<div class="stat"><b>228,224</b><small>lines of Lean</small></div>
-<div class="stat"><b>3454</b><small>public theorems</small></div>
+<div class="stat"><b>399</b><small>Lean files on the main branch: 353 library modules, the root import file, the axiom check file, the control files and the Lean fragments of the generators under <code>scripts/</code></small></div>
+<div class="stat"><b>242,453</b><small>lines of Lean</small></div>
+<div class="stat"><b>3570</b><small>public theorems</small></div>
 <div class="stat"><b>0</b><small>uses of sorry, admit, native_decide or added axioms in the library (the control files contain such uses on purpose, to test the axiom check)</small></div>
 <div class="stat"><b>287</b><small>papers screened</small></div>
 <div class="stat"><b>101</b><small>repositories reviewed</small></div>
 </div>
-<p class="note">These numbers measure the size of the library and say little about the distance to a proof. Library counts are computed from commit <code>5a706df</code> on the main branch (23 November 2026) by the site generator. The survey counts are fixed numbers from the survey. The library is free software under the GNU General Public License, version 3.</p>
+<p class="note">These numbers measure the size of the library and say little about the distance to a proof. Library counts are computed from commit <code>1f71308</code> on the main branch (24 November 2026) by the site generator. The survey counts are fixed numbers from the survey. The library is free software under the GNU General Public License, version 3.</p>
 
 <h2 id="status">What is and is not proved</h2>
 <div class="grid">
@@ -79,19 +79,19 @@ The listed theorems are necessary conditions that any odd perfect number would h
 </div>
 
 <h2 id="latest">Latest milestones</h2>
-<p class="sub">Each entry is a verified commit on the main branch. Times are local (UTC−5). The <a href="milestones.html">full timeline</a> has 232 entries.</p>
+<p class="sub">Each entry is a verified commit on the main branch. Times are local (UTC−5). The <a href="milestones.html">full timeline</a> has 238 entries.</p>
 <ol class="timeline" reversed>
-<li class="event minor"><time datetime="2026-11-23T22:37">23 November 2026, 22:37</time><p class="ev-title"><b>Statement gate: 169 restatements.</b>  Three more statements are restated in plain terms.</p></li>
-<li class="event minor"><time datetime="2026-11-23T22:37">22:37</time><p class="ev-title"><b>All nine posted steps closed.</b>  SpecialFifthPower, AllRowsPrimePower and RowValuationTransfer are proved under Contributions/. New steps will be posted.</p></li>
-<li class="event"><time datetime="2026-11-23T22:37">22:37</time><p class="ev-title"><b>The index of an odd perfect number is not a square.</b> <span class="cls known">known result formalized</span> For special exponent other than 1, σ(m²)/q^k is not a square (Gallardo 2022; Broughan, Delbourgo and Zhou).</p></li>
-<li class="event"><time datetime="2026-11-23T22:37">22:37</time><p class="ev-title"><b>A second defect identity; 2ω + 3s ≤ 7T + 10 + a.</b> <span class="cls restricted">restricted exclusion or bound checked</span> The count with slope 7/2 as an identity. The rows through q are bounded by the special exponent a; for q ≡ 2 (mod 3) the bound is 7T + 9.</p></li>
+<li class="event minor"><time datetime="2026-11-24T01:58">24 November 2026, 01:58</time><p class="ev-title"><b>Statement gate: 177 restatements.</b>  Eight more statements are restated in plain terms; two source notes corrected.</p></li>
+<li class="event minor"><time datetime="2026-11-24T01:58">01:58</time><p class="ev-title"><b>The two exception mirror checks terms by constructor.</b>  The Python mirror rejects malformed terms before any evaluation and matches Lean at zero inputs; the generator writes its modules only after all are built.</p></li>
+<li class="event minor"><time datetime="2026-11-24T01:58">01:58</time><p class="ev-title"><b>Scripts and controls of the defect tree checker.</b>  Search, generator, independent replay, frozen row table and fourteen certificates; 35 new checker controls.</p></li>
+<li class="event"><time datetime="2026-11-24T01:58">01:58</time><p class="ev-title"><b>Total excess at least 6.</b> <span class="cls restricted">restricted exclusion or bound checked</span> For an odd perfect number N = q^a·m², Ω(m) − ω(m) ≥ 6, whatever the special exponent a; known from a published inequality when a is at most 41.</p></li>
 </ol>
 
 </main>
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>5a706df</code> on the main branch.</p>
+<p>Last updated 24 November 2026, from commit <code>1f71308</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
