@@ -322,6 +322,14 @@ def set_role(st, p, role):
     keys = [[k[0], role if k[0] == p else k[1], k[2]] for k in st['keys']]
     return {'x': st['x'], 'keys': keys}
 
+def lookup_w(c, cs):
+    """Mirror of `lookupW c cs`: the weight of the first entry of component c, 0 if none."""
+    return next((ent[1] for ent in cs if ent[0] == c), 0)
+
+def lookup_p(p, c, pend):
+    """Mirror of `lookupP p c pend`: the weight of the first entry (p, c, w), 0 if none."""
+    return next((ent[2] for ent in pend if ent[0] == p and ent[1] == c), 0)
+
 def apply_items(P, st, pend, comp, items):
     """Returns ('contra',) or ('ok', st, pend)."""
     keys = [[k[0], k[1], [list(e) for e in k[2]]] for k in st['keys']]
@@ -333,10 +341,7 @@ def apply_items(P, st, pend, comp, items):
         k = key_find(st, p)
         if k is not None:
             cs = k[2]
-            old = 0
-            for ent in cs:
-                if ent[0] == comp: old = ent[1]
-            w = old + e
+            w = lookup_w(comp, cs) + e
             req(gdiv(st, comp, p ** w), ('gdiv key', p, comp, w, key_find(st, comp)[1], cs))
             found = False
             for ent in cs:
@@ -347,10 +352,7 @@ def apply_items(P, st, pend, comp, items):
             if role[0] == 'sq' and tot > 2: return ('contra',)
             if role[0] == 'fr' and role[5] and tot > role[4]: return ('contra',)
         else:
-            old = 0
-            for ent in pend:
-                if ent[0] == p and ent[1] == comp: old = ent[2]
-            w = old + e
+            w = lookup_p(p, comp, pend) + e
             req(gdiv(st, comp, p ** w), 'gdiv pend')
             if p < st['x']:
                 req(pr(p), 'absent prime')
@@ -406,12 +408,23 @@ def pfacs(d):
     if m > 1: fs.append(m)
     return fs
 
+def lmod(a, n):
+    """Lean's `a % n`, with `a % 0 = a`."""
+    return a % n if n else a
+
+def pow_mod_e(b, e, n):
+    """Mirror of `powModE b e n`: b ^ e % n, which is b ^ e for n = 0 (as `a % 0 = a`)."""
+    return pow(b, e, n) if n else b ** e
+
 def ord_ok(d, g, p):
-    if g % p == 1: return d == p
-    if d < 1 or pow(g, d, p) != 1: return False
+    """Mirror of `ordOK d g p`, with Lean's `% 0` (unreachable moduli 0 and 1 included). A
+    factor list that fails its check rejects, where `ordOK` is false."""
+    one = lmod(1, p)
+    if lmod(g, p) == 1: return d == p
+    if d < 1 or pow_mod_e(g, d, p) != one: return False
     fs = pfacs(d)
     req(math.prod(fs) == d and all(small_prime(r) for r in fs))
-    return all(pow(g, d // r, p) != 1 for r in fs)
+    return all(pow_mod_e(g, d // r, p) != one for r in fs)
 
 def infeasible(role, d):
     _, isQ, D, no3, kmin, ex = role

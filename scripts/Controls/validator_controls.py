@@ -5,7 +5,8 @@
 # under ThreeFreeThree/ (check3.py, verify3.py, gen_lean.py, route3.py), SecondLargestPrimeFast/
 # (validate.py, knuth.py, reach.py, mkfast.py), LedgerThreeFree/check.py, MixedIndex/verify.py,
 # MixedIndexThree/ (verify3.py, cert3.py), the process count argument of
-# LargestPrimeFactor/gen6.py, and Controls/ (source_scan.py, replay.sh, contribution_scan.py):
+# LargestPrimeFactor/gen6.py, TwoExceptionTwo/paired.py, and Controls/ (source_scan.py,
+# replay.sh, contribution_scan.py):
 # every archived valid
 # input must pass with exit status 0, and each mutated input must be rejected with the expected
 # nonzero status (1: a well formed input fails a check; 2: malformed input or usage), with no
@@ -53,6 +54,8 @@ REPLAY = os.path.join(SC, 'Controls', 'replay.sh')
 CONTRIB_SCAN = os.path.join(SC, 'Controls', 'contribution_scan.py')
 TWO = os.path.join(SC, 'TwoExceptionTwo')
 TWO_ENGINE = os.path.join(TWO, 'engine.py')
+TWO_PAIRED = os.path.join(TWO, 'paired.py')
+PAIRED_LEAN = os.path.join(ROOT, 'CheckerControls', 'PairedControls.lean')
 TF_CERT = os.path.join(TF, 'cert3_final.json.xz')
 EQ_CERTS = sorted(os.path.join(SC, f, 'certs', n) for f in ('EqualExponentChain', 'EqualExponentChainMore')
                   for n in os.listdir(os.path.join(SC, f, 'certs')) if n.endswith('.json'))
@@ -122,7 +125,7 @@ def mutate_text(src, dst, old, new):
 def no_asserts():
     """The validators and this script must not rely on `assert`, which python -O removes."""
     for path in (CHECKER, LBCHECK, VERIFY, EST, SLP_VALIDATE, LEDGER, MIX_VERIFY, MIX3_VERIFY, TWO_ENGINE,
-                 os.path.abspath(__file__)):
+                 TWO_PAIRED, os.path.abspath(__file__)):
         with open(path) as f:
             tree = ast.parse(f.read(), path)
         lines = [n.lineno for n in ast.walk(tree) if isinstance(n, ast.Assert)]
@@ -856,6 +859,21 @@ def two_exception(t):
             TWO_ENGINE, [both], 1, expect='fails on both paths')
 
 
+def paired_fixtures(t):
+    """paired.py check: the delivered CheckerControls/PairedControls.lean is exactly the output
+    of paired.py emit; a copy with one changed value differs (exit 1); a missing file and a
+    wrong argument list are usage errors (exit 2)."""
+    control('TwoExceptionTwo/paired.py check accepts CheckerControls/PairedControls.lean',
+            TWO_PAIRED, ['check', PAIRED_LEAN], 0, expect='paired controls equal')
+    changed = mutate_text(PAIRED_LEAN, f'{t}/PairedControls_changed.lean',
+                          'example : ordOK 16 5 17 = true', 'example : ordOK 16 5 17 = false')
+    control('TwoExceptionTwo/paired.py check: a copy with one changed value', TWO_PAIRED,
+            ['check', changed], 1, expect='paired controls differ')
+    control('TwoExceptionTwo/paired.py check: a missing file', TWO_PAIRED,
+            ['check', f'{t}/no_such_file.lean'], 2, expect='cannot read')
+    control('TwoExceptionTwo/paired.py: no mode given', TWO_PAIRED, [], 2, expect='usage')
+
+
 def main(argv):
     if argv[1:] not in ([], ['--stdlib-only']):
         print('usage: python3 -I scripts/Controls/validator_controls.py [--stdlib-only]', file=sys.stderr)
@@ -871,6 +889,7 @@ def main(argv):
         ledger_three_free(t, argv[1:] == ['--stdlib-only'])
         mixed_index(t, argv[1:] == ['--stdlib-only'])
         two_exception(t)
+        paired_fixtures(t)
         gen6_jobs_argument(t)
         source_scan(t)
         contribution_scan(t)

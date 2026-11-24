@@ -5,11 +5,15 @@
 #     sh CheckerControls/run.sh full     (also the generated checks, about 15 GB of memory)
 #
 # Checks CheckerControls/Controls.lean, whose examples fix the value of each certificate
-# checker on tiny well formed and malformed inputs, and CheckerControls/LargestPrimeControls.lean,
-# the five generated checks of scripts/LargestPrimeFactor/gen4.py (compare them with the
-# generator by scripts/LargestPrimeFactor/check_controls.sh). First compares the examples of both
-# files with the inventory CheckerControls/manifest.txt (required groups and least example
-# counts), then has Lean check Controls.lean and, with the argument `full`, also
+# checker on tiny well formed and malformed inputs, CheckerControls/PairedControls.lean, the
+# output of scripts/TwoExceptionTwo/paired.py (the helpers of the two exception engine on fixed
+# input vectors, with the values of its Python mirror; compare the file with the generator by
+# `python3 -I scripts/TwoExceptionTwo/paired.py check CheckerControls/PairedControls.lean`), and
+# CheckerControls/LargestPrimeControls.lean, the five generated checks of
+# scripts/LargestPrimeFactor/gen4.py (compare them with the generator by
+# scripts/LargestPrimeFactor/check_controls.sh). First compares the examples of the three files
+# with the inventory CheckerControls/manifest.txt (required groups and least example counts),
+# then has Lean check Controls.lean and PairedControls.lean and, with the argument `full`, also
 # LargestPrimeControls.lean. That file repeats on the same literals what the library module
 # OddPerfect/LargestPrimeFactor.lean already checks in every build, and costs as much, so it is
 # compiled only on request. Nothing is written inside the repository or under .lake. Passes only
@@ -20,10 +24,11 @@ set -u
 dir=$(dirname "$0")
 controls="$dir/Controls.lean"
 lpc="$dir/LargestPrimeControls.lean"
+paired="$dir/PairedControls.lean"
 manifest="$dir/manifest.txt"
 
-if [ ! -r "$controls" ] || [ ! -r "$lpc" ] || [ ! -r "$manifest" ]; then
-  echo "FAIL: $controls, $lpc or $manifest is missing"
+if [ ! -r "$controls" ] || [ ! -r "$paired" ] || [ ! -r "$lpc" ] || [ ! -r "$manifest" ]; then
+  echo "FAIL: $controls, $paired, $lpc or $manifest is missing"
   echo "checker controls FAILED"
   exit 1
 fi
@@ -54,7 +59,7 @@ inventory=$(awk '
     print "heavy " heavy + 0
     print "total " all + 0
     exit bad
-  }' "$manifest" "$controls" "$lpc")
+  }' "$manifest" "$controls" "$lpc" "$paired")
 istatus=$?
 if [ "$istatus" -ne 0 ]; then
   echo "FAIL: the control files do not meet CheckerControls/manifest.txt"
@@ -66,10 +71,10 @@ count=${inventory##*total }
 heavy=${inventory##*heavy }
 heavy=${heavy%%[!0-9]*}
 if [ "${1:-}" = full ]; then
-  files="$controls $lpc"
+  files="$controls $paired $lpc"
   note=""
 else
-  files="$controls"
+  files="$controls $paired"
   count=$((count - heavy))
   note="; $heavy generated examples of LargestPrimeControls.lean not compiled (run with the argument full)"
 fi

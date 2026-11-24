@@ -1,8 +1,9 @@
-# Inventory of CheckerControls/Controls.lean and CheckerControls/LargestPrimeControls.lean, read
-# by run.sh. Each line gives the least number of examples a control group must contain, a space,
-# then the exact text of its heading "/-! ## <heading> -/" in either file. run.sh fails if a
-# listed group is missing, if a group has fewer examples than listed, or if the two files
-# together have fewer examples than the sum. Adding examples or groups needs no change here;
+# Inventory of CheckerControls/Controls.lean, CheckerControls/PairedControls.lean and
+# CheckerControls/LargestPrimeControls.lean, read by run.sh. Each line gives the least number of
+# examples a control group must contain, a space, then the exact text of its heading
+# "/-! ## <heading> -/" in one of the files. run.sh fails if a listed group is missing, if a
+# group has fewer examples than listed, or if the three files together have fewer examples than
+# the sum. Adding examples or groups needs no change here;
 # raise a count or add a line to make the new controls required.
 9 Pratt certificates (`OddPerfect.Pratt`)
 12 Trial division primality tests
@@ -26,3 +27,9 @@
 18 The mixed index tree checker with cuts (`OddPerfect.MixedIndexThree.chk3`)
 67 The two exception checker engine (`OddPerfect.TwoExcEngine.go`, `check`, `checkV`)
 35 The defect tree checker (`OddPerfect.DefectTree.check`, `tabOK`, `leafB`)
+27 Paired with engine.py: Trial division (`TwoExcEngine.findDiv`, `smallPrime`)
+13 Paired with engine.py: The prime table (`TwoExcEngine.primeB`, `PMASK`)
+31 Paired with engine.py: Orders (`TwoExcEngine.powModE`, `pfacs`, `ordOK`)
+18 Paired with engine.py: Lookups (`TwoExcEngine.findKey`, `lookupW`, `lookupP`)
+22 Paired with engine.py: The square filter (`TwoExcEngine.qrPass`, `qrTable`)
+38 Paired with engine.py: Square roots (`TwoExcEngine.newton`, `sqrtIfSq`)
