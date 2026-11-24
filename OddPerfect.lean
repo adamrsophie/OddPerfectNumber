@@ -453,3 +453,5 @@ import OddPerfect.SpecialFiveMore
 import OddPerfect.LargestPrimeCap
 import OddPerfect.ExcessBudget
 import OddPerfect.ClassicalSmallThree
+import OddPerfect.RestrainedFourteen
+import OddPerfect.RestrainedFifteen
