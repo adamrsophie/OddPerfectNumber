@@ -1220,6 +1220,44 @@ theorem StatementGate.factorization_largest_le_eight :
         Nat.factorization N P ≤ 8 :=
   @OddPerfect.factorization_largest_le_eight
 
+theorem StatementGate.padicValNat_three_sigma_special_of_equal_exponents :
+    ∀ {N q β : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → Nat.factorization N p = 2 * β) → 3 ∣ N →
+        padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) = 2 * β :=
+  @OddPerfect.padicValNat_three_sigma_special_of_equal_exponents
+
+theorem StatementGate.prime_dvd_sigma_special_of_succ_succ :
+    ∀ {N q k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Nat.factorization N q = k →
+      Odd k → _root_.Nat.Prime (k + 2) → q % (k + 2) ≠ 1 →
+        k + 2 ∣ ArithmeticFunction.sigma 1 (q ^ k) ∧ k + 2 ∈ Nat.primeFactors N ∧
+          (k + 2) ^ 2 ∣ N :=
+  @OddPerfect.prime_dvd_sigma_special_of_succ_succ
+
+theorem StatementGate.five_special_exponent_mod_twelve :
+    ∀ {N : ℕ}, _root_.OddPerfect N → Odd (Nat.factorization N 5) →
+      Nat.factorization N 5 % 12 = 1 ∨ Nat.factorization N 5 % 12 = 9 :=
+  @OddPerfect.five_special_exponent_mod_twelve
+
+theorem StatementGate.restrained_omega_eq :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        ArithmeticFunction.cardDistinctFactors N + padicValNat 3 (Nat.factorization N q + 1) =
+          Nat.factorization N 3 + 2 +
+            (Finset.filter (fun p => p ≠ 3 ∧ p ≠ q ∧ p % 3 = 2) (Nat.primeFactors N)).card :=
+  @OddPerfect.restrained_omega_eq
+
+theorem StatementGate.padicValNat_sigma_prime_pow_row :
+    ∀ {p r e : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime r → r ≠ 2 → p ≠ r →
+      (¬ orderOf (p : ZMod r) ∣ e + 1 →
+          padicValNat r (ArithmeticFunction.sigma 1 (p ^ e)) = 0) ∧
+        (orderOf (p : ZMod r) = 1 →
+          padicValNat r (ArithmeticFunction.sigma 1 (p ^ e)) = padicValNat r (e + 1)) ∧
+        (1 < orderOf (p : ZMod r) → orderOf (p : ZMod r) ∣ e + 1 →
+          padicValNat r (ArithmeticFunction.sigma 1 (p ^ e)) =
+            padicValNat r (p ^ orderOf (p : ZMod r) - 1) + padicValNat r (e + 1)) :=
+  @OddPerfect.padicValNat_sigma_prime_pow_row
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1679,6 +1717,14 @@ def expected : List (Name × Name) :=
       ``OddPerfect.exists_component_gt_ten_pow_thirty_three_of_factorization_five_eq_one),
     (`StatementGate.no_mutual_rows_five, ``OddPerfect.no_mutual_rows_five),
     (`StatementGate.factorization_largest_le_eight, ``OddPerfect.factorization_largest_le_eight),
+    (`StatementGate.padicValNat_three_sigma_special_of_equal_exponents,
+      ``OddPerfect.padicValNat_three_sigma_special_of_equal_exponents),
+    (`StatementGate.prime_dvd_sigma_special_of_succ_succ,
+      ``OddPerfect.prime_dvd_sigma_special_of_succ_succ),
+    (`StatementGate.five_special_exponent_mod_twelve,
+      ``OddPerfect.five_special_exponent_mod_twelve),
+    (`StatementGate.restrained_omega_eq, ``OddPerfect.restrained_omega_eq),
+    (`StatementGate.padicValNat_sigma_prime_pow_row, ``OddPerfect.padicValNat_sigma_prime_pow_row),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
