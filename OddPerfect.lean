@@ -316,3 +316,7 @@ import OddPerfect.SecondDefect
 import OddPerfect.EulerIndexSquare
 import OddPerfect.DefectTreeCode
 import OddPerfect.DefectTreeCheck
+import OddPerfect.DefectTreeTwoData
+import OddPerfect.DefectTreeTwo
+import OddPerfect.DefectTreeFourData
+import OddPerfect.DefectTreeFour
