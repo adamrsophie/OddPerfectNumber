@@ -56,6 +56,48 @@
       if (e.target.closest("a")) nav.classList.remove("open");
     });
 
+    // sections: open on click, Enter or Space, and on hover where a pointer can hover
+    var secs = Array.prototype.slice.call(tabs.querySelectorAll(".sec"));
+    var narrow = window.matchMedia ? matchMedia("(max-width: 900px)") : { matches: false };
+    var hoverable = window.matchMedia ? matchMedia("(hover: hover)") : { matches: false };
+    var timer = 0;
+    function setOpen(sec, on) {
+      sec.classList.toggle("open", on);
+      sec.querySelector(".sec-btn").setAttribute("aria-expanded", on ? "true" : "false");
+    }
+    function closeAll(except) { secs.forEach(function (s) { if (s !== except) setOpen(s, false); }); }
+    secs.forEach(function (sec) {
+      var btn = sec.querySelector(".sec-btn");
+      var links = function () { return Array.prototype.slice.call(sec.querySelectorAll(".sec-list a")); };
+      btn.addEventListener("click", function () {
+        var on = !sec.classList.contains("open");
+        closeAll(sec);
+        setOpen(sec, on);
+      });
+      sec.addEventListener("keydown", function (e) {
+        var ls = links(), i = ls.indexOf(document.activeElement);
+        if (e.key === "Escape" && sec.classList.contains("open")) { setOpen(sec, false); btn.focus(); e.preventDefault(); }
+        else if (e.key === "ArrowDown") {
+          if (i < 0) { closeAll(sec); setOpen(sec, true); ls[0].focus(); }
+          else ls[Math.min(i + 1, ls.length - 1)].focus();
+          e.preventDefault();
+        } else if (e.key === "ArrowUp" && i >= 0) { (i === 0 ? btn : ls[i - 1]).focus(); e.preventDefault(); }
+      });
+      sec.addEventListener("focusout", function (e) { if (!sec.contains(e.relatedTarget) && !narrow.matches) setOpen(sec, false); });
+      sec.addEventListener("pointerenter", function (e) {
+        if (e.pointerType !== "mouse" || !hoverable.matches || narrow.matches) return;
+        clearTimeout(timer);
+        closeAll(sec);
+        setOpen(sec, true);
+      });
+      sec.addEventListener("pointerleave", function (e) {
+        if (e.pointerType !== "mouse" || narrow.matches) return;
+        clearTimeout(timer);
+        timer = setTimeout(function () { setOpen(sec, false); }, 280);
+      });
+    });
+    document.addEventListener("click", function (e) { if (!e.target.closest(".tabs .sec")) closeAll(null); });
+
     var toc = document.querySelector("details.toc");
     if (toc && window.matchMedia && !matchMedia("(min-width: 1040px)").matches) toc.open = false;
 
