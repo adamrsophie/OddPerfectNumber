@@ -312,3 +312,4 @@ import OddPerfect.ThreeRowParts
 import OddPerfect.ThreeRowPrime
 import OddPerfect.ExcessSupportEleven
 import OddPerfect.DefectRules
+import OddPerfect.SecondDefect
