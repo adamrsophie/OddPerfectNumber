@@ -421,3 +421,12 @@ import OddPerfect.RestrainedTen
 import OddPerfect.ClassicalSmall
 import OddPerfect.ClassicalSmallTwo
 import OddPerfect.MutualRowsSmall
+import OddPerfect.RestrainedElevenCheck
+import OddPerfect.RestrainedElevenData1
+import OddPerfect.RestrainedElevenData2
+import OddPerfect.RestrainedElevenData3
+import OddPerfect.RestrainedElevenData4
+import OddPerfect.RestrainedElevenData5
+import OddPerfect.RestrainedElevenData6
+import OddPerfect.RestrainedElevenData7
+import OddPerfect.RestrainedEleven
