@@ -314,3 +314,5 @@ import OddPerfect.ExcessSupportEleven
 import OddPerfect.DefectRules
 import OddPerfect.SecondDefect
 import OddPerfect.EulerIndexSquare
+import OddPerfect.DefectTreeCode
+import OddPerfect.DefectTreeCheck
