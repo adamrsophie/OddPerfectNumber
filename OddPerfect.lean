@@ -461,3 +461,5 @@ import OddPerfect.LargestPrimeCapGen
 import OddPerfect.LargestPrimeCapGenFamily
 import OddPerfect.RestrainedEighteenWheel
 import OddPerfect.RestrainedEighteen
+import OddPerfect.ExceptSmallThree
+import OddPerfect.ExceptSmallBound
