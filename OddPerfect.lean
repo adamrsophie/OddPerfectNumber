@@ -305,3 +305,5 @@ import OddPerfect.ConditionalDefect
 import OddPerfect.EscapeRowUnique
 import OddPerfect.SquareCycleDigit
 import OddPerfect.RepunitSize
+import OddPerfect.SpecialBelowCycle
+import OddPerfect.SpecialBelowAll
