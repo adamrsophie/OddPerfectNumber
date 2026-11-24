@@ -14,9 +14,9 @@ receivers and the special prime and the primes of exponent 4 send none (`zero_de
 For `q ≡ 1 (mod 3)` a short chain of component divisor sums rules this out
 (`one_le_supportDefect`): `v_3(N) = 4` puts 11 in `N` with exponent 2 and
 `σ(11 ^ 2) = 7 * 19` sends two units; `v_3(N) = 2` forces the primes 13, 61, 5, 31, 331 and
-ends at `σ(331 ^ 4) = 5 * 37861 * 63601` or at a third square prime that is 1 modulo 3. Whether
-the literature already excludes the zero defect profile was not checked; the short chain here
-is self contained.
+ends at `σ(331 ^ 4) = 5 * 37861 * 63601` or at a third square prime that is 1 modulo 3. The
+profile is also excluded, for every special prime, by McDaniel, Math. Comp. 25 (1971), 383 to
+385, Theorem 1 (p. 384); the short chain here is self contained.
 
 Hence `ω(N) + 2 * s ≤ 5 * T + 6` for every special prime with no classical input
 (`card_primeFactors_add_two_mul_le_five_excess_add_six`), `ω(N) ≤ 5 * T + 6` and
@@ -194,9 +194,11 @@ theorem factorization_three_ne_four_of_supportDefect_eq_zero {N q : ℕ} (h : Od
   exact eleven_absurd h hq hodd hZ (mem_of_dvd_sigma h h3P (by norm_num) (by norm_num)
     (by rw [hb, sigma_pow_four Nat.prime_three]; norm_num)).1
 
-/-- For a special prime `q ≡ 1 (mod 3)` the support defect is positive. Whether the literature
-already excludes the zero defect profile was not checked; the short chain here is self
-contained. -/
+/-- For a special prime `q ≡ 1 (mod 3)` the support defect is positive. Known: a zero defect
+profile has `3 ∣ N` and every ordinary exponent 2 or 4, which is excluded for every special
+prime by McDaniel, Math. Comp. 25 (1971), 383 to 385, Theorem 1 (p. 384). The short chain here
+is self contained; its first step uses `11 ∣ σ(3 ^ 4)`, as his proof does after the Lemma
+that `N` is not divisible by `3 * 11`. No novelty is claimed for this statement. -/
 theorem one_le_supportDefect {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hq3 : q % 3 = 1) : 1 ≤ supportDefect N q := by
   by_contra hZ'

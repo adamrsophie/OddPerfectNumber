@@ -5,6 +5,12 @@ import OddPerfect.Euler
 
 The divisor sums of the prime-power components constrain their exponents modulo three.
 An odd number of components have both prime and exponent congruent to one modulo three.
+
+These constraints are Theorem 3 of J. A. Ewell, "On the multiplicative structure of odd perfect
+numbers", J. Number Theory 12 (1980), 339 to 342 (p. 341), stated there with the variables
+`p_i = 2 π_i - 1` and exponents `2 e_i`: `π_i e_i ≡ -1 (mod 3)` exactly when `p_i ≡ 1 (mod 3)`
+and `2 e_i ≡ 1 (mod 3)`. The count here includes the special prime, which turns the two cases
+of that theorem into the single statement "odd". Known mathematics; no novelty is claimed.
 -/
 
 namespace OddPerfect
@@ -78,7 +84,8 @@ private theorem sigma_prime_pow_mod_three_of_two {p e : ℕ} (hp : p.Prime) (hp2
       norm_num [if_neg he, if_pos hs]
 
 /-- In an odd perfect number not divisible by 3, a prime factor that is 1 modulo 3 does not
-have an exponent that is 2 modulo 3. -/
+have an exponent that is 2 modulo 3. Compare Ewell, J. Number Theory 12 (1980), Theorem 3
+(p. 341). -/
 theorem factorization_mod_three_ne_two_of_not_three_dvd {N p : ℕ} (h : OddPerfect N)
     (h3 : ¬ 3 ∣ N) (hp : p.Prime) (hpN : p ∣ N) (hp1 : p % 3 = 1) :
     N.factorization p % 3 ≠ 2 := by
@@ -100,7 +107,8 @@ theorem even_factorization_of_mod_three_eq_two_of_not_three_dvd {N p : ℕ} (h :
   exact hne (if_neg he)
 
 /-- In an odd perfect number not divisible by 3, the number of prime factors that are 1 modulo 3
-with exponent 1 modulo 3 is odd. -/
+with exponent 1 modulo 3 is odd. Compare Ewell, J. Number Theory 12 (1980), Theorem 3
+(p. 341). -/
 theorem odd_card_one_mod_three_of_not_three_dvd {N : ℕ} (h : OddPerfect N) (h3 : ¬ 3 ∣ N) :
     Odd (N.primeFactors.filter fun p => p % 3 = 1 ∧ N.factorization p % 3 = 1).card := by
   have hres (p : ℕ) (hp : p ∈ N.primeFactors) :

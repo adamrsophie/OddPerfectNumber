@@ -4,6 +4,10 @@ import OddPerfect.LedgerPrimeThree
 
 For an odd perfect number, the parity of this count determines whether the special
 prime and its exponent agree modulo eight.
+
+This is Theorem 2 of J. A. Ewell, "On the multiplicative structure of odd perfect numbers",
+J. Number Theory 12 (1980), 339 to 342 (p. 340): an odd `e_i` there is an exponent
+`2 e_i ≡ 2 (mod 4)` here. Known mathematics; no novelty is claimed.
 -/
 
 namespace OddPerfect
@@ -13,7 +17,7 @@ open scoped ArithmeticFunction.sigma
 
 /-- In an odd perfect number with special prime `q`, the number of other prime factors `p` with
 `p ≡ 1 (mod 4)` and exponent `≡ 2 (mod 4)` is even exactly when `q` and its exponent agree
-modulo 8. -/
+modulo 8. Ewell, J. Number Theory 12 (1980), Theorem 2 (p. 340). -/
 theorem even_card_one_mod_four_iff {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) :
     Even ((N.primeFactors.erase q).filter

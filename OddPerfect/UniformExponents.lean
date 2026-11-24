@@ -14,7 +14,9 @@ has exponent exactly `l - 1`. We write
 Results, valid for every odd prime `l` at once:
 
 1. Every `w ∈ W` is fed only by the special component: `v_w(σ(q ^ k)) = l - 1`. Hence
-   `2 (∏ W) ^ (l - 1) ∣ σ(q ^ k)` and `8 (∏ W) ^ (l - 1) < 5 q ^ k`.
+   `2 (∏ W) ^ (l - 1) ∣ σ(q ^ k)` and `8 (∏ W) ^ (l - 1) < 5 q ^ k`. For `w = 3` this is
+   the theorem of Starni, J. Number Theory 116 (2006), 483 to 486 (p. 484), who proves it
+   for every common exponent `2 β`, with no primality condition on `2 β + 1`.
 2. `(∏_{s ∈ S} s/(s-1)) ^ (2 l) ≤ 2 |S| + 1`, so `≤ 2 l - 1` when `l` is ordinary.
 3. Abundancy: `2 < (q/(q-1)) (l/(l-1)) ∏_S ∏_W`. For `l` ordinary this gives
    `(8 (l-1)/(5 l)) ^ (2 l) < (2 l - 1) (∏_W w/(w-1)) ^ (2 l)`, so `W` is nonempty,

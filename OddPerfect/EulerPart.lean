@@ -267,7 +267,11 @@ private lemma sum_sq_pow_mod {q : ℕ} (hq : q % 2 = 1) (j : ℕ) :
     have : (q ^ 2) ^ (j + 1) % 4 = 1 := by simp [Nat.pow_mod, h1]
     omega
 
-/-- Chen and Luo; Dris and San Diego: `σ(m ^ 2) ≡ 1 (mod 4)` iff `q ≡ k (mod 8)`. -/
+/-- Chen and Luo; Dris and San Diego: `σ(m ^ 2) ≡ 1 (mod 4)` iff `q ≡ k (mod 8)`. Equivalent to
+congruence (2) of Ewell, J. Number Theory 12 (1980), 339 to 342 (p. 340): with `q = 4 π + 1`,
+`k = 4 ε + 1` and ordinary components `p_i ^ (2 e_i)`, `p_i = 2 π_i - 1`, he proves
+`π + ε + ∑ π_i e_i ≡ 0 (mod 2)`. The two are equivalent because
+`σ(m ^ 2) ≡ 1 + 2 ∑ π_i e_i (mod 4)`; this last congruence is not stated in his paper. -/
 theorem sigma_sq_mod_four_eq_one_iff (h : OddPerfect N) (hq : q.Prime)
     (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) : σ 1 (m ^ 2) % 4 = 1 ↔ q % 8 = k % 8 := by
   obtain ⟨-, ⟨j, rfl⟩, hq4, hk4, -, hprod⟩ := setup h hq hN hqm
