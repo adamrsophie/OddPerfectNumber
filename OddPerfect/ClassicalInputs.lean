@@ -14,8 +14,10 @@ equation via Runge's method, Monatsh. Math. 177 (2015), Proposition 1. The name
 `LjunggrenThreePrimePower` below is kept for compatibility; by the quotation above the theorem
 behind it is Nagell's.
 
-They are NOT proved in this library. They are definitions of propositions, so that a theorem can
-take them as explicit hypotheses and be read as conditional on them. Nothing here is an axiom.
+They are definitions of propositions, so that a theorem can take them as explicit hypotheses and
+be read as conditional on them. Nothing here is an axiom. The first, `NagellPrimePower`, is
+proved in `OddPerfect/NagellPrime.lean` (`nagellPrimePower`); the second is not proved in this
+module.
 The second statement cannot be sharpened to exponent `1`: `313 ^ 2 + 313 + 1 = 3 * 181 ^ 2`.
 -/
 
@@ -24,8 +26,8 @@ namespace OddPerfect
 /-- For primes `p`, `r` and `a ≥ 1`: `p ^ 2 + p + 1 = r ^ a` forces `a = 1`. A consequence of
 the classical theorem that `x ^ 2 + x + 1 = y ^ n` with `n > 1` has only the solution
 `18 ^ 2 + 18 + 1 = 7 ^ 3` in positive integers. For a prime `p` this is Lemma 1 of A. Brauer,
-Bull. Amer. Math. Soc. 49 (1943), 712 to 718, which relies on a theorem of Nagell. Not proved in
-this library; the cube case is `phi3_ne_cube_of_prime`. -/
+Bull. Amer. Math. Soc. 49 (1943), 712 to 718, which relies on a theorem of Nagell. Proved in
+`OddPerfect/NagellPrime.lean`; the cube case is `phi3_ne_cube_of_prime`. -/
 def NagellPrimePower : Prop :=
   ∀ p r a : ℕ, p.Prime → r.Prime → 1 ≤ a → p ^ 2 + p + 1 = r ^ a → a = 1
 

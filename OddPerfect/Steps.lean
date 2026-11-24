@@ -4,16 +4,19 @@ import OddPerfect.ClassicalInputs
 /-!
 # Steps open for contribution
 
-Each definition below is a proposition that this library does not prove. A contribution is one
-file `Contributions/<Name>.lean` that proves `OddPerfect.Steps.<Name>` exactly as stated here
-(see `CONTRIBUTING.md`). The definitions are statements only: nothing in the library may use
-one of them except as an explicit hypothesis.
+Each definition below is a proposition, kept as a statement only: nothing in the library may
+use one of them except as an explicit hypothesis. A contribution is one file
+`Contributions/<Name>.lean` that proves `OddPerfect.Steps.<Name>` exactly as stated here (see
+`CONTRIBUTING.md`).
+
+Status. Proved, each in `Contributions/<Name>.lean`: `Example`, `PureRowBase`,
+`TwicePrimePowerRow`, `NagellPrimePower`, `SpecialBelowRoot`. Without a proof here:
+`SpecialFifthPower`, `AllRowsPrimePower`, `RowValuationTransfer`, `LjunggrenThreePrimePower`.
 
 None of these steps settles the odd perfect number conjecture, which is open. The steps marked
 "published" restate a theorem from the literature; the page reference was read, and the
 statement was tested on small cases, but a restatement can still be wrong: a counterexample
-is as welcome as a proof. The step marked "open" has no published proof known to the
-maintainers.
+is as welcome as a proof.
 -/
 
 open ArithmeticFunction
@@ -70,9 +73,9 @@ def RowValuationTransfer : Prop :=
       (p % q ≠ 1 → padicValNat q (σ 1 (p ^ c)) = padicValNat q (c + 1) + 1)
 
 /-- Hard (published, classical). The statement `OddPerfect.NagellPrimePower`: for primes
-`p`, `r`, the equation `p ^ 2 + p + 1 = r ^ a` forces `a = 1`. Nagell (1921). A proof removes
-one of the two hypotheses of the theorems named `conditional_…` in
-`OddPerfect/ConditionalSupport.lean`. -/
+`p`, `r`, the equation `p ^ 2 + p + 1 = r ^ a` forces `a = 1`. Nagell (1921). This is one of the
+two hypotheses of the theorems named `conditional_…` in `OddPerfect/ConditionalSupport.lean`.
+Proved in `Contributions/NagellPrimePower.lean` (the proof is `OddPerfect/NagellPrime.lean`). -/
 def NagellPrimePower : Prop :=
   OddPerfect.NagellPrimePower
 
@@ -80,14 +83,15 @@ def NagellPrimePower : Prop :=
 primes `p`, `r`, the equation `p ^ 2 + p + 1 = 3 * r ^ a` forces `a ≤ 2`. Nagell (1921), as
 quoted by Bennett, Patel and Siksek (Mathematika 63 (2017), Section 3); the name of the
 definition is historical. A proof removes the other hypothesis of the theorems named
-`conditional_…`. -/
+`conditional_…`. Not proved here. -/
 def LjunggrenThreePrimePower : Prop :=
   OddPerfect.LjunggrenThreePrimePower
 
-/-- Open. In Euler's form with special exponent `1`, `N = q * m ^ 2` and `q ∤ m`, the special
-prime is below `m`. The library proves this outside one explicit shape
-(`special_lt_or_shape` in `OddPerfect/SpecialBelow.lean`); no published proof of the full
-statement is known to the maintainers. -/
+/-- In Euler's form with special exponent `1`, `N = q * m ^ 2` and `q ∤ m`, the special prime
+is below `m`. Proved in `Contributions/SpecialBelowRoot.lean` (the proof is
+`OddPerfect/SpecialBelowAll.lean`, which excludes the one shape left by `special_lt_or_shape`).
+A 2016 preprint states the inequality; whether a complete proof was published was not
+verified. -/
 def SpecialBelowRoot : Prop :=
   ∀ N q m : ℕ, OddPerfect N → q.Prime → N = q * m ^ 2 → ¬ q ∣ m → q < m
 
