@@ -92,7 +92,7 @@
 <pre class="lean"><code>private <span class="k">theorem</span> <span class="n">tab13</span> : <span class="k">∀</span> s &lt; 47, 13 &lt; s → isPrimeB s = true →
     checkSupport [3, 5, 13, s] = true := <span class="k">by</span>
   decide +kernel</code></pre>
-<p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/ad5564375d61271829e1d0d47f2fc4c58ab155d6/OddPerfect/OmegaFive.lean">OddPerfect/OmegaFive.lean</a></p>
+<p class="src-link">From <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/0de212ac4394a2bedaa1277a581daf25c3b10fdf/OddPerfect/OmegaFive.lean">OddPerfect/OmegaFive.lean</a></p>
 <p>The McDaniel module uses the same idea as a finite forcing tree: from 3 and 13 it branches on whether each forced prime (13, 61, 97, 3169, 3348577, 3737657091169) is special, and each of the leaves has an abundant divisor, for example 3²·5²·13²·31 with abundancy about 2.00205.</p>
 
 <h2 id="certificates">Verified certificate checking</h2>
@@ -126,7 +126,7 @@
       (.force 13 1 1 7 &lt;| .abundant [(3, 2), (5, 2), (13, 1), (7, 1)])
       (.abundant [(3, 2), (5, 2), (13, 2), (31, 1)]))
   (<span class="k">by</span> decide +kernel) N h (<span class="k">by</span> simp [State.Holds, Fact.Holds, h3, h5])</code></pre>
-<p class="src-link">The proof term, from <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/ad5564375d61271829e1d0d47f2fc4c58ab155d6/OddPerfect/Certificate.lean">OddPerfect/Certificate.lean</a></p>
+<p class="src-link">The proof term, from <a href="https://github.com/adamrsophie/OddPerfectNumber/blob/0de212ac4394a2bedaa1277a581daf25c3b10fdf/OddPerfect/Certificate.lean">OddPerfect/Certificate.lean</a></p>
 
 <h2 id="pratt">Pratt primality certificates</h2>
 <p><b>How it works.</b> A prime p is certified by a number a whose order modulo p is exactly p − 1: a<sup>p−1</sup> ≡ 1 (mod p), and a<sup>(p−1)/f</sup> ≢ 1 (mod p) for each prime factor f of p − 1. That requires the factorization of p − 1 and the primality of its factors, so the certificate is a flat list of entries (p, a, fs) in dependency order, where fs lists the prime factors of p − 1 with multiplicity. The checker verifies, for each entry, that the product of fs is p − 1, that every element of fs is an earlier entry or passes trial division, and the power conditions, using binary modular exponentiation written with structural recursion so that the kernel can evaluate it. mathlib's <code>lucas_primality</code> turns an accepted entry into a proof of primality.</p>
@@ -143,7 +143,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 24 November 2026, from commit <code>ad55643</code> on the main branch.</p>
+<p>Last updated 24 November 2026, from commit <code>0de212a</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
