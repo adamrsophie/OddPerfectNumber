@@ -18,12 +18,20 @@
 # the node branches on the largest forced
 # prime that is not an entry, over the exponents 2, 4, ... while r^e <= B.
 #
+# K is a natural number at least 1 (decimal digits only). Exit status: 0 when the files are
+# written, 1 when the search gets stuck or the corrupted tree cannot be built (no chain with two
+# exponents; nothing is written), 2 for a usage error.
 # Requires: Python 3 and sympy (factorint) for the factorizations.
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
 import json
 import os
 import sys
+
+if len(sys.argv) != 3 or not (sys.argv[1].isascii() and sys.argv[1].isdigit()) or \
+        int(sys.argv[1]) < 1:
+    print("usage: python3 -I gen.py K OUTDIR (K a natural number at least 1)", file=sys.stderr)
+    sys.exit(2)
 
 from sympy import factorint
 
@@ -172,7 +180,9 @@ def corrupt(t):
 
 
 BAD, ok = corrupt(TREE)
-assert ok
+if not ok:
+    print("no chain with two exponents, so no corrupted tree; nothing written", file=sys.stderr)
+    sys.exit(1)
 
 os.makedirs(OUT, exist_ok=True)
 CERT = {"K": K, "pratt": PRATT, "tab": TAB, "tree": TREE, "bad": BAD}

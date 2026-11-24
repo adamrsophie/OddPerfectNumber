@@ -36,13 +36,46 @@ The arguments of `search.py` are `K W U ROOT CAP ROWS OUT`: the bound `K` for
 root prime, and the cap for the total excess (`none` or an integer). Flags: `noledger` switches
 the ledger rule off, `maxnodes=M` stops after `M` nodes and `maxexp=E` leaves a chain open above the
 exponent `E` (open leaves are reported),
-`factor_seconds=S` (at least 1) bounds each factoring step of a row: the full factorization
-with its primality checks, and after a timeout the factorization with a limit; only factors
-proven prime before the second deadline are kept, which is still a valid lower bound, and such
-a row is printed as `PARTIAL` and counted in the final line `partial rows`. `search.py` ends
-with exit status 0 when the tree closes, 1 when a leaf stays open, 2 for a usage error;
-`check.py` ends with exit status 0 when it accepts, 1 when it rejects (also with the flag
-`corrupt`) and 2 for malformed input or a usage error.
+`factor_seconds=S` bounds each factoring step: for a row the full factorization with its
+primality checks, and after a timeout the factorization with a limit; for a prime `p` from 200 on
+the factorization of `p - 1` with its primality checks. Every parameter is checked before the
+search starts (decimal digits only; `K`, `W` and `CAP` at least 0, `U` at least 3, `ROOT` a prime
+at least 3, `M` and `S` at least 1, `E` at least 2; no unknown or repeated option); a bad one
+ends with exit status 2 and a message.
+
+Partial rows. A row whose factorization does not multiply back to its value (up to a power of 2)
+after the deadlines keeps only the factors proven prime, which is still a valid lower bound; it is
+printed as `PARTIAL row`, counted in the final line `partial rows` and listed in the field
+`"partial": [[p, m], ...]` of `rows.json`. The field is written only when some row is marked, so a
+table without partial rows keeps its bytes; an absent mark means that the row is complete. A
+`p - 1` whose factorization times out is printed as `PARTIAL pm1` and not stored. The readers:
+
+* `search.py` factors a marked row again when it uses it (and drops the mark when the new
+  factorization is complete); it rejects with exit status 2 a table in which an unmarked row
+  does not multiply back or a stored factorization of `p - 1` does not give `p - 1`.
+* `check.py` and `gen.py` reject (exit status 1, `gen.py` writes nothing) a certificate that uses
+  a marked row, and a table in which an unmarked row does not multiply back; marked rows that the
+  certificate does not use are skipped.
+* Exception: nine rows of the landed `rows.json` (written with `factor_seconds=60` before rows
+  were marked: `88741^10`, `6619231^10`, `262209281^10`, `52379047267^10`, `297134095231^4`,
+  `1957650063931^6` and `^8`, `31747594185191^8`, `241562563680036301^6`) do not multiply back
+  and carry no mark. They are listed in `LANDED_PARTIAL` in each of the three scripts, pinned to
+  their recorded facts, and accepted as the lower bounds they are (every rule of the checker only
+  needs `r ^ k` to divide the row). Six landed certificates use them (`cert_excess5_3`,
+  `cert_excess6_3`, `cert_excess6_17`, `cert_excess7_3`, `cert_excess7_5`, `cert_excess7_17`); a
+  changed fact list for one of these rows falls under the general rule.
+
+Exit statuses: `search.py` ends with 0 when the tree closes and every factorization finished, 1
+when a leaf stays open or a row or a `p - 1` stayed partial (such a certificate is rejected by
+`check.py` and `gen.py`), 2 for a usage error or an unreadable or rejected row table. `check.py`
+ends with 0 when it accepts, 1 when it rejects (also with the flag `corrupt`) and 2 for malformed
+input or a usage error. `gen.py` ends with 0 when it has written the modules, 1 when a check fails
+(a marked or incomplete row in use, a factorization of `p - 1` that does not multiply back or is
+missing, an open leaf, a chain item `high` that is not the last, `corrupt` without a capacity
+leaf, a special child at a state that does not allow one), and 2 for malformed input or a usage
+error (`NAME` letters and digits only, `OUT` ending with `.lean`, the options `gnodes`, `pper`,
+`tper` at least 1 and `pmods`, `tmods` at least 0, `corrupt` and `split` not together). Every
+check of `gen.py` runs before the first file is written.
 
 Regeneration is deterministic: running the commands twice gives the same `cert2.json`,
 `cert4.json`, `rows.json` and Lean files (compare with `shasum`).

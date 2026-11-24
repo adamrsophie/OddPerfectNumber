@@ -13,6 +13,14 @@
 #   statement A, K = 2: python3 gen.py cert2.json rows.json Two DefectTreeTwoData.lean
 #   NAME is the suffix of the Lean names. With the flag corrupt the first capacity leaf gets
 #   a wrong witness and the module states `check ... = false` instead (a control, not landed).
+# Options: gnodes, pper and tper at least 1, pmods and tmods at least 0 (decimal digits only);
+# NAME letters and digits only; OUT ends with .lean; corrupt and split exclude each other.
+# Rows: every unmarked row of ROWS must multiply back to its value up to a power of 2 (except
+# the nine landed rows of LANDED_PARTIAL, pinned to their recorded facts), and the certificate
+# must use no row of the field "partial"; every factorization of p - 1 that the Pratt
+# certificate uses must multiply back to p - 1.
+# Exit status: 0 when the module is written, 1 when a check fails (nothing is written), 2 for a
+# usage error or malformed input.
 # Requires: Python 3 standard library only. The Pratt witnesses are computed from the frozen
 # factorizations of p - 1 in ROWS.
 # Untrusted: every result is checked again by the Lean kernel.
@@ -20,15 +28,118 @@
 
 import sys, json, hashlib
 
+
+def usage(why):
+    print('usage: python3 gen.py CERT ROWS NAME OUT.lean [corrupt] [split] [gnodes=G] [pper=N] '
+          '[tper=N] [pmods=M] [tmods=M]: %s' % why, file=sys.stderr)
+    sys.exit(2)
+
+
+def malformed(msg):
+    print('malformed input: ' + msg, file=sys.stderr)
+    sys.exit(2)
+
+
+def fail(msg):
+    print('rejected: %s; nothing written' % msg, file=sys.stderr)
+    sys.exit(1)
+
+
+if len(sys.argv) < 5:
+    usage('expected at least 4 arguments')
 CERT, ROWS, NAME, OUT = sys.argv[1:5]
+if not (NAME.isascii() and NAME.isalnum()):
+    usage('NAME must consist of letters and digits, got %r' % NAME)
+if not OUT.endswith('.lean') or OUT.split('/')[-1] == '.lean':
+    usage('OUT must be a file name ending with .lean, got %r' % OUT)
+LOW = {'gnodes': 1, 'pper': 1, 'tper': 1, 'pmods': 0, 'tmods': 0}
+seen = set()
+for a in sys.argv[5:]:
+    key, eq, val = a.partition('=')
+    if a in ('corrupt', 'split') and a not in seen:
+        seen.add(a)
+    elif eq and key in LOW and key not in seen and val.isascii() and val.isdigit() and \
+            int(val) >= LOW[key]:
+        seen.add(key)
+    else:
+        usage('unknown, repeated or out of range flag %r' % a)
 CORRUPT = 'corrupt' in sys.argv[5:]
 SPLIT = 'split' in sys.argv[5:]
-c = json.load(open(CERT))
-d = json.load(open(ROWS))
-rows = {(p, m): fs for p, m, fs in d['rows']}
-pm1 = {int(p): fs for p, fs in d['pm1'].items()}
-P = c['params']
-tab = [(p, m, rows[(p, m)]) for p, m in c['rows']]
+if CORRUPT and SPLIT:
+    usage('corrupt and split exclude each other')
+
+
+def load(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError) as e:
+        malformed('%s: %s' % (path, e))
+
+
+c = load(CERT)
+d = load(ROWS)
+try:
+    if not {'rows', 'pm1'} <= set(d) <= {'rows', 'pm1', 'partial'}:
+        raise ValueError('expected the fields rows, pm1 and optionally partial')
+    rows = {(p, m): fs for p, m, fs in d['rows']}
+    pm1 = {int(p): fs for p, fs in d['pm1'].items()}
+    PARTSET = set((p, m) for p, m in d.get('partial', []))
+    if not PARTSET <= set(rows):
+        raise ValueError('a partial entry that is no row of the table')
+    P = c['params']
+    tab = [(p, m, rows[(p, m)]) for p, m in c['rows']]
+    for (p, m), fs in rows.items():
+        for r, k in fs:
+            if not all(type(x) is int and x >= 0 for x in (p, m, r, k)):
+                raise ValueError('row (%r, %r) with a fact that is not a natural number' % (p, m))
+except (ValueError, KeyError, TypeError, AttributeError) as e:
+    malformed('%s or %s: %r' % (CERT, ROWS, e))
+
+
+def gs(p, m):
+    return sum(p ** i for i in range(m + 1))
+
+
+# Landed rows whose factorization did not finish (factor_seconds=60), written before partial
+# rows were marked; each is pinned to its recorded facts, a lower bound that every rule of the
+# checker allows. Any other unmarked row must multiply back.
+LANDED_PARTIAL = {
+    (88741, 10): [(89, 1)],
+    (6619231, 10): [(2311, 1), (732491, 1), (3436841, 1), (1255056807467, 1)],
+    (262209281, 10): [(23, 1), (67, 1), (947, 1)],
+    (52379047267, 10): [(23, 1), (67, 1), (24509, 1), (2898485987, 1)],
+    (297134095231, 4): [(5, 1), (2311, 1)],
+    (1957650063931, 6): [(43, 1), (583171, 1), (8460677, 1), (16222061143, 1)],
+    (1957650063931, 8): [(3, 2), (7, 1), (13, 1), (37, 2), (73, 1), (271, 1), (895091017, 1),
+                         (14098470301, 1), (15683402202973, 1)],
+    (31747594185191, 8): [(19, 1), (37, 1), (181, 1), (199, 1), (397, 1), (2671, 1),
+                          (548749, 1), (82339759, 1)],
+    (241562563680036301, 6): [(29, 1), (700220696536117, 1)],
+}
+
+
+def odd_cofactor(n, fs):
+    """n divided by every r ^ k of fs and by its powers of 2, or None when a fact (r, k) is not
+    an odd r > 2 with k >= 1 and r ^ k dividing what is left."""
+    for r, k in fs:
+        if not (r > 2 and 1 <= k <= n.bit_length() and n % r ** k == 0):
+            return None
+        n //= r ** k
+    while n > 1 and n % 2 == 0:
+        n //= 2
+    return n
+
+
+for p, m, fs in tab:
+    if (p, m) in PARTSET:
+        fail('the certificate uses the row (%d, %d), marked partial in %s' % (p, m, ROWS))
+for (p, m), fs in sorted(rows.items()):
+    if (p, m) in PARTSET or LANDED_PARTIAL.get((p, m)) == [tuple(f) for f in fs]:
+        continue
+    n = odd_cofactor(gs(p, m), [tuple(f) for f in fs])
+    if n != 1:
+        fail('the facts of the row (%d, %d) do not multiply back to its value' % (p, m))
 
 # Pratt certificate: every fact prime from 200 on, in dependency order.
 out, done = [], set()
@@ -36,11 +147,14 @@ out, done = [], set()
 def pratt(p):
     if p < 200 or p in done:
         return
+    if p not in pm1:
+        fail('no factorization of %d - 1 for the Pratt certificate' % p)
     fs = pm1[p]
     prod = 1
     for r in fs:
         prod *= r
-    assert prod == p - 1, p
+    if prod != p - 1:
+        fail('the factorization of %d - 1 does not multiply back' % p)
     for r in sorted(set(fs)):
         pratt(r)
     a = 2
@@ -68,13 +182,16 @@ def lean_cert(t):
     if k == 'br':
         sp = '.nil' if t['sp'] is None else lean_cert(t['sp'])
         return '(.br %d %s %s)' % (t['r'], sp, lean_chain(t['ch']))
-    raise ValueError(k)
+    if k == 'open':
+        fail('the certificate has an open leaf')
+    malformed('%s: unknown node %r' % (CERT, k))
 
 def lean_chain(items):
     s = ''
     for it in reversed(items):
         if it['t'] == 'high':
-            assert s == ''
+            if s != '':
+                fail('a chain item high that is not the last of its chain')
             s = '(.high %s)' % lean_cert(it['kid'])
         else:
             s = '(.ord %s %s)' % (lean_cert(it['kid']), s)
@@ -97,7 +214,8 @@ def corrupt(t, state):
 if CORRUPT:
     st = [False]
     corrupt(c['cert'], st)
-    assert st[0]
+    if not st[0]:
+        fail('corrupt: the certificate has no capacity leaf')
 
 def wrap(items, per=6):
     lines = []
@@ -142,7 +260,10 @@ L.append(',\n'.join('  (%d, %d, [%s])' % (p, m, ', '.join('(%d, %d)' % (r, k) fo
 L.append('')
 L.append('/-- The certificate term. -/')
 L.append('def cert%s : Cert :=' % NAME)
-L.append('  ' + lean_cert(c['cert']))
+try:       # the whole tree once, before any output: shape errors end here
+    L.append('  ' + lean_cert(c['cert']))
+except (KeyError, TypeError, IndexError) as e:
+    malformed('%s: a node with missing or wrong fields: %r' % (CERT, e))
 L.append('')
 if CORRUPT:
     L.append('/-- The corrupted certificate is rejected. -/')
@@ -179,8 +300,12 @@ def fold_ind(line, width=100):
     return [ind + x if k == 0 else x for k, x in
             enumerate(fold(line[len(ind):], width - len(ind), ind + '    '))]
 
+PENDING = []     # (path, text): written only after every check has passed
+
+
 def emit(path, lines, f=fold):
-    open(path, 'w').write('\n'.join(x for l in '\n'.join(lines).split('\n') for x in f(l)) + '\n')
+    text = '\n'.join(x for l in '\n'.join(lines).split('\n') for x in f(l))
+    PENDING.append((path, text + '\n'))
 
 def opt(key, default):
     for a in sys.argv[5:]:
@@ -207,7 +332,6 @@ if SPLIT:
     # the Pratt parts (table parts) to the modules OUTP0.lean, OUTP1.lean, ... (OUTT0.lean,
     # ...), M parts each, and leaves in OUTP.lean (OUTT.lean) only the joined list and its
     # check. Without these options the output is unchanged.
-    assert not CORRUPT
     PER = 150
     GN = opt('gnodes', 10 ** 9)
     base = OUT[:-len('.lean')]
@@ -319,12 +443,15 @@ if SPLIT:
         if size(t) <= GN and t is not c['cert']:
             pieces.append((t, os_, sp))
             return 'piece%s_%d' % (NAME, len(pieces) - 1)
-        assert t['t'] == 'br'
+        if t['t'] != 'br':      # unreachable: a leaf has size 1 <= GN
+            fail('split: a leaf above the node limit')
         r = t['r']
         if t['sp'] is None:
             spk = '.nil'
         else:
-            assert sp == 0 and r % 4 == 1
+            if not (sp == 0 and r % 4 == 1):
+                fail('split: a special child of the branch on %d at a state where it is not '
+                     'allowed' % r)
             spk = cut(t['sp'], os_, r)
         s, e = '', 2
         terms = []
@@ -389,5 +516,8 @@ if SPLIT:
     emit(OUT, C, fold_ind)
 else:
     emit(OUT, L)
+for path, text in PENDING:
+    with open(path, 'w') as f:
+        f.write(text)
 print('wrote', OUT, 'rows', len(tab), 'pratt', len(out), 'max pratt prime',
       max((p for p, _, _ in out), default=0))

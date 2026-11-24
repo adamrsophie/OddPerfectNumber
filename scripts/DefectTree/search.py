@@ -14,50 +14,151 @@
 # (an abundant divisor). Branch: a forced prime; children special (when allowed), exponents
 # 2, 4, ... exactly, and a last child "at least e".
 #
-# Run: python3 search.py K W U ROOT CAP ROWS OUT [noledger] [maxnodes=M]
+# Run: python3 search.py K W U ROOT CAP ROWS OUT [noledger] [maxnodes=M] [maxexp=E]
+#   [factor_seconds=S]
 #   statement A, K = 2: python3 search.py 2 0 3 3 none rows.json cert2.json
+#   K and W are natural numbers, U is at least 3, ROOT is a prime at least 3, CAP is a natural
+#   number or none, M and S are at least 1 and E at least 2 (decimal digits only). ROWS is the
+#   frozen row table (read if present, missing rows are factored with sympy and the file is
+#   rewritten). OUT gets the certificate.
 #   Flags: noledger, maxnodes=M, maxexp=E (a chain above exponent E is left open),
-#   factor_seconds=S. CAP is an integer or none. ROWS is the frozen row table (read if
-#   present, missing rows are factored with sympy and the file is rewritten).
-#   OUT gets the certificate.
-# Exit status: 0 when the tree closes (no open leaf), 1 when a leaf stays open, 2 for a usage
-# error or an unreadable row table.
+#   factor_seconds=S (a deadline for each factoring step, also for the factorizations of p - 1).
+# Partial rows: a row whose factorization did not finish keeps the odd prime factors proven
+# before the deadline and is listed in the field "partial" of ROWS (absent when there is none).
+# A marked row is factored again when the search uses it. A p - 1 whose factorization did not
+# finish is not stored. Every unmarked row must multiply back to its value up to a power of 2
+# (except the nine landed rows of LANDED_PARTIAL, pinned to their recorded facts), and every
+# stored factorization of p - 1 to p - 1.
+# Exit status: 0 when the tree closes (no open leaf) and every factorization finished, 1 when a
+# leaf stays open or a row or a p - 1 stayed partial (check.py and gen.py reject such a
+# certificate), 2 for a usage error or an unreadable or rejected row table.
 # Requires: Python 3, sympy (only for rows not yet in ROWS).
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
 
-import sys, json, os, signal
+import sys, json, os, signal, math
 
-try:
-    args = [a for a in sys.argv[1:] if '=' not in a and a != 'noledger']
-    opts = dict(a.split('=') for a in sys.argv[1:] if '=' in a)
-    NOLEDGER = 'noledger' in sys.argv[1:]
-    if len(args) != 7 or not set(opts) <= {'maxnodes', 'maxexp', 'factor_seconds'}:
-        raise ValueError
-    K, W, U, ROOT = map(int, args[:4])
-    CAP = None if args[4] == 'none' else int(args[4])
-    ROWS, OUT = args[5], args[6]
-    MAXNODES = int(opts.get('maxnodes', 10 ** 7))
-    MAXEXP = int(opts.get('maxexp', 400))
-    FACTOR_SECONDS = int(opts.get('factor_seconds', 600))
-    if FACTOR_SECONDS < 1:      # signal.alarm(0) would switch the deadline off
-        raise ValueError
-except ValueError:
+
+def usage(why):
     print('usage: python3 search.py K W U ROOT CAP ROWS OUT [noledger] [maxnodes=M] [maxexp=E] '
-          '[factor_seconds=S] (S at least 1)', file=sys.stderr)
+          '[factor_seconds=S]: %s' % why, file=sys.stderr)
     sys.exit(2)
+
+
+def nat_arg(s, name, low):
+    """A command line number: decimal digits only, at least low."""
+    if not (s.isascii() and s.isdigit()) or int(s) < low:
+        usage('%s must be a natural number at least %d, got %r' % (name, low, s))
+    return int(s)
+
+
+def is_prime_small(n):
+    return n >= 2 and all(n % d for d in range(2, math.isqrt(n) + 1))
+
+
+args = [a for a in sys.argv[1:] if '=' not in a and a != 'noledger']
+NOLEDGER = 'noledger' in sys.argv[1:]
+opts = {}
+for a in sys.argv[1:]:
+    if '=' in a:
+        key, _, val = a.partition('=')
+        if key not in ('maxnodes', 'maxexp', 'factor_seconds') or key in opts:
+            usage('unknown or repeated option %r' % a)
+        opts[key] = val
+if len(args) != 7:
+    usage('expected 7 arguments, got %d' % len(args))
+K = nat_arg(args[0], 'K', 0)
+W = nat_arg(args[1], 'W', 0)
+U = nat_arg(args[2], 'U', 3)
+ROOT = nat_arg(args[3], 'ROOT', 3)
+if not is_prime_small(ROOT):
+    usage('ROOT must be a prime, got %d' % ROOT)
+CAP = None if args[4] == 'none' else nat_arg(args[4], 'CAP', 0)
+ROWS, OUT = args[5], args[6]
+MAXNODES = nat_arg(opts.get('maxnodes', str(10 ** 7)), 'maxnodes', 1)
+MAXEXP = nat_arg(opts.get('maxexp', '400'), 'maxexp', 2)
+FACTOR_SECONDS = nat_arg(opts.get('factor_seconds', '600'), 'factor_seconds', 1)
+# (factor_seconds at least 1: signal.alarm(0) would switch the deadline off.)
+
+def gs(p, m):
+    return sum(p ** i for i in range(m + 1))
+
+
+# Landed rows whose factorization did not finish (factor_seconds=60), written before partial
+# rows were marked; each is pinned to its recorded facts, a lower bound that every rule of the
+# checker allows. Any other unmarked row must multiply back.
+LANDED_PARTIAL = {
+    (88741, 10): [(89, 1)],
+    (6619231, 10): [(2311, 1), (732491, 1), (3436841, 1), (1255056807467, 1)],
+    (262209281, 10): [(23, 1), (67, 1), (947, 1)],
+    (52379047267, 10): [(23, 1), (67, 1), (24509, 1), (2898485987, 1)],
+    (297134095231, 4): [(5, 1), (2311, 1)],
+    (1957650063931, 6): [(43, 1), (583171, 1), (8460677, 1), (16222061143, 1)],
+    (1957650063931, 8): [(3, 2), (7, 1), (13, 1), (37, 2), (73, 1), (271, 1), (895091017, 1),
+                         (14098470301, 1), (15683402202973, 1)],
+    (31747594185191, 8): [(19, 1), (37, 1), (181, 1), (199, 1), (397, 1), (2671, 1),
+                          (548749, 1), (82339759, 1)],
+    (241562563680036301, 6): [(29, 1), (700220696536117, 1)],
+}
+
+
+def odd_cofactor(n, fs):
+    """n divided by every r ^ k of fs and by its powers of 2, or None when a fact (r, k) is not
+    an odd r > 2 with k >= 1 and r ^ k dividing what is left."""
+    for r, k in fs:
+        if not (r > 2 and 1 <= k <= n.bit_length() and n % r ** k == 0):
+            return None
+        n //= r ** k
+    while n > 1 and n % 2 == 0:
+        n //= 2
+    return n
+
+
+def is_nat(x):
+    return type(x) is int and x >= 0
+
 
 rows = {}
 pm1 = {}
+PARTSET = set()       # marked rows: factored again when used
 if os.path.exists(ROWS):
     try:
         with open(ROWS) as f:
             d = json.load(f)
-        rows = {(p, m): [tuple(f) for f in fs] for p, m, fs in d['rows']}
-        pm1 = {int(p): fs for p, fs in d['pm1'].items()}
+        if type(d) is not dict or not {'rows', 'pm1'} <= set(d) <= {'rows', 'pm1', 'partial'}:
+            raise ValueError('expected the fields rows, pm1 and optionally partial')
+        for row in d['rows']:
+            p, m, fs = row
+            if not (is_nat(p) and is_nat(m) and type(fs) is list and
+                    all(type(x) is list and len(x) == 2 and all(map(is_nat, x)) for x in fs)):
+                raise ValueError('row %r is not [p, m, [[r, k], ...]]' % (row,))
+            rows[(p, m)] = [tuple(x) for x in fs]
+        for p, fs in d['pm1'].items():
+            if not (p.isascii() and p.isdigit() and type(fs) is list and all(map(is_nat, fs))):
+                raise ValueError('pm1 entry %r' % p)
+            pm1[int(p)] = fs
+        for key in d.get('partial', []):
+            if not (type(key) is list and len(key) == 2 and tuple(key) in rows):
+                raise ValueError('partial entry %r is not a row of the table' % (key,))
+            PARTSET.add(tuple(key))
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
-        print('malformed input: %s: %r' % (ROWS, e), file=sys.stderr)
+        print('malformed input: %s: %s' % (ROWS, e), file=sys.stderr)
         sys.exit(2)
+    for (p, m), fs in sorted(rows.items()):
+        if (p, m) in PARTSET or LANDED_PARTIAL.get((p, m)) == fs:
+            continue
+        if odd_cofactor(gs(p, m), fs) != 1:
+            print('rejected row table %s: the facts of the row (%d, %d) do not multiply back to '
+                  'its value and the row is not marked partial' % (ROWS, p, m), file=sys.stderr)
+            sys.exit(2)
+    for p, fs in sorted(pm1.items()):
+        prod = 1
+        for r in fs:
+            prod *= r
+        if prod != p - 1:
+            print('rejected row table %s: the factorization of %d - 1 does not multiply back'
+                  % (ROWS, p), file=sys.stderr)
+            sys.exit(2)
 dirty = False
 used = set()
 
@@ -66,9 +167,6 @@ class Slow(Exception):
 
 def _alarm(*a):
     raise Slow()
-
-def gs(p, m):
-    return sum(p ** i for i in range(m + 1))
 
 def under_deadline(work):
     """Runs work() with an alarm of FACTOR_SECONDS; True when it finished in time."""
@@ -86,8 +184,8 @@ def factor_row(n):
     """Odd prime factors with exponents, and whether the factorization is complete. The full
     factorization and its primality checks run under one deadline; after a timeout, the sympy
     factorization with a limit and the primality checks of its factors run under a second
-    deadline, and only the factors proven prime before it expires are kept (a lower bound,
-    reported as partial)."""
+    deadline, and only the factors proven prime before it expires are kept (a lower bound).
+    Complete means that the kept facts multiply back to n up to a power of 2."""
     from sympy import factorint, isprime
     f = {}
 
@@ -103,21 +201,30 @@ def factor_row(n):
             if isprime(r):
                 f[r] = v
 
-    complete = under_deadline(full)
-    if not complete:
+    timed_out = not under_deadline(full)
+    if timed_out:
         f.clear()
         under_deadline(limited)
-    return sorted((r, v) for r, v in f.items() if r != 2), complete
+    fs = sorted((r, v) for r, v in f.items() if r != 2)
+    return fs, odd_cofactor(n, fs) == 1, timed_out
 
 PARTIAL = []
+TRIED = set()      # rows factored in this run
 
 def facts_row(p, m):
     global dirty
     key = (p, m)
     used.add(key)
-    if key not in rows:
-        rows[key], complete = factor_row(gs(p, m))
-        if not complete:
+    if key not in rows or (key in PARTSET and key not in TRIED):
+        TRIED.add(key)
+        rows[key], complete, timed_out = factor_row(gs(p, m))
+        if complete:
+            PARTSET.discard(key)
+            if timed_out:
+                print('row', p, m, ': the full factorization timed out, the factorization '
+                      'with a limit is complete', flush=True)
+        else:
+            PARTSET.add(key)
             PARTIAL.append(key)
             print('PARTIAL row', p, m, 'factor_seconds', FACTOR_SECONDS, 'kept', rows[key],
                   flush=True)
@@ -279,11 +386,31 @@ def node(os_, sp):
 NODES[0] += 1
 cert = branch([], 0, ROOT)
 
+PARTIAL_PM1 = []      # primes whose p - 1 timed out in this run (not tried again)
+
 def pm1_of(p):
+    """Stores the factorization of p - 1 (and recursively of r - 1 for its prime factors r from
+    200 on). The factorization and its primality checks run under the deadline; after a timeout
+    nothing is stored (a partial factorization of p - 1 is no Pratt data), and p is reported."""
     global dirty
+    if p in PARTIAL_PM1:
+        return
     if p not in pm1:
-        from sympy import factorint
-        f = factorint(p - 1)
+        from sympy import factorint, isprime
+        f = {}
+
+        def full():
+            g = factorint(p - 1)
+            for r in g:
+                if not isprime(r):
+                    raise SystemExit('factorint returned the composite factor %d' % r)
+            f.update(g)
+
+        if not under_deadline(full):
+            PARTIAL_PM1.append(p)
+            print('PARTIAL pm1', p, 'factor_seconds', FACTOR_SECONDS, 'nothing stored',
+                  flush=True)
+            return
         pm1[p] = sorted(r for r, v in f.items() for _ in range(v))
         dirty = True
     for r in set(pm1[p]):
@@ -296,9 +423,11 @@ for key in tab_rows:
         if r >= 200:
             pm1_of(r)
 if dirty or not os.path.exists(ROWS):
-    json.dump({'rows': [[p, m, [list(f) for f in rows[(p, m)]]] for p, m in sorted(rows)],
-               'pm1': {str(p): pm1[p] for p in sorted(pm1)}}, open(ROWS, 'w'), indent=0,
-              sort_keys=True)
+    table = {'rows': [[p, m, [list(f) for f in rows[(p, m)]]] for p, m in sorted(rows)],
+             'pm1': {str(p): pm1[p] for p in sorted(pm1)}}
+    if PARTSET:       # written only when there is a mark, so complete tables keep their bytes
+        table['partial'] = [[p, m] for p, m in sorted(PARTSET)]
+    json.dump(table, open(ROWS, 'w'), indent=0, sort_keys=True)
 json.dump({'params': {'K': K, 'w': W, 'u': U, 'root': ROOT, 'cap': CAP},
            'rows': [[p, m] for p, m in tab_rows], 'cert': cert},
           open(OUT, 'w'), sort_keys=True)
@@ -307,7 +436,12 @@ print('K', K, 'w', W, 'u', U, 'root', ROOT, 'cap', CAP, 'noledger' if NOLEDGER e
 print('nodes', NODES[0], 'stats', dict(sorted(STATS.items())), 'open', len(OPEN))
 print('rows', len(tab_rows), 'largest prime in a row', maxrow)
 if PARTIAL:
-    print('partial rows', len(PARTIAL), '(factorization timed out; only proven prime factors kept)')
+    print('partial rows', len(PARTIAL), '(factorization timed out; only proven prime factors '
+          'kept; marked in %s)' % ROWS)
+if PARTIAL_PM1:
+    print('partial pm1', len(PARTIAL_PM1), '(factorization of p - 1 timed out; nothing stored)')
 for o in OPEN[:10]:
     print('  OPEN', o)
-sys.exit(1 if OPEN else 0)
+if (PARTIAL or PARTIAL_PM1) and not OPEN:
+    print('not complete: the certificate uses partial results, which check.py and gen.py reject')
+sys.exit(1 if OPEN or PARTIAL or PARTIAL_PM1 else 0)

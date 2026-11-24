@@ -12,7 +12,10 @@ number conjecture is open.
 ## Files
 
 * `gen.py K OUTDIR`: runs the search for `B = 10 ^ K` and writes `OUTDIR/cert.json` and
-  `OUTDIR/SpecialFiveData.lean`. Needs Python 3 and sympy (only `factorint`).
+  `OUTDIR/SpecialFiveData.lean`. Needs Python 3 and sympy (only `factorint`). `K` must be a
+  natural number at least 1 (decimal digits only). Exit status 0 when the files are written, 1
+  when the search gets stuck or no chain has two exponents so the corrupted tree `certBad`
+  cannot be built (for example `K = 1`; nothing is written), 2 for a usage error.
 * `stage1.py B [MAXNODES] [small|large]`: the measuring search of the table below (counts
   only, no certificate), branching on the smallest or the largest forced prime.
 * `replay.py CERT [tree|bad]`: an independent Python mirror of `SpecialFive.check` (standard

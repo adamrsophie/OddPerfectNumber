@@ -47,7 +47,10 @@ already took 5.3 GB. At `10 ^ 33` the certificate has 2753 Pratt entries, 801 ta
   runs the search for `B = 10 ^ K` and writes `OUTDIR/cert.json`, `OUTDIR/modules.txt` and
   the Lean modules in `OUTDIR/OddPerfect/`. Standard library only (trial division, Miller
   and Rabin, Pollard's rho with Brent's cycle search). The search is the one of
-  `scripts/SpecialFive/gen.py`.
+  `scripts/SpecialFive/gen.py`. `K` and the four chunk sizes must be natural numbers at least
+  1 (decimal digits only). Exit status 0 when the files are written, 1 when the search gets
+  stuck, no chain has two exponents (no corrupted piece, for example `K = 1`) or the Pratt
+  certificate is empty (for example `K = 2`), with nothing written, and 2 for a usage error.
 * `replay.py CERT [tree|bad]`: an independent mirror of the Lean modules (standard library
   only, does not import `gen.py`): each Pratt chunk with only its known list, each known list
   inside the earlier chunks, each table chunk against the whole Pratt certificate, the

@@ -29,6 +29,10 @@
 # with Brent's cycle search. The output depends only on the arguments: factorizations are
 # unique, every list is sorted or follows the deterministic search order, and Pratt witnesses
 # are the smallest that work.
+# K and the four chunk sizes are natural numbers at least 1 (decimal digits only). Exit status:
+# 0 when the files are written, 1 when the search gets stuck, the corrupted piece cannot be
+# built (no chain with two exponents) or the Pratt certificate is empty (nothing is written),
+# 2 for a usage error.
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
 import json
@@ -36,6 +40,11 @@ import math
 import os
 import sys
 
+if not 3 <= len(sys.argv) <= 7 or not all(a.isascii() and a.isdigit() and int(a) >= 1
+                                           for a in sys.argv[1:2] + sys.argv[3:]):
+    print("usage: python3 -I gen.py K OUTDIR [PRATT_CHUNK TAB_CHUNK PIECE TREE_CAP] (natural "
+          "numbers at least 1)", file=sys.stderr)
+    sys.exit(2)
 K = int(sys.argv[1])
 OUT = sys.argv[2]
 PRATT_CHUNK = int(sys.argv[3]) if len(sys.argv) > 3 else 500
@@ -319,7 +328,14 @@ for i, pc in enumerate(PIECES):
     if ok:
         BAD = {"piece": i, "tree": c}
         break
-assert BAD is not None
+if BAD is None:
+    print("no chain with two exponents, so no corrupted piece; nothing written", file=sys.stderr)
+    sys.exit(1)
+if not PCH or PCH[0]["known"] != []:
+    # The first chunk is glued as a whole certificate (prattP0_ok), so it must know no prime.
+    print("the Pratt certificate is empty or its first chunk uses earlier primes; nothing "
+          "written", file=sys.stderr)
+    sys.exit(1)
 
 os.makedirs(os.path.join(OUT, "OddPerfect"), exist_ok=True)
 CERT = {"K": K, "pratt_chunks": PCH, "tab_chunks": TCH, "pieces": PIECES, "skeleton": SKEL,
@@ -435,7 +451,6 @@ L = header(["OddPerfect.SpecialFiveMoreLemmas"] +
 L += ["/-- The flat Pratt certificate. -/", "def pratt : PCert :="]
 L += fold(" ++ ".join("prattC%d" % i for i in range(NP)))
 L += [""]
-assert PCH[0]["known"] == []
 prev = "prattC0"
 L += ["/-- The first chunk is accepted. -/",
       "theorem prattP0_ok : Pratt.check prattC0 = true := prattC0_ok", ""]

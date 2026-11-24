@@ -9,8 +9,9 @@
 # optimized (-O) mode, so a check written as an `assert` would show up as a failure.
 # SpecialFive and SpecialFiveMore keep no certificate in the repository: the controls build
 # them in a temporary folder (SpecialFive/gen.py 24, whose certificate and Lean module must
-# equal the published ones, and SpecialFiveMore/gen.py 12 with small chunks). The factoring
-# deadline of DefectTree/search.py and the stuck count of SpecialFive/stage1.py are controlled
+# equal the published ones, and SpecialFiveMore/gen.py 12 with small chunks). The partial rows
+# of DefectTree (marked in the field partial of the row table), the factoring deadlines of
+# DefectTree/search.py (rows and p - 1) and the stuck count of SpecialFive/stage1.py are controlled
 # with a stand in for sympy (a factorint that sleeps or finds nothing), loaded by a small
 # driver before the script runs. Mutated inputs are built in a temporary folder; nothing is
 # written inside the repository.
@@ -52,17 +53,28 @@ SF_STAGE1 = os.path.join(SF, 'stage1.py')
 SF_CERT_SHA = 'c758d9ddf446d385045d85968c08be633b4269c93a403636e94888d682da3caa'
 SFM = os.path.join(SC, 'SpecialFiveMore')
 SFM_REPLAY = os.path.join(SFM, 'replay.py')
-HARDENED = [DT_CHECK, DT_SEARCH, SS_REPLAY, SS_GEN, SF_REPLAY, SF_STAGE1, SFM_REPLAY]
+SF_GEN = os.path.join(SF, 'gen.py')
+SFM_GEN = os.path.join(SFM, 'gen.py')
+HARDENED = [DT_CHECK, DT_SEARCH, DT_GEN, SS_REPLAY, SS_GEN, SF_REPLAY, SF_STAGE1, SF_GEN,
+            SFM_REPLAY, SFM_GEN]
 
 # Loads a stand in for sympy, then runs the script given after the mode with the remaining
 # arguments. Modes: both (factorint of 13 sleeps, also with a limit), first (it sleeps only
-# without a limit), empty (factorint finds no factor at all).
+# without a limit), empty (factorint finds no factor at all), pm1 (factorint of 330 = 331 - 1
+# sleeps), plain (trial division, nothing sleeps), row (the full factorization of
+# sigma(88741^10) sleeps, the one with a limit finds only 89).
 DRIVER = '''import runpy, sys, time, types
 mode, script = sys.argv[1], sys.argv[2]
 def factorint(n, limit=None):
     if mode == 'empty':
         return {}
-    if n == 13 and (limit is None or mode == 'both'):
+    if mode == 'row' and n == sum(88741 ** i for i in range(11)):
+        if limit is not None:
+            return {89: 1}
+        while True:
+            time.sleep(1)
+    if (mode == 'both' and n == 13) or (mode == 'first' and n == 13 and limit is None) or \\
+            (mode == 'pm1' and n == 330):
         while True:
             time.sleep(1)
     out, d = {}, 2
@@ -251,6 +263,31 @@ def defect_tree(t):
             cwd=DT)
     control('DefectTree/check.py: unreadable JSON', DT_CHECK,
             [truncated(f'{t}/dt_trunc.json'), 'rows.json'], 2, cwd=DT)
+    def set_row(dd, key, facts):
+        for row in dd['rows']:
+            if row[:2] == key:
+                row[2] = facts
+    control('DefectTree/check.py: a row that does not multiply back (3^2 = 13 with no fact)',
+            DT_CHECK, ['cert2.json', rows_with(lambda dd: set_row(dd, [3, 2], []),
+                                               'dt_mb.json')], 1, cwd=DT, expect='multiply back')
+    control('DefectTree/check.py: a landed partial row with a fact removed (88741^10, unused)',
+            DT_CHECK, ['cert2.json', rows_with(lambda dd: set_row(dd, [88741, 10], []),
+                                               'dt_mb2.json')], 1, cwd=DT, expect='multiply back')
+    control('DefectTree/check.py: a false fact (89, 2) in an unused row', DT_CHECK,
+            ['cert2.json', rows_with(lambda dd: set_row(dd, [88741, 10], [[89, 2]]),
+                                     'dt_mb3.json')], 1, cwd=DT, expect='not an odd prime power')
+    control('DefectTree/check.py: the certificate uses a row marked partial', DT_CHECK,
+            ['cert2.json', rows_with(lambda dd: dd.update(partial=[[3, 2]]), 'dt_mk.json')], 1,
+            cwd=DT, expect='marked partial')
+    control('DefectTree/check.py accepts a mark on an unused row', DT_CHECK,
+            ['cert2.json', rows_with(lambda dd: dd.update(partial=[[88741, 10]]),
+                                     'dt_mk2.json')], 0, cwd=DT, expect='accepted')
+    control('DefectTree/check.py: a partial entry that is no row', DT_CHECK,
+            ['cert2.json', rows_with(lambda dd: dd.update(partial=[[3, 1000]]), 'dt_mk3.json')], 2,
+            cwd=DT)
+    control('DefectTree/check.py: a partial field that is not a list', DT_CHECK,
+            ['cert2.json', rows_with(lambda dd: dd.update(partial=True), 'dt_mk4.json')], 2,
+            cwd=DT)
     control('DefectTree/check.py: missing argument', DT_CHECK, ['cert2.json'], 2, cwd=DT)
     control('DefectTree/check.py: unknown flag', DT_CHECK, ['cert2.json', 'rows.json', 'x'], 2,
             cwd=DT)
@@ -285,22 +322,127 @@ def defect_tree(t):
         control('DefectTree/search.py: the full factorization of 13 times out (stand in)',
                 driver, ['first', DT_SEARCH, '2', '0', '3', '3', 'none', rows, out,
                          'factor_seconds=1'], 0, modes=(mode,), cwd=t, timeout=30,
-                expect='partial rows 1',
-                after=lambda: same([(out, os.path.join(DT, 'cert2.json'))]))
+                expect='the factorization with a limit is complete',
+                after=lambda: same([(out, os.path.join(DT, 'cert2.json')), (rows, DT_ROWS)]))
+        write_json(rows, d32)
+        control('DefectTree/search.py: a partial row is marked in the row table (stand in)',
+                driver, ['both', DT_SEARCH, '2', '0', '3', '3', 'none', rows, out,
+                         'factor_seconds=1'], 1, modes=(mode,), cwd=t, timeout=30,
+                after=lambda: None if load(rows).get('partial') == [[3, 2]] else
+                'no mark partial [[3, 2]] in the row table')
+        marked = copy.deepcopy(d)
+        marked['partial'] = [[3, 2]]
+        write_json(rows, marked)
+        control('DefectTree/search.py factors a marked row again and drops the mark (stand in)',
+                driver, ['plain', DT_SEARCH, '2', '0', '3', '3', 'none', rows, out], 0,
+                modes=(mode,), cwd=t, timeout=60,
+                after=lambda: same([(out, os.path.join(DT, 'cert2.json')), (rows, DT_ROWS)]))
+        no88741 = copy.deepcopy(d)
+        no88741['rows'] = [r for r in no88741['rows'] if r[:2] != [88741, 10]]
+        write_json(rows, no88741)
+        control('DefectTree/search.py: the tree closes but uses a partial row (stand in)',
+                driver, ['row', DT_SEARCH, '31', '1', '17', '17', '5', rows, out,
+                         'factor_seconds=1'], 1, modes=(mode,), cwd=t, timeout=60,
+                expect='not complete',
+                after=lambda: same([(out, os.path.join(DT, 'cert_excess6_17.json'))]) or
+                (None if load(rows).get('partial') == [[88741, 10]] else
+                 'no mark partial [[88741, 10]] in the row table'))
+        no331 = copy.deepcopy(d)
+        no331['pm1'].pop('331')
+        write_json(rows, no331)
+        control('DefectTree/search.py: the factorization of 331 - 1 times out (stand in)',
+                driver, ['pm1', DT_SEARCH, '2', '0', '3', '3', 'none', rows, out,
+                         'factor_seconds=1'], 1, modes=(mode,), cwd=t, timeout=30,
+                expect='PARTIAL pm1 331 factor_seconds 1 nothing stored',
+                after=lambda: None if '331' not in load(rows)['pm1'] else
+                'a factorization of 330 was stored')
     control('DefectTree/search.py: factor_seconds=0', DT_SEARCH,
             ['2', '0', '3', '3', 'none', f'{t}/dt_r0.json', f'{t}/dt_o0.json',
              'factor_seconds=0'], 2, cwd=t)
     control('DefectTree/search.py: missing argument', DT_SEARCH, ['2', '0', '3'], 2, cwd=t)
+    base = ['2', '0', '3', '3', 'none', f'{t}/dt_r0.json', f'{t}/dt_o0.json']
+    for name, i, val in (('negative K', 0, '-1'), ('K = 2.5', 0, '2.5'), ('negative W', 1, '-1'),
+                         ('U = 2', 2, '2'), ('U = 0', 2, '0'), ('ROOT = 9 (not prime)', 3, '9'),
+                         ('ROOT = 0', 3, '0'), ('negative CAP', 4, '-1'), ('CAP = x', 4, 'x')):
+        control(f'DefectTree/search.py: {name}', DT_SEARCH, base[:i] + [val] + base[i + 1:], 2,
+                cwd=t)
+    for opt in ('maxnodes=0', 'maxexp=1', 'maxnodes=-5', 'factor_seconds=1.5', 'nodes=3'):
+        control(f'DefectTree/search.py: option {opt}', DT_SEARCH, base + [opt], 2, cwd=t)
+    control('DefectTree/search.py: repeated option', DT_SEARCH,
+            base + ['maxexp=8', 'maxexp=9'], 2, cwd=t)
+    for name, fn in (
+            ('a row that does not multiply back (3^2 = 13 with no fact)',
+             lambda dd: [r.__setitem__(2, []) for r in dd['rows'] if r[:2] == [3, 2]]),
+            ('a factorization of 330 given as 2 3 5 13',
+             lambda dd: dd['pm1'].update({'331': [2, 3, 5, 13]})),
+            ('a partial entry that is no row', lambda dd: dd.update(partial=[[3]]))):
+        control(f'DefectTree/search.py: row table with {name}', DT_SEARCH,
+                base[:5] + [rows_with(fn, 'dt_rbad.json'), f'{t}/dt_o2.json'], 2, cwd=t)
     control('DefectTree/search.py: unreadable row table', DT_SEARCH,
             ['2', '0', '3', '3', 'none', truncated(f'{t}/dt_rtrunc.json'), f'{t}/dt_o1.json'], 2,
             cwd=t)
 
-    # gen.py is unchanged; its output for the two small certificates must stay byte equal.
+    # gen.py: its output for the two small certificates must stay byte equal; every new
+    # rejection ends before a file is written.
     for k, name, mod in (('2', 'Two', 'DefectTreeTwoData'), ('4', 'Four', 'DefectTreeFourData')):
         out = f'{t}/{mod}.lean'
         control(f'DefectTree/gen.py writes {mod}.lean byte for byte', DT_GEN,
                 [f'cert{k}.json', 'rows.json', name, out], 0, cwd=DT,
                 after=lambda: same([(out, os.path.join(LIB, f'{mod}.lean'))]))
+    control('DefectTree/gen.py corrupt writes the control module', DT_GEN,
+            ['cert2.json', 'rows.json', 'Bad', f'{t}/dt_bad.lean', 'corrupt'], 0, cwd=DT,
+            expect='wrote')
+    out = f'{t}/dt_gen.lean'
+
+    def nothing_written():
+        return f'{out} was written' if os.path.exists(out) else None
+
+    def tiny(kid, sp=None, ch=None):
+        return {'params': {'K': 2, 'w': 0, 'u': 3, 'root': 3, 'cap': None}, 'rows': [],
+                'cert': {'t': 'br', 'r': 3, 'sp': sp,
+                         'ch': ch or [{'t': 'high', 'kid': kid}]}}
+    budget = {'t': 'budget'}
+    gen_cases = [
+        ('the certificate uses a row marked partial', 'cert2.json',
+         rows_with(lambda dd: dd.update(partial=[[3, 2]]), 'dt_gmk.json'), [], 1),
+        ('a row that does not multiply back (3^2 = 13 with no fact)', 'cert2.json',
+         rows_with(lambda dd: set_row(dd, [3, 2], []), 'dt_gmb.json'), [], 1),
+        ('a factorization of 330 given as 2 3 5 13', 'cert2.json',
+         rows_with(lambda dd: dd['pm1'].update({'331': [2, 3, 5, 13]}), 'dt_gpr.json'), [], 1),
+        ('no factorization of 330', 'cert2.json',
+         rows_with(lambda dd: dd['pm1'].pop('331'), 'dt_gpr2.json'), [], 1),
+        ('an open leaf', write_json(f'{t}/dt_gopen.json', tiny({'t': 'open'})), DT_ROWS, [], 1),
+        ('a chain item high that is not the last',
+         write_json(f'{t}/dt_ghigh.json', tiny(None, ch=[{'t': 'high', 'kid': budget},
+                                                         {'t': 'ord', 'kid': budget}])),
+         DT_ROWS, [], 1),
+        ('corrupt without a capacity leaf', write_json(f'{t}/dt_gnocap.json', tiny(budget)),
+         DT_ROWS, ['corrupt'], 1),
+        ('split: a special child of the branch on 3',
+         write_json(f'{t}/dt_gsp.json', tiny(budget, sp=budget)), DT_ROWS,
+         ['split', 'gnodes=1'], 1),
+        ('an unknown leaf tag', write_json(f'{t}/dt_gtag.json', tiny({'t': 'bogus'})), DT_ROWS,
+         [], 2),
+        ('a partial entry that is no row', 'cert2.json',
+         rows_with(lambda dd: dd.update(partial=[[3, 1000]]), 'dt_gmk2.json'), [], 2),
+        ('a capacity leaf without its prime',
+         write_json(f'{t}/dt_gcap.json', tiny({'t': 'cap'})), DT_ROWS, [], 2),
+        ('unreadable JSON', truncated(f'{t}/dt_gtrunc.json'), DT_ROWS, [], 2),
+        ('corrupt together with split', 'cert2.json', 'rows.json', ['corrupt', 'split'], 2),
+        ('gnodes=0', 'cert2.json', 'rows.json', ['split', 'gnodes=0'], 2),
+        ('pmods=-1', 'cert2.json', 'rows.json', ['split', 'pmods=-1'], 2),
+        ('tper=x', 'cert2.json', 'rows.json', ['split', 'tper=x'], 2),
+        ('unknown flag', 'cert2.json', 'rows.json', ['splitt'], 2),
+    ]
+    for name, cert, rows_, flags, want in gen_cases:
+        control(f'DefectTree/gen.py: {name}', DT_GEN, [cert, rows_, 'X', out] + flags, want,
+                cwd=DT, after=nothing_written)
+    control('DefectTree/gen.py: a name with a dash', DT_GEN,
+            ['cert2.json', 'rows.json', 'X-1', out], 2, cwd=DT, after=nothing_written)
+    control('DefectTree/gen.py: an output name without .lean', DT_GEN,
+            ['cert2.json', 'rows.json', 'X', f'{t}/dt_gen.txt'], 2, cwd=DT)
+    control('DefectTree/gen.py: missing argument', DT_GEN, ['cert2.json', 'rows.json', 'X'], 2,
+            cwd=DT)
 
 
 def shape_small(t):
@@ -356,7 +498,8 @@ def shape_small(t):
 
 def special_five(t, stdlib_only):
     """Replay controls on the certificate of SpecialFive/gen.py 24 (needs sympy)."""
-    names = ['SpecialFive/gen.py 24 and replay.py', 'SpecialFive/stage1.py']
+    names = ['SpecialFive/gen.py 24 and replay.py', 'SpecialFive/stage1.py',
+             'SpecialFive/gen.py 1']
     if stdlib_only:
         for n in names:
             skip(n, 'sympy controls skipped (--stdlib-only)')
@@ -419,9 +562,30 @@ def special_five(t, stdlib_only):
     control('SpecialFive/stage1.py: unknown order', SF_STAGE1, ['10000', '100', 'middle'], 2)
     control('SpecialFive/stage1.py: B not a number', SF_STAGE1, ['ten'], 2)
     control('SpecialFive/stage1.py: missing argument', SF_STAGE1, [], 2)
+    control('SpecialFive/gen.py 1: no chain with two exponents, nothing written', SF_GEN,
+            ['1', f'{t}/sf1'], 1, expect='nothing written',
+            after=lambda: f'{t}/sf1 was written' if os.path.exists(f'{t}/sf1') else None)
+
+
+def special_five_args(t):
+    """Arguments of SpecialFive/gen.py (checked before sympy is imported)."""
+    for name, args in (('K = 0', ['0', f'{t}/sfa']), ('K = -1', ['-1', f'{t}/sfa']),
+                       ('K = x', ['x', f'{t}/sfa']), ('missing argument', ['24']),
+                       ('surplus argument', ['24', f'{t}/sfa', '1'])):
+        control(f'SpecialFive/gen.py: {name}', SF_GEN, args, 2)
 
 
 def special_five_more(t):
+    for k, why in (('1', 'no chain with two exponents'), ('2', 'Pratt certificate is empty')):
+        o = f'{t}/sfm{k}'
+        control(f'SpecialFiveMore/gen.py {k}: {why}, nothing written', SFM_GEN, [k, o], 1,
+                expect=why, after=lambda: f'{o} was written' if os.path.exists(o) else None)
+    for name, args in (('K = 0', ['0', f'{t}/sfma']), ('K = -1', ['-1', f'{t}/sfma']),
+                       ('PRATT_CHUNK = 0', ['12', f'{t}/sfma', '0']),
+                       ('TREE_CAP = 1.5', ['12', f'{t}/sfma', '40', '30', '20', '1.5']),
+                       ('missing argument', ['12']),
+                       ('surplus argument', ['12', f'{t}/sfma', '1', '1', '1', '1', '1'])):
+        control(f'SpecialFiveMore/gen.py: {name}', SFM_GEN, args, 2)
     out = f'{t}/sfm12'
     control('SpecialFiveMore/gen.py 12 with small chunks', os.path.join(SFM, 'gen.py'),
             ['12', out, '40', '30', '20', '60'], 0, modes=('',), cwd=t, timeout=120)
@@ -488,6 +652,7 @@ def main(argv):
         defect_tree(t)
         shape_small(t)
         special_five(t, argv[1:] == ['--stdlib-only'])
+        special_five_args(t)
         special_five_more(t)
     print(f'replay controls: {results["PASS"]} passed, {results["FAIL"]} failed')
     return 1 if results['FAIL'] else 0
