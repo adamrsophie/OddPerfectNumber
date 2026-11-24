@@ -430,3 +430,5 @@ import OddPerfect.RestrainedElevenData5
 import OddPerfect.RestrainedElevenData6
 import OddPerfect.RestrainedElevenData7
 import OddPerfect.RestrainedEleven
+import OddPerfect.RestrainedTwelve
+import OddPerfect.RestrainedThirteen
