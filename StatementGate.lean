@@ -949,6 +949,24 @@ theorem StatementGate.special_lt_of_noOrderPureRow :
       q < m :=
   @OddPerfect.special_lt_of_noOrderPureRow
 
+theorem StatementGate.phi3_eq_special_pow_exponent :
+    ∀ {q x j : ℕ}, _root_.Nat.Prime q → q % 4 = 1 → _root_.Nat.Prime x → Odd x → 1 ≤ j →
+      x ^ 2 + x + 1 = q ^ j → j = 1 :=
+  @OddPerfect.phi3_eq_special_pow_exponent
+
+theorem StatementGate.not_phi3_eq_special_and_three_mul_pow :
+    ∀ {q : ℕ}, _root_.Nat.Prime q → q % 4 = 1 → ∀ {x x' m : ℕ}, Odd x → Odd x' → 1 ≤ m →
+      x ^ 2 + x + 1 = q → x' ^ 2 + x' + 1 = 3 * q ^ m → False :=
+  @OddPerfect.not_phi3_eq_special_and_three_mul_pow
+
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five_all :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      Finset.card (Nat.primeFactors N) +
+          2 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * (Finset.sum (Finset.erase (Nat.primeFactors N) q)
+          (fun p => Nat.factorization N p / 2 - 1)) + 5 :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five_all
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1349,6 +1367,11 @@ def expected : List (Name × Name) :=
     (`StatementGate.conditional_card_primeFactors_add_two_mul_le_five_excess_add_five,
       ``OddPerfect.conditional_card_primeFactors_add_two_mul_le_five_excess_add_five),
     (`StatementGate.special_lt_of_noOrderPureRow, ``OddPerfect.special_lt_of_noOrderPureRow),
+    (`StatementGate.phi3_eq_special_pow_exponent, ``OddPerfect.phi3_eq_special_pow_exponent),
+    (`StatementGate.not_phi3_eq_special_and_three_mul_pow,
+      ``OddPerfect.not_phi3_eq_special_and_three_mul_pow),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_five_all,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_five_all),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
