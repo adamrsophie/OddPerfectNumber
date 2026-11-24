@@ -54,9 +54,8 @@
 <tr><td>Excess</td><td>For each fixed T, only finitely many odd perfect numbers have excess at most T.</td><td>Formal theorem</td><td><code>finite_of_excess_le</code></td><td>The bound is doubly exponential in T; no value of T is excluded beyond T ≤ 6.</td></tr>
 <tr><td>Special prime</td><td>q &lt; m.</td><td>Formal theorem</td><td><code>special_lt_root</code></td><td>This is not q<sup>a</sup> &lt; m, which is open. The exponent a stays unbounded.</td></tr>
 <tr><td>Special prime</td><td>3 q<sup>a</sup> &lt; 2 m<sup>2</sup>.</td><td>Formal theorem</td><td><code>special_pow_lt_sq</code></td><td>Same.</td></tr>
-<tr><td>Restrained family (every ordinary prime but one has exponent 2)</td><td>v<sub>3</sub>(N) ≥ 180274, ω ≥ 360549, Ω ≥ 901369, and ω ≤ 2 v<sub>3</sub>(N) + 3.</td><td>Formal theorem</td><td><code>restrained_tail_le_three</code>, <code>restrained_omega_ge_tail</code>, <code>restrained_Omega_ge_tail</code>, <code>restrained_omega_le</code></td><td>v<sub>3</sub>(N) has a lower bound only. Ochem and Zelinsky (arXiv 2607.19746) state a far larger lower bound from a long computation; it is not proved here. The family is not excluded.</td></tr>
+<tr><td>Restrained family (every ordinary prime but one has exponent 2)</td><td>v<sub>3</sub>(N) ≥ 288482, ω ≥ 576967, Ω ≥ 1442413, and ω ≤ 2 v<sub>3</sub>(N) + 3.</td><td>Formal theorem</td><td><code>restrained_three_ge_wheel</code>, <code>restrained_omega_ge_wheel</code>, <code>restrained_Omega_ge_wheel</code>, <code>restrained_omega_le</code></td><td>v<sub>3</sub>(N) has a lower bound only. Ochem and Zelinsky (arXiv 2607.19746) state a far larger lower bound from a long computation; it is not proved here. The family is not excluded.</td></tr>
 <tr><td>Restrained family, every prime factor p with 2p + 1 ≤ 3q</td><td>a ≤ 2 + v<sub>q</sub>(3<sup>q−1</sup> − 1), and q<sup>a−2</sup> divides 3<sup>q−1</sup> − 1.</td><td>Formal theorem</td><td><code>restrained_big_special_fermat</code>, <code>restrained_big_pow_dvd</code></td><td>A bound for each fixed q, not a uniform bound on a. The size hypothesis is not proved for the family.</td></tr>
-<tr><td>Restrained family</td><td>ω ≥ 576967 by the same packing applied in each residue class modulo 30030 that is prime to 30030.</td><td>Paper proof awaiting formalization</td><td>none yet</td><td>Still a lower bound only.</td></tr>
 <tr><td>Two exceptions (every ordinary prime but two has exponent 2)</td><td>3 divides N and v<sub>3</sub>(N) ≥ 6.</td><td>Formal theorem</td><td><code>three_dvd_of_two_exceptions</code>, <code>two_exceptions_six_le_three</code></td><td>The family is not excluded; the two exceptional exponents are free.</td></tr>
 <tr><td>Three exceptions</td><td>3 divides N.</td><td>Formal theorem</td><td><code>three_dvd_of_three_exceptions</code></td><td>Nothing more is known to us; four or more exceptions are untouched.</td></tr>
 <tr><td>Common index (a prime l divides every ordinary e + 1)</td><td>Impossible when every ordinary row σ(p<sup>e</sup>) is a prime power.</td><td>Formal theorem</td><td><code>not_all_pure_common_index</code></td><td>Mixed rows are open for a general l.</td></tr>
@@ -80,7 +79,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 24 November 2026, from commit <code>d1de097</code> on the main branch.</p>
+<p>Last updated 24 November 2026, from commit <code>ad55643</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
