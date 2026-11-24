@@ -463,3 +463,6 @@ import OddPerfect.RestrainedEighteenWheel
 import OddPerfect.RestrainedEighteen
 import OddPerfect.ExceptSmallThree
 import OddPerfect.ExceptSmallBound
+import OddPerfect.PrimeCap
+import OddPerfect.PrimeCapFamily
+import OddPerfect.PrimeCapSpecial
