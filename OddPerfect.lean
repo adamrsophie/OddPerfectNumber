@@ -308,3 +308,4 @@ import OddPerfect.RepunitSize
 import OddPerfect.SpecialBelowCycle
 import OddPerfect.SpecialBelowAll
 import OddPerfect.NagellPrime
+import OddPerfect.ThreeRowParts
