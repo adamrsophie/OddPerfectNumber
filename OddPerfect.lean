@@ -311,3 +311,4 @@ import OddPerfect.NagellPrime
 import OddPerfect.ThreeRowParts
 import OddPerfect.ThreeRowPrime
 import OddPerfect.ExcessSupportEleven
+import OddPerfect.DefectRules
