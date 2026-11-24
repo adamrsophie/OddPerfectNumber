@@ -466,3 +466,6 @@ import OddPerfect.ExceptSmallBound
 import OddPerfect.PrimeCap
 import OddPerfect.PrimeCapFamily
 import OddPerfect.PrimeCapSpecial
+import OddPerfect.SpecialRank
+import OddPerfect.SpecialRankFamily
+import OddPerfect.PaletteGlue
