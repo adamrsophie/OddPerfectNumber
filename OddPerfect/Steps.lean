@@ -10,8 +10,8 @@ use one of them except as an explicit hypothesis. A contribution is one file
 `CONTRIBUTING.md`).
 
 Status. Proved, each in `Contributions/<Name>.lean`: `Example`, `PureRowBase`,
-`TwicePrimePowerRow`, `NagellPrimePower`, `SpecialBelowRoot`. Without a proof here:
-`SpecialFifthPower`, `AllRowsPrimePower`, `RowValuationTransfer`, `LjunggrenThreePrimePower`.
+`TwicePrimePowerRow`, `NagellPrimePower`, `LjunggrenThreePrimePower`, `SpecialBelowRoot`.
+Without a proof here: `SpecialFifthPower`, `AllRowsPrimePower`, `RowValuationTransfer`.
 
 None of these steps settles the odd perfect number conjecture, which is open. The steps marked
 "published" restate a theorem from the literature; the page reference was read, and the
@@ -83,15 +83,16 @@ def NagellPrimePower : Prop :=
 primes `p`, `r`, the equation `p ^ 2 + p + 1 = 3 * r ^ a` forces `a ≤ 2`. Nagell (1921), as
 quoted by Bennett, Patel and Siksek (Mathematika 63 (2017), Section 3); the name of the
 definition is historical. A proof removes the other hypothesis of the theorems named
-`conditional_…`. Not proved here. -/
+`conditional_…`. Proved in `Contributions/LjunggrenThreePrimePower.lean` (the proof is
+`OddPerfect/ThreeRowPrime.lean`). -/
 def LjunggrenThreePrimePower : Prop :=
   OddPerfect.LjunggrenThreePrimePower
 
 /-- In Euler's form with special exponent `1`, `N = q * m ^ 2` and `q ∤ m`, the special prime
 is below `m`. Proved in `Contributions/SpecialBelowRoot.lean` (the proof is
 `OddPerfect/SpecialBelowAll.lean`, which excludes the one shape left by `special_lt_or_shape`).
-A 2016 preprint states the inequality; whether a complete proof was published was not
-verified. -/
+The inequality is stated as proved in the literature; the header of
+`OddPerfect/SpecialBelowAll.lean` lists the sources and our reading of them. -/
 def SpecialBelowRoot : Prop :=
   ∀ N q m : ℕ, OddPerfect N → q.Prime → N = q * m ^ 2 → ¬ q ∣ m → q < m
 

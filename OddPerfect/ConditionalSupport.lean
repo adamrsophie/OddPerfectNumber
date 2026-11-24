@@ -14,8 +14,10 @@ prime `p` such that every prime factor of `phi3 p` is `3` or `q` (`escapeRows`).
 unconditional.
 
 The results named `conditional_…` assume `NagellPrimePower` and `LjunggrenThreePrimePower`, two
-consequences of classical theorems of Nagell (1921) and Ljunggren (1943) that are not proved in
-this library; they are hypotheses of the theorems, not axioms. With them, for each fixed total
+consequences of classical theorems of Nagell (1921) and Ljunggren (1943); they are hypotheses
+of the theorems, not axioms. Both were proved later in the library (`OddPerfect/NagellPrime.lean`
+and `OddPerfect/ThreeRowPrime.lean`), and the bounds were proved without them in
+`OddPerfect/EscapeRowUnique.lean`. With them, for each fixed total
 excess only finitely many odd perfect numbers can exist. The total excess itself is not
 bounded, so this does not prove the conjecture. Relation to published results: the count
 follows the proof of Theorem 1 of Ochem and Rao (Math. Comp. 83, 2014), whose inequality carries
@@ -54,7 +56,7 @@ theorem card_primeFactors_add_two_mul_le_five_excess_add_escape {N q : ℕ} (h :
   split_ifs at hA hC <;> omega
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): an escape row `p` is a prime with
+Nagell and Ljunggren, proved in later modules): an escape row `p` is a prime with
 `phi3 p = q`, `phi3 p = 3 * q` or `phi3 p = 3 * q ^ 2`. -/
 theorem conditional_phi3_escapeRow (hN : NagellPrimePower) (hL : LjunggrenThreePrimePower)
     {N q p : ℕ} (hq : q.Prime) (hp : p ∈ escapeRows N q) :
@@ -102,7 +104,7 @@ theorem conditional_phi3_escapeRow (hN : NagellPrimePower) (hL : LjunggrenThreeP
     exact Or.inl (by rw [hk, hk2, pow_one])
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): there is at most one escape row. The
+Nagell and Ljunggren, proved in later modules): there is at most one escape row. The
 hypothesis that `N` is an odd perfect number is not needed. -/
 theorem conditional_card_escapeRows_le_one (hN : NagellPrimePower)
     (hL : LjunggrenThreePrimePower) {N q : ℕ} (hq : q.Prime) : (escapeRows N q).card ≤ 1 := by
@@ -124,7 +126,7 @@ theorem conditional_card_escapeRows_le_one (hN : NagellPrimePower)
   · exact hinj (h1.trans h2.symm)
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): for every special prime `q`,
+Nagell and Ljunggren, proved in later modules): for every special prime `q`,
 `ω(N) + 2 * v_3(σ(q ^ a)) ≤ 5 * T + 6`. -/
 theorem conditional_card_primeFactors_add_two_mul_le (hN : NagellPrimePower)
     (hL : LjunggrenThreePrimePower) {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
@@ -136,7 +138,7 @@ theorem conditional_card_primeFactors_add_two_mul_le (hN : NagellPrimePower)
   omega
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): for every special prime,
+Nagell and Ljunggren, proved in later modules): for every special prime,
 `ω(N) ≤ 5 * T + 6`. -/
 theorem conditional_card_primeFactors_le_five_excess_add_six (hN : NagellPrimePower)
     (hL : LjunggrenThreePrimePower) {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
@@ -147,7 +149,7 @@ theorem conditional_card_primeFactors_le_five_excess_add_six (hN : NagellPrimePo
   omega
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): for every special prime,
+Nagell and Ljunggren, proved in later modules): for every special prime,
 `N < 2 ^ 4 ^ (5 * T + 6)`. -/
 theorem conditional_lt_two_pow_four_pow_excess (hN : NagellPrimePower)
     (hL : LjunggrenThreePrimePower) {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
@@ -158,7 +160,7 @@ theorem conditional_lt_two_pow_four_pow_excess (hN : NagellPrimePower)
       (conditional_card_primeFactors_le_five_excess_add_six hN hL h hq hodd)))
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): in Euler's form `N = q ^ a * m ^ 2` with
+Nagell and Ljunggren, proved in later modules): in Euler's form `N = q ^ a * m ^ 2` with
 `q ∤ m`, `ω(N) ≤ 5 * (Ω(m) - ω(m)) + 6`. -/
 theorem conditional_cardDistinctFactors_le_five_mul_sub_add_six (hN : NagellPrimePower)
     (hL : LjunggrenThreePrimePower) {N q a m : ℕ} (h : OddPerfect N) (hq : q.Prime)
@@ -170,7 +172,7 @@ theorem conditional_cardDistinctFactors_le_five_mul_sub_add_six (hN : NagellPrim
   exact conditional_card_primeFactors_le_five_excess_add_six hN hL h hq hodd
 
 /-- Conditional on `NagellPrimePower` and `LjunggrenThreePrimePower` (classical theorems of
-Nagell and Ljunggren, not proved in this library): for each bound `T` on the total excess, only
+Nagell and Ljunggren, proved in later modules): for each bound `T` on the total excess, only
 finitely many odd perfect numbers exist, for every special prime and with no bound on the
 special exponent. The total excess itself is not bounded here. -/
 theorem conditional_finite_of_excess_le (hN : NagellPrimePower) (hL : LjunggrenThreePrimePower)

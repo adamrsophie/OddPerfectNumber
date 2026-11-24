@@ -15,9 +15,9 @@ equation via Runge's method, Monatsh. Math. 177 (2015), Proposition 1. The name
 behind it is Nagell's.
 
 They are definitions of propositions, so that a theorem can take them as explicit hypotheses and
-be read as conditional on them. Nothing here is an axiom. The first, `NagellPrimePower`, is
-proved in `OddPerfect/NagellPrime.lean` (`nagellPrimePower`); the second is not proved in this
-module.
+be read as conditional on them. Nothing here is an axiom. Both are proved later in the library:
+`nagellPrimePower` in `OddPerfect/NagellPrime.lean` and `ljunggrenThreePrimePower` in
+`OddPerfect/ThreeRowPrime.lean`.
 The second statement cannot be sharpened to exponent `1`: `313 ^ 2 + 313 + 1 = 3 * 181 ^ 2`.
 -/
 
@@ -33,8 +33,8 @@ def NagellPrimePower : Prop :=
 
 /-- For primes `p`, `r` and `a ≥ 1`: `p ^ 2 + p + 1 = 3 * r ^ a` forces `a ≤ 2`. A consequence
 of the classical theorem that `x ^ 2 + x + 1 = 3 * y ^ n` has no solution with `x > 1` and
-`n > 2` (Nagell 1921, as quoted by Bennett, Patel and Siksek; see the module header). Not proved
-in this library. -/
+`n > 2` (Nagell 1921, as quoted by Bennett, Patel and Siksek; see the module header). Proved in
+`OddPerfect/ThreeRowPrime.lean`. -/
 def LjunggrenThreePrimePower : Prop :=
   ∀ p r a : ℕ, p.Prime → r.Prime → 1 ≤ a → p ^ 2 + p + 1 = 3 * r ^ a → a ≤ 2
 

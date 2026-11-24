@@ -4,13 +4,15 @@ import OddPerfect.Phi3Algebra
 /-!
 # An elementary reduction of `NagellPrimePower` to prime exponents at least 5
 
-The classical theorem behind `NagellPrimePower` (see `OddPerfect.ClassicalInputs`) is NOT proved
-in this library. This module proves only an elementary reduction, in the shape used by a 1943
+The statement `NagellPrimePower` (see `OddPerfect.ClassicalInputs`) is proved by another route
+in `OddPerfect/NagellPrime.lean`. This module proves an elementary reduction, in the shape used
+by a 1943
 paper on odd perfect numbers: if `p ^ 2 + p + 1 = r ^ a` with `p`, `r` prime and `a ≥ 2`, pick a
 prime `ℓ ∣ a`; then `p ^ 2 + p + 1 = (r ^ (a / ℓ)) ^ ℓ`. The case `ℓ = 2` is impossible because
 `p ^ 2 + p + 1` lies strictly between two consecutive squares (`not_isSquare_phi3`), and the case
 `ℓ = 3` is impossible for prime `p` (`phi3_ne_cube_of_prime`). So only prime exponents `ℓ ≥ 5`
-remain, which is the hypothesis `NagellHighPrimeExponent`.
+remain, which is the hypothesis `NagellHighPrimeExponent`. That hypothesis allows any `y`, not
+only a prime power, so it asks more than `NagellPrime` proves; it is not proved in this library.
 -/
 
 namespace OddPerfect
