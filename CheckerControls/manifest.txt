@@ -25,3 +25,4 @@
 17 The mixed index tree checker (`OddPerfect.MixedIndex.chk`)
 18 The mixed index tree checker with cuts (`OddPerfect.MixedIndexThree.chk3`)
 67 The two exception checker engine (`OddPerfect.TwoExcEngine.go`, `check`, `checkV`)
+35 The defect tree checker (`OddPerfect.DefectTree.check`, `tabOK`, `leafB`)

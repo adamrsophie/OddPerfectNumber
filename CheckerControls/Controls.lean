@@ -18,6 +18,7 @@ import OddPerfect.SecondLargestPrimeFast
 import OddPerfect.MixedIndexData
 import OddPerfect.MixedIndexThreePrimes
 import OddPerfect.TwoExcEngineCode
+import OddPerfect.DefectTreeCode
 
 /-!
 # Checker controls
@@ -950,3 +951,100 @@ example : [{ ddS1 with mM := (1, 2) }, { ddS1 with mM := (3, 2) }, { ddS1 with m
     (deficientB pS1 ksS1 251) = false := by decide +kernel
 
 end CheckerControls.Engine
+
+namespace CheckerControls.DefectTreeControls
+
+open OddPerfect OddPerfect.DefectTree
+
+/-! ## The defect tree checker (`OddPerfect.DefectTree.check`, `tabOK`, `leafB`) -/
+
+-- The table: every fact `(r, k)` of a row needs `r` an odd prime, `k ≥ 1`, `r ^ k ∣ row`, and
+-- distinct primes in one entry. `σ(3 ^ 2) = 13`, `σ(7 ^ 2) = 57 = 3 * 19`, `σ(3 ^ 6) = 1093`.
+example : tabOK [] [(3, 2, [(13, 1)])] = true := by decide +kernel
+example : tabOK [] [(3, 2, [(13, 2)])] = false := by decide +kernel
+example : tabOK [] [(3, 2, [(7, 1)])] = false := by decide +kernel
+example : tabOK [] [(7, 2, [(57, 1)])] = false := by decide +kernel
+example : tabOK [] [(7, 2, [(3, 1), (3, 1)])] = false := by decide +kernel
+example : tabOK [] [(7, 2, [(3, 0)])] = false := by decide +kernel
+example : tabOK [] [(3, 1, [(2, 1)])] = false := by decide +kernel
+-- A prime from 200 on needs an entry of the Pratt certificate.
+example : tabOK [] [(3, 6, [(1093, 1)])] = false := by decide +kernel
+example : tabOK [(1093, 5, [2, 2, 3, 7, 13])] [(3, 6, [(1093, 1)])] = true := by decide +kernel
+
+/-- A tiny table for the tree controls: `σ(3 ^ 2) = 13`, `13 + 1 = 2 * 7`,
+`σ(13 ^ 2) = 3 * 61`. -/
+def tabT : Tab := [(3, 2, [(13, 1)]), (13, 1, [(7, 1)]), (13, 2, [(3, 1), (61, 1)])]
+
+/-- Parameters of a tiny tree: no prime factor below 14, total excess 0. -/
+def pT : Params := { K := 0, w := 0, u := 14, root := 3, cap := some 0 }
+
+/-- The tiny tree: exponent 2 at the root 3 forces 13, which is below 14; a larger exponent
+exceeds the cap. -/
+def certT : Cert := .br 3 .nil (.ord (.leaf (.small 13)) (.high (.leaf .budget)))
+
+example : check pT [] tabT certT = true := by decide +kernel
+-- The forced prime 13 is not below `u = 13`.
+example : check { pT with u := 13 } [] tabT certT = false := by decide +kernel
+-- The branch at the root must be on the root prime.
+example : check { pT with root := 5 } [] tabT certT = false := by decide +kernel
+-- The budget leaf needs a cap, and the cap must be exceeded.
+example : check { pT with cap := none } [] tabT certT = false := by decide +kernel
+example : check { pT with cap := some 1 } [] tabT certT = false := by decide +kernel
+-- A chain must end with the child for all larger exponents, and that child starts at 4.
+example : check pT [] tabT (.br 3 .nil (.ord (.leaf (.small 13)) .nil)) = false := by
+  decide +kernel
+example : check pT [] tabT (.br 3 .nil (.high (.leaf .budget))) = false := by decide +kernel
+-- A leaf is not allowed at the root, and a forced prime needs its row in the table.
+example : check pT [] tabT (.leaf .budget) = false := by decide +kernel
+example : check pT [] [] certT = false := by decide +kernel
+
+/-- Parameters of a tree with a branch on 13, which is 1 modulo 4. -/
+def pS : Params := { K := 0, w := 0, u := 8, root := 3, cap := some 0 }
+
+/-- The child of the special case `q = 13` closes by `7 ∣ 13 + 1`, the child of exponent 2 by
+`3 ∣ σ(13 ^ 2)`. -/
+def certS (sp : Cert) (r : ℕ) : Cert :=
+  .br 3 .nil (.ord (.br r sp (.ord (.leaf (.small 3)) (.high (.leaf .budget))))
+    (.high (.leaf .budget)))
+
+example : check pS [] tabT (certS (.leaf (.small 7)) 13) = true := by decide +kernel
+-- The special case of a prime that is 1 modulo 4 cannot be left out.
+example : check pS [] tabT (certS .nil 13) = false := by decide +kernel
+-- A branch needs a forced prime that is not assigned: 61 is not forced yet, 3 is assigned.
+example : check pS [] tabT (certS (.leaf (.small 7)) 61) = false := by decide +kernel
+example : check pS [] tabT (certS (.leaf (.small 7)) 3) = false := by decide +kernel
+
+-- Capacity: `53 + 1 = 2 * 27` gives weight 3 at the prime 3, above the exact exponent 2. It
+-- fails for the exponent 4 and for an entry that is only a lower bound.
+example : leafB pS [(53, 1, [(3, 3)])] ⟨[(3, 2, true)], 53⟩ (.cap 3) = true := by decide +kernel
+example : leafB pS [(53, 1, [(3, 3)])] ⟨[(3, 4, true)], 53⟩ (.cap 3) = false := by decide +kernel
+example : leafB pS [(53, 1, [(3, 3)])] ⟨[(3, 4, false)], 53⟩ (.cap 3) = false := by
+  decide +kernel
+
+-- Abundancy: `σ(3 ^ 2) σ(5 ^ 2) σ(7 ^ 2) = 22971 > 2 * 11025`. It fails for an exponent above
+-- the known one, for a repeated prime and for a divisor that is not abundant.
+example : leafB pS [] ⟨[(3, 2, true), (5, 2, true), (7, 2, true)], 0⟩
+    (.abund [(3, 2), (5, 2), (7, 2)]) = true := by decide +kernel
+example : leafB pS [] ⟨[(3, 2, true), (5, 2, true), (7, 2, true)], 0⟩
+    (.abund [(3, 4), (5, 2), (7, 2)]) = false := by decide +kernel
+example : leafB pS [] ⟨[(3, 2, true), (5, 2, true), (7, 2, true)], 0⟩
+    (.abund [(3, 2), (3, 2), (5, 2), (7, 2)]) = false := by decide +kernel
+example : leafB pS [] ⟨[(3, 2, true), (5, 2, true), (7, 2, true)], 0⟩
+    (.abund [(3, 2), (5, 2)]) = false := by decide +kernel
+
+/-- Parameters for the ledger controls: weight 1 on the number of prime factors. -/
+def pL : Params := { K := 0, w := 1, u := 3, root := 3, cap := none }
+
+-- Ledger: one known prime exceeds `K = 0`. It fails for a repeated prime, for a prime that is
+-- not known and for `K = 1`. With `u = 5` the prime 3 does not divide, which adds 4.
+example : leafB pL [] ⟨[(3, 2, true)], 0⟩ (.ledger [3]) = true := by decide +kernel
+example : leafB pL [] ⟨[(3, 2, true)], 0⟩ (.ledger [3, 3]) = false := by decide +kernel
+example : leafB pL [] ⟨[(3, 2, true)], 0⟩ (.ledger [5]) = false := by decide +kernel
+example : leafB { pL with K := 1 } [] ⟨[(3, 2, true)], 0⟩ (.ledger [3]) = false := by
+  decide +kernel
+example : leafB { pL with K := 4, u := 5 } [] ⟨[(5, 2, true)], 0⟩ (.ledger [5]) = true := by
+  decide +kernel
+example : leafB { pL with K := 5, u := 5 } [] ⟨[(5, 2, true)], 0⟩ (.ledger [5]) = false := by
+  decide +kernel
+
+end CheckerControls.DefectTreeControls
