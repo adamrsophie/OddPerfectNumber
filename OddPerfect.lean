@@ -407,3 +407,7 @@ import OddPerfect.ExcessSevenData19
 import OddPerfect.ExcessSevenData23
 import OddPerfect.ExcessSeven
 import OddPerfect.OrderRows
+import OddPerfect.TuringOPNCode
+import OddPerfect.TuringOPNTape
+import OddPerfect.TuringOPNMacro
+import OddPerfect.TuringOPN
