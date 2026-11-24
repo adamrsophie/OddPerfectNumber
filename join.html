@@ -37,7 +37,7 @@
 <main id="content" tabindex="-1">
 <h1>Contribute a proof</h1>
 <p class="lead">The library grows one checked theorem at a time, and you can add one. Each open step below is an exact Lean statement that the library does not prove yet. A contribution is one Lean file that proves one step. The Lean kernel decides whether it is accepted; who wrote it, a person or an AI agent, makes no difference.</p>
-<div class="callout"><p><strong>What this is not.</strong> No step settles the conjecture. Whether an odd perfect number exists is open, and this project has not solved it. Most steps restate a published theorem that the library lacks; the ones marked open have no published proof known to us.</p></div>
+<div class="callout"><p><strong>What this is not.</strong> No step settles the conjecture. Whether an odd perfect number exists is open, and this project has not solved it. Most steps restate a published theorem that the library lacks.</p></div>
 
 <h2 id="how">How it works</h2>
 <ol class="steps">
@@ -59,12 +59,12 @@
 <tr><td><code>TwicePrimePowerRow</code></td><td>Closed 2026-11-23 by the maintainers</td><td>If σ(q<sup>k</sup>) = 2p<sup>s</sup> with p an odd prime, then k = 1 and q ≥ 2p − 1.</td><td>Zhao and Chen (2025), Lemma 3.1</td></tr>
 <tr><td><code>AllRowsPrimePower</code></td><td>Starter</td><td>An odd perfect number with special prime q cannot have every σ(p<sup>e</sup>), p ≠ q, a prime power and σ(q<sup>a</sup>)/2 a prime power too.</td><td>Levit (1947), Theorem; no small case exists to test it on</td></tr>
 <tr><td><code>RowValuationTransfer</code></td><td>Medium</td><td>For primes p and q, q odd, with σ(q<sup>x</sup>) a power of p and q dividing σ(p<sup>c</sup>): v<sub>q</sub>(σ(p<sup>c</sup>)) is v<sub>q</sub>(c + 1) when p ≡ 1 (mod q), and v<sub>q</sub>(c + 1) + 1 otherwise.</td><td>Dandapat, Hunsucker and Pomerance (1975), Lemma 2</td></tr>
-<tr><td><code>NagellPrimePower</code></td><td>Hard</td><td>For primes p and r, p² + p + 1 = r<sup>a</sup> forces a = 1.</td><td>Nagell (1921)</td></tr>
+<tr><td><code>NagellPrimePower</code></td><td>Closed 2026-11-23 by the maintainers</td><td>For primes p and r, p² + p + 1 = r<sup>a</sup> forces a = 1.</td><td>Nagell (1921)</td></tr>
 <tr><td><code>LjunggrenThreePrimePower</code></td><td>Hard</td><td>For primes p and r, p² + p + 1 = 3r<sup>a</sup> forces a ≤ 2.</td><td>Nagell (1921); the name of the step is historical</td></tr>
-<tr><td><code>SpecialBelowRoot</code></td><td>Open</td><td>For N = q·m² odd perfect with q not dividing m: q &lt; m. The library proves it outside one explicit shape.</td><td>No published proof known to us</td></tr>
+<tr><td><code>SpecialBelowRoot</code></td><td>Closed 2026-11-23 by the maintainers</td><td>For N = q·m² odd perfect with q not dividing m: q &lt; m.</td><td>Stated in a 2016 preprint (arXiv:1602.01591v1); whether a complete proof was published was not verified</td></tr>
 </tbody>
 </table>
-<p>The two hard steps are the hypotheses of the conditional theorems in <code>ConditionalSupport</code>: with both proved, the library would show that for each fixed total excess only finitely many odd perfect numbers can exist. That would still leave the conjecture open.</p>
+<p>The two classical steps are the hypotheses of the conditional theorems in <code>ConditionalSupport</code>. The library has since proved the conclusions of those theorems without them (<code>EscapeRowUnique</code>), and the first step is closed; the second, <code>LjunggrenThreePrimePower</code>, remains a named statement without a proof here.</p>
 <p>The published steps were restated by us from the cited page and tested on small cases. A restatement can still be wrong. If you find a counterexample to a step, open an issue; it is credited like a proof.</p>
 
 <h2 id="checked">How a contribution is checked</h2>
@@ -82,7 +82,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 23 November 2026, from commit <code>200ede1</code> on the main branch.</p>
+<p>Last updated 23 November 2026, from commit <code>8d22b60</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
