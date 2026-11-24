@@ -36,8 +36,13 @@ The arguments of `search.py` are `K W U ROOT CAP ROWS OUT`: the bound `K` for
 root prime, and the cap for the total excess (`none` or an integer). Flags: `noledger` switches
 the ledger rule off, `maxnodes=M` stops after `M` nodes and `maxexp=E` leaves a chain open above the
 exponent `E` (open leaves are reported),
-`factor_seconds=S` bounds the time per row factorization (after a timeout only proven prime
-factors are kept, which is still a valid lower bound).
+`factor_seconds=S` (at least 1) bounds each factoring step of a row: the full factorization
+with its primality checks, and after a timeout the factorization with a limit; only factors
+proven prime before the second deadline are kept, which is still a valid lower bound, and such
+a row is printed as `PARTIAL` and counted in the final line `partial rows`. `search.py` ends
+with exit status 0 when the tree closes, 1 when a leaf stays open, 2 for a usage error;
+`check.py` ends with exit status 0 when it accepts, 1 when it rejects (also with the flag
+`corrupt`) and 2 for malformed input or a usage error.
 
 Regeneration is deterministic: running the commands twice gives the same `cert2.json`,
 `cert4.json`, `rows.json` and Lean files (compare with `shasum`).

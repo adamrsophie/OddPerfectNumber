@@ -85,6 +85,14 @@ jobs:
         run: |
           "$RUNNER_TEMP/venv/bin/python" -I scripts/Controls/validator_controls.py
 
+      # Controls of the replay and generator helpers of scripts/DefectTree, scripts/ShapeSmall,
+      # scripts/SpecialFive and scripts/SpecialFiveMore: every archived certificate must pass,
+      # and each mutated input must be rejected with its expected exit status, in normal and in
+      # optimized mode (about a minute).
+      - name: Replay controls
+        run: |
+          "$RUNNER_TEMP/venv/bin/python" -I scripts/Controls/replay_controls.py
+
       # Regenerates the 13 modules OddPerfect/CommonNinetyFive*.lean of the family of 95 from
       # the archived input and compares them byte for byte with the checkout (about ten
       # seconds). The script runs every step with the interpreter named by PYTHON.

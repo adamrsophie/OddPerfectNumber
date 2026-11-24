@@ -8,10 +8,16 @@ Standard library only, exact integer arithmetic, does not import gen.py. It mirr
 definitions geo, isq, sqOK, nsq, maskOK, filt, good and chk literally (nested loops, Lean's
 truncated division with x / 0 = 0) and checks the certificate hypotheses of
 prime_le_of_two_sq_eq_succ_sigma. Prints ACCEPT or REJECT per check; exit 1 on any REJECT
-(or, with `bad`, on any control that is accepted).
+(or, with `bad`, on any control that is accepted). Every family of the module must be present
+(c1, c2, c3, c5, c6 with prime_le_h; L2, L3, L5, L6 with Lh_ok, chkh_j and no_sol_h), and each
+declaration must name its own exponent, list and chunks; a missing or misnamed declaration is
+a REJECT. Exit 2 for a usage error, an unreadable file or a file without the expected text.
 """
 import re
 import sys
+
+HS = [1, 2, 3, 5, 6]          # the exponents e = 2 h of the module
+MASK_HS = [2, 3, 5, 6]        # the exponents with masks and kernel ranges
 
 
 def geo(r, n):
@@ -85,9 +91,19 @@ def read(text):
         r"prime_le_of_two_sq_eq_succ_sigma \(h := (\d+)\) \(D := (\d+)\) c(\d)", text, re.S)}
     d["L"] = {int(h): [(int(a), int(b)) for a, b in re.findall(r"\((\d+), (\d+)\)", body)]
               for h, body in re.findall(r"def L(\d) : List \(ℕ × ℕ\) :=\s*\[(.*?)\]\n", text, re.S)}
+    # Names: every declaration must refer to its own exponent, list and chunks.
+    d["names"] = []
+    d["L_ok"] = {}
+    for h, hl, hm in re.findall(
+            r"theorem L(\d)_ok : L(\d)\.all \(fun mm => maskOK (\d) mm\.1 mm\.2\) = true", text):
+        d["L_ok"][int(h)] = True
+        if not h == hl == hm:
+            d["names"].append(f"L{h}_ok checks L{hl} with maskOK {hm}")
     d["chk"] = {}
-    for h, hl, s, n in re.findall(r"theorem chk\d_\d : chk (\d) L(\d) (\d+) (\d+) = true", text):
-        assert h == hl
+    for h, j, hh, hl, s, n in re.findall(
+            r"theorem chk(\d)_(\d) : chk (\d) L(\d) (\d+) (\d+) = true", text):
+        if not (h == hh == hl and int(j) == len(d["chk"].get(int(h), []))):
+            d["names"].append(f"chk{h}_{j} states chk {hh} L{hl}")
         d["chk"].setdefault(int(h), []).append((int(s), int(n)))
     d["no_sol"] = {}
     for h, body in re.findall(r"theorem no_sol_(\d) (.*?)\n\n", text, re.S):
@@ -96,6 +112,11 @@ def read(text):
                                    [int(x) for x in re.findall(r"by_cases c\d : i < (\d+)", body)],
                                    [(int(a), int(b)) for a, b in re.findall(
                                        r"show (\d+) \+ 2 \* \(i - (\d+)\) = 3 \+ 2 \* i", body)])
+            refs = re.findall(r"good_sound L(\d)_ok", body)
+            uses = re.findall(r"chk_sound _ _ chk(\d)_(\d)", body)
+            want = [(h, str(j)) for j in range(len(d["chk"].get(int(h), [])))]
+            if refs != [h] or uses != want:
+                d["names"].append(f"no_sol_{h} uses good_sound {refs} and chunks {uses}")
     return d
 
 
@@ -107,6 +128,13 @@ def replay(d, log):
         ok &= good
         log(("ACCEPT " if good else "REJECT ") + what)
 
+    for what in d["names"]:
+        say(False, "declaration names: " + what)
+    for fam, hs in (("c", HS), ("prime_le", HS), ("L", MASK_HS), ("L_ok", MASK_HS),
+                    ("chk", MASK_HS), ("no_sol", MASK_HS)):
+        if sorted(d[fam]) != hs:
+            say(False, f"families: {fam} declared for h in {sorted(d[fam])}, expected {hs}")
+
     # no_sol_1: `key` by decide +kernel, and `hu` (u < U from p <= hB1 and the equation).
     P, U = d["key"]
     say(all(2 * (2 * u + 1) ** 2 != 1 + geo(p, 3)
@@ -117,12 +145,17 @@ def replay(d, log):
         f"no_sol_1 hu: p <= {d['hB1']} and the equation force u < {d['hu']}; key covers p <= {d['hB1']}")
     # prime_le_h: certificate hypotheses (interval_cases; decide +kernel) and norm_num facts.
     for h, (b, hh, D, ch) in sorted(d["prime_le"].items()):
+        if ch not in d["c"]:
+            say(False, f"prime_le_{h}: no list c{ch}")
+            continue
         c = d["c"][ch]
         say(h == hh == ch and len(c) == h + 1 and cert_ok(h, D, c) and max(7, 2 * D) <= b,
             f"prime_le_{h}: c{ch} = {c} is a certificate of degree {h} with D = {D}, "
             f"max 7 (2 D) = {max(7, 2 * D)} <= {b}")
     # L_h_ok and chk h L_h start n (decide +kernel), and coverage of no_sol_h.
     for h in sorted(d["L"]):
+        if h not in d["chk"] or h not in d["no_sol"]:
+            continue    # reported as a missing family above
         L = d["L"][h]
         say(all(maskOK(h, m, mask) for m, mask in L), f"L{h}_ok: {len(L)} masks")
         for s, n in d["chk"][h]:
@@ -132,13 +165,13 @@ def replay(d, log):
         chunks = d["chk"][h]
         # case i lies in [lo_k, hi_k) with lo_k = offset of chunk k, hi_k = next threshold.
         his = thr + [None]
-        cover = (len(shows) == len(chunks) and
+        cover = (len(shows) == len(chunks) == len(thr) + 1 and
                  all(s == st == 3 + 2 * off for (s, _), (st, off) in zip(chunks, shows)) and
                  shows[0][1] == 0 and
                  all(t == shows[k + 1][1] for k, t in enumerate(thr)))
         # the last chunk must reach the bound: i <= (b - 3) / 2
         imax = (b - 3) // 2
-        for k, (s, n) in enumerate(chunks):
+        for k, (s, n) in enumerate(chunks if cover else []):
             hi = his[k] if his[k] is not None else imax + 1
             cover &= hi - shows[k][1] <= n
         say(cover, f"no_sol_{h}: chunks {chunks} cover the odd p in [3, {b}]")
@@ -149,9 +182,21 @@ def main():
     if len(sys.argv) not in (2, 3) or (len(sys.argv) == 3 and sys.argv[2] != "bad"):
         print(__doc__)
         return 2
-    d = read(open(sys.argv[1], encoding="utf-8").read())
+    try:
+        with open(sys.argv[1], encoding="utf-8") as f:
+            d = read(f.read())
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"cannot read {sys.argv[1]}: {e}", file=sys.stderr)
+        return 2
+    except (AttributeError, ValueError):
+        print(f"{sys.argv[1]}: the text of ShapeSmall.lean (isq steps, no_sol_1, prime_le_1) "
+              "was not found", file=sys.stderr)
+        return 2
     if len(sys.argv) == 2:
         return 0 if replay(d, print) else 1
+    if not replay(d, lambda line: None):
+        print("the file itself is rejected; the controls need the accepted module", file=sys.stderr)
+        return 2
     # Negative controls: each corrupted copy must be rejected.
     import copy
     controls = []

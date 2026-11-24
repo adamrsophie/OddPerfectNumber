@@ -12,12 +12,98 @@
 #     recorded for it.
 # With "bad" the corrupted subtree replaces its original, and the replay must reject.
 # Prints ACCEPT, or REJECT with the first failing check. Standard library only.
+# Exit status: 0 on ACCEPT, 1 on REJECT, 2 for malformed input (unreadable JSON, a missing or
+# surplus field, an unknown node tag or a wrong number of fields, a number that is not a
+# natural number) or a usage error.
 # Untrusted: the Lean kernel checks the certificate again; this replay is a second reading.
 # License: GPL 3, same as the repository.
 import json
 import sys
 
-C = json.load(open(sys.argv[1]))
+
+def malformed(msg):
+    print("malformed input: " + msg, file=sys.stderr)
+    sys.exit(2)
+
+
+def nat(x):
+    """A natural number as Lean reads it: an integer at least 0, not a boolean or a float."""
+    return type(x) is int and x >= 0
+
+
+def nats(x, n=None):
+    return type(x) is list and (n is None or len(x) == n) and all(nat(y) for y in x)
+
+
+def tree_ok(t, node=True, skeleton=False):
+    """Exact constructors of SpecialFive.Cert: at a node cap r, abund, br r chain; in a chain
+    ord node chain, stop. In the skeleton a node is piece i or br r chain."""
+    stack = [(t, node)]
+    while stack:
+        t, node = stack.pop()
+        if type(t) is not list or not t:
+            return False
+        if node and not skeleton and t[0] == "cap" and len(t) == 2 and nat(t[1]):
+            continue
+        if node and not skeleton and t[0] == "abund" and len(t) == 1:
+            continue
+        if node and skeleton and t[0] == "piece" and len(t) == 2 and nat(t[1]):
+            continue
+        if node and t[0] == "br" and len(t) == 3 and nat(t[1]):
+            stack.append((t[2], False))
+            continue
+        if not node and t[0] == "stop" and len(t) == 1:
+            continue
+        if not node and t[0] == "ord" and len(t) == 3:
+            stack += [(t[1], True), (t[2], False)]
+            continue
+        return False
+    return True
+
+
+def pratt_entry(x):
+    return type(x) is list and len(x) == 3 and nat(x[0]) and nat(x[1]) and nats(x[2])
+
+
+def tab_row(x):
+    return (type(x) is list and len(x) == 3 and nat(x[0]) and nat(x[1]) and type(x[2]) is list
+            and all(nats(y, 2) for y in x[2]))
+
+
+if len(sys.argv) not in (2, 3) or sys.argv[2:] not in ([], ["tree"], ["bad"]):
+    print("usage: python3 -I replay.py cert.json [tree|bad]", file=sys.stderr)
+    sys.exit(2)
+try:
+    with open(sys.argv[1]) as f:
+        C = json.load(f)
+except (OSError, ValueError) as e:
+    malformed("%s: %s" % (sys.argv[1], e))
+if type(C) is not dict or set(C) != {"K", "pratt_chunks", "tab_chunks", "pieces", "skeleton",
+                                      "modules", "bad"}:
+    malformed("expected exactly the fields K, pratt_chunks, tab_chunks, pieces, skeleton, "
+              "modules and bad")
+if not nat(C["K"]):
+    malformed("K is not a natural number")
+if type(C["pratt_chunks"]) is not list or not all(
+        type(ch) is dict and set(ch) == {"entries", "known"} and nats(ch["known"]) and
+        type(ch["entries"]) is list and all(pratt_entry(x) for x in ch["entries"])
+        for ch in C["pratt_chunks"]):
+    malformed("pratt_chunks is not a list of {entries: [[p, a, [q, ...]], ...], known: [...]}")
+if type(C["tab_chunks"]) is not list or not all(
+        type(ch) is list and all(tab_row(x) for x in ch) for ch in C["tab_chunks"]):
+    malformed("tab_chunks is not a list of lists of [p, e, [[r, k], ...]]")
+if type(C["pieces"]) is not list or not all(
+        type(x) is dict and set(x) == {"state", "tree"} and type(x["state"]) is list and
+        all(nats(y, 2) for y in x["state"]) and tree_ok(x["tree"]) for x in C["pieces"]):
+    malformed("pieces is not a list of {state: [[p, e], ...], tree: node} with known constructors")
+if not tree_ok(C["skeleton"], skeleton=True):
+    malformed("skeleton: an unknown constructor or a wrong number of fields")
+if type(C["modules"]) is not list or not all(nats(x) for x in C["modules"]):
+    malformed("modules is not a list of lists of piece numbers")
+if (type(C["bad"]) is not dict or set(C["bad"]) != {"piece", "tree"} or
+        not nat(C["bad"]["piece"]) or C["bad"]["piece"] >= len(C["pieces"]) or
+        not tree_ok(C["bad"]["tree"])):
+    malformed("bad is not {piece: a piece number, tree: node}")
 WHICH = sys.argv[2] if len(sys.argv) > 2 else "tree"
 B = 10 ** C["K"]
 
@@ -131,6 +217,8 @@ def main():
 
     def walk_node(s, st):
         if s[0] == "piece":
+            if s[1] >= len(pieces):
+                raise Reject("skeleton: piece %d does not exist" % s[1])
             rec, t = pieces[s[1]]
             if [tuple(x) for x in rec] != st:
                 raise Reject("piece %d: recorded state %r, reached %r" % (s[1], rec, st))

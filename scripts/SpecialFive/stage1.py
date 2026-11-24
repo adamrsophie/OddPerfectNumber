@@ -6,15 +6,26 @@
 
 Usage: python3 -I stage1.py B [maxnodes] [order]
 order: small (branch on the smallest undecided forced prime, default) or large.
+Exit status: 0 when the search closes (no stuck node), 1 when it stops at a limit or meets a
+stuck node, 2 for a usage error.
 """
 import sys
 import time
 from functools import lru_cache
 from sympy import factorint
 
-B = int(sys.argv[1])
-MAXN = int(sys.argv[2]) if len(sys.argv) > 2 else 200000
-ORDER = sys.argv[3] if len(sys.argv) > 3 else "small"
+try:
+    if not 2 <= len(sys.argv) <= 4:
+        raise ValueError
+    B = int(sys.argv[1])
+    MAXN = int(sys.argv[2]) if len(sys.argv) > 2 else 200000
+    ORDER = sys.argv[3] if len(sys.argv) > 3 else "small"
+    if B < 0 or MAXN < 0 or ORDER not in ("small", "large"):
+        raise ValueError
+except ValueError:
+    print("usage: python3 -I stage1.py B [maxnodes] [small|large] (B, maxnodes natural numbers)",
+          file=sys.stderr)
+    sys.exit(2)
 T0 = time.time()
 
 
@@ -71,9 +82,10 @@ def go(exps):
 
 try:
     go({5: 1})
-    res = "closed"
+    res = "closed" if not stats["stuck"] else "stuck"
 except SystemExit as x:
     res = str(x)
 print(f"B={B} order={ORDER} result={res} time={time.time()-T0:.1f}s {stats}")
 for s in stuck[:10]:
     print("stuck", s)
+sys.exit(0 if res == "closed" else 1)

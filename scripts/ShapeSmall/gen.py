@@ -3,7 +3,10 @@
 Usage:
     python3 -I gen.py                 print every literal in the order of the source
     python3 -I gen.py --check PATH    also compare with the literals of the Lean file PATH;
-                                      exit 1 on any difference
+                                      exit 1 on any difference (also a declaration that
+                                      names another exponent, list or chunk, or a missing
+                                      Lh_ok), exit 2 for an unreadable file or a file
+                                      without the expected text
 
 Standard library only, deterministic. Each line is tagged:
     exact    the value is determined by the mathematics (or by a stated canonical rule)
@@ -24,6 +27,13 @@ MASK_COUNT = {2: 3, 3: 4, 5: 8, 6: 6}   # how many greedy moduli are kept
 CHUNK = 16384                 # largest number of odd values per kernel check
 # Candidate moduli of the greedy choice: odd primes below 100 and powers of 2 up to 64.
 CANDIDATES = [q for q in range(3, 100) if all(q % d for d in range(2, q))] + [4, 8, 16, 32, 64]
+
+
+def require(ok, what):
+    """A property the Lean proof needs; stops with exit status 1 when it fails (no assert,
+    so that python -O checks it too)."""
+    if not ok:
+        raise SystemExit("gen.py: property fails: " + what)
 
 
 def geo(r, n, m=None):
@@ -54,10 +64,10 @@ def certificate(h):
     for x in f:
         D = D * x.denominator // math.gcd(D, x.denominator)
     c = [int(x * D) for x in f]
-    assert c[0] == D
+    require(c[0] == D, f"c_0 = D for h = {h}")
     for k in range(1, h + 1):
-        assert 2 * sum(c[i] * c[k - i] for i in range(k + 1)) == D * D
-    assert all(2 * c[i] <= D for i in range(1, h + 1))
+        require(2 * sum(c[i] * c[k - i] for i in range(k + 1)) == D * D, f"convolution {h} {k}")
+    require(all(2 * c[i] <= D for i in range(1, h + 1)), f"2 c_i <= D for h = {h}")
     return D, c
 
 
@@ -91,7 +101,7 @@ def masks(h, bound):
     for _ in range(MASK_COUNT[h]):
         gain = lambda m: sum((full[m] >> (p % m)) & 1 for p in left)
         best = max(full, key=lambda m: (gain(m), -m))
-        assert gain(best) > 0
+        require(gain(best) > 0, f"greedy modulus removes a number for h = {h}")
         out.append((best, full[best]))
         left = [p for p in left if not (full[best] >> (p % best)) & 1]
     return out, left
@@ -130,7 +140,7 @@ def generate():
         for p in left:
             v = (1 + geo(p, 2 * h + 1)) // 2
             k = isq_steps_needed(v, p ** h)
-            assert k is not None and k <= ISQ_STEPS, (h, p, k)
+            require(k is not None and k <= ISQ_STEPS, f"square root test for h = {h}, p = {p}")
             need = max(need, k)
         notes.append(f"h={h}: {len(left)} odd numbers left after the masks, "
                      + (f"square root test needs at most {need} steps (Lean uses {ISQ_STEPS})"
@@ -138,7 +148,7 @@ def generate():
         # Chunks: odd numbers 3, 5, ..., 2 D + 1 (D of them) in chunks of at most CHUNK.
         D = cert[h][0]
         chunks = [(3 + 2 * s, min(CHUNK, D - s)) for s in range(0, D, CHUNK)]
-        assert 3 + 2 * (D - 1) >= bound[h]
+        require(3 + 2 * (D - 1) >= bound[h], f"chunks reach the bound for h = {h}")
         out.append((f"chk{h}", chunks, "choice", f"chunk size {CHUNK}; covers [3, {bound[h]}]"))
         out.append((f"no_sol_{h}", bound[h], "exact", "hB : p <= 2 D"))
         if len(chunks) > 1:
@@ -150,8 +160,11 @@ def generate():
 
 
 def parse_lean(text):
-    """Extract the same literals from the Lean source."""
+    """Extract the same literals from the Lean source. Declarations that name another
+    exponent, list or chunk than their own are listed under the key "names", which the
+    generated literals never have."""
     got = {}
+    names = []
     m = re.search(r"isq \(\(1 \+ geo p \(2 \* h \+ 1\)\) / 2\) (\d+)", text)
     got["isq_steps"] = int(m.group(1))
     blk = text[text.index("theorem no_sol_1"):text.index("theorem prime_le_1")]
@@ -165,26 +178,43 @@ def parse_lean(text):
     for h, b, hh, D, ch in re.findall(
             r"theorem prime_le_(\d) .*?: p ≤ (\d+) := by\s*have hb := "
             r"prime_le_of_two_sq_eq_succ_sigma \(h := (\d+)\) \(D := (\d+)\) c(\d)", text, re.S):
-        assert h == ch
+        if h != ch:
+            names.append(f"prime_le_{h} uses c{ch}")
         got[f"prime_le_{h}"] = (int(b), int(hh), int(D))
     for h, body in re.findall(r"def L(\d) : List \(ℕ × ℕ\) :=\s*\[(.*?)\]\n", text, re.S):
         got[f"L{h}"] = [(int(a), int(b)) for a, b in re.findall(r"\((\d+), (\d+)\)", body)]
     for h, j, hh, hl, s, n in re.findall(
             r"theorem chk(\d)_(\d) : chk (\d) L(\d) (\d+) (\d+) = true", text):
-        assert h == hh == hl and int(j) == len(got.get(f"chk{h}", []))
+        if not (h == hh == hl and int(j) == len(got.get(f"chk{h}", []))):
+            names.append(f"chk{h}_{j} states chk {hh} L{hl}")
         got.setdefault(f"chk{h}", []).append((int(s), int(n)))
+    oks = []
+    for h, hl, hm in re.findall(
+            r"theorem L(\d)_ok : L(\d)\.all \(fun mm => maskOK (\d) mm\.1 mm\.2\) = true", text):
+        oks.append(int(h))
+        if not h == hl == hm:
+            names.append(f"L{h}_ok checks L{hl} with maskOK {hm}")
+    if sorted(oks) != MASK_HS:
+        names.append(f"Lh_ok declared for h in {sorted(oks)}")
     for h, body in re.findall(r"theorem no_sol_(\d) (.*?)\n\n", text, re.S):
         if h == "1":
             continue
         got[f"no_sol_{h}"] = int(re.search(r"hB : p ≤ (\d+)", body).group(1))
+        refs = re.findall(r"good_sound L(\d)_ok", body)
+        uses = re.findall(r"chk_sound _ _ chk(\d)_(\d)", body)
+        if refs != [h] or uses != [(h, str(j)) for j in range(len(got.get(f"chk{h}", [])))]:
+            names.append(f"no_sol_{h} uses good_sound {refs} and chunks {uses}")
         thr = [int(x) for x in re.findall(r"by_cases c\d : i < (\d+)", body)]
         if thr:
             # thresholds of the case split, then (start, offset) for each chunk use
             offs = [int(x) for x in re.findall(r"chk_sound _ _ chk\d_\d \(i - (\d+)\)", body)]
             shows = [(int(a), int(b)) for a, b in
                      re.findall(r"show (\d+) \+ 2 \* \(i - (\d+)\) = 3 \+ 2 \* i", body)]
-            assert [b for _, b in shows] == offs
+            if [b for _, b in shows] != offs:
+                names.append(f"no_sol_{h}: offsets {offs} of the chunks, {shows} in the shows")
             got[f"no_sol_{h}_split"] = (thr, shows)
+    if names:
+        got["names"] = names
     return got
 
 
@@ -200,7 +230,16 @@ def main():
     if len(args) != 2 or args[0] != "--check":
         print(__doc__)
         return 2
-    got = parse_lean(open(args[1], encoding="utf-8").read())
+    try:
+        with open(args[1], encoding="utf-8") as f:
+            got = parse_lean(f.read())
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"cannot read {args[1]}: {e}", file=sys.stderr)
+        return 2
+    except (AttributeError, ValueError):
+        print(f"{args[1]}: the text of ShapeSmall.lean (isq steps, no_sol_1, prime_le_1) "
+              "was not found", file=sys.stderr)
+        return 2
     bad = 0
     gen = {name: val for name, val, _, _ in out}
     # the docstring D of each certificate must equal the certificate D

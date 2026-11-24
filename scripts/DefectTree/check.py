@@ -7,20 +7,113 @@
 # Run: python3 check.py CERT ROWS [corrupt]
 #   python3 check.py cert2.json rows.json
 #   With the flag corrupt the certificate is first corrupted exactly as gen.py corrupt does.
+# Exit status: 0 when the certificate is accepted, 1 when a well formed certificate or table is
+# rejected, 2 for malformed input (unreadable JSON, an unknown node tag, a missing or surplus
+# field, a number that is not a natural number, a row the table lacks) or a usage error.
 # Requires: Python 3 standard library only.
 # Untrusted: the Lean kernel check is the one that counts.
 # License: GPL 3, same as the repository.
 
 import sys, json
 
+
+def malformed(msg):
+    print('malformed input: ' + msg, file=sys.stderr)
+    sys.exit(2)
+
+
+def reject(msg):
+    print('rejected', msg)
+    sys.exit(1)
+
+
+def nat(x):
+    """A natural number as Lean reads it: an integer at least 0, not a boolean or a float."""
+    return type(x) is int and x >= 0
+
+
+def nats(x, n=None):
+    return type(x) is list and (n is None or len(x) == n) and all(nat(y) for y in x)
+
+
+def load(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError) as e:
+        malformed('%s: %s' % (path, e))
+
+
+# Fields of each node kind, as in the Lean types Leaf and Cert (open: a leaf left open by
+# search.py, well formed but never accepted).
+NODE = {'cap': {'r'}, 'small': {'r'}, 'budget': set(), 'ledger': {'ks'}, 'abund': {'ws'},
+        'open': set(), 'br': {'r', 'sp', 'ch'}}
+
+
+def shape(t, where='cert'):
+    """Exact tags and fields of a certificate node, recursively; None or a description."""
+    if type(t) is not dict or t.get('t') not in NODE:
+        return '%s: not a node with a known tag' % where
+    if set(t) != NODE[t['t']] | {'t'}:
+        return '%s: node %s with fields %s' % (where, t['t'], sorted(t))
+    if 'r' in t and not nat(t['r']):
+        return '%s: %s prime is not a natural number' % (where, t['t'])
+    if 'ks' in t and not nats(t['ks']):
+        return '%s: ledger primes are not natural numbers' % where
+    if 'ws' in t and not (type(t['ws']) is list and all(nats(w, 2) for w in t['ws'])):
+        return '%s: abund pairs are not pairs of natural numbers' % where
+    if t['t'] == 'br':
+        if t['sp'] is not None:
+            bad = shape(t['sp'], where + '.sp')
+            if bad:
+                return bad
+        if type(t['ch']) is not list:
+            return '%s: chain is not a list' % where
+        for i, it in enumerate(t['ch']):
+            if type(it) is not dict or set(it) != {'t', 'kid'} or it['t'] not in ('ord', 'high'):
+                return '%s.ch[%d]: not a chain item ord or high with field kid' % (where, i)
+            bad = shape(it['kid'], '%s.ch[%d]' % (where, i))
+            if bad:
+                return bad
+    return None
+
+
+if len(sys.argv) not in (3, 4) or sys.argv[3:] not in ([], ['corrupt']):
+    print('usage: python3 check.py CERT ROWS [corrupt]', file=sys.stderr)
+    sys.exit(2)
 CERT, ROWS = sys.argv[1:3]
-c = json.load(open(CERT))
-d = json.load(open(ROWS))
+c = load(CERT)
+d = load(ROWS)
+if type(d) is not dict or set(d) != {'rows', 'pm1'} or type(d['rows']) is not list or \
+        type(d['pm1']) is not dict:
+    malformed('%s: expected exactly the fields rows and pm1' % ROWS)
+for row in d['rows']:
+    if not (type(row) is list and len(row) == 3 and nat(row[0]) and nat(row[1]) and
+            type(row[2]) is list and all(nats(f, 2) for f in row[2])):
+        malformed('%s: row %r is not [p, m, [[r, k], ...]] with natural numbers' % (ROWS, row))
+for p, fs in d['pm1'].items():
+    if not (p.isdigit() and p.isascii() and nats(fs)):
+        malformed('%s: pm1 entry %r is not a decimal prime with a list of natural numbers'
+                  % (ROWS, p))
 rows = {(p, m): [tuple(f) for f in fs] for p, m, fs in d['rows']}
 pm1 = {int(p): fs for p, fs in d['pm1'].items()}
+if type(c) is not dict or set(c) != {'params', 'rows', 'cert'}:
+    malformed('%s: expected exactly the fields params, rows and cert' % CERT)
 P = c['params']
+if type(P) is not dict or set(P) != {'K', 'w', 'u', 'root', 'cap'} or \
+        not all(nat(P[k]) for k in ('K', 'w', 'u', 'root')) or \
+        not (P['cap'] is None or nat(P['cap'])):
+    malformed('%s: params must be K, w, u, root (natural numbers) and cap (null or natural)' % CERT)
 K, W, U, ROOT, CAP = P['K'], P['w'], P['u'], P['root'], P['cap']
+if type(c['rows']) is not list or not all(nats(r, 2) for r in c['rows']):
+    malformed('%s: rows must be a list of pairs of natural numbers' % CERT)
+for p, m in c['rows']:
+    if (p, m) not in rows:
+        malformed('%s: row (%d, %d) is not in the table %s' % (CERT, p, m, ROWS))
 tab = {(p, m): rows[(p, m)] for p, m in c['rows']}
+bad = shape(c['cert'])
+if bad:
+    malformed('%s: %s' % (CERT, bad))
 
 def trial_prime(n):
     return n >= 2 and all(n % k for k in range(2, n))
@@ -31,6 +124,8 @@ def pratt(p):
     """Pratt check of p from the frozen factorization of p - 1 (as gen.py writes it)."""
     if p < 200 or p in certified:
         return trial_prime(p) if p < 200 else True
+    if p not in pm1:
+        return False
     fs = pm1[p]
     prod = 1
     for r in fs:
@@ -50,10 +145,13 @@ def gs(p, m):
     return sum(p ** i for i in range(m + 1))
 
 for (p, m), fs in tab.items():
-    assert len(set(r for r, _ in fs)) == len(fs), ('table nodup', p, m)
+    if len(set(r for r, _ in fs)) != len(fs):
+        reject('table row (%d, %d): repeated prime' % (p, m))
     for r, k in fs:
-        assert r != 2 and k >= 1 and gs(p, m) % r ** k == 0, ('table fact', p, m, r, k)
-        assert pratt(r), ('table prime', r)
+        if not (r > 2 and k >= 1 and gs(p, m) % r ** k == 0):
+            reject('table row (%d, %d): false fact (%d, %d)' % (p, m, r, k))
+        if not pratt(r):
+            reject('table row (%d, %d): %d is not certified prime' % (p, m, r))
 
 def look(p, m):
     return tab.get((p, m), [])
@@ -209,3 +307,4 @@ ok = go(c['cert'], ([], 0), 'root')
 print('accepted' if ok else 'rejected', 'node kinds', dict(sorted(COUNT.items())))
 if BAD:
     print('first rejected node:', BAD[0])
+sys.exit(0 if ok else 1)

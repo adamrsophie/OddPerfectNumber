@@ -89,8 +89,8 @@ same bytes; SHA-256 of `python3 -I gen.py` output:
 SHA-256 of the scripts:
 
 ```
-e344049043e9ab9f8921a96fd14c1510a0fa8f9d816c420f5eeb619dd92cb1b8  gen.py
-227735fc9a7be13158aa5026ad612d209ede3edf94214538bd9bb432662b31dd  replay.py
+924d6624ce09a6191e30978c9b41cc46bc687d1ff2bd30b486cc61b68ec09e2f  gen.py
+41086aabb002d38e45051990a2ea0df29cf3329ae4d81481e6e4bc2cdd0656f0  replay.py
 ```
 
 License: GPL 3, same as the repository.

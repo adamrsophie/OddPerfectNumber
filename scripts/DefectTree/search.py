@@ -20,28 +20,44 @@
 #   factor_seconds=S. CAP is an integer or none. ROWS is the frozen row table (read if
 #   present, missing rows are factored with sympy and the file is rewritten).
 #   OUT gets the certificate.
+# Exit status: 0 when the tree closes (no open leaf), 1 when a leaf stays open, 2 for a usage
+# error or an unreadable row table.
 # Requires: Python 3, sympy (only for rows not yet in ROWS).
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
 
 import sys, json, os, signal
 
-args = [a for a in sys.argv[1:] if '=' not in a and a != 'noledger']
-opts = dict(a.split('=') for a in sys.argv[1:] if '=' in a)
-NOLEDGER = 'noledger' in sys.argv[1:]
-K, W, U, ROOT = map(int, args[:4])
-CAP = None if args[4] == 'none' else int(args[4])
-ROWS, OUT = args[5], args[6]
-MAXNODES = int(opts.get('maxnodes', 10 ** 7))
-MAXEXP = int(opts.get('maxexp', 400))
-FACTOR_SECONDS = int(opts.get('factor_seconds', 600))
+try:
+    args = [a for a in sys.argv[1:] if '=' not in a and a != 'noledger']
+    opts = dict(a.split('=') for a in sys.argv[1:] if '=' in a)
+    NOLEDGER = 'noledger' in sys.argv[1:]
+    if len(args) != 7 or not set(opts) <= {'maxnodes', 'maxexp', 'factor_seconds'}:
+        raise ValueError
+    K, W, U, ROOT = map(int, args[:4])
+    CAP = None if args[4] == 'none' else int(args[4])
+    ROWS, OUT = args[5], args[6]
+    MAXNODES = int(opts.get('maxnodes', 10 ** 7))
+    MAXEXP = int(opts.get('maxexp', 400))
+    FACTOR_SECONDS = int(opts.get('factor_seconds', 600))
+    if FACTOR_SECONDS < 1:      # signal.alarm(0) would switch the deadline off
+        raise ValueError
+except ValueError:
+    print('usage: python3 search.py K W U ROOT CAP ROWS OUT [noledger] [maxnodes=M] [maxexp=E] '
+          '[factor_seconds=S] (S at least 1)', file=sys.stderr)
+    sys.exit(2)
 
 rows = {}
 pm1 = {}
 if os.path.exists(ROWS):
-    d = json.load(open(ROWS))
-    rows = {(p, m): [tuple(f) for f in fs] for p, m, fs in d['rows']}
-    pm1 = {int(p): fs for p, fs in d['pm1'].items()}
+    try:
+        with open(ROWS) as f:
+            d = json.load(f)
+        rows = {(p, m): [tuple(f) for f in fs] for p, m, fs in d['rows']}
+        pm1 = {int(p): fs for p, fs in d['pm1'].items()}
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+        print('malformed input: %s: %r' % (ROWS, e), file=sys.stderr)
+        sys.exit(2)
 dirty = False
 used = set()
 
@@ -54,28 +70,57 @@ def _alarm(*a):
 def gs(p, m):
     return sum(p ** i for i in range(m + 1))
 
-def factor_row(n):
-    """Odd prime factors with exponents. On a timeout, only proven prime factors found by
-    trial division and the sympy factorization with a limit are kept (a lower bound)."""
-    from sympy import factorint, isprime
+def under_deadline(work):
+    """Runs work() with an alarm of FACTOR_SECONDS; True when it finished in time."""
     signal.signal(signal.SIGALRM, _alarm)
     signal.alarm(FACTOR_SECONDS)
     try:
-        f = factorint(n)
+        work()
+        return True
     except Slow:
-        f = {r: v for r, v in factorint(n, limit=10 ** 6).items() if isprime(r)}
+        return False
     finally:
         signal.alarm(0)
-    for r in f:
-        assert isprime(r)
-    return sorted((r, v) for r, v in f.items() if r != 2)
+
+def factor_row(n):
+    """Odd prime factors with exponents, and whether the factorization is complete. The full
+    factorization and its primality checks run under one deadline; after a timeout, the sympy
+    factorization with a limit and the primality checks of its factors run under a second
+    deadline, and only the factors proven prime before it expires are kept (a lower bound,
+    reported as partial)."""
+    from sympy import factorint, isprime
+    f = {}
+
+    def full():
+        g = factorint(n)
+        for r in g:
+            if not isprime(r):
+                raise SystemExit('factorint returned the composite factor %d' % r)
+        f.update(g)
+
+    def limited():
+        for r, v in factorint(n, limit=10 ** 6).items():
+            if isprime(r):
+                f[r] = v
+
+    complete = under_deadline(full)
+    if not complete:
+        f.clear()
+        under_deadline(limited)
+    return sorted((r, v) for r, v in f.items() if r != 2), complete
+
+PARTIAL = []
 
 def facts_row(p, m):
     global dirty
     key = (p, m)
     used.add(key)
     if key not in rows:
-        rows[key] = factor_row(gs(p, m))
+        rows[key], complete = factor_row(gs(p, m))
+        if not complete:
+            PARTIAL.append(key)
+            print('PARTIAL row', p, m, 'factor_seconds', FACTOR_SECONDS, 'kept', rows[key],
+                  flush=True)
         dirty = True
     return rows[key]
 
@@ -261,5 +306,8 @@ maxrow = max((r for key in tab_rows for r, _ in rows[key]), default=0)
 print('K', K, 'w', W, 'u', U, 'root', ROOT, 'cap', CAP, 'noledger' if NOLEDGER else '')
 print('nodes', NODES[0], 'stats', dict(sorted(STATS.items())), 'open', len(OPEN))
 print('rows', len(tab_rows), 'largest prime in a row', maxrow)
+if PARTIAL:
+    print('partial rows', len(PARTIAL), '(factorization timed out; only proven prime factors kept)')
 for o in OPEN[:10]:
     print('  OPEN', o)
+sys.exit(1 if OPEN else 0)
