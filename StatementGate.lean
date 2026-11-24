@@ -1142,6 +1142,84 @@ theorem StatementGate.restrained_nineteen_thousand_le_three :
         19024 ≤ Nat.factorization N 3 :=
   @OddPerfect.restrained_nineteen_thousand_le_three
 
+theorem StatementGate.restrained_omega_ge_sieve :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        275251 ≤ ArithmeticFunction.cardDistinctFactors N :=
+  @OddPerfect.restrained_omega_ge_sieve
+
+theorem StatementGate.restrained_sieve_le_three :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        137624 ≤ Nat.factorization N 3 :=
+  @OddPerfect.restrained_sieve_le_three
+
+theorem StatementGate.restrained_Omega_ge_sieve :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        688123 ≤ ArithmeticFunction.cardFactors N :=
+  @OddPerfect.restrained_Omega_ge_sieve
+
+theorem StatementGate.restrained_two_mod_three_cases :
+    ∀ {N q r t : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+      t ∈ Nat.primeFactors N → t % 3 = 2 →
+        t ∣ ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q) ∨
+          t ∣ Nat.factorization N 3 + 1 ∨ Nat.ModEq (t ^ 2) (3 ^ (t - 1)) 1 :=
+  @OddPerfect.restrained_two_mod_three_cases
+
+theorem StatementGate.restrained_clock :
+    ∀ {N q r t : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+      _root_.Nat.Prime t → t ≠ 2 → t ≠ 3 → t ≠ q →
+      orderOf (3 : ZMod t) ∣ Nat.factorization N 3 + 1 →
+        padicValNat t (3 ^ orderOf (3 : ZMod t) - 1) +
+          padicValNat t (Nat.factorization N 3 + 1) ≤ 2 :=
+  @OddPerfect.restrained_clock
+
+theorem StatementGate.restrained_big_succ_lt :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+      (∀ p ∈ Nat.primeFactors N, 2 * p + 1 ≤ 3 * q) → Nat.factorization N 3 + 1 < q :=
+  @OddPerfect.restrained_big_succ_lt
+
+theorem StatementGate.restrained_big_pow_modEq_of_one_lt :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+      (∀ p ∈ Nat.primeFactors N, 2 * p + 1 ≤ 3 * q) → 1 < Nat.factorization N q →
+        Nat.ModEq (q ^ 3) (3 ^ (q - 1)) 1 :=
+  @OddPerfect.restrained_big_pow_modEq_of_one_lt
+
+theorem StatementGate.lt_two_pow_sq :
+    ∀ {N : ℕ}, _root_.OddPerfect N → N < 2 ^ (2 ^ (Nat.primeFactors N).card - 1) ^ 2 :=
+  @OddPerfect.lt_two_pow_sq
+
+theorem StatementGate.exists_component_gt_ten_pow_thirty_three_of_factorization_five_eq_one :
+    ∀ {N : ℕ}, _root_.OddPerfect N → Nat.factorization N 5 = 1 →
+      ∃ p ∈ Nat.primeFactors N, 10 ^ 33 < p ^ Nat.factorization N p :=
+  @OddPerfect.exists_component_gt_ten_pow_thirty_three_of_factorization_five_eq_one
+
+theorem StatementGate.no_mutual_rows_five :
+    ∀ {p q α β : ℕ}, _root_.Nat.Prime p → _root_.Nat.Prime q → 1 ≤ α → 1 ≤ β →
+      Finset.sum (Finset.range 5) (fun i => p ^ i) = 5 * q ^ α →
+      Finset.sum (Finset.range 5) (fun i => q ^ i) = 5 * p ^ β → False :=
+  @OddPerfect.no_mutual_rows_five
+
+theorem StatementGate.factorization_largest_le_eight :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Nat.factorization N q = 1 →
+      P ∈ Nat.primeFactors N → P ≠ q → (∀ p ∈ Nat.primeFactors N, p ≤ P) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ P →
+        Nat.factorization N p = 2 ∨ Nat.factorization N p = 4) →
+        Nat.factorization N P ≤ 8 :=
+  @OddPerfect.factorization_largest_le_eight
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1588,6 +1666,19 @@ def expected : List (Name × Name) :=
     (`StatementGate.restrained_omega_le, ``OddPerfect.restrained_omega_le),
     (`StatementGate.restrained_nineteen_thousand_le_three,
       ``OddPerfect.restrained_nineteen_thousand_le_three),
+    (`StatementGate.restrained_omega_ge_sieve, ``OddPerfect.restrained_omega_ge_sieve),
+    (`StatementGate.restrained_sieve_le_three, ``OddPerfect.restrained_sieve_le_three),
+    (`StatementGate.restrained_Omega_ge_sieve, ``OddPerfect.restrained_Omega_ge_sieve),
+    (`StatementGate.restrained_two_mod_three_cases, ``OddPerfect.restrained_two_mod_three_cases),
+    (`StatementGate.restrained_clock, ``OddPerfect.restrained_clock),
+    (`StatementGate.restrained_big_succ_lt, ``OddPerfect.restrained_big_succ_lt),
+    (`StatementGate.restrained_big_pow_modEq_of_one_lt,
+      ``OddPerfect.restrained_big_pow_modEq_of_one_lt),
+    (`StatementGate.lt_two_pow_sq, ``OddPerfect.lt_two_pow_sq),
+    (`StatementGate.exists_component_gt_ten_pow_thirty_three_of_factorization_five_eq_one,
+      ``OddPerfect.exists_component_gt_ten_pow_thirty_three_of_factorization_five_eq_one),
+    (`StatementGate.no_mutual_rows_five, ``OddPerfect.no_mutual_rows_five),
+    (`StatementGate.factorization_largest_le_eight, ``OddPerfect.factorization_largest_le_eight),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
