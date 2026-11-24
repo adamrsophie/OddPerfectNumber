@@ -1028,6 +1028,55 @@ theorem StatementGate.not_isSquare_eulerIndex :
       k ≠ 1 → ¬ IsSquare (ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k) :=
   @OddPerfect.not_isSquare_eulerIndex
 
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_two :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      (Nat.primeFactors N).card +
+          2 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 2 :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_two
+
+theorem StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_one_of_three_dvd :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      3 ∣ N →
+      (Nat.primeFactors N).card +
+          2 * padicValNat 3 (ArithmeticFunction.sigma 1 (q ^ Nat.factorization N q)) ≤
+        5 * Finset.sum ((Nat.primeFactors N).erase q)
+          (fun p => Nat.factorization N p / 2 - 1) + 1 :=
+  @OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_one_of_three_dvd
+
+theorem StatementGate.five_le_excess :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      5 ≤ Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) :=
+  @OddPerfect.five_le_excess
+
+theorem StatementGate.five_le_cardFactors_sub :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → ¬ q ∣ m → N = q ^ a * m ^ 2 →
+      ArithmeticFunction.cardDistinctFactors m + 5 ≤ ArithmeticFunction.cardFactors m :=
+  @OddPerfect.five_le_cardFactors_sub
+
+theorem StatementGate.two_mul_omega_add_special_add_eight_le_Omega :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      2 * ArithmeticFunction.cardDistinctFactors N + Nat.factorization N q + 8 ≤
+        ArithmeticFunction.cardFactors N :=
+  @OddPerfect.two_mul_omega_add_special_add_eight_le_Omega
+
+theorem StatementGate.six_le_excess :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      6 ≤ Finset.sum ((Nat.primeFactors N).erase q) (fun p => Nat.factorization N p / 2 - 1) :=
+  @OddPerfect.six_le_excess
+
+theorem StatementGate.six_le_cardFactors_sub :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → ¬ q ∣ m → N = q ^ a * m ^ 2 →
+      ArithmeticFunction.cardDistinctFactors m + 6 ≤ ArithmeticFunction.cardFactors m :=
+  @OddPerfect.six_le_cardFactors_sub
+
+theorem StatementGate.two_mul_omega_add_special_add_ten_le_Omega :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      2 * ArithmeticFunction.cardDistinctFactors N + Nat.factorization N q + 10 ≤
+        ArithmeticFunction.cardFactors N :=
+  @OddPerfect.two_mul_omega_add_special_add_ten_le_Omega
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1447,6 +1496,18 @@ def expected : List (Name × Name) :=
     (`StatementGate.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_nine,
       ``OddPerfect.two_mul_card_primeFactors_add_three_mul_le_seven_excess_add_nine),
     (`StatementGate.not_isSquare_eulerIndex, ``OddPerfect.not_isSquare_eulerIndex),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_two,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_two),
+    (`StatementGate.card_primeFactors_add_two_mul_le_five_excess_add_one_of_three_dvd,
+      ``OddPerfect.card_primeFactors_add_two_mul_le_five_excess_add_one_of_three_dvd),
+    (`StatementGate.five_le_excess, ``OddPerfect.five_le_excess),
+    (`StatementGate.five_le_cardFactors_sub, ``OddPerfect.five_le_cardFactors_sub),
+    (`StatementGate.two_mul_omega_add_special_add_eight_le_Omega,
+      ``OddPerfect.two_mul_omega_add_special_add_eight_le_Omega),
+    (`StatementGate.six_le_excess, ``OddPerfect.six_le_excess),
+    (`StatementGate.six_le_cardFactors_sub, ``OddPerfect.six_le_cardFactors_sub),
+    (`StatementGate.two_mul_omega_add_special_add_ten_le_Omega,
+      ``OddPerfect.two_mul_omega_add_special_add_ten_le_Omega),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),

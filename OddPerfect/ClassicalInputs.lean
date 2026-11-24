@@ -9,8 +9,8 @@ S. Siksek (Mathematika 63 (2017), Section 3) credit both to T. Nagell (Norsk Mat
 Skr. 1(2) (1921), 1 to 14): the first for exponents `n` that are not a power of 3, the second
 for `n > 2`. The first equation with `n` a power of 3 (where `18 ^ 2 + 18 + 1 = 7 ^ 3`) is not
 covered by that quotation; it is usually credited to Ljunggren (1943), which was not checked on
-the source. A modern statement of both: M. A. Bennett and A. Levin, The Nagell and Ljunggren
-equation via Runge's method, Monatsh. Math. 177 (2015), Proposition 1. The name
+the source. A modern treatment of the first equation: M. A. Bennett and A. Levin, The Nagell
+and Ljunggren equation via Runge's method, Monatsh. Math. 177 (2015), Proposition 1. The name
 `LjunggrenThreePrimePower` below is kept for compatibility; by the quotation above the theorem
 behind it is Nagell's.
 

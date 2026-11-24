@@ -119,7 +119,7 @@ open EulerIndexSquare
 
 variable {N q k m d₁ d₂ : ℕ}
 
-/-- **Gallardo, Proposition 2** (also Broughan, Delbourgo and Zhou). For an odd perfect
+/-- **Gallardo, Proposition 3.** For an odd perfect
 number `q ^ k * m ^ 2` with special prime `q`, if the index is `d₁ ^ 2 * d₂` with
 `d₂ ∣ (q ^ ℓ + 1) / 2`, where `ℓ = (k + 1) / 2`, then `k = 1`. -/
 theorem exponent_eq_one_of_eulerIndex_eq_sq_mul (h : OddPerfect N)
@@ -144,8 +144,8 @@ theorem exponent_eq_one_of_eulerIndex_eq_sq_mul (h : OddPerfect N)
   have := (isSquare_sigma_prime_pow_iff hq (by omega) (even_two_mul j) (by omega)).mp hRsq
   omega
 
-/-- **Gallardo, Proposition 3.** For an odd perfect number `q ^ k * m ^ 2` with special prime
-`q` and `k ≠ 1`, the index `σ(m ^ 2) / q ^ k` is not a square. -/
+/-- **Gallardo, Proposition 2** (also Broughan, Delbourgo and Zhou). For an odd perfect number
+`q ^ k * m ^ 2` with special prime `q` and `k ≠ 1`, the index `σ(m ^ 2) / q ^ k` is not a square. -/
 theorem not_isSquare_eulerIndex (h : OddPerfect N) (hq : q.Prime)
     (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) (hk : k ≠ 1) : ¬ IsSquare (eulerIndex q k m) := by
   rintro ⟨r, hr⟩
