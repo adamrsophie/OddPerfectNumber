@@ -302,3 +302,4 @@ import OddPerfect.ShapeSmall
 import OddPerfect.SpecialBelowOrder
 import OddPerfect.SpecialBelowRadical
 import OddPerfect.ConditionalDefect
+import OddPerfect.EscapeRowUnique
