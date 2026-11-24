@@ -8,7 +8,8 @@
 #   With the flag split (and optionally gnodes=G) the data goes to several modules (OUTP.lean,
 #   OUTT.lean, OUTG0.lean, ..., OUT.lean): the Pratt certificate and the fact table in parts,
 #   subtrees of at most G nodes, each with its own kernel check, so that a large certificate
-#   stays inside the time and memory budget of one module (see the comment at `if SPLIT`).
+#   stays inside the time and memory budget of one module (see the comment at `if SPLIT`;
+#   the options pper=N, tper=N, pmods=M and tmods=M are described there).
 #   statement A, K = 2: python3 gen.py cert2.json rows.json Two DefectTreeTwoData.lean
 #   NAME is the suffix of the Lean names. With the flag corrupt the first capacity leaf gets
 #   a wrong witness and the module states `check ... = false` instead (a control, not landed).
@@ -202,6 +203,10 @@ if SPLIT:
     # OUTG0.lean, OUTG1.lean, ... (subtrees of at most `gnodes` nodes with the states at which
     # they sit, one kernel check per subtree, at most `gnodes` nodes per module), and OUT.lean
     # (the remaining tree with the subtrees by name, assembled by `simp`, and the full check).
+    # Options: pper=N and tper=N change the part sizes (default 150); pmods=M (tmods=M) moves
+    # the Pratt parts (table parts) to the modules OUTP0.lean, OUTP1.lean, ... (OUTT0.lean,
+    # ...), M parts each, and leaves in OUTP.lean (OUTT.lean) only the joined list and its
+    # check. Without these options the output is unchanged.
     assert not CORRUPT
     PER = 150
     GN = opt('gnodes', 10 ** 9)
@@ -214,13 +219,35 @@ if SPLIT:
     pn, tn = 'pratt%s' % NAME, 'tab%s' % NAME
     args = 'params%s %s %s' % (NAME, pn, tn)
 
-    def parts(items):
-        return [items[i:i + PER] for i in range(0, len(items), PER)] or [[]]
+    def parts(items, per):
+        return [items[i:i + per] for i in range(0, len(items), per)] or [[]]
 
     def nest(names):
         return names[0] if len(names) == 1 else '%s ++ (%s)' % (names[0], nest(names[1:]))
 
-    prs = parts(['  (%d, %d, [%s])' % (p, a, ', '.join(map(str, fs))) for p, a, fs in out])
+    def chunked(X, blocks, M, sfx, what, thm):
+        """Without M (the default) the blocks go into X. With M, the blocks go to the modules
+        OUT<sfx>0.lean, OUT<sfx>1.lean, ..., M blocks each, each importing the one before (the
+        first takes the import and the beginning of X); X keeps the header and imports the
+        last of them."""
+        if M == 0:
+            return X + [x for b in blocks for x in b]
+        groups = [list(range(i, min(i + M, len(blocks)))) for i in range(0, len(blocks), M)]
+        for j, ks in enumerate(groups):
+            Y = list(X[:len(hdr)])
+            if j > 0:
+                Y[0] = 'import %s%s%d' % (mod, sfx, j - 1)
+            Y[title] = '# Defect tree certificate `%s`, %s, parts %d to %d' % (NAME, what,
+                                                                            ks[0], ks[-1])
+            Y += (X[len(hdr):] if j == 0 else ns) + [x for k in ks for x in blocks[k]] + end
+            Y += ['#print axioms OddPerfect.DefectTree.%s_%s_%d' % (thm, NAME, k) for k in ks]
+            emit('%s%s%d.lean' % (base, sfx, j), Y, fold_ind)
+        Z = list(X[:len(hdr)])
+        Z[0] = 'import %s%s%d' % (mod, sfx, len(groups) - 1)
+        return Z + ns
+
+    prs = parts(['  (%d, %d, [%s])' % (p, a, ', '.join(map(str, fs))) for p, a, fs in out],
+               opt('pper', PER))
     A = list(hdr)
     A[0] = 'import OddPerfect.DefectTreeSplit'
     A[title] = '# Defect tree certificate `%s`, part 1: parameters and Pratt certificate' % NAME
@@ -228,14 +255,16 @@ if SPLIT:
                'def params%s : Params := { K := %d, w := %d, u := %d, root := %d, cap := %s }'
                % (NAME, P['K'], P['w'], P['u'], P['root'], cap), '']
     known = '[]'
+    pblocks = []
     for i, part in enumerate(prs):
-        A += ['/-- Part %d of the Pratt certificate. -/' % i,
+        pblocks.append(['/-- Part %d of the Pratt certificate. -/' % i,
               'def %s_%d : PCert := [' % (pn, i), ',\n'.join(part) + ']', '',
               '/-- Part %d of the Pratt certificate is accepted. -/' % i,
               'theorem prattOK_%s_%d : Pratt.checkAux %s %s_%d = true := by' % (NAME, i, known,
                                                                                 pn, i),
-              '  decide +kernel', '']
+              '  decide +kernel', ''])
         known = '(%s_%d.reverse.map Prod.fst ++ %s)' % (pn, i, known)
+    A = chunked(A, pblocks, opt('pmods', 0), 'P', 'Pratt certificate', 'prattOK')
     names = ['%s_%d' % (pn, i) for i in range(len(prs))]
     steps = []
     for i in range(len(prs)):
@@ -248,21 +277,25 @@ if SPLIT:
           'theorem prattOK_%s : Pratt.check %s = true := by' % (NAME, pn),
           '  rw [Pratt.check, %s, %s]' % (pn, ', '.join(steps))]
     A += (['  all_goals decide'] if len(prs) > 1 else []) + [''] + end
-    A += ['#print axioms OddPerfect.DefectTree.prattOK_%s_%d' % (NAME, i) for i in range(len(prs))]
+    if not opt('pmods', 0):
+        A += ['#print axioms OddPerfect.DefectTree.prattOK_%s_%d' % (NAME, i)
+              for i in range(len(prs))]
     A += ['#print axioms OddPerfect.DefectTree.prattOK_%s' % NAME]
 
     tbs = parts(['  (%d, %d, [%s])' % (p, m, ', '.join('(%d, %d)' % (r, k) for r, k in fs))
-                 for p, m, fs in tab])
+                 for p, m, fs in tab], opt('tper', PER))
     B = list(hdr)
     B[0] = 'import %sP' % mod
     B[title] = '# Defect tree certificate `%s`, part 2: fact table' % NAME
     B += ns
+    tblocks = []
     for i, part in enumerate(tbs):
-        B += ['/-- Part %d of the fact table. -/' % i,
+        tblocks.append(['/-- Part %d of the fact table. -/' % i,
               'def %s_%d : Tab := [' % (tn, i), ',\n'.join(part) + ']', '',
               '/-- Part %d of the fact table is accepted. -/' % i,
               'theorem tabOK_%s_%d : tabOK %s %s_%d = true := by' % (NAME, i, pn, tn, i),
-              '  decide +kernel', '']
+              '  decide +kernel', ''])
+    B = chunked(B, tblocks, opt('tmods', 0), 'T', 'fact table', 'tabOK')
     steps = []
     for i in range(len(tbs)):
         if i < len(tbs) - 1:
@@ -274,7 +307,9 @@ if SPLIT:
           'theorem tabOK_%s : tabOK %s %s = true := by' % (NAME, pn, tn),
           '  rw [%s, %s]' % (tn, ', '.join(steps))]
     B += (['  all_goals decide'] if len(tbs) > 1 else []) + [''] + end
-    B += ['#print axioms OddPerfect.DefectTree.tabOK_%s_%d' % (NAME, i) for i in range(len(tbs))]
+    if not opt('tmods', 0):
+        B += ['#print axioms OddPerfect.DefectTree.tabOK_%s_%d' % (NAME, i)
+              for i in range(len(tbs))]
     B += ['#print axioms OddPerfect.DefectTree.tabOK_%s' % NAME]
 
     # Cut the tree into subtrees of at most GN nodes; the rest stays in the final module.
