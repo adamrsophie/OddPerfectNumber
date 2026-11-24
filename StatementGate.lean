@@ -1279,6 +1279,27 @@ theorem StatementGate.restrained_Omega_ge_tail :
         901369 ≤ ArithmeticFunction.cardFactors N :=
   @OddPerfect.restrained_Omega_ge_tail
 
+theorem StatementGate.restrained_omega_ge_wheel :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        576967 ≤ ArithmeticFunction.cardDistinctFactors N :=
+  @OddPerfect.restrained_omega_ge_wheel
+
+theorem StatementGate.restrained_three_ge_wheel :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        288482 ≤ Nat.factorization N 3 :=
+  @OddPerfect.restrained_three_ge_wheel
+
+theorem StatementGate.restrained_Omega_ge_wheel :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        1442413 ≤ ArithmeticFunction.cardFactors N :=
+  @OddPerfect.restrained_Omega_ge_wheel
+
 theorem StatementGate.restrained_big_special_fermat :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       _root_.Nat.Prime r → r ≠ q →
@@ -1797,6 +1818,9 @@ def expected : List (Name × Name) :=
     (`StatementGate.restrained_omega_ge_tail, ``OddPerfect.restrained_omega_ge_tail),
     (`StatementGate.restrained_tail_le_three, ``OddPerfect.restrained_tail_le_three),
     (`StatementGate.restrained_Omega_ge_tail, ``OddPerfect.restrained_Omega_ge_tail),
+    (`StatementGate.restrained_omega_ge_wheel, ``OddPerfect.restrained_omega_ge_wheel),
+    (`StatementGate.restrained_three_ge_wheel, ``OddPerfect.restrained_three_ge_wheel),
+    (`StatementGate.restrained_Omega_ge_wheel, ``OddPerfect.restrained_Omega_ge_wheel),
     (`StatementGate.restrained_big_special_fermat, ``OddPerfect.restrained_big_special_fermat),
     (`StatementGate.saturated_receiver, ``OddPerfect.saturated_receiver),
     (`StatementGate.sum_factorization_geom_sum_le_primeIndexCap,
