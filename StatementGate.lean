@@ -1258,6 +1258,75 @@ theorem StatementGate.padicValNat_sigma_prime_pow_row :
             padicValNat r (p ^ orderOf (p : ZMod r) - 1) + padicValNat r (e + 1)) :=
   @OddPerfect.padicValNat_sigma_prime_pow_row
 
+theorem StatementGate.restrained_omega_ge_tail :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        360549 ≤ ArithmeticFunction.cardDistinctFactors N :=
+  @OddPerfect.restrained_omega_ge_tail
+
+theorem StatementGate.restrained_tail_le_three :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        180274 ≤ Nat.factorization N 3 :=
+  @OddPerfect.restrained_tail_le_three
+
+theorem StatementGate.restrained_Omega_ge_tail :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+        901369 ≤ ArithmeticFunction.cardFactors N :=
+  @OddPerfect.restrained_Omega_ge_tail
+
+theorem StatementGate.restrained_big_special_fermat :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
+      _root_.Nat.Prime r → r ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → Nat.factorization N p = 2) →
+      (∀ p ∈ Nat.primeFactors N, 2 * p + 1 ≤ 3 * q) →
+        Nat.factorization N q ≤ 2 + padicValNat q (3 ^ (q - 1) - 1) :=
+  @OddPerfect.restrained_big_special_fermat
+
+theorem StatementGate.saturated_receiver :
+    ∀ {N t : ℕ}, _root_.OddPerfect N → 3 ∣ N → _root_.Nat.Prime t → t ≠ 2 → t ≠ 3 →
+      orderOf (3 : ZMod t) ∣ Nat.factorization N 3 + 1 →
+      padicValNat t (3 ^ orderOf (3 : ZMod t) - 1) + padicValNat t (Nat.factorization N 3 + 1) =
+        Nat.factorization N t →
+        ∀ p ∈ Nat.primeFactors N, p ≠ 3 →
+          ¬ t ∣ ArithmeticFunction.sigma 1 (p ^ Nat.factorization N p) :=
+  @OddPerfect.saturated_receiver
+
+theorem StatementGate.sum_factorization_geom_sum_le_primeIndexCap :
+    ∀ {P l : ℕ}, _root_.Nat.Prime P → _root_.Nat.Prime l → l ≠ 2 → l ≠ P → ∀ (U : Finset ℕ),
+      (∀ u ∈ U, 1 < u ∧ u < P) →
+        ∑ u ∈ U, Nat.factorization (∑ i ∈ Finset.range l, u ^ i) P ≤
+          ∑ j ∈ Finset.Icc 1 (l - 2), (l - 1) / j :=
+  @OddPerfect.sum_factorization_geom_sum_le_primeIndexCap
+
+theorem StatementGate.factorization_largest_le_sum_primeIndexCap :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Nat.factorization N q = 1 →
+      P ∈ Nat.primeFactors N → P ≠ q → (∀ p ∈ Nat.primeFactors N, p ≤ P) → ∀ (E : Finset ℕ),
+      (∀ e ∈ E, _root_.Nat.Prime (e + 1) ∧ e + 1 ≠ 2 ∧ e + 1 ≠ P) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ P → Nat.factorization N p ∈ E) →
+        Nat.factorization N P ≤ ∑ e ∈ E, ∑ j ∈ Finset.Icc 1 (e + 1 - 2), (e + 1 - 1) / j :=
+  @OddPerfect.factorization_largest_le_sum_primeIndexCap
+
+theorem StatementGate.factorization_largest_le_twentytwo :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Nat.factorization N q = 1 →
+      P ∈ Nat.primeFactors N → P ≠ q → (∀ p ∈ Nat.primeFactors N, p ≤ P) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ P →
+        Nat.factorization N p = 2 ∨ Nat.factorization N p = 4 ∨ Nat.factorization N p = 6) →
+        Nat.factorization N P ≤ 22 :=
+  @OddPerfect.factorization_largest_le_twentytwo
+
+theorem StatementGate.factorization_largest_le_fourteen :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Nat.factorization N q = 1 →
+      P ∈ Nat.primeFactors N → P ≠ q → (∀ p ∈ Nat.primeFactors N, p ≤ P) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ P →
+        Nat.factorization N p = 2 ∨ Nat.factorization N p = 6) →
+        Nat.factorization N P ≤ 14 :=
+  @OddPerfect.factorization_largest_le_fourteen
+
 theorem StatementGate.excessS1 :
     ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd (Nat.factorization N q) →
       Nat.factorization N 3 = 6 → (r ∈ Nat.primeFactors N → Nat.factorization N r = 4) →
@@ -1725,6 +1794,19 @@ def expected : List (Name × Name) :=
       ``OddPerfect.five_special_exponent_mod_twelve),
     (`StatementGate.restrained_omega_eq, ``OddPerfect.restrained_omega_eq),
     (`StatementGate.padicValNat_sigma_prime_pow_row, ``OddPerfect.padicValNat_sigma_prime_pow_row),
+    (`StatementGate.restrained_omega_ge_tail, ``OddPerfect.restrained_omega_ge_tail),
+    (`StatementGate.restrained_tail_le_three, ``OddPerfect.restrained_tail_le_three),
+    (`StatementGate.restrained_Omega_ge_tail, ``OddPerfect.restrained_Omega_ge_tail),
+    (`StatementGate.restrained_big_special_fermat, ``OddPerfect.restrained_big_special_fermat),
+    (`StatementGate.saturated_receiver, ``OddPerfect.saturated_receiver),
+    (`StatementGate.sum_factorization_geom_sum_le_primeIndexCap,
+      ``OddPerfect.sum_factorization_geom_sum_le_primeIndexCap),
+    (`StatementGate.factorization_largest_le_sum_primeIndexCap,
+      ``OddPerfect.factorization_largest_le_sum_primeIndexCap),
+    (`StatementGate.factorization_largest_le_twentytwo,
+      ``OddPerfect.factorization_largest_le_twentytwo),
+    (`StatementGate.factorization_largest_le_fourteen,
+      ``OddPerfect.factorization_largest_le_fourteen),
     (`StatementGate.excessS1, ``OddPerfect.excessS1),
     (`StatementGate.excessS2a, ``OddPerfect.excessS2a),
     (`StatementGate.excessS2b, ``OddPerfect.excessS2b),
