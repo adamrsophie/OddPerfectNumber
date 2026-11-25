@@ -25,10 +25,13 @@
 #   factor_seconds=S (a deadline for each factoring step, also for the factorizations of p - 1).
 # Partial rows: a row whose factorization did not finish keeps the odd prime factors proven
 # before the deadline and is listed in the field "partial" of ROWS (absent when there is none).
-# A marked row is factored again when the search uses it. A p - 1 whose factorization did not
-# finish is not stored. Every unmarked row must multiply back to its value up to a power of 2
-# (except the nine landed rows of LANDED_PARTIAL, pinned to their recorded facts), and every
-# stored factorization of p - 1 to p - 1.
+# A marked row is factored again when the search uses it; the new facts are merged with the
+# stored ones (for each prime the larger valuation, no stored factor dropped) and the merged
+# facts must divide the row. A p - 1 whose factorization did not finish is not stored. Every
+# unmarked row must multiply back to its value up to a power of 2 (except the nine landed rows
+# of LANDED_PARTIAL, pinned to their recorded facts), and every stored factorization of p - 1
+# must list integers above 1 that multiply back to p - 1. ROWS is read by the strict loader
+# certio.py. Pratt data is stored for every fact prime from 200 on and for the root prime.
 # Exit status: 0 when the tree closes (no open leaf) and every factorization finished, 1 when a
 # leaf stays open or a row or a p - 1 stayed partial (check.py and gen.py reject such a
 # certificate), 2 for a usage error or an unreadable or rejected row table.
@@ -114,36 +117,14 @@ def odd_cofactor(n, fs):
     return n
 
 
-def is_nat(x):
-    return type(x) is int and x >= 0
-
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import certio     # the strict loader shared with check.py and gen.py (exit 2 on violation)
 
 rows = {}
 pm1 = {}
 PARTSET = set()       # marked rows: factored again when used
 if os.path.exists(ROWS):
-    try:
-        with open(ROWS) as f:
-            d = json.load(f)
-        if type(d) is not dict or not {'rows', 'pm1'} <= set(d) <= {'rows', 'pm1', 'partial'}:
-            raise ValueError('expected the fields rows, pm1 and optionally partial')
-        for row in d['rows']:
-            p, m, fs = row
-            if not (is_nat(p) and is_nat(m) and type(fs) is list and
-                    all(type(x) is list and len(x) == 2 and all(map(is_nat, x)) for x in fs)):
-                raise ValueError('row %r is not [p, m, [[r, k], ...]]' % (row,))
-            rows[(p, m)] = [tuple(x) for x in fs]
-        for p, fs in d['pm1'].items():
-            if not (p.isascii() and p.isdigit() and type(fs) is list and all(map(is_nat, fs))):
-                raise ValueError('pm1 entry %r' % p)
-            pm1[int(p)] = fs
-        for key in d.get('partial', []):
-            if not (type(key) is list and len(key) == 2 and tuple(key) in rows):
-                raise ValueError('partial entry %r is not a row of the table' % (key,))
-            PARTSET.add(tuple(key))
-    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
-        print('malformed input: %s: %s' % (ROWS, e), file=sys.stderr)
-        sys.exit(2)
+    rows, pm1, PARTSET = certio.load_rows(ROWS)
     for (p, m), fs in sorted(rows.items()):
         if (p, m) in PARTSET or LANDED_PARTIAL.get((p, m)) == fs:
             continue
@@ -152,12 +133,9 @@ if os.path.exists(ROWS):
                   'its value and the row is not marked partial' % (ROWS, p, m), file=sys.stderr)
             sys.exit(2)
     for p, fs in sorted(pm1.items()):
-        prod = 1
-        for r in fs:
-            prod *= r
-        if prod != p - 1:
-            print('rejected row table %s: the factorization of %d - 1 does not multiply back'
-                  % (ROWS, p), file=sys.stderr)
+        bad = certio.pm1_problem(p, fs)
+        if bad:
+            print('rejected row table %s: %s' % (ROWS, bad), file=sys.stderr)
             sys.exit(2)
 dirty = False
 used = set()
@@ -217,7 +195,21 @@ def facts_row(p, m):
     used.add(key)
     if key not in rows or (key in PARTSET and key not in TRIED):
         TRIED.add(key)
-        rows[key], complete, timed_out = factor_row(gs(p, m))
+        new, complete, timed_out = factor_row(gs(p, m))
+        if key in rows:
+            # Resuming a marked row: merge, never drop an established factor. For each prime
+            # the larger valuation of the stored and the new facts is kept, and the merged
+            # facts must divide the row.
+            merged = dict(rows[key])
+            for r, k in new:
+                merged[r] = max(merged.get(r, 0), k)
+            new = sorted(merged.items())
+            if odd_cofactor(gs(p, m), new) is None:
+                print('rejected row table %s: the facts %r of the marked row (%d, %d) do not '
+                      'divide its value' % (ROWS, new, p, m), file=sys.stderr)
+                sys.exit(2)
+            complete = odd_cofactor(gs(p, m), new) == 1
+        rows[key] = new
         if complete:
             PARTSET.discard(key)
             if timed_out:
@@ -418,10 +410,15 @@ def pm1_of(p):
             pm1_of(r)
 
 tab_rows = sorted(used)
+# Pratt data for every prime the Lean checker tests with isPr (DefectTreeCode.lean): each fact
+# prime of the table rows (tabOK) and the root prime (brHead at the root). A branch at a node
+# needs nothing more: its prime is forced, so it is a fact prime of a row.
 for key in tab_rows:
     for r, k in rows[key]:
         if r >= 200:
             pm1_of(r)
+if ROOT >= 200:
+    pm1_of(ROOT)
 if dirty or not os.path.exists(ROWS):
     table = {'rows': [[p, m, [list(f) for f in rows[(p, m)]]] for p, m in sorted(rows)],
              'pm1': {str(p): pm1[p] for p in sorted(pm1)}}

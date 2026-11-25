@@ -17,16 +17,23 @@
 # NAME letters and digits only; OUT ends with .lean; corrupt and split exclude each other.
 # Rows: every unmarked row of ROWS must multiply back to its value up to a power of 2 (except
 # the nine landed rows of LANDED_PARTIAL, pinned to their recorded facts), and the certificate
-# must use no row of the field "partial"; every factorization of p - 1 that the Pratt
-# certificate uses must multiply back to p - 1.
-# Exit status: 0 when the module is written, 1 when a check fails (nothing is written), 2 for a
-# usage error or malformed input.
+# must use no row of the field "partial". Pratt certificate: every prime from 200 on that the
+# Lean checker tests (each fact prime of the table and the root prime); each factorization of
+# p - 1 it uses must list integers above 1 (no booleans) that multiply back to p - 1, each prime
+# (below 200 by trial division, from 200 on by its own entry), and the witness is searched
+# below p only. The inputs are read by the strict loader certio.py (exact types, natural
+# numbers, a closed set of fields and tags).
+# Output: every file is first written under a temporary name in its target folder and renamed
+# into place only after all were written; a failure before the renames removes the temporary
+# files and changes no target. The renames are one after another, not one atomic step.
+# Exit status: 0 when the module is written, 1 when a check fails (nothing is written) or a
+# file cannot be written, 2 for a usage error or malformed input.
 # Requires: Python 3 standard library only. The Pratt witnesses are computed from the frozen
 # factorizations of p - 1 in ROWS.
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
 
-import sys, json, hashlib
+import sys, os, hashlib
 
 
 def usage(why):
@@ -69,32 +76,16 @@ if CORRUPT and SPLIT:
     usage('corrupt and split exclude each other')
 
 
-def load(path):
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except (OSError, ValueError) as e:
-        malformed('%s: %s' % (path, e))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import certio     # the strict loader shared with search.py and check.py (exit 2 on violation)
 
-
-c = load(CERT)
-d = load(ROWS)
-try:
-    if not {'rows', 'pm1'} <= set(d) <= {'rows', 'pm1', 'partial'}:
-        raise ValueError('expected the fields rows, pm1 and optionally partial')
-    rows = {(p, m): fs for p, m, fs in d['rows']}
-    pm1 = {int(p): fs for p, fs in d['pm1'].items()}
-    PARTSET = set((p, m) for p, m in d.get('partial', []))
-    if not PARTSET <= set(rows):
-        raise ValueError('a partial entry that is no row of the table')
-    P = c['params']
-    tab = [(p, m, rows[(p, m)]) for p, m in c['rows']]
-    for (p, m), fs in rows.items():
-        for r, k in fs:
-            if not all(type(x) is int and x >= 0 for x in (p, m, r, k)):
-                raise ValueError('row (%r, %r) with a fact that is not a natural number' % (p, m))
-except (ValueError, KeyError, TypeError, AttributeError) as e:
-    malformed('%s or %s: %r' % (CERT, ROWS, e))
+c = certio.load_cert(CERT)
+rows, pm1, PARTSET = certio.load_rows(ROWS)
+P = c['params']
+for p, m in c['rows']:
+    if (p, m) not in rows:
+        malformed('%s: row (%d, %d) is not in the table %s' % (CERT, p, m, ROWS))
+tab = [(p, m, rows[(p, m)]) for p, m in c['rows']]
 
 
 def gs(p, m):
@@ -141,31 +132,39 @@ for (p, m), fs in sorted(rows.items()):
     if n != 1:
         fail('the facts of the row (%d, %d) do not multiply back to its value' % (p, m))
 
-# Pratt certificate: every fact prime from 200 on, in dependency order.
+# Pratt certificate, in dependency order, for every prime from 200 on that the Lean checker
+# tests with isPr (OddPerfect/DefectTreeCode.lean): each fact prime of the table (tabOK) and
+# the root prime (brHead at the root). A branch at a node needs no certificate of its own: its
+# prime is forced, so it is a fact prime of the table. Primes below 200 must pass the trial
+# division of isPr.
 out, done = [], set()
 
 def pratt(p):
-    if p < 200 or p in done:
+    if p < 200:
+        if not certio.trial_prime(p):
+            fail('%d is below 200 and not prime by trial division' % p)
+        return
+    if p in done:
         return
     if p not in pm1:
         fail('no factorization of %d - 1 for the Pratt certificate' % p)
     fs = pm1[p]
-    prod = 1
-    for r in fs:
-        prod *= r
-    if prod != p - 1:
-        fail('the factorization of %d - 1 does not multiply back' % p)
+    bad = certio.pm1_problem(p, fs)
+    if bad:
+        fail(bad)
     for r in sorted(set(fs)):
         pratt(r)
-    a = 2
-    while not (pow(a, p - 1, p) == 1 and all(pow(a, (p - 1) // r, p) != 1 for r in set(fs))):
-        a += 1
+    # a < p: when no such a exists, p is not prime (or the factor list is wrong).
+    a = certio.pratt_witness(p, fs)
+    if a is None:
+        fail('no Pratt witness below %d for the factorization %r of %d - 1' % (p, fs, p))
     done.add(p)
     out.append((p, a, fs))
 
 for p, m, fs in tab:
     for r, k in fs:
         pratt(r)
+pratt(P['root'])
 
 def lean_cert(t):
     k = t['t']
@@ -347,7 +346,12 @@ if SPLIT:
         return [items[i:i + per] for i in range(0, len(items), per)] or [[]]
 
     def nest(names):
-        return names[0] if len(names) == 1 else '%s ++ (%s)' % (names[0], nest(names[1:]))
+        """`a ++ (b ++ (c ++ ...))`, built from the right without recursion (many parts with
+        tper=1 or pper=1)."""
+        s = names[-1]
+        for n in reversed(names[:-1]):
+            s = '%s ++ (%s)' % (n, s)
+        return s
 
     def chunked(X, blocks, M, sfx, what, thm):
         """Without M (the default) the blocks go into X. With M, the blocks go to the modules
@@ -516,8 +520,46 @@ if SPLIT:
     emit(OUT, C, fold_ind)
 else:
     emit(OUT, L)
-for path, text in PENDING:
-    with open(path, 'w') as f:
-        f.write(text)
+
+
+def write_all(pending):
+    """Writes every file under a temporary name next to its target (created new, so no
+    existing file is touched), then renames each into place once all are written. On a
+    failure before the renames, the temporary files created here are removed by their exact
+    names and no target changes. The renames are one after another, not one atomic step."""
+    made = []
+    try:
+        for path, text in pending:
+            if os.path.isdir(path):
+                raise OSError('%s is a folder' % path)
+            tmp = os.path.join(os.path.dirname(path) or '.',
+                               '.%s.%d.tmp' % (os.path.basename(path), os.getpid()))
+            with open(tmp, 'x') as f:
+                made.append(tmp)
+                f.write(text)
+    except OSError as e:
+        for tmp in made:
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+        fail('cannot write the output: %s' % e)
+    done_ = []
+    try:
+        for (path, _), tmp in zip(pending, made):
+            os.replace(tmp, path)
+            done_.append(path)
+    except OSError as e:
+        for tmp in made[len(done_):]:
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+        print('error: renamed %d of %d files into place before: %s' % (len(done_), len(made), e),
+              file=sys.stderr)
+        sys.exit(1)
+
+
+write_all(PENDING)
 print('wrote', OUT, 'rows', len(tab), 'pratt', len(out), 'max pratt prime',
       max((p for p, _, _ in out), default=0))

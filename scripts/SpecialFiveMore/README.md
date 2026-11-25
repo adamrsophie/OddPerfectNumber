@@ -55,7 +55,10 @@ already took 5.3 GB. At `10 ^ 33` the certificate has 2753 Pratt entries, 801 ta
   only, does not import `gen.py`): each Pratt chunk with only its known list, each known list
   inside the earlier chunks, each table chunk against the whole Pratt certificate, the
   skeleton walked from `[(5, 1)]` with each subtree checked at the state the walk reaches
-  (which must be its recorded state, each subtree used once). Prints `ACCEPT` or `REJECT`.
+  (which must be its recorded state, each subtree used once), and the module manifest
+  `modules` of `cert.json` as a partition of the subtrees (each subtree in exactly one nonempty
+  module, no subtree that does not exist; otherwise `REJECT`, exit status 1). Prints `ACCEPT`
+  or `REJECT`.
 
 ## Commands
 

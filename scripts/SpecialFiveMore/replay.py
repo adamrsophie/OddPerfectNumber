@@ -9,7 +9,9 @@
 #   * each table chunk is checked with tabOK against the whole Pratt certificate;
 #   * the skeleton is walked from the root state [(5, 1)] as go_br, go_ord and go_stop do, and
 #     each subtree is checked with go at the state the walk reaches, which must be the state
-#     recorded for it.
+#     recorded for it;
+#   * the module manifest "modules" is a partition of the pieces (each piece in exactly one
+#     nonempty module, no piece that does not exist).
 # With "bad" the corrupted subtree replaces its original, and the replay must reject.
 # Prints ACCEPT, or REJECT with the first failing check. Standard library only.
 # Exit status: 0 on ACCEPT, 1 on REJECT, 2 for malformed input (unreadable JSON, a missing or
@@ -242,6 +244,12 @@ def main():
     walk_node(C["skeleton"], [(5, 1)])
     if sorted(seen) != list(range(len(pieces))):
         raise Reject("pieces not used exactly once")
+    # The module manifest must be a partition of the pieces: every piece in exactly one
+    # module, no piece that does not exist, no empty module.
+    listed = [i for mod in C["modules"] for i in mod]
+    if sorted(listed) != list(range(len(pieces))) or not all(C["modules"]):
+        raise Reject("modules %r is not a partition of the %d pieces" % (C["modules"],
+                                                                       len(pieces)))
 
 
 sys.setrecursionlimit(100000)

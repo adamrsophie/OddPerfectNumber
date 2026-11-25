@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # Untrusted helper script for the OddPerfect Lean library.
 # Permanent controls for the replay and generator helpers DefectTree/ (check.py, search.py,
-# gen.py), ShapeSmall/ (replay.py, gen.py), SpecialFive/ (replay.py, stage1.py, gen.py) and
-# SpecialFiveMore/ (replay.py, gen.py): every archived valid input must pass with exit status 0,
+# gen.py, with the shared loader certio.py), ShapeSmall/ (replay.py, gen.py), SpecialFive/
+# (replay.py, stage1.py, gen.py), SpecialFiveMore/ (replay.py, gen.py) and the factor list checks
+# of Pratt/gen.py: every archived valid input must pass with exit status 0,
 # and each mutated input must be rejected with the expected nonzero status (1: a well formed
 # input fails a check; 2: malformed input, a usage error or an unreadable file), with no Python
 # traceback. The helpers run as subprocesses with `sys.executable -I -B`, in normal and in
@@ -55,8 +56,10 @@ SFM = os.path.join(SC, 'SpecialFiveMore')
 SFM_REPLAY = os.path.join(SFM, 'replay.py')
 SF_GEN = os.path.join(SF, 'gen.py')
 SFM_GEN = os.path.join(SFM, 'gen.py')
-HARDENED = [DT_CHECK, DT_SEARCH, DT_GEN, SS_REPLAY, SS_GEN, SF_REPLAY, SF_STAGE1, SF_GEN,
-            SFM_REPLAY, SFM_GEN]
+DT_IO = os.path.join(DT, 'certio.py')
+PRATT_GEN = os.path.join(SC, 'Pratt', 'gen.py')
+HARDENED = [DT_CHECK, DT_SEARCH, DT_GEN, DT_IO, SS_REPLAY, SS_GEN, SF_REPLAY, SF_STAGE1, SF_GEN,
+            SFM_REPLAY, SFM_GEN, PRATT_GEN]
 
 # Loads a stand in for sympy, then runs the script given after the mode with the remaining
 # arguments. Modes: both (factorint of 13 sleeps, also with a limit), first (it sleeps only
@@ -445,6 +448,207 @@ def defect_tree(t):
             cwd=DT)
 
 
+def defect_tree_three(t):
+    """Controls of the third hardening pass of DefectTree (and Pratt/gen.py): each repaired
+    defect has a negative control next to a positive one."""
+    T = f'{t}/h3'
+    os.makedirs(T, exist_ok=True)
+    driver = f'{t}/driver.py'
+    with open(driver, 'w') as f:
+        f.write(DRIVER)
+    d = load(DT_ROWS)
+
+    def row(key):
+        return next(r for r in d['rows'] if r[:2] == key)
+
+    def nothing(path):
+        return lambda: f'{path} was written' if os.path.exists(path) else None
+
+    def contains(path, frag):
+        def check():
+            with open(path) as f:
+                return None if frag in f.read() else f'{os.path.basename(path)} lacks {frag!r}'
+        return check
+
+    # 1. The root prime 211 needs Pratt data (brHead at the root tests isPr), in search and gen.
+    r211 = [row([211, 2])]
+    c211 = {'params': {'K': 0, 'w': 0, 'u': 212, 'root': 211, 'cap': 0}, 'rows': [[211, 2]],
+            'cert': {'t': 'br', 'r': 211, 'sp': None,
+                     'ch': [{'t': 'ord', 'kid': {'t': 'small', 'r': 3}},
+                            {'t': 'high', 'kid': {'t': 'budget'}}]}}
+    cert211 = write_json(f'{T}/c211.json', c211)
+    rows_pm = write_json(f'{T}/r211_pm.json', {'rows': r211, 'pm1': {'211': [2, 3, 5, 7]}})
+    rows_no = write_json(f'{T}/r211_no.json', {'rows': r211, 'pm1': {}})
+    rows_s, out_s = f'{T}/r211_s.json', f'{T}/c211_s.json'
+    for mode in ('', '-O'):
+        write_json(rows_s, {'rows': r211, 'pm1': {}})
+        control('DefectTree/search.py stores Pratt data for the root prime 211 (stand in)',
+                driver, ['plain', DT_SEARCH, '0', '0', '212', '211', '0', rows_s, out_s], 0,
+                modes=(mode,), cwd=t, timeout=60,
+                after=lambda: None if load(rows_s)['pm1'].get('211') == [2, 3, 5, 7] and
+                load(out_s) == c211 else 'no factorization of 210 stored, or another tree')
+    control('DefectTree/check.py accepts the root 211 with its Pratt data', DT_CHECK,
+            [cert211, rows_pm], 0, cwd=t, expect='accepted')
+    control('DefectTree/check.py: the root 211 without Pratt data', DT_CHECK,
+            [cert211, rows_no], 1, cwd=t, expect='first rejected node')
+    g1 = f'{T}/g211.lean'
+    control('DefectTree/gen.py writes the Pratt entry of the root prime 211', DT_GEN,
+            [cert211, rows_pm, 'R', g1], 0, cwd=t, after=contains(g1, '(211, 2, [2, 3, 5, 7])'))
+    g1n = f'{T}/g211n.lean'
+    control('DefectTree/gen.py: the root 211 without Pratt data', DT_GEN,
+            [cert211, rows_no, 'R', g1n], 1, cwd=t, expect='no factorization of 211 - 1',
+            after=nothing(g1n))
+
+    # 2. The factor list of p - 1: integers above 1, prime, product p - 1; bounded witness.
+    r71 = row([71, 4])         # facts 5, 11, 211, 2221
+    pm = {str(q): d['pm1'][str(q)] for q, _ in r71[2] if q >= 200 and q != 211}
+    cert71 = write_json(f'{T}/c71.json', {
+        'params': {'K': 0, 'w': 0, 'u': 3, 'root': 71, 'cap': 0}, 'rows': [[71, 4]],
+        'cert': {'t': 'br', 'r': 71, 'sp': None, 'ch': [{'t': 'high', 'kid': {'t': 'budget'}}]}})
+    for name, f211, want in (('the factors 2 3 5 7 of 210', [2, 3, 5, 7], 0),
+                             ('an extra factor 1 in the factors of 210', [1, 2, 3, 5, 7], 1),
+                             ('the factor true in the factors of 210', [2, 3, 5, 7, True], 2),
+                             ('the composite factor 105 of 210', [2, 105], 1),
+                             ('the factor 0 of 210', [0, 2, 3, 5, 7], 1)):
+        rp = write_json(f'{T}/r71_{len(f211)}_{f211[-1]}.json',
+                        {'rows': [r71], 'pm1': dict(pm, **{'211': f211})})
+        g = f'{T}/g71_{want}_{len(f211)}.lean'
+        control(f'DefectTree/gen.py: {name}', DT_GEN, [cert71, rp, 'X', g], want, cwd=t,
+                timeout=30, after=contains(g, '(211, 2, [2, 3, 5, 7])') if want == 0 else
+                nothing(g))
+    one = copy.deepcopy(d)
+    one['pm1']['331'] = [1, 2, 3, 5, 11]
+    one_p = write_json(f'{T}/r331_one.json', one)
+    control('DefectTree/check.py: an extra factor 1 in the factors of 330', DT_CHECK,
+            ['cert2.json', one_p], 1, cwd=DT, timeout=60, expect='not certified')
+    control('DefectTree/search.py: row table with an extra factor 1 in the factors of 330',
+            DT_SEARCH, ['2', '0', '3', '3', 'none', one_p, f'{T}/o331.json'], 2, cwd=t)
+    for name, args, want, frag in (('a prime', ['4294967291'], 0, '(4294967291, '),
+                                   ('the composite 1000001', ['1000001'], 1, 'rejected'),
+                                   ('an argument that is no number', ['x'], 2, None)):
+        control(f'Pratt/gen.py: {name}', PRATT_GEN, args, want, cwd=t, timeout=30, expect=frag)
+
+    # 3. Many split parts (tper=1): the joined list is built without recursion; the landed
+    # options still give the 36 library files byte for byte.
+    def same_folder(folder, n):
+        def check():
+            names = sorted(os.listdir(folder))
+            if len(names) != n:
+                return f'{len(names)} files, expected {n}'
+            return same([(os.path.join(folder, x), os.path.join(LIB, x)) for x in names])
+        return check
+    for mode in ('', '-O'):
+        o = f'{T}/e73{mode}'
+        os.makedirs(o, exist_ok=True)
+        control('DefectTree/gen.py split writes ExcessSevenData3 (36 files) byte for byte',
+                DT_GEN, ['cert_excess7_3.json', 'rows.json', 'Excess7R3',
+                         f'{o}/ExcessSevenData3.lean', 'split', 'gnodes=600', 'pmods=5',
+                         'tper=75', 'tmods=4'], 0, modes=(mode,), cwd=DT, timeout=120,
+                after=same_folder(o, 36))
+    o1 = f'{T}/e73one'
+    os.makedirs(o1, exist_ok=True)
+    control('DefectTree/gen.py split tper=1 (1012 table parts) on cert_excess7_3.json', DT_GEN,
+            ['cert_excess7_3.json', 'rows.json', 'E', f'{o1}/E.lean', 'split', 'gnodes=600',
+             'tper=1'], 0, cwd=DT, timeout=120,
+            after=contains(f'{o1}/ET.lean', 'def tabE : Tab := tabE_0 ++ (tabE_1 ++ (tabE_2 ++ ('))
+
+    # 4. One strict loader: exact types, natural numbers, closed fields and tags.
+    c2 = load(os.path.join(DT, 'cert2.json'))
+    schema = [('fractional K = 2.75', lambda c: c['params'].update(K=2.75)),
+              ('K = true', lambda c: c['params'].update(K=True)),
+              ('negative K', lambda c: c['params'].update(K=-1)),
+              ('surplus field in params', lambda c: c['params'].update(extra=0)),
+              ('missing field cap', lambda c: c['params'].pop('cap')),
+              ('unknown chain tag', lambda c: c['cert']['ch'][0].update(t='bogus')),
+              ('list valued node tag', lambda c: c['cert']['ch'][0]['kid'].update(t=['cap'])),
+              ('surplus top level field', lambda c: c.update(extra=0))]
+    for i, (name, fn) in enumerate(schema):
+        cc = copy.deepcopy(c2)
+        fn(cc)
+        bad = write_json(f'{T}/schema{i}.json', cc)
+        g = f'{T}/schema{i}.lean'
+        control(f'DefectTree/gen.py: {name}', DT_GEN, [bad, DT_ROWS, 'X', g], 2, cwd=t,
+                expect='malformed input', after=nothing(g))
+        if i in (0, 3, 6, 7):
+            control(f'DefectTree/check.py: {name}', DT_CHECK, [bad, DT_ROWS], 2, cwd=t,
+                    expect='malformed input')
+    with open(DT_ROWS) as f:
+        text = f.read()
+    dup = f'{T}/r_dupkey.json'
+    with open(dup, 'w') as f:
+        f.write(text.replace('"pm1": {', '"pm1": {"331": [2, 3, 5, 11], ', 1))
+    for name, rows_ in (
+            ('a boolean in a factorization of p - 1',
+             write_json(f'{T}/r_bool.json', dict(d, pm1=dict(d['pm1'], **{'331': [2, 3, 5, 11,
+                                                                                  True]})))),
+            ('a repeated row', write_json(f'{T}/r_dup.json', dict(d, rows=d['rows'] +
+                                                                  [d['rows'][0]]))),
+            ('a pm1 key with a leading zero',
+             write_json(f'{T}/r_lead.json', dict(d, pm1=dict(d['pm1'], **{'0331': [2, 3, 5, 11]})))),
+            ('a repeated JSON key', dup)):
+        control(f'DefectTree/search.py: row table with {name}', DT_SEARCH,
+                ['2', '0', '3', '3', 'none', rows_, f'{T}/o_schema.json'], 2, cwd=t,
+                expect='malformed input')
+        control(f'DefectTree/check.py: row table with {name}', DT_CHECK, ['cert2.json', rows_],
+                2, cwd=DT, expect='malformed input')
+
+    # 5. check.py corrupt must change the certificate.
+    control('DefectTree/check.py corrupt: no capacity leaf, no mutation possible', DT_CHECK,
+            [cert211, rows_pm, 'corrupt'], 3, cwd=t, expect='no mutation possible')
+
+    # 6. Resuming a marked row merges: the landed row 88741^10 keeps its factor 89.
+    marked = copy.deepcopy(d)
+    marked['partial'] = [[88741, 10]]
+    rows6, out6 = f'{T}/r6.json', f'{T}/c6.json'
+    for mode in ('', '-O'):
+        write_json(rows6, marked)
+        control('DefectTree/search.py: a resumed marked row keeps its factor (89, 1) (stand in '
+                'finds nothing)', driver, ['empty', DT_SEARCH, '31', '1', '17', '17', '5', rows6,
+                                           out6, 'factor_seconds=1'], 1, modes=(mode,), cwd=t,
+                timeout=120, expect='not complete',
+                after=lambda: same([(out6, os.path.join(DT, 'cert_excess6_17.json'))]) or
+                (None if row_of(load(rows6), [88741, 10]) == [[89, 1]] and
+                 load(rows6).get('partial') == [[88741, 10]] else 'the row lost its factor'))
+        false = copy.deepcopy(marked)
+        for r in false['rows']:
+            if r[:2] == [88741, 10]:
+                r[2] = [[89, 2]]
+        write_json(rows6, false)
+        control('DefectTree/search.py: a resumed marked row with the false fact (89, 2)',
+                driver, ['empty', DT_SEARCH, '31', '1', '17', '17', '5', rows6, out6,
+                         'factor_seconds=1'], 2, modes=(mode,), cwd=t, timeout=120,
+                expect='do not divide')
+
+    # 9. gen.py writes all files under temporary names before any rename.
+    for mode in ('', '-O'):
+        for kind, want in (('a folder in place of XT.lean', 1), ('old files', 0)):
+            o = f'{T}/w{mode}{want}'
+            os.makedirs(o, exist_ok=True)
+            for x in ('X.lean', 'XP.lean'):
+                with open(f'{o}/{x}', 'w') as f:
+                    f.write('old\n')
+            if want:
+                os.makedirs(f'{o}/XT.lean', exist_ok=True)
+            else:
+                with open(f'{o}/XT.lean', 'w') as f:
+                    f.write('old\n')
+
+            def kept(o=o, want=want):
+                if sorted(os.listdir(o)) != ['X.lean', 'XP.lean', 'XT.lean']:
+                    return f'files in the folder: {sorted(os.listdir(o))}'
+                with open(f'{o}/XP.lean') as f:
+                    old = f.read() == 'old\n'
+                return None if old == bool(want) else 'XP.lean ' + ('changed' if want else
+                                                                    'not written')
+            control(f'DefectTree/gen.py split with {kind}', DT_GEN,
+                    ['cert2.json', 'rows.json', 'X', f'{o}/X.lean', 'split'], want,
+                    modes=(mode,), cwd=DT, after=kept)
+
+
+def row_of(dd, key):
+    return next((r[2] for r in dd['rows'] if r[:2] == key), None)
+
+
 def shape_small(t):
     gen_out = f'{t}/ss_gen_out.txt'
 
@@ -472,6 +676,11 @@ def shape_small(t):
         ('bad certificate coefficient 9924 in c6', '9923]', '9924]'),
         ('missing last show of no_sol_6',
          '  rwa [show 98307 + 2 * (i - 49152) = 3 + 2 * i by omega] at this\n', ''),
+        ('no_sol_2 applies chk2_0 at i - 1, its rewrite uses i - 0',
+         'chk_sound _ _ chk2_0 (i - 0)', 'chk_sound _ _ chk2_0 (i - 1)'),
+        ('no_sol_2 excludes p <= 31 only, prime_le_2 proves p <= 64',
+         '(hB : p ≤ 64) :\n    2 * t ^ 2 ≠ 1 + ∑ i ∈ range (2 * 2 + 1)',
+         '(hB : p ≤ 31) :\n    2 * t ^ 2 ≠ 1 + ∑ i ∈ range (2 * 2 + 1)'),
     ]
     with open(SS_LEAN) as f:
         text = f.read()
@@ -632,6 +841,11 @@ def special_five_more(t):
         ('K = -1', lambda cc: cc.update(K=-1), 2),
         ('K = 12.0', lambda cc: cc.update(K=12.0), 2),
         ('negative prime in a state', lambda cc: cc['pieces'][0]['state'][0].__setitem__(0, -3), 2),
+        ('module manifest names only a piece that does not exist',
+         lambda cc: cc.update(modules=[[len(cc['pieces'])]]), 1),
+        ('module manifest omits the last piece', lambda cc: cc['modules'][-1].pop(), 1),
+        ('a piece in two modules', lambda cc: cc['modules'][0].append(cc['modules'][-1][0]), 1),
+        ('an empty module', lambda cc: cc['modules'].append([]), 1),
     ]
     for i, (name, fn, want) in enumerate(cases):
         control(f'SpecialFiveMore/replay.py: {name}', SFM_REPLAY, [mut(fn, f'sfm_{i}.json')], want)
@@ -650,6 +864,7 @@ def main(argv):
     no_asserts()
     with tempfile.TemporaryDirectory() as t:
         defect_tree(t)
+        defect_tree_three(t)
         shape_small(t)
         special_five(t, argv[1:] == ['--stdlib-only'])
         special_five_args(t)

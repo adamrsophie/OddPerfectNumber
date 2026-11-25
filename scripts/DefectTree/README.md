@@ -18,6 +18,8 @@ Files:
 * `gen.py`: writes the Lean data module (parameters, Pratt certificate, fact table, certificate
   term, kernel check).
 * `check.py`: an independent replay of a certificate in exact arithmetic.
+* `certio.py`: the strict loader of the row table and the certificate shared by the three
+  scripts above, and the checks of a factorization of `p - 1` (see "Strict input" below).
 * `cert2.json`, `cert4.json`: the certificates for `K = 2` and `K = 4`.
 
 Commands (from this folder; Python 3, sympy only for rows missing from `rows.json`):
@@ -69,13 +71,47 @@ Exit statuses: `search.py` ends with 0 when the tree closes and every factorizat
 when a leaf stays open or a row or a `p - 1` stayed partial (such a certificate is rejected by
 `check.py` and `gen.py`), 2 for a usage error or an unreadable or rejected row table. `check.py`
 ends with 0 when it accepts, 1 when it rejects (also with the flag `corrupt`) and 2 for malformed
-input or a usage error. `gen.py` ends with 0 when it has written the modules, 1 when a check fails
-(a marked or incomplete row in use, a factorization of `p - 1` that does not multiply back or is
-missing, an open leaf, a chain item `high` that is not the last, `corrupt` without a capacity
-leaf, a special child at a state that does not allow one), and 2 for malformed input or a usage
-error (`NAME` letters and digits only, `OUT` ending with `.lean`, the options `gnodes`, `pper`,
-`tper` at least 1 and `pmods`, `tmods` at least 0, `corrupt` and `split` not together). Every
-check of `gen.py` runs before the first file is written.
+input or a usage error, and 3 with the flag `corrupt` when the corruption changes nothing (no
+capacity leaf: "no mutation possible"), so that a corruption control never reports the
+unchanged certificate. `gen.py` ends with 0 when it has written the modules, 1 when a check fails
+(a marked or incomplete row in use, a factorization of `p - 1` that is missing, does not
+multiply back, lists a factor that is not an integer above 1 or a factor that is not prime, a
+prime without a Pratt witness below it, an open leaf, a chain item `high` that is not the last,
+`corrupt` without a capacity leaf, a special child at a state that does not allow one) or a file
+cannot be written, and 2 for malformed input or a usage error (`NAME` letters and digits only,
+`OUT` ending with `.lean`, the options `gnodes`, `pper`, `tper` at least 1 and `pmods`, `tmods`
+at least 0, `corrupt` and `split` not together). Every check of `gen.py` runs before the first
+file is written.
+
+Strict input. `search.py`, `check.py` and `gen.py` read the row table and the certificate with
+one loader, `certio.py`: exact types (`type(x) is int`, so no boolean and no float such as
+`K = 2.75`), natural numbers, exactly the fields `params`, `rows`, `cert` and the parameters
+`K`, `w`, `u`, `root`, `cap` (`cap` null or a natural number), the node tags `cap`, `small`,
+`budget`, `ledger`, `abund`, `open`, `br` with exactly their fields, the chain tags `ord` and
+`high`, no repeated JSON key, no repeated row and no `pm1` key with a leading zero. Any
+violation ends with exit status 2 and a one line message `malformed input: ...`.
+
+Pratt data. The Lean checker tests with `isPr` every fact prime of the table (`tabOK`) and the
+root prime (`brHead` at the root); a branch at a node needs nothing more, since its prime is
+forced and so a fact prime. `search.py` stores the factorization of `p - 1` for each of these
+primes from 200 on (the root included), `gen.py` writes a Pratt entry for each of them and
+`check.py` certifies each. A factorization of `p - 1` must list integers above 1 (no booleans),
+each prime (below 200 by trial division, from 200 on by its own entry), whose product is
+`p - 1`; the witness is searched below `p` only, after a Miller and Rabin test that rejects a
+proven composite at once, so a wrong list ends with exit status 1 and never loops.
+
+Resumed rows. When `search.py` factors a marked row again, the new facts are merged with the
+stored ones: for each prime the larger valuation is kept, no stored factor is dropped, and the
+merged facts must divide the row (otherwise exit status 2).
+
+Output files. `gen.py` writes every file under a temporary name `.<file>.<pid>.tmp` in the
+target folder (created new) and renames each into place only after all were written. A failure
+before the renames (also a target that is a folder) removes exactly the temporary files it
+created and changes no target. The renames happen one after another; they are not one atomic
+step, so a failure during the renames themselves (rare: the files are already written) can
+still leave some targets new and some old, and the message says how many were renamed. The
+joined lists of the split modules are built without recursion, so many parts (for example
+`tper=1`) need no deep Python stack; the text is the same as before.
 
 Regeneration is deterministic: running the commands twice gives the same `cert2.json`,
 `cert4.json`, `rows.json` and Lean files (compare with `shasum`).

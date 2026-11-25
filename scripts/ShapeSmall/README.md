@@ -36,12 +36,16 @@ perfect number conjecture is open.
   by the greedy rule above, whose candidate set and counts were chosen) and `choice` (chunk
   size, case split, step count: the script verifies the property the proof needs). It also
   verifies that every odd number left by the masks passes the square root test within the
-  step count.
+  step count. In check mode a chunk application whose offset differs from that of its rewrite
+  is a difference (also for a family with a single chunk).
 * `replay.py`: an independent mirror (does not import `gen.py`) of the Lean definitions `geo`,
   `isq`, `sqOK`, `nsq`, `maskOK`, `filt`, `good`, `chk`, in exact integer arithmetic. It replays
   every `decide +kernel` goal (the key of `no_sol_1`, the certificate hypotheses, `Lh_ok`,
   `chkh_j`), the `norm_num` facts (`0 < D`, `1 ≤ h`, `max 7 (2 D) ≤ bound`) and the coverage of
-  each `no_sol_h` by its chunks. With `bad` it runs two negative controls.
+  each `no_sol_h` by its chunks. It also requires that each chunk application
+  `chk_sound _ _ chkh_j (i - a)` uses the offset `a` of the rewrite that follows it, and that the
+  bound `hB` of each `no_sol_h` is the bound that `prime_le_h` proves (the final theorem passes
+  one to the other). With `bad` it runs two negative controls.
 
 ## Commands
 
@@ -64,7 +68,7 @@ verified: h=6: 679 odd numbers left after the masks, square root test needs at m
 check: 30 literal groups, 0 differences
 ```
 
-Output of `replay.py` (22 lines, all `ACCEPT`, exit 0), for example:
+Output of `replay.py` (27 lines, all `ACCEPT`, exit 0), for example:
 
 ```
 ACCEPT prime_le_6: c6 = [65536, 16384, 14336, 12800, 11616, 10680, 9923] is a certificate of degree 6 with D = 65536, max 7 (2 D) = 131072 <= 131072
@@ -89,8 +93,8 @@ same bytes; SHA-256 of `python3 -I gen.py` output:
 SHA-256 of the scripts:
 
 ```
-924d6624ce09a6191e30978c9b41cc46bc687d1ff2bd30b486cc61b68ec09e2f  gen.py
-41086aabb002d38e45051990a2ea0df29cf3329ae4d81481e6e4bc2cdd0656f0  replay.py
+9effc2078a54bfc05507826b4628635dd18e6686484f526bbfb1843e4432a68f  gen.py
+c398c85784921c26015a3057a2ebb15f0b3fbc6f12043b32caede676e82ddad6  replay.py
 ```
 
 License: GPL 3, same as the repository.

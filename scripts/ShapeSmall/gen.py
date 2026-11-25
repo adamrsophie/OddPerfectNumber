@@ -4,8 +4,10 @@ Usage:
     python3 -I gen.py                 print every literal in the order of the source
     python3 -I gen.py --check PATH    also compare with the literals of the Lean file PATH;
                                       exit 1 on any difference (also a declaration that
-                                      names another exponent, list or chunk, or a missing
-                                      Lh_ok), exit 2 for an unreadable file or a file
+                                      names another exponent, list or chunk, a missing
+                                      Lh_ok, or a chunk application whose offset is not
+                                      that of its rewrite), exit 2 for an unreadable file
+                                      or a file
                                       without the expected text
 
 Standard library only, deterministic. Each line is tagged:
@@ -205,13 +207,15 @@ def parse_lean(text):
         if refs != [h] or uses != [(h, str(j)) for j in range(len(got.get(f"chk{h}", [])))]:
             names.append(f"no_sol_{h} uses good_sound {refs} and chunks {uses}")
         thr = [int(x) for x in re.findall(r"by_cases c\d : i < (\d+)", body)]
+        # (start, offset) of each rewrite; each chunk application must use the offset of the
+        # rewrite that follows it (also when there is a single chunk)
+        offs = [int(x) for x in re.findall(r"chk_sound _ _ chk\d_\d \(i - (\d+)\)", body)]
+        shows = [(int(a), int(b)) for a, b in
+                 re.findall(r"show (\d+) \+ 2 \* \(i - (\d+)\) = 3 \+ 2 \* i", body)]
+        if [b for _, b in shows] != offs or len(offs) != len(uses):
+            names.append(f"no_sol_{h}: offsets {offs} of the chunks, {shows} in the shows")
         if thr:
             # thresholds of the case split, then (start, offset) for each chunk use
-            offs = [int(x) for x in re.findall(r"chk_sound _ _ chk\d_\d \(i - (\d+)\)", body)]
-            shows = [(int(a), int(b)) for a, b in
-                     re.findall(r"show (\d+) \+ 2 \* \(i - (\d+)\) = 3 \+ 2 \* i", body)]
-            if [b for _, b in shows] != offs:
-                names.append(f"no_sol_{h}: offsets {offs} of the chunks, {shows} in the shows")
             got[f"no_sol_{h}_split"] = (thr, shows)
     if names:
         got["names"] = names

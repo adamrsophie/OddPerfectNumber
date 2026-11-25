@@ -11,7 +11,10 @@ prime_le_of_two_sq_eq_succ_sigma. Prints ACCEPT or REJECT per check; exit 1 on a
 (or, with `bad`, on any control that is accepted). Every family of the module must be present
 (c1, c2, c3, c5, c6 with prime_le_h; L2, L3, L5, L6 with Lh_ok, chkh_j and no_sol_h), and each
 declaration must name its own exponent, list and chunks; a missing or misnamed declaration is
-a REJECT. Exit 2 for a usage error, an unreadable file or a file without the expected text.
+a REJECT. Each chunk application `chk_sound _ _ chkh_j (i - a)` must use the offset `a` of the
+rewrite that follows it, and the bound `hB` of each `no_sol_h` must be the bound that
+`prime_le_h` proves. Exit 2 for a usage error, an unreadable file or a file without the
+expected text.
 """
 import re
 import sys
@@ -117,6 +120,12 @@ def read(text):
             want = [(h, str(j)) for j in range(len(d["chk"].get(int(h), [])))]
             if refs != [h] or uses != want:
                 d["names"].append(f"no_sol_{h} uses good_sound {refs} and chunks {uses}")
+            # each chunk application `chk_sound _ _ chkh_j (i - a)` must use the offset `a` of
+            # the rewrite `show s + 2 * (i - a) = 3 + 2 * i` that follows it
+            offs = [int(x) for x in re.findall(r"chk_sound _ _ chk\d_\d \(i - (\d+)\)", body)]
+            if len(offs) != len(uses) or offs != [b for _, b in d["no_sol"][int(h)][2]]:
+                d["names"].append(f"no_sol_{h} applies the chunks at offsets {offs}, the "
+                                  f"rewrites use {[b for _, b in d['no_sol'][int(h)][2]]}")
     return d
 
 
@@ -143,6 +152,8 @@ def replay(d, log):
     say(d["hu"] == U and P == d["hB1"] + 1 and
         2 * (2 * U + 1) ** 2 > 1 + geo(d["hB1"], 3),
         f"no_sol_1 hu: p <= {d['hB1']} and the equation force u < {d['hu']}; key covers p <= {d['hB1']}")
+    pb1 = d["prime_le"][1][0] if 1 in d["prime_le"] else None
+    say(d["hB1"] == pb1, f"no_sol_1: hB p <= {d['hB1']} is the bound p <= {pb1} of prime_le_1")
     # prime_le_h: certificate hypotheses (interval_cases; decide +kernel) and norm_num facts.
     for h, (b, hh, D, ch) in sorted(d["prime_le"].items()):
         if ch not in d["c"]:
@@ -163,6 +174,10 @@ def replay(d, log):
             say(good, f"chk {h} L{h} {s} {n}" + ("" if good else f": fails at {q}"))
         b, thr, shows = d["no_sol"][h]
         chunks = d["chk"][h]
+        # the excluded range must be exactly the bound that prime_le_h proves (the final
+        # theorem passes prime_le_h as the hypothesis hB of no_sol_h)
+        pb = d["prime_le"][h][0] if h in d["prime_le"] else None
+        say(b == pb, f"no_sol_{h}: hB p <= {b} is the bound p <= {pb} of prime_le_{h}")
         # case i lies in [lo_k, hi_k) with lo_k = offset of chunk k, hi_k = next threshold.
         his = thr + [None]
         cover = (len(shows) == len(chunks) == len(thr) + 1 and
