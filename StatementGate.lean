@@ -2689,6 +2689,16 @@ theorem StatementGate.largest_primeFactor_ne_two_mul_prime_add_one :
     P) → _root_.Nat.Prime R → R ≠ 2 → P ≠ 2 * R + 1 :=
   @OddPerfect.largest_primeFactor_ne_two_mul_prime_add_one
 
+/-! ## Largest prime 4R + 1 -/
+
+theorem StatementGate.largest_four_special :
+    ∀ {N P R : ℕ}, _root_.OddPerfect N → P ∈ Nat.primeFactors N → (∀ r ∈ Nat.primeFactors N, r ≤
+    P) → _root_.Nat.Prime R → 3 < R → P = 4 * R + 1 → Odd ((Nat.factorization N) P) ∧
+    (Nat.factorization N) P % 4 = 1 ∧ 5 ≤ (Nat.factorization N) P ∧ (Nat.factorization N) P < R
+    ∧ ∃ u ∈ Nat.primeFactors N, u ≠ P ∧ (Nat.factorization N) u = R - 1 ∧ ∑ i ∈ Finset.range R,
+    u ^ i = P ^ (Nat.factorization N) P :=
+  @OddPerfect.largest_four_special
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3447,6 +3457,7 @@ def expected : List (Name × Name) :=
     (`StatementGate.three_pow_sub_one_eq_two_mul_sq, ``OddPerfect.three_pow_sub_one_eq_two_mul_sq),
     (`StatementGate.largest_primeFactor_ne_two_mul_prime_add_one,
       ``OddPerfect.largest_primeFactor_ne_two_mul_prime_add_one),
+    (`StatementGate.largest_four_special, ``OddPerfect.largest_four_special),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
