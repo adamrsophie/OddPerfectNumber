@@ -498,3 +498,5 @@ import OddPerfect.OddValuationCount
 import OddPerfect.EulerIndexOmegaOf
 import OddPerfect.EulerIndexOmega
 import OddPerfect.SpecialRankThreeJoint
+import OddPerfect.HalfSigmaSquare
+import OddPerfect.EulerIndexPairPalette
