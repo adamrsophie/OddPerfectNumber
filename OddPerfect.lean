@@ -519,3 +519,5 @@ import OddPerfect.EulerIndexPairPrimeLength
 import OddPerfect.EulerIndexPairLargest
 import OddPerfect.EulerIndexPairShortRows
 import OddPerfect.MixedLargestPrime
+import OddPerfect.OddValuationCountFree
+import OddPerfect.EulerIndexOmegaFree
