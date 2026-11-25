@@ -502,3 +502,4 @@ import OddPerfect.HalfSigmaSquare
 import OddPerfect.EulerIndexPairPalette
 import OddPerfect.EulerIndexPairOutside
 import OddPerfect.RestrainedCountThree
+import OddPerfect.ExceptRootsCases
