@@ -482,3 +482,7 @@ import OddPerfect.RankTwoPaletteAux
 import OddPerfect.RankTwoPalette
 import OddPerfect.EulerIndexSupport
 import OddPerfect.EulerIndexPair
+import OddPerfect.RestrainedTwentyWheel
+import OddPerfect.RestrainedNineteen
+import OddPerfect.RestrainedTwenty
+import OddPerfect.RestrainedTwentyOne
