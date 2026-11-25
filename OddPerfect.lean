@@ -477,3 +477,6 @@ import OddPerfect.PrimeCapFree
 import OddPerfect.PrimeCapMore
 import OddPerfect.PrimeCapMoreFamily
 import OddPerfect.LargestPrimeSigned
+import OddPerfect.SpecialRankSharp
+import OddPerfect.RankTwoPaletteAux
+import OddPerfect.RankTwoPalette
