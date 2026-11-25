@@ -514,3 +514,4 @@ import OddPerfect.SpecialRankThreeFree
 import OddPerfect.RestrainedFiveModTwelve
 import OddPerfect.EulerIndexPairEmitters
 import OddPerfect.EulerIndexPairSmallPairs
+import OddPerfect.EulerIndexPairSplit
