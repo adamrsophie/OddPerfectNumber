@@ -473,3 +473,7 @@ import OddPerfect.ReturnReach
 import OddPerfect.ExceptRoots
 import OddPerfect.ExceptSmallTwoTail
 import OddPerfect.ExceptSmallTwo
+import OddPerfect.PrimeCapFree
+import OddPerfect.PrimeCapMore
+import OddPerfect.PrimeCapMoreFamily
+import OddPerfect.LargestPrimeSigned
