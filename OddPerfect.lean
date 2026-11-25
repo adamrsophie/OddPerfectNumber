@@ -506,3 +506,5 @@ import OddPerfect.ExceptRootsCases
 import OddPerfect.LargestPrimeParity
 import OddPerfect.EulerIndexPairHeight
 import OddPerfect.EulerIndexPairCofactor
+import OddPerfect.LargestPrimeSignedMulti
+import OddPerfect.LargestPrimeSignedMultiValues
