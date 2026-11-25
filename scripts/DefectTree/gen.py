@@ -21,8 +21,10 @@
 # Lean checker tests (each fact prime of the table and the root prime); each factorization of
 # p - 1 it uses must list integers above 1 (no booleans) that multiply back to p - 1, each prime
 # (below 200 by trial division, from 200 on by its own entry), and the witness is searched
-# below p only. The inputs are read by the strict loader certio.py (exact types, natural
-# numbers, a closed set of fields and tags).
+# below p only; a stored witness (field witness of the table) must pass the same test and is
+# used in its place. Each row of the table lists every prime once (tabOK tests nodupB). Every
+# chain is nonempty and ends with an item high. The inputs are read by the strict loader
+# certio.py (exact types, natural numbers, a closed set of fields and tags).
 # Output: every file is first written under a temporary name in its target folder and renamed
 # into place only after all were written; a failure before the renames removes the temporary
 # files and changes no target. The renames are one after another, not one atomic step.
@@ -66,10 +68,10 @@ for a in sys.argv[5:]:
     if a in ('corrupt', 'split') and a not in seen:
         seen.add(a)
     elif eq and key in LOW and key not in seen and val.isascii() and val.isdigit() and \
-            int(val) >= LOW[key]:
+            len(val) <= 4300 and int(val) >= LOW[key]:
         seen.add(key)
     else:
-        usage('unknown, repeated or out of range flag %r' % a)
+        usage('unknown, repeated or out of range flag %r' % a[:50])
 CORRUPT = 'corrupt' in sys.argv[5:]
 SPLIT = 'split' in sys.argv[5:]
 if CORRUPT and SPLIT:
@@ -80,7 +82,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import certio     # the strict loader shared with search.py and check.py (exit 2 on violation)
 
 c = certio.load_cert(CERT)
-rows, pm1, PARTSET = certio.load_rows(ROWS)
+rows, pm1, PARTSET, WIT = certio.load_rows(ROWS)
 P = c['params']
 for p, m in c['rows']:
     if (p, m) not in rows:
@@ -125,6 +127,8 @@ def odd_cofactor(n, fs):
 for p, m, fs in tab:
     if (p, m) in PARTSET:
         fail('the certificate uses the row (%d, %d), marked partial in %s' % (p, m, ROWS))
+    if len(set(r for r, _ in fs)) != len(fs):
+        fail('the row (%d, %d) lists a prime in two entries (tabOK rejects it)' % (p, m))
 for (p, m), fs in sorted(rows.items()):
     if (p, m) in PARTSET or LANDED_PARTIAL.get((p, m)) == [tuple(f) for f in fs]:
         continue
@@ -155,7 +159,12 @@ def pratt(p):
     for r in sorted(set(fs)):
         pratt(r)
     # a < p: when no such a exists, p is not prime (or the factor list is wrong).
-    a = certio.pratt_witness(p, fs)
+    if p in WIT:
+        a = WIT[p]
+        if not certio.witness_ok(p, fs, a):
+            fail('the stored Pratt witness %d of %d fails' % (a, p))
+    else:
+        a = certio.pratt_witness(p, fs)
     if a is None:
         fail('no Pratt witness below %d for the factorization %r of %d - 1' % (p, fs, p))
     done.add(p)
@@ -186,6 +195,8 @@ def lean_cert(t):
     malformed('%s: unknown node %r' % (CERT, k))
 
 def lean_chain(items):
+    if not items or items[-1]['t'] != 'high':
+        fail('a chain that is empty or does not end with an item high')
     s = ''
     for it in reversed(items):
         if it['t'] == 'high':

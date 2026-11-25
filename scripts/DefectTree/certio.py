@@ -4,8 +4,12 @@
 # boolean and no float), natural numbers at least 0, a closed set of fields and of node tags,
 # no repeated JSON key, no repeated row. Any violation ends the calling script with exit
 # status 2 and a one line message `malformed input: ...`.
-# Also the checks of a factorization of p - 1 (pm1_problem) and the trial division used for
-# primes below 200 (trial_prime), as the Lean checker OddPerfect/DefectTreeCode.lean reads them.
+# Also the checks of a factorization of p - 1 (pm1_problem), the trial division used for
+# primes below 200 (trial_prime), as the Lean checker OddPerfect/DefectTreeCode.lean reads them,
+# and the certified route of a prime (certify) with which search.py validates its facts.
+# Optional field witness of the row table: {p: a} with a stored Pratt witness a for an entry p
+# of pm1 (written by search.py for each factorization of p - 1 it adds); a table without it is
+# a legacy table, whose witnesses are found by a scan bounded by LEGACY_SCAN.
 # Requires: Python 3 standard library only.
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
@@ -52,15 +56,26 @@ def load_json(path):
         malformed('%s: %s' % (path, e))
 
 
+def decimal(p):
+    """The natural number written by the string p (decimal digits, no leading zero), or None.
+    A string beyond the integer string conversion limit of Python is None, not a traceback."""
+    try:
+        return int(p) if p.isascii() and p.isdigit() and str(int(p)) == p else None
+    except ValueError:
+        return None
+
+
 def load_rows(path):
-    """The row table: (rows, pm1, partset) with rows {(p, m): [(r, k), ...]}, pm1 {p: [q, ...]}
-    and partset the set of rows marked partial."""
+    """The row table: (rows, pm1, partset, wit) with rows {(p, m): [(r, k), ...]}, pm1
+    {p: [q, ...]}, partset the set of rows marked partial and wit {p: a} the stored Pratt
+    witnesses (empty for a legacy table)."""
     d = load_json(path)
-    if type(d) is not dict or not {'rows', 'pm1'} <= set(d) <= {'rows', 'pm1', 'partial'} or \
+    if type(d) is not dict or not {'rows', 'pm1'} <= set(d) <= {'rows', 'pm1', 'partial',
+                                                                'witness'} or \
             type(d['rows']) is not list or type(d['pm1']) is not dict or \
-            type(d.get('partial', [])) is not list:
+            type(d.get('partial', [])) is not list or type(d.get('witness', {})) is not dict:
         malformed('%s: expected the fields rows (a list), pm1 (an object) and optionally '
-                  'partial (a list)' % path)
+                  'partial (a list) and witness (an object)' % path)
     rows = {}
     for row in d['rows']:
         if not (type(row) is list and len(row) == 3 and nat(row[0]) and nat(row[1]) and
@@ -72,16 +87,22 @@ def load_rows(path):
         rows[(row[0], row[1])] = [tuple(f) for f in row[2]]
     pm1 = {}
     for p, fs in d['pm1'].items():
-        if not (p.isascii() and p.isdigit() and str(int(p)) == p and nats(fs)):
-            malformed('%s: pm1 entry %r is not a decimal number (no leading zero) with a list of '
-                      'natural numbers' % (path, p))
+        if decimal(p) is None or not nats(fs):
+            malformed('%s: pm1 entry %r is not a decimal number (no leading zero, at most 4300 '
+                      'digits) with a list of natural numbers' % (path, p[:50]))
         pm1[int(p)] = list(fs)
     partset = set()
     for key in d.get('partial', []):
         if not (nats(key, 2) and tuple(key) in rows):
             malformed('%s: partial entry %r is not a row of the table' % (path, key))
         partset.add(tuple(key))
-    return rows, pm1, partset
+    wit = {}
+    for p, a in d.get('witness', {}).items():
+        if decimal(p) not in pm1 or not nat(a):
+            malformed('%s: witness entry %r is not an entry of pm1 with a natural number'
+                      % (path, p[:50]))
+        wit[int(p)] = a
+    return rows, pm1, partset, wit
 
 
 def shape(t, where='cert'):
@@ -159,13 +180,69 @@ def composite(n):
     return False
 
 
+# Bound of the witness scan for a prime without a stored witness (legacy tables). The least
+# witness of every entry of the landed rows.json is at most 74.
+LEGACY_SCAN = 10000
+
+
+def witness_ok(p, fs, a):
+    """a ^ (p - 1) = 1 and a ^ ((p - 1) / r) != 1 mod p for every r of fs, with 1 < a < p."""
+    return 1 < a < p and pow(a, p - 1, p) == 1 and all(pow(a, (p - 1) // r, p) != 1
+                                                       for r in set(fs))
+
+
+def least_witness(p, fs, bound=None):
+    """(a, None) with the least witness a below p (and below bound, if given); (None,
+    'composite') when a Miller and Rabin base proves p composite or no a < p is a witness;
+    (None, 'unknown') when the scan stops at the bound, which decides nothing."""
+    if composite(p):
+        return None, 'composite'
+    top = p if bound is None else min(p, bound)
+    a = next((a for a in range(2, top) if witness_ok(p, fs, a)), None)
+    if a is not None:
+        return a, None
+    return None, 'composite' if top == p else 'unknown'
+
+
 def pratt_witness(p, fs):
     """The least a < p with a ^ (p - 1) = 1 and a ^ ((p - 1) / r) != 1 mod p for every r of fs,
     or None (also at once when p is proven composite)."""
-    if composite(p):
+    return least_witness(p, fs)[0]
+
+
+def certify(p, pm1, wit, done, skip=()):
+    """None when p is certified prime by the route of check.py and gen.py: trial division
+    below 200; from 200 on a factorization of p - 1 in pm1 (integers above 1, product p - 1,
+    each factor certified recursively) and a Pratt witness (the stored one, verified, or for a
+    legacy entry the least one, scanned up to LEGACY_SCAN). 'partial' when the route reaches a
+    prime of skip (a p - 1 whose factorization timed out); otherwise a description. Certified
+    primes are added to done."""
+    if p < 200:
+        return None if trial_prime(p) else '%d is below 200 and not prime by trial division' % p
+    if p in done:
         return None
-    return next((a for a in range(2, p) if pow(a, p - 1, p) == 1 and
-                 all(pow(a, (p - 1) // r, p) != 1 for r in set(fs))), None)
+    if p in skip:
+        return 'partial'
+    if p not in pm1:
+        return 'no factorization of %d - 1 for the Pratt certificate' % p
+    fs = pm1[p]
+    bad = pm1_problem(p, fs)
+    if bad:
+        return bad
+    for r in sorted(set(fs)):
+        bad = certify(r, pm1, wit, done, skip)
+        if bad:
+            return bad
+    if p in wit:
+        if not witness_ok(p, fs, wit[p]):
+            return 'the stored Pratt witness %d of %d fails' % (wit[p], p)
+    else:
+        a, why = least_witness(p, fs, LEGACY_SCAN)
+        if a is None:
+            return ('no Pratt witness below %d for %d (undecided)' % (LEGACY_SCAN, p)
+                    if why == 'unknown' else '%d is not certified prime' % p)
+    done.add(p)
+    return None
 
 
 def pm1_problem(p, fs):

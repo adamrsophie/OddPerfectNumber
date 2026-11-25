@@ -20,9 +20,12 @@
 #   K and W are natural numbers, U is at least 3, ROOT is a prime at least 3, CAP is a natural
 #   number or none, M and S are at least 1 and E at least 2 (decimal digits only). ROWS is the
 #   frozen row table (read if present, missing rows are factored with sympy and the file is
-#   rewritten). OUT gets the certificate.
-#   Flags: noledger, maxnodes=M, maxexp=E (a chain above exponent E is left open),
-#   factor_seconds=S (a deadline for each factoring step, also for the factorizations of p - 1).
+#   rewritten). OUT gets the certificate. ROWS and OUT must be different files (also through a
+#   symbolic or a hard link), otherwise exit status 2 before the search.
+#   Flags: noledger, maxnodes=M (at most M nodes are expanded, leaves and high leaves included;
+#   every node beyond them is an open leaf, not counted), maxexp=E (a chain above exponent E is
+#   left open), factor_seconds=S (a deadline for each factoring step, also for the
+#   factorizations of p - 1).
 # Partial rows: a row whose factorization did not finish keeps the odd prime factors proven
 # before the deadline and is listed in the field "partial" of ROWS (absent when there is none).
 # A marked row is factored again when the search uses it; the new facts are merged with the
@@ -31,10 +34,17 @@
 # unmarked row must multiply back to its value up to a power of 2 (except the nine landed rows
 # of LANDED_PARTIAL, pinned to their recorded facts), and every stored factorization of p - 1
 # must list integers above 1 that multiply back to p - 1. ROWS is read by the strict loader
-# certio.py. Pratt data is stored for every fact prime from 200 on and for the root prime.
-# Exit status: 0 when the tree closes (no open leaf) and every factorization finished, 1 when a
-# leaf stays open or a row or a p - 1 stayed partial (check.py and gen.py reject such a
-# certificate), 2 for a usage error or an unreadable or rejected row table.
+# certio.py. Pratt data is stored for every fact prime from 200 on and for the root prime, with
+# the least Pratt witness of each new factorization of p - 1 (field witness of ROWS).
+# Validation: before anything is written, every row the certificate uses must list each prime
+# once, multiply back (unless partial), and each of its facts and the root prime must be
+# certified prime by the route of check.py and gen.py (certio.certify). A tree that closed on
+# facts that fail this is only raw closed: nothing is written and the exit status is 3.
+# Exit status: 0 when the tree closes (no open leaf), every factorization finished and the
+# validation passed (the last line says closed and validated), 1 when a leaf stays open or a
+# row or a p - 1 stayed partial (check.py and gen.py reject such a certificate), 2 for a usage
+# error or an unreadable or rejected row table, 3 when the validation fails (nothing written).
+# Output: both files are written under temporary names and renamed into place afterwards.
 # Requires: Python 3, sympy (only for rows not yet in ROWS).
 # Untrusted: every result is checked again by the Lean kernel.
 # License: GPL 3, same as the repository.
@@ -49,10 +59,14 @@ def usage(why):
 
 
 def nat_arg(s, name, low):
-    """A command line number: decimal digits only, at least low."""
-    if not (s.isascii() and s.isdigit()) or int(s) < low:
-        usage('%s must be a natural number at least %d, got %r' % (name, low, s))
-    return int(s)
+    """A command line number: decimal digits only (at most 4300), at least low."""
+    try:
+        n = int(s) if s.isascii() and s.isdigit() else -1
+    except ValueError:
+        n = -1
+    if n < low:
+        usage('%s must be a natural number at least %d, got %r' % (name, low, s[:50]))
+    return n
 
 
 def is_prime_small(n):
@@ -82,6 +96,21 @@ MAXNODES = nat_arg(opts.get('maxnodes', str(10 ** 7)), 'maxnodes', 1)
 MAXEXP = nat_arg(opts.get('maxexp', '400'), 'maxexp', 2)
 FACTOR_SECONDS = nat_arg(opts.get('factor_seconds', '600'), 'factor_seconds', 1)
 # (factor_seconds at least 1: signal.alarm(0) would switch the deadline off.)
+
+
+def same_file(a, b):
+    """True when the paths a and b name one file: equal after resolving symbolic links, or
+    one file through a hard link."""
+    if os.path.realpath(a) == os.path.realpath(b):
+        return True
+    try:
+        return os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
+if same_file(ROWS, OUT):
+    usage('ROWS and OUT name the same file %r' % OUT)
 
 def gs(p, m):
     return sum(p ** i for i in range(m + 1))
@@ -123,8 +152,9 @@ import certio     # the strict loader shared with check.py and gen.py (exit 2 on
 rows = {}
 pm1 = {}
 PARTSET = set()       # marked rows: factored again when used
+WIT = {}              # stored Pratt witnesses (field witness)
 if os.path.exists(ROWS):
-    rows, pm1, PARTSET = certio.load_rows(ROWS)
+    rows, pm1, PARTSET, WIT = certio.load_rows(ROWS)
     for (p, m), fs in sorted(rows.items()):
         if (p, m) in PARTSET or LANDED_PARTIAL.get((p, m)) == fs:
             continue
@@ -338,6 +368,10 @@ def chain(os_, sp, r):
     items = []
     e = 2
     while True:
+        if NODES[0] >= MAXNODES:      # the budget is spent: the rest of the chain stays open
+            OPEN.append(('nodes', os_, sp, r))
+            items.append({'t': 'high', 'kid': {'t': 'open'}})
+            return items
         if e >= 4:
             hl = leaf([(r, e, False)] + os_, sp)
             if hl is not None:
@@ -361,10 +395,10 @@ def branch(os_, sp, r):
     return {'t': 'br', 'r': r, 'sp': spk, 'ch': chain(os_, sp, r)}
 
 def node(os_, sp):
-    NODES[0] += 1
-    if NODES[0] > MAXNODES:
+    if NODES[0] >= MAXNODES:
         OPEN.append(('nodes', os_, sp))
         return {'t': 'open'}
+    NODES[0] += 1
     lf = leaf(os_, sp)
     if lf is not None:
         count(lf['t'])
@@ -404,6 +438,9 @@ def pm1_of(p):
                   flush=True)
             return
         pm1[p] = sorted(r for r, v in f.items() for _ in range(v))
+        a = certio.pratt_witness(p, pm1[p])
+        if a is not None:
+            WIT[p] = a
         dirty = True
     for r in set(pm1[p]):
         if r >= 200:
@@ -419,15 +456,65 @@ for key in tab_rows:
             pm1_of(r)
 if ROOT >= 200:
     pm1_of(ROOT)
+
+
+def validation_problem():
+    """None when every fact the certificate uses is valid: one entry per prime in each used
+    row, the facts multiply back (unless the row is partial or one of LANDED_PARTIAL), each
+    fact prime and the root prime certified by certio.certify. Primes whose route meets a
+    p - 1 that timed out are left to the partial status."""
+    done = set()
+    for key in tab_rows:
+        fs = rows[key]
+        if len(set(r for r, _ in fs)) != len(fs):
+            return 'the row (%d, %d) lists a prime in two entries' % key
+        if key not in PARTSET and LANDED_PARTIAL.get(key) != fs and \
+                odd_cofactor(gs(*key), fs) != 1:
+            return 'the facts of the row (%d, %d) do not multiply back to its value' % key
+        for r, _ in fs:
+            bad = certio.certify(r, pm1, WIT, done, PARTIAL_PM1)
+            if bad and bad != 'partial':
+                return 'the row (%d, %d): %s' % (key[0], key[1], bad)
+    bad = certio.certify(ROOT, pm1, WIT, done, PARTIAL_PM1)
+    if bad and bad != 'partial':
+        return 'the root prime: %s' % bad
+    return None
+
+
+bad = validation_problem()
+if bad:
+    print('%s, not validated: %s; nothing written' % ('open' if OPEN else 'raw closed', bad),
+          file=sys.stderr)
+    sys.exit(3)
+
+
+def write_files(pending):
+    """Writes each (path, object) under a temporary name next to the file the path resolves
+    to, then renames each into place, so that a failure never leaves a truncated file."""
+    made = []
+    for path, obj, kw in pending:
+        real = os.path.realpath(path)
+        tmp = os.path.join(os.path.dirname(real), '.%s.%d.tmp' % (os.path.basename(real),
+                                                                   os.getpid()))
+        with open(tmp, 'w') as f:
+            json.dump(obj, f, **kw)
+        made.append((tmp, real))
+    for tmp, real in made:
+        os.replace(tmp, real)
+
+
+pending = []
 if dirty or not os.path.exists(ROWS):
     table = {'rows': [[p, m, [list(f) for f in rows[(p, m)]]] for p, m in sorted(rows)],
              'pm1': {str(p): pm1[p] for p in sorted(pm1)}}
     if PARTSET:       # written only when there is a mark, so complete tables keep their bytes
         table['partial'] = [[p, m] for p, m in sorted(PARTSET)]
-    json.dump(table, open(ROWS, 'w'), indent=0, sort_keys=True)
-json.dump({'params': {'K': K, 'w': W, 'u': U, 'root': ROOT, 'cap': CAP},
-           'rows': [[p, m] for p, m in tab_rows], 'cert': cert},
-          open(OUT, 'w'), sort_keys=True)
+    if WIT:           # likewise: a legacy table without witnesses keeps its bytes
+        table['witness'] = {str(p): WIT[p] for p in sorted(WIT)}
+    pending.append((ROWS, table, {'indent': 0, 'sort_keys': True}))
+pending.append((OUT, {'params': {'K': K, 'w': W, 'u': U, 'root': ROOT, 'cap': CAP},
+                      'rows': [[p, m] for p, m in tab_rows], 'cert': cert}, {'sort_keys': True}))
+write_files(pending)
 maxrow = max((r for key in tab_rows for r, _ in rows[key]), default=0)
 print('K', K, 'w', W, 'u', U, 'root', ROOT, 'cap', CAP, 'noledger' if NOLEDGER else '')
 print('nodes', NODES[0], 'stats', dict(sorted(STATS.items())), 'open', len(OPEN))
@@ -441,4 +528,6 @@ for o in OPEN[:10]:
     print('  OPEN', o)
 if (PARTIAL or PARTIAL_PM1) and not OPEN:
     print('not complete: the certificate uses partial results, which check.py and gen.py reject')
+if not (OPEN or PARTIAL or PARTIAL_PM1):
+    print('closed and validated')
 sys.exit(1 if OPEN or PARTIAL or PARTIAL_PM1 else 0)

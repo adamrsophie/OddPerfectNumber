@@ -7,6 +7,11 @@
 # (except the nine landed rows of LANDED_PARTIAL, pinned to their recorded facts); a row listed
 # in the optional field "partial" of the table (written by search.py when a factorization did
 # not finish) is skipped, and a certificate that uses one is rejected.
+# Pratt: a prime with a stored witness (optional field witness of the table) is accepted only
+# when that witness and the recursively certified factors of p - 1 prove it; no scan. A prime
+# without one (legacy tables, such as the landed rows.json) is tested with the bases 2, 3, 5, 7
+# and then scanned for a witness below LEGACY_SCAN only; when the scan reaches that bound the
+# replay stops undecided (exit status 4), neither prime nor composite.
 #
 # Run: python3 check.py CERT ROWS [corrupt]
 #   python3 check.py cert2.json rows.json
@@ -18,7 +23,8 @@
 # p - 1 with a factor that is not an integer above 1), 2 for malformed input (unreadable JSON,
 # an unknown or non text node or chain tag, a missing or surplus field, a repeated key or row, a
 # number that is not a natural number, a row the table lacks, a partial entry that is no row;
-# read by the strict loader certio.py) or a usage error, 3 for corrupt without a mutation.
+# read by the strict loader certio.py) or a usage error, 3 for corrupt without a mutation, 4
+# when the legacy witness scan reaches its bound (undecided).
 # Requires: Python 3 standard library only.
 # Untrusted: the Lean kernel check is the one that counts.
 # License: GPL 3, same as the repository.
@@ -44,7 +50,7 @@ import certio     # the strict loader shared with search.py and gen.py (exit 2 o
 
 CERT, ROWS = sys.argv[1:3]
 c = certio.load_cert(CERT)
-rows, pm1, PARTSET = certio.load_rows(ROWS)
+rows, pm1, PARTSET, WIT = certio.load_rows(ROWS)
 P = c['params']
 K, W, U, ROOT, CAP = P['K'], P['w'], P['u'], P['root'], P['cap']
 for p, m in c['rows']:
@@ -76,9 +82,14 @@ def strong_composite(n):
     return False
 
 certified = set()
+LEGACY_SCAN = 10000   # the least witness of every entry of the landed rows.json is at most 74
+
+def witness(p, fs, a):
+    return pow(a, p - 1, p) == 1 and all(pow(a, (p - 1) // r, p) != 1 for r in set(fs))
 
 def pratt(p):
-    """Pratt check of p from the frozen factorization of p - 1 (as gen.py writes it)."""
+    """Pratt check of p from the frozen factorization of p - 1 (as gen.py writes it), with the
+    stored witness when the table has one, else with the bounded legacy scan."""
     if p < 200 or p in certified:
         return trial_prime(p) if p < 200 else True
     if p not in pm1:
@@ -89,14 +100,21 @@ def pratt(p):
         prod *= r
     if not all(r > 1 for r in fs) or prod != p - 1 or not all(pratt(r) for r in set(fs)):
         return False
-    if strong_composite(p):
-        return False
-    a = 2
-    while a < p and not (pow(a, p - 1, p) == 1 and
-                         all(pow(a, (p - 1) // r, p) != 1 for r in set(fs))):
-        a += 1
-    if a == p:
-        return False
+    if p in WIT:
+        if not (1 < WIT[p] < p and witness(p, fs, WIT[p])):
+            return False
+    else:
+        if strong_composite(p):
+            return False
+        a = 2
+        while a < min(p, LEGACY_SCAN) and not witness(p, fs, a):
+            a += 1
+        if a == p:
+            return False
+        if a == LEGACY_SCAN:
+            print('undecided: no Pratt witness of %d below %d (legacy table without a stored '
+                  'witness); neither prime nor composite' % (p, LEGACY_SCAN))
+            sys.exit(4)
     certified.add(p)
     return True
 
@@ -152,8 +170,11 @@ for (p, m), fs in sorted(rows.items()):
     if n is None:
         reject('table row (%d, %d): a fact is not an odd prime power dividing the row' % (p, m))
     if n != 1:
+        # (a cofactor of 10000 bits or more is described by its size: Python refuses to
+        # convert an integer of more than 4300 digits to a string)
         reject('table row (%d, %d): the facts do not multiply back to the row value (odd '
-               'cofactor %d) and the row is not marked partial' % (p, m, n))
+               'cofactor %s) and the row is not marked partial'
+               % (p, m, n if n.bit_length() < 10000 else 'of %d bits' % n.bit_length()))
 
 def look(p, m):
     return tab.get((p, m), [])

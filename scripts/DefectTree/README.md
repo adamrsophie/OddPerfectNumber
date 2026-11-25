@@ -36,14 +36,16 @@ python3 check.py cert4.json rows.json
 The arguments of `search.py` are `K W U ROOT CAP ROWS OUT`: the bound `K` for
 `W * ω(N) + supportDefect N q`, the weight `W`, the lower bound `U` for the prime factors, the
 root prime, and the cap for the total excess (`none` or an integer). Flags: `noledger` switches
-the ledger rule off, `maxnodes=M` stops after `M` nodes and `maxexp=E` leaves a chain open above the
-exponent `E` (open leaves are reported),
+the ledger rule off, `maxnodes=M` expands at most `M` nodes (leaves and high leaves included,
+so the reported `nodes` is at most `M`; every node beyond them is an open leaf, reported and not
+counted) and `maxexp=E` leaves a chain open above the exponent `E` (open leaves are reported),
 `factor_seconds=S` bounds each factoring step: for a row the full factorization with its
 primality checks, and after a timeout the factorization with a limit; for a prime `p` from 200 on
 the factorization of `p - 1` with its primality checks. Every parameter is checked before the
 search starts (decimal digits only; `K`, `W` and `CAP` at least 0, `U` at least 3, `ROOT` a prime
-at least 3, `M` and `S` at least 1, `E` at least 2; no unknown or repeated option); a bad one
-ends with exit status 2 and a message.
+at least 3, `M` and `S` at least 1, `E` at least 2; no unknown or repeated option; a number of
+more than 4300 digits is a bad one; `ROWS` and `OUT` different files, also through a symbolic or
+a hard link); a bad one ends with exit status 2 and a message, before anything is written.
 
 Partial rows. A row whose factorization does not multiply back to its value (up to a power of 2)
 after the deadlines keeps only the factors proven prime, which is still a valid lower bound; it is
@@ -67,16 +69,32 @@ table without partial rows keeps its bytes; an absent mark means that the row is
   `cert_excess6_3`, `cert_excess6_17`, `cert_excess7_3`, `cert_excess7_5`, `cert_excess7_17`); a
   changed fact list for one of these rows falls under the general rule.
 
-Exit statuses: `search.py` ends with 0 when the tree closes and every factorization finished, 1
-when a leaf stays open or a row or a `p - 1` stayed partial (such a certificate is rejected by
-`check.py` and `gen.py`), 2 for a usage error or an unreadable or rejected row table. `check.py`
+Validation. Before it writes anything, `search.py` validates every fact the certificate uses:
+each used row lists every prime once and multiplies back (unless partial), and each of its
+fact primes and the root prime is certified prime by the route of `check.py` and `gen.py`
+(trial division below 200; from 200 on the factorization of `p - 1`, its factors certified
+recursively, and a Pratt witness). A tree that closed on facts that fail this, such as a cached
+row with a composite "prime" or a factorization of `p - 1` with a composite factor, is only raw
+closed: the message says `raw closed, not validated`, no file is written and the exit status is
+3. A prime whose `p - 1` timed out is left to the partial status (exit 1, files written), so a
+retry with better data still works.
+
+Exit statuses: `search.py` ends with 0 when the tree closes, every factorization finished and
+the validation passed (last line `closed and validated`), 1 when a leaf stays open or a row or a
+`p - 1` stayed partial (such a certificate is rejected by `check.py` and `gen.py`), 2 for a
+usage error or an unreadable or rejected row table, 3 when the validation fails. `search.py`
+writes both files under temporary names and renames them into place, so a failure never leaves
+a truncated file. `check.py`
 ends with 0 when it accepts, 1 when it rejects (also with the flag `corrupt`) and 2 for malformed
-input or a usage error, and 3 with the flag `corrupt` when the corruption changes nothing (no
+input or a usage error, 3 with the flag `corrupt` when the corruption changes nothing (no
 capacity leaf: "no mutation possible"), so that a corruption control never reports the
-unchanged certificate. `gen.py` ends with 0 when it has written the modules, 1 when a check fails
+unchanged certificate, and 4 when its legacy witness scan reaches its bound (see "Pratt
+witnesses" below). `gen.py` ends with 0 when it has written the modules, 1 when a check fails
 (a marked or incomplete row in use, a factorization of `p - 1` that is missing, does not
 multiply back, lists a factor that is not an integer above 1 or a factor that is not prime, a
-prime without a Pratt witness below it, an open leaf, a chain item `high` that is not the last,
+prime without a Pratt witness below it or with a stored witness that fails, a row that lists a
+prime twice (the Lean `tabOK` rejects it), an open leaf, a chain that is empty or does not end
+with an item `high`, a chain item `high` that is not the last,
 `corrupt` without a capacity leaf, a special child at a state that does not allow one) or a file
 cannot be written, and 2 for malformed input or a usage error (`NAME` letters and digits only,
 `OUT` ending with `.lean`, the options `gnodes`, `pper`, `tper` at least 1 and `pmods`, `tmods`
@@ -88,8 +106,10 @@ one loader, `certio.py`: exact types (`type(x) is int`, so no boolean and no flo
 `K = 2.75`), natural numbers, exactly the fields `params`, `rows`, `cert` and the parameters
 `K`, `w`, `u`, `root`, `cap` (`cap` null or a natural number), the node tags `cap`, `small`,
 `budget`, `ledger`, `abund`, `open`, `br` with exactly their fields, the chain tags `ord` and
-`high`, no repeated JSON key, no repeated row and no `pm1` key with a leading zero. Any
-violation ends with exit status 2 and a one line message `malformed input: ...`.
+`high`, no repeated JSON key, no repeated row, no `pm1` key with a leading zero or with more than
+4300 digits (the integer string conversion limit of Python), and in the optional field
+`witness` only keys of `pm1` with natural numbers. Any violation ends with exit status 2 and a
+one line message `malformed input: ...`.
 
 Pratt data. The Lean checker tests with `isPr` every fact prime of the table (`tabOK`) and the
 root prime (`brHead` at the root); a branch at a node needs nothing more, since its prime is
@@ -99,6 +119,20 @@ primes from 200 on (the root included), `gen.py` writes a Pratt entry for each o
 each prime (below 200 by trial division, from 200 on by its own entry), whose product is
 `p - 1`; the witness is searched below `p` only, after a Miller and Rabin test that rejects a
 proven composite at once, so a wrong list ends with exit status 1 and never loops.
+
+Pratt witnesses. The row table may carry the optional field `"witness": {"p": a, ...}`, a Pratt
+witness for entries of `pm1`. `search.py` stores the least witness of each factorization of
+`p - 1` it adds; the field is written only when it is not empty, so a table without new entries
+keeps its bytes (the landed `rows.json` has none). `check.py` accepts a prime with a stored
+witness only when `a ^ (p - 1) = 1` and `a ^ ((p - 1) / r) != 1` modulo `p` for every factor `r`,
+with the factors certified recursively, and never scans. A prime without a stored witness takes
+the legacy path: the Miller and Rabin bases 2, 3, 5, 7, then a scan for a witness below
+`min(p, 10000)`. The least witness of every entry of the landed table is at most 74. When the
+scan reaches 10000 the replay stops with exit status 4 and the word `undecided`: the prime is
+reported neither prime nor composite (for example the composite
+`3215031751 = 151 * 751 * 28351`, a strong pseudoprime to the bases 2, 3, 5, 7). `gen.py`
+verifies a stored witness and writes it; without one it computes the least witness as before,
+so the landed modules are unchanged.
 
 Resumed rows. When `search.py` factors a marked row again, the new facts are merged with the
 stored ones: for each prime the larger valuation is kept, no stored factor is dropped, and the

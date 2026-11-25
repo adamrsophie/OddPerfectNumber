@@ -5,7 +5,8 @@
 # (replay.py, stage1.py, gen.py), SpecialFiveMore/ (replay.py, gen.py) and the factor list checks
 # of Pratt/gen.py: every archived valid input must pass with exit status 0,
 # and each mutated input must be rejected with the expected nonzero status (1: a well formed
-# input fails a check; 2: malformed input, a usage error or an unreadable file), with no Python
+# input fails a check; 2: malformed input, a usage error or an unreadable file; 3: a search
+# that closed on facts that fail validation; 4: a replay left undecided), with no Python
 # traceback. The helpers run as subprocesses with `sys.executable -I -B`, in normal and in
 # optimized (-O) mode, so a check written as an `assert` would show up as a failure.
 # SpecialFive and SpecialFiveMore keep no certificate in the repository: the controls build
@@ -645,6 +646,147 @@ def defect_tree_three(t):
                     modes=(mode,), cwd=DT, after=kept)
 
 
+def defect_tree_four(t):
+    """Controls of the fourth hardening pass of DefectTree: one negative control per repaired
+    defect, and the positive control that the root 211 still closes and validates."""
+    T = f'{t}/h4'
+    os.makedirs(T, exist_ok=True)
+    driver = f'{t}/driver.py'
+    with open(driver, 'w') as f:
+        f.write(DRIVER)
+    d = load(DT_ROWS)
+
+    def row(key):
+        return next(r for r in d['rows'] if r[:2] == key)
+
+    def nothing(*paths):
+        return lambda: next((f'{x} was written' for x in paths if os.path.exists(x)), None)
+
+    def br(r, ch):
+        return {'t': 'br', 'r': r, 'sp': None, 'ch': ch}
+    small3 = {'t': 'ord', 'kid': {'t': 'small', 'r': 3}}
+    high_budget = {'t': 'high', 'kid': {'t': 'budget'}}
+
+    # Positive: the root 211 still closes, validates, and stores the witness 2 of 210.
+    c211 = {'params': {'K': 0, 'w': 0, 'u': 212, 'root': 211, 'cap': 0}, 'rows': [[211, 2]],
+            'cert': br(211, [small3, high_budget])}
+    rows_s, out_s = f'{T}/r211.json', f'{T}/c211.json'
+    for mode in ('', '-O'):
+        write_json(rows_s, {'rows': [row([211, 2])], 'pm1': {}})
+        control('DefectTree/search.py: the root 211 still succeeds (closed and validated, '
+                'witness stored)', driver, ['plain', DT_SEARCH, '0', '0', '212', '211', '0',
+                                            rows_s, out_s], 0, modes=(mode,), cwd=t,
+                timeout=60, expect='closed and validated',
+                after=lambda: None if load(out_s) == c211 and
+                load(rows_s).get('witness') == {'211': 2} else 'another tree or no witness')
+    control('DefectTree/check.py accepts the root 211 with its stored witness', DT_CHECK,
+            [out_s, rows_s], 0, cwd=t, expect='accepted')
+    g = f'{T}/g211.lean'
+    control('DefectTree/gen.py accepts the root 211 with its stored witness', DT_GEN,
+            [out_s, rows_s, 'R', g], 0, cwd=t, expect='wrote')
+    bad_w = write_json(f'{T}/r211_w4.json', {'rows': [row([211, 2])],
+                                             'pm1': {'211': [2, 3, 5, 7]}, 'witness': {'211': 4}})
+    control('DefectTree/check.py: the stored witness 4 of 211 fails (a square)', DT_CHECK,
+            [out_s, bad_w], 1, cwd=t, expect='first rejected node')
+    g = f'{T}/g211_w4.lean'
+    control('DefectTree/gen.py: the stored witness 4 of 211 fails', DT_GEN,
+            [out_s, bad_w, 'R', g], 1, cwd=t, expect='stored Pratt witness', after=nothing(g))
+    control('DefectTree/check.py: a witness for a prime without pm1 entry', DT_CHECK,
+            [out_s, write_json(f'{T}/r211_w9.json', {'rows': [row([211, 2])], 'pm1': {},
+                                                      'witness': {'211': 2}})], 2, cwd=t,
+            expect='malformed input')
+
+    # 1 to 3: facts that fail validation leave the search raw closed, exit 3, nothing written.
+    c67 = write_json(f'{T}/c67.json', {
+        'params': {'K': 0, 'w': 0, 'u': 200, 'root': 67, 'cap': 0}, 'rows': [[67, 2]],
+        'cert': br(67, [small3, high_budget])})
+    r67 = write_json(f'{T}/r67.json', {'rows': [[67, 2, [[3, 1], [7, 1], [7, 1], [31, 1]]]],
+                                       'pm1': {}})
+    cases = [
+        ('a composite fact 121 in the row 3^4 = 121 (cache row)',
+         {'rows': [row([3, 2]), [3, 4, [[121, 1]]]], 'pm1': {}},
+         ['0', '0', '200', '3', '1'], 'not prime by trial division'),
+        ('the prime 7 in two entries of the row 67^2', None,
+         ['0', '0', '200', '67', '0'], 'lists a prime in two entries'),
+        ('211 - 1 factored as 6 5 7', {'rows': [row([211, 2])], 'pm1': {'211': [6, 5, 7]}},
+         ['0', '0', '212', '211', '0'], 'the root prime: 6 is below 200')]
+    for i, (name, table, args, frag) in enumerate(cases):
+        for mode in ('', '-O'):
+            rows_i, out_i = f'{T}/rv{i}{mode}.json', f'{T}/cv{i}{mode}.json'
+            write_json(rows_i, table) if table else shutil.copyfile(r67, rows_i)
+            control(f'DefectTree/search.py: {name} is raw closed, not validated', DT_SEARCH,
+                    args + [rows_i, out_i, 'noledger'], 3, modes=(mode,), cwd=t,
+                    expect=frag, after=nothing(out_i))
+    g = f'{T}/g67.lean'
+    control('DefectTree/gen.py: the prime 7 in two entries of the row 67^2', DT_GEN,
+            [c67, r67, 'X', g], 1, cwd=t, expect='two entries', after=nothing(g))
+
+    # 4. The strong pseudoprime 3215031751 = 151 * 751 * 28351 (bases 2, 3, 5, 7) as the root.
+    big = 3215031751
+    pm_big = {str(big): [2, 3, 3, 3, 3, 5, 5, 5, 7, 37, 613], '613': [2, 2, 3, 3, 17]}
+    c_big = write_json(f'{T}/c_big.json', {
+        'params': {'K': 0, 'w': 0, 'u': 3, 'root': big, 'cap': 0}, 'rows': [],
+        'cert': br(big, [{'t': 'ord', 'kid': {'t': 'budget'}}, high_budget])})
+    control('DefectTree/check.py: the pseudoprime 3215031751 without a witness is undecided',
+            DT_CHECK, [c_big, write_json(f'{T}/r_big.json', {'rows': [], 'pm1': pm_big})], 4,
+            cwd=t, timeout=30, expect='undecided')
+    control('DefectTree/check.py: the pseudoprime 3215031751 with the witness 2 is rejected',
+            DT_CHECK, [c_big, write_json(f'{T}/r_bigw.json', {'rows': [], 'pm1': pm_big,
+                                                              'witness': {str(big): 2}})], 1,
+            cwd=t, timeout=30, expect='first rejected node')
+
+    # 5. ROWS and OUT the same file: by path, through a symbolic link, through a hard link.
+    for kind in ('the same path', 'a symbolic link', 'a hard link'):
+        for mode in ('', '-O'):
+            rows5 = f'{T}/r5_{kind[2:5]}{mode}.json'
+            out5 = rows5 if kind == 'the same path' else f'{T}/o5_{kind[2:5]}{mode}.json'
+            shutil.copyfile(DT_ROWS, rows5)
+            if kind == 'a symbolic link':
+                os.symlink(rows5, out5)
+            elif kind == 'a hard link':
+                os.link(rows5, out5)
+            control(f'DefectTree/search.py: OUT is {kind} to ROWS', DT_SEARCH,
+                    ['2', '0', '3', '3', 'none', rows5, out5], 2, modes=(mode,), cwd=t,
+                    expect='name the same file', after=lambda r=rows5: same([(r, DT_ROWS)]))
+
+    # 6. A chain that is empty or has only ordinary entries: gen writes nothing.
+    ord_budget = {'t': 'ord', 'kid': {'t': 'budget'}}
+    for name, ch in (('an empty chain', []), ('a chain with only an ordinary entry', [ord_budget])):
+        c6 = write_json(f'{T}/c6_{len(ch)}.json', {
+            'params': {'K': 2, 'w': 0, 'u': 3, 'root': 3, 'cap': None}, 'rows': [],
+            'cert': br(3, ch)})
+        g = f'{T}/g6_{len(ch)}.lean'
+        control(f'DefectTree/gen.py: {name}', DT_GEN, [c6, DT_ROWS, 'X', g], 1, cwd=t,
+                expect='does not end with an item high', after=nothing(g))
+
+    # 7. Decimal strings of 5000 digits: malformed input or usage, exit 2, no traceback.
+    long_ = '1' * 5000
+    r7 = write_json(f'{T}/r7.json', dict(d, pm1=dict(d['pm1'], **{long_: [2]})))
+    control('DefectTree/check.py: a pm1 key of 5000 digits', DT_CHECK, ['cert2.json', r7], 2,
+            cwd=DT, expect='malformed input')
+    g = f'{T}/g7.lean'
+    control('DefectTree/gen.py: a pm1 key of 5000 digits', DT_GEN, ['cert2.json', r7, 'X', g],
+            2, cwd=DT, expect='malformed input', after=nothing(g))
+    control('DefectTree/search.py: a pm1 key of 5000 digits', DT_SEARCH,
+            ['2', '0', '3', '3', 'none', r7, f'{T}/o7.json'], 2, cwd=t,
+            expect='malformed input', after=nothing(f'{T}/o7.json'))
+    control('DefectTree/search.py: K of 5000 digits', DT_SEARCH,
+            [long_, '0', '3', '3', 'none', f'{T}/r7k.json', f'{T}/o7k.json'], 2, cwd=t)
+    control('DefectTree/gen.py: gnodes of 5000 digits', DT_GEN,
+            ['cert2.json', 'rows.json', 'X', g, 'split', 'gnodes=' + long_], 2, cwd=DT,
+            after=nothing(g))
+    big_row = write_json(f'{T}/r7b.json', dict(d, rows=d['rows'] + [[10 ** 3000 + 1, 2, []]]))
+    control('DefectTree/check.py: an unused row of 6001 digits that does not multiply back',
+            DT_CHECK, ['cert2.json', big_row], 1, cwd=DT, expect='bits) and the row is not')
+
+    # 8. The node budget is enforced: maxnodes=1 expands the root only.
+    rows8 = f'{T}/r8.json'
+    shutil.copyfile(DT_ROWS, rows8)
+    control('DefectTree/search.py: maxnodes=1 reports one node', DT_SEARCH,
+            ['2', '0', '3', '3', 'none', rows8, f'{T}/o8.json', 'maxnodes=1'], 1, cwd=t,
+            expect="nodes 1 stats {'br': 1} open 1")
+
+
 def row_of(dd, key):
     return next((r[2] for r in dd['rows'] if r[:2] == key), None)
 
@@ -865,6 +1007,7 @@ def main(argv):
     with tempfile.TemporaryDirectory() as t:
         defect_tree(t)
         defect_tree_three(t)
+        defect_tree_four(t)
         shape_small(t)
         special_five(t, argv[1:] == ['--stdlib-only'])
         special_five_args(t)
