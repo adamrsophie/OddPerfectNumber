@@ -43,7 +43,7 @@
 <tr><td>Conjecture</td><td>No odd perfect number exists.</td><td>Research target</td><td>the proposition <code>OddPerfectConjecture</code> has no proof</td><td>Everything below.</td></tr>
 <tr><td>Size</td><td>N &gt; 10<sup>150</sup>.</td><td>Formal theorem</td><td><code>LowerBoundTwo.lower_bound</code></td><td>Published: N &gt; 10<sup>1500</sup> (Ochem and Rao, 2012). The library is far behind.</td></tr>
 <tr><td>Largest prime</td><td>Some prime factor exceeds 200000.</td><td>Formal theorem</td><td><code>exists_primeFactor_gt_200000</code></td><td>Published: above 10<sup>8</sup> (Goto and Ohno, 2008).</td></tr>
-<tr><td>Largest prime P of the form 2R + 1</td><td>P is never 2R + 1 with R an odd prime, for every odd perfect number. Arithmetic lemma: 3<sup>n</sup> − 1 = 2y<sup>2</sup> with n odd forces n = 1 or n = 5.</td><td>Formal theorem</td><td><code>largest_primeFactor_ne_two_mul_prime_add_one</code>, <code>three_pow_sub_one_eq_two_mul_sq</code></td><td>Excludes one shape of the largest prime factor; not a bound. No published source was checked; novelty not verified.</td></tr>
+<tr><td>Largest prime P of the form 2R + 1 or 4R + 1</td><td>P is never 2R + 1 with R an odd prime, for every odd perfect number. If P = 4R + 1 with R a prime above 3, then P is the special prime, its exponent j has j ≡ 1 (mod 4) and 5 ≤ j &lt; R, and exactly one prime u sends to P, with exponent R − 1 and 1 + u + ⋯ + u<sup>R − 1</sup> = P<sup>j</sup>. Arithmetic lemma: 3<sup>n</sup> − 1 = 2y<sup>2</sup> with n odd forces n = 1 or n = 5.</td><td>Formal theorem</td><td><code>largest_primeFactor_ne_two_mul_prime_add_one</code>, <code>largest_four_special</code>, <code>three_pow_sub_one_eq_two_mul_sq</code></td><td>Excludes one shape of the largest prime factor; the shape 4R + 1 is not excluded. Not a bound. No published source was checked; novelty not verified.</td></tr>
 <tr><td>Excess</td><td>T ≥ 7; equivalently Ω ≥ 2ω + a + 12.</td><td>Formal theorem</td><td><code>seven_le_excess</code></td><td>T has no upper bound. Ochem and Rao (2014) prove Ω ≥ 2ω + 51, which is stronger unless a ≥ 41.</td></tr>
 <tr><td>Excess</td><td>ω + 2 v<sub>3</sub>(σ(q<sup>a</sup>)) ≤ 5T + 5.</td><td>Formal theorem</td><td><code>card_primeFactors_add_two_mul_le_five_excess_add_five_all</code></td><td>Bounds ω by T, not T itself.</td></tr>
 <tr><td>Excess</td><td>For each fixed T, only finitely many odd perfect numbers have excess at most T.</td><td>Formal theorem</td><td><code>finite_of_excess_le</code></td><td>The bound is doubly exponential in T; no value of T is excluded beyond T ≤ 6.</td></tr>
@@ -84,7 +84,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 25 November 2026, from commit <code>4f95a66</code> on the main branch.</p>
+<p>Last updated 25 November 2026, from commit <code>125d738</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
