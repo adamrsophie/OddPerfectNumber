@@ -526,3 +526,4 @@ import OddPerfect.SignedRepunitJacobi
 import OddPerfect.EulerIndexSupportAll
 import OddPerfect.OddValuationCountSigned
 import OddPerfect.EulerIndexOmegaSigned
+import OddPerfect.MixedOneAbove
