@@ -332,6 +332,7 @@
 <li class="event"><time datetime="2026-11-25T08:54">08:54</time><p class="ev-title"><b>Two prime Euler index: odd pure exponent; index exponents 2 or 4.</b> <code class="hash">62eec80</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p><code>OddPerfect.EulerIndexPairPalette</code> proves <code>eulerIndex_pair_pure_exponent_odd</code> and <code>eulerIndex_pair_palette</code>, with the two lemmas of <code>OddPerfect.HalfSigmaSquare</code> (<code>eq_five_of_sigma_prime_sq_succ_eq_two_mul_sq</code>, <code>sigma_prime_fourth_succ_ne_two_mul_sq</code>). The case of a two prime index is not excluded: u<sup>4</sup> + u<sup>3</sup> + u<sup>2</sup> + u + 1 = t<sup>j</sup> with j ≥ 3 odd remains, and so do all index exponents outside 2 and 4. Novelty not verified.</p></li>
 <li class="event"><time datetime="2026-11-25T08:54">08:54</time><p class="ev-title"><b>Two prime Euler index: the other primes sit inside q + 1.</b> <code class="hash">9d7aa80</code> <span class="cls restricted">restricted exclusion or bound checked</span></p><p><code>OddPerfect.EulerIndexPairOutside</code> proves <code>eulerIndex_pair_outside_prod_dvd</code>, <code>eulerIndex_pair_outside_sq_le</code>, <code>eulerIndex_pair_card_above_le_two</code> and <code>eulerIndex_pair_special_ge</code>. The case of a two prime index is not excluded. Novelty not verified.</p></li>
 <li class="event minor"><time datetime="2026-11-25T08:54">08:54</time><p class="ev-title"><b>Statement gate: 315 restatements.</b> <code class="hash">e489fe6</code> </p><p>The gate now restates 315 theorems.</p></li>
+<li class="event minor"><time datetime="2026-11-25T09:34">09:34</time><p class="ev-title"><b>Scripts: the tree search validates its facts before it writes.</b> <code class="hash">ac1e0a7</code> </p><p><code>scripts/DefectTree/search.py</code> now checks every fact of a closed tree with the rules of <code>check.py</code> before it writes the certificate and the row table: a tree that closes on a wrong stored factorization ends with the status &quot;raw closed, not validated&quot; and writes nothing. The files are written under temporary names and renamed, the output may not be the cache file, and the node budget is enforced. <code>check.py</code> verifies a stored primitive root witness of a prime row directly, bounds the scan for a row without one and reports &quot;undecided&quot; when the bound is reached. <code>gen.py</code> rejects a repeated prime row and a chain that does not end in a high prime. All 22 landed certificates and their row table come out byte for byte the same from the changed search. The replay controls count 527 (479 before) in both Python modes. No Lean file changed.</p></li>
 </ol>
 
 <h2 id="in-verification">In verification</h2>
@@ -345,7 +346,7 @@
 </div>
 <footer class="site-footer"><div class="wrap">
 <p>Maintained by Adam R Sophie. Source: <a href="https://github.com/adamrsophie/OddPerfectNumber">github.com/adamrsophie/OddPerfectNumber</a>. Built on Lean 4 and mathlib.</p>
-<p>Last updated 25 November 2026, from commit <code>e489fe6</code> on the main branch.</p>
+<p>Last updated 25 November 2026, from commit <code>ac1e0a7</code> on the main branch.</p>
 </div></footer>
 </body>
 </html>
