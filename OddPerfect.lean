@@ -490,3 +490,4 @@ import OddPerfect.LargestPrimeSignedMore
 import OddPerfect.EulerIndexPairRows
 import OddPerfect.SpecialRankThreeAux
 import OddPerfect.SpecialRankThree
+import OddPerfect.EulerIndexSupportMore
