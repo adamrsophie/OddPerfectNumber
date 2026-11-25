@@ -528,3 +528,5 @@ import OddPerfect.OddValuationCountSigned
 import OddPerfect.EulerIndexOmegaSigned
 import OddPerfect.MixedOneAbove
 import OddPerfect.EulerIndexPairHigher
+import OddPerfect.LargestPrimeSafe
+import OddPerfect.LargestPrimeSafeNone
