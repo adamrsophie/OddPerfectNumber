@@ -492,3 +492,4 @@ import OddPerfect.SpecialRankThreeAux
 import OddPerfect.SpecialRankThree
 import OddPerfect.EulerIndexSupportMore
 import OddPerfect.EulerIndexPairAll
+import OddPerfect.SignedRepunit
