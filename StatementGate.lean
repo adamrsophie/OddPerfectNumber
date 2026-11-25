@@ -2081,6 +2081,107 @@ theorem StatementGate.eulerIndex_pair_rows_all :
     p + 1) ∨ ∃ P, _root_.Nat.Prime P ∧ (Nat.factorization N) p + 1 = P ^ 2) :=
   @OddPerfect.eulerIndex_pair_rows_all
 
+theorem StatementGate.geom_sum_prime_pow_ne_sq :
+    ∀ {q h n y : ℕ}, _root_.Nat.Prime q → 5 ≤ q → Odd h → Odd n → 3 ≤ n → ∑ i ∈ Finset.range n,
+    (q ^ h) ^ i ≠ y ^ 2 :=
+  @OddPerfect.geom_sum_prime_pow_ne_sq
+
+theorem StatementGate.alternating_sum_prime_pow_ne_sq :
+    ∀ {q h n y : ℕ}, _root_.Nat.Prime q → 5 ≤ q → h ≠ 0 → q ^ h % 4 = 1 → Odd n → 3 ≤ n → (q ^
+    h) ^ n + 1 ≠ (q ^ h + 1) * y ^ 2 :=
+  @OddPerfect.alternating_sum_prime_pow_ne_sq
+
+theorem StatementGate.half_pow_succ_sq_necessary :
+    ∀ {q L y : ℕ}, _root_.Nat.Prime q → q % 4 = 1 → Odd L → 3 ≤ L → q ^ L + 1 = 2 * y ^ 2 → q %
+    16 = 1 ∧ (∀ (p : ℕ), _root_.Nat.Prime p → p ∣ L → p % 8 = 1) ∧ Nat.minFac L ∣ q + 1 :=
+  @OddPerfect.half_pow_succ_sq_necessary
+
+theorem StatementGate.exists_two_odd_valuation_of_half_residue :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬q ∣ m → k ≠
+    1 → q % 16 ≠ 1 ∨ (∃ p, _root_.Nat.Prime p ∧ p ∣ (k + 1) / 2 ∧ p % 8 ≠ 1) ∨ ¬Nat.minFac ((k +
+    1) / 2) ∣ q + 1 → (∃ p₁ p₂, _root_.Nat.Prime p₁ ∧ _root_.Nat.Prime p₂ ∧ p₁ ≠ p₂ ∧ Odd
+    ((Nat.factorization ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k))) p₁) ∧ Odd
+    ((Nat.factorization ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k))) p₂)) ∧ 2 ≤ Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k))) :=
+  @OddPerfect.exists_two_odd_valuation_of_half_residue
+
+theorem StatementGate.cardFactors_half_succ_le_card_odd_valuation_eulerIndex :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    ArithmeticFunction.cardFactors ((a + 1) / 2) ≤ Finset.card ({t ∈ Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)) | Odd ((Nat.factorization
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) t)}) :=
+  @OddPerfect.cardFactors_half_succ_le_card_odd_valuation_eulerIndex
+
+theorem StatementGate.cardFactors_half_succ_le_card_primeFactors_eulerIndex :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    ArithmeticFunction.cardFactors ((a + 1) / 2) ≤ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.cardFactors_half_succ_le_card_primeFactors_eulerIndex
+
+theorem StatementGate.cardFactors_half_succ_le_two_of_eulerIndex_pair :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) = 2 →
+    ArithmeticFunction.cardFactors ((a + 1) / 2) ≤ 2 :=
+  @OddPerfect.cardFactors_half_succ_le_two_of_eulerIndex_pair
+
+theorem StatementGate.special_exponent_le_85_of_two_above :
+    ∀ {N q L R : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    L ∈ Nat.primeFactors N → R ∈ Nat.primeFactors N → q < L → L < R → (∀ p ∈ Nat.primeFactors N,
+    p ≠ L → p ≠ R → p ≤ q) → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨
+    (Nat.factorization N) p = 4) → (Nat.factorization N) q ≤ 85 :=
+  @OddPerfect.special_exponent_le_85_of_two_above
+
+theorem StatementGate.sigma_prime_fourth_succ_ne_two_mul_sq :
+    ∀ {p z : ℕ}, _root_.Nat.Prime p → p ≠ 2 → (ArithmeticFunction.sigma 1) (p ^ 4) + 1 ≠ 2 * z ^
+    2 :=
+  @OddPerfect.sigma_prime_fourth_succ_ne_two_mul_sq
+
+theorem StatementGate.eq_five_of_sigma_prime_sq_succ_eq_two_mul_sq :
+    ∀ {p z : ℕ}, _root_.Nat.Prime p → p ≠ 2 → (ArithmeticFunction.sigma 1) (p ^ 2) + 1 = 2 * z ^
+    2 → p = 5 :=
+  @OddPerfect.eq_five_of_sigma_prime_sq_succ_eq_two_mul_sq
+
+theorem StatementGate.eulerIndex_pair_pure_exponent_odd :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v) ∧ (∃ j, 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1)
+    (u ^ (Nat.factorization N) u) = t ^ j) ∧ ¬t ∣ q + 1 ∧ (Nat.factorization
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) t = (Nat.factorization N) t ∧
+    _root_.Nat.Prime ((Nat.factorization N) u + 1) ∧ orderOf (u : ZMod t) = (Nat.factorization
+    N) u + 1 ∧ t % (2 * ((Nat.factorization N) u + 1)) = 1 ∧ (_root_.Nat.Prime
+    ((Nat.factorization N) t + 1) ∨ ∃ p, _root_.Nat.Prime p ∧ (Nat.factorization N) t + 1 = p ^
+    2) ∧ (orderOf (q : ZMod t) = 1 ∨ orderOf (q : ZMod t) = (Nat.factorization N) u + 1) ∧ ∀ p ∈
+    Nat.primeFactors N, p ≠ q → p ≠ t → p ≠ u → (∃ x y, (ArithmeticFunction.sigma 1) (p ^
+    (Nat.factorization N) p) = t ^ x * u ^ y) ∧ p ^ (Nat.factorization N) p ∣ q + 1 ∧
+    (_root_.Nat.Prime ((Nat.factorization N) p + 1) ∨ ∃ P, _root_.Nat.Prime P ∧
+    (Nat.factorization N) p + 1 = P ^ 2) :=
+  @OddPerfect.eulerIndex_pair_pure_exponent_odd
+
+theorem StatementGate.eulerIndex_pair_palette :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → (∀ p ∈ ({r, s} :
+    Finset ℕ), (Nat.factorization N) p = 2 ∨ (Nat.factorization N) p = 4) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v) ∧ ¬t ∣ q + 1 ∧ (Nat.factorization N) u = 4 ∧ ∃ j, 3 ≤
+    j ∧ Odd j ∧ (ArithmeticFunction.sigma 1) (u ^ 4) = t ^ j :=
+  @OddPerfect.eulerIndex_pair_palette
+
+theorem StatementGate.eulerIndex_pair_outside_prod_dvd :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → 2 * ∏ p ∈
+    Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ (Nat.factorization N) p ∣ q + 1 :=
+  @OddPerfect.eulerIndex_pair_outside_prod_dvd
+
+theorem StatementGate.eulerIndex_pair_special_ge :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → 2668049 ≤ q :=
+  @OddPerfect.eulerIndex_pair_special_ge
+
 /-! ## The check of the statements -/
 
 namespace StatementGate
@@ -2569,7 +2670,30 @@ def expected : List (Name × Name) :=
       ``OddPerfect.two_le_card_primeFactors_eulerIndex_of_cases_more),
     (`StatementGate.succ_prime_or_prime_sq_of_sigma_eq_prime_pow_mul_prime_pow,
       ``OddPerfect.succ_prime_or_prime_sq_of_sigma_eq_prime_pow_mul_prime_pow),
-    (`StatementGate.eulerIndex_pair_rows_all, ``OddPerfect.eulerIndex_pair_rows_all)]
+    (`StatementGate.eulerIndex_pair_rows_all, ``OddPerfect.eulerIndex_pair_rows_all),
+    (`StatementGate.geom_sum_prime_pow_ne_sq, ``OddPerfect.geom_sum_prime_pow_ne_sq),
+    (`StatementGate.alternating_sum_prime_pow_ne_sq, ``OddPerfect.alternating_sum_prime_pow_ne_sq),
+    (`StatementGate.half_pow_succ_sq_necessary, ``OddPerfect.half_pow_succ_sq_necessary),
+    (`StatementGate.exists_two_odd_valuation_of_half_residue,
+      ``OddPerfect.exists_two_odd_valuation_of_half_residue),
+    (`StatementGate.cardFactors_half_succ_le_card_odd_valuation_eulerIndex,
+      ``OddPerfect.cardFactors_half_succ_le_card_odd_valuation_eulerIndex),
+    (`StatementGate.cardFactors_half_succ_le_card_primeFactors_eulerIndex,
+      ``OddPerfect.cardFactors_half_succ_le_card_primeFactors_eulerIndex),
+    (`StatementGate.cardFactors_half_succ_le_two_of_eulerIndex_pair,
+      ``OddPerfect.cardFactors_half_succ_le_two_of_eulerIndex_pair),
+    (`StatementGate.special_exponent_le_85_of_two_above,
+      ``OddPerfect.special_exponent_le_85_of_two_above),
+    (`StatementGate.sigma_prime_fourth_succ_ne_two_mul_sq,
+      ``OddPerfect.sigma_prime_fourth_succ_ne_two_mul_sq),
+    (`StatementGate.eq_five_of_sigma_prime_sq_succ_eq_two_mul_sq,
+      ``OddPerfect.eq_five_of_sigma_prime_sq_succ_eq_two_mul_sq),
+    (`StatementGate.eulerIndex_pair_pure_exponent_odd,
+      ``OddPerfect.eulerIndex_pair_pure_exponent_odd),
+    (`StatementGate.eulerIndex_pair_palette, ``OddPerfect.eulerIndex_pair_palette),
+    (`StatementGate.eulerIndex_pair_outside_prod_dvd,
+      ``OddPerfect.eulerIndex_pair_outside_prod_dvd),
+    (`StatementGate.eulerIndex_pair_special_ge, ``OddPerfect.eulerIndex_pair_special_ge)]
 
 /-- Checks every theorem `StatementGate.*` of the environment against the inventory `exp` and
 the allowed list (see the module docstring). Throws an error listing every problem, or logs one
