@@ -470,3 +470,6 @@ import OddPerfect.SpecialRank
 import OddPerfect.SpecialRankFamily
 import OddPerfect.PaletteGlue
 import OddPerfect.ReturnReach
+import OddPerfect.ExceptRoots
+import OddPerfect.ExceptSmallTwoTail
+import OddPerfect.ExceptSmallTwo
