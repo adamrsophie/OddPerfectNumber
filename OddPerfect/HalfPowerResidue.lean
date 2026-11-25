@@ -13,8 +13,9 @@ Let `q` be a prime with `q ≡ 1 (mod 4)` and `L ≥ 3` odd. This module shows t
 * the least prime factor of `L` divides `q + 1`.
 
 These conditions contain the landed cases (`q ≡ 5 (mod 8)`, or `L` divisible by one of
-`3, 5, 7, 11, 13`). They do NOT prove `HalfPowerNotSquare`, which stays unproved in this
-library. The full statement is reported to follow from published work on the equation
+`3, 5, 7, 11, 13`). They do not prove `HalfPowerNotSquare`; that proposition is proved in
+`OddPerfect.EulerIndexSupportAll`, so the conditions here are never met. The full statement is
+reported to follow from published work on the equation
 `x ^ n + y ^ n = 2 * z ^ 2`; nothing new is claimed.
 
 Method, for a prime `p ∣ L` and `u = q ^ (L / p)`: with `F = (u ^ p + 1) / (u + 1)` we get
@@ -250,7 +251,8 @@ private lemma hpr_special_facts {N q k m : ℕ} (h : OddPerfect N) (hq : q.Prime
 
 /-- For a prime `q ≡ 1 (mod 4)`, an odd `L ≥ 3` and `q ^ L + 1 = 2 * y ^ 2`: `q ≡ 1 (mod 16)`,
 every prime factor of `L` is `1 (mod 8)`, and the least prime factor of `L` divides `q + 1`.
-These are necessary conditions only; `HalfPowerNotSquare` is NOT proved here. Known
+These are necessary conditions only; `HalfPowerNotSquare` is not proved here (it is proved in
+`OddPerfect.EulerIndexSupportAll`, so the hypothesis `hy` is never met). Known
 mathematics or elementary; novelty not verified. -/
 theorem half_pow_succ_sq_necessary {q L y : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
     (hL : Odd L) (hL3 : 3 ≤ L) (hy : q ^ L + 1 = 2 * y ^ 2) :

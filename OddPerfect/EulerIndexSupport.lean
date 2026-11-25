@@ -16,7 +16,9 @@ at least two distinct prime factors in several cases.
 * `k ≠ 1`: if `S = (q ^ ℓ + 1) / 2` with `ℓ = (k + 1) / 2` is not a square, then two distinct
   primes have odd valuation in `J`. This applies when `q ≡ 5 (mod 8)`, `k ≡ 5 (mod 12)` or
   `k ≡ 9 (mod 20)`.
-* A conditional form for every `k`, under the unproved statement `HalfPowerNotSquare`.
+* A conditional form for every `k`, under the statement `HalfPowerNotSquare`. That statement
+  is not proved in this module; it is proved in `OddPerfect.EulerIndexSupportAll`
+  (`halfPowerNotSquare`), which also gives the form without hypothesis.
 
 All of this is known mathematics or elementary; novelty not verified.
 -/
@@ -328,14 +330,17 @@ theorem exists_two_odd_valuation_of_exponent_mod_twenty (h : OddPerfect N) (hq :
 
 /-- The statement that `(q ^ ℓ + 1) / 2` is never a square for a prime `q ≡ 1 (mod 4)` and an
 odd `ℓ ≥ 3`; equivalently, the equation `2 * x ^ 2 = q ^ ℓ + 1` has no solution in that range.
-This is NOT proved in this library. It is reported to follow from a published classification
-of equations of the type `x ^ n + y ^ n = 2 * z ^ 2`; that attribution was not page checked.
+It is not proved in this module; the module `OddPerfect.EulerIndexSupportAll` proves it
+(`halfPowerNotSquare`) by an elementary argument. It is reported to follow from a published
+classification of equations of the type `x ^ n + y ^ n = 2 * z ^ 2`; that attribution was not
+page checked.
 For `k > 1`, Y. Hirakawa (arXiv 2309.17084, abstract checked) states that the index is neither
 a square nor a prime times a square. -/
 def HalfPowerNotSquare : Prop :=
   ∀ q ℓ : ℕ, q.Prime → q % 4 = 1 → Odd ℓ → 3 ≤ ℓ → ¬ IsSquare ((q ^ ℓ + 1) / 2)
 
-/-- Under `HalfPowerNotSquare` (not proved here), the Euler index of every odd perfect number
+/-- Under `HalfPowerNotSquare` (not proved in this module; the form without hypothesis is
+`OddPerfect.two_le_card_primeFactors_eulerIndex`), the Euler index of every odd perfect number
 `q ^ k * m ^ 2` with special prime `q` and `q ∤ m` has at least two distinct prime factors.
 Known mathematics or elementary; novelty not verified. -/
 theorem two_le_card_primeFactors_eulerIndex_of_halfPowerNotSquare (hyp : HalfPowerNotSquare)

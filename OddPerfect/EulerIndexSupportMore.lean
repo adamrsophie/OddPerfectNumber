@@ -18,9 +18,9 @@ a square. The second is ruled out modulo `8`. The first is ruled out by an odd `
 `(P - 1) ^ 2 < T ^ 2 * F < (P + 1) ^ 2` for an even `T`, valid for large `a`, and by exhibited
 integer square roots for the finitely many small `a`.
 
-These are elementary restricted results. The general statement for every exponent stays the
-unproved proposition `HalfPowerNotSquare`. All of this is known mathematics or elementary;
-novelty not verified.
+These are elementary restricted results. The general statement for every exponent is the
+proposition `HalfPowerNotSquare`, proved in `OddPerfect.EulerIndexSupportAll`. All of this is
+known mathematics or elementary; novelty not verified.
 -/
 
 namespace OddPerfect

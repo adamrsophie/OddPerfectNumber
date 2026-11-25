@@ -522,3 +522,5 @@ import OddPerfect.MixedLargestPrime
 import OddPerfect.OddValuationCountFree
 import OddPerfect.EulerIndexOmegaFree
 import OddPerfect.SpecialRowResidue
+import OddPerfect.SignedRepunitJacobi
+import OddPerfect.EulerIndexSupportAll
