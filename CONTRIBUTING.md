@@ -11,12 +11,13 @@ library does not have yet; a few are marked open. Each one says which.
 
 ## The steps
 
-The open steps are the definitions in [`OddPerfect/Steps.lean`](OddPerfect/Steps.lean). Each has
+The steps are the definitions in [`OddPerfect/Steps.lean`](OddPerfect/Steps.lean). Each has
 a docstring with its difficulty, its source, and what it is good for. The project site lists
 them with the names of the people who proved the closed ones:
 <https://adamrsophie.github.io/OddPerfectNumber/join.html>.
 
-A step is closed when `Contributions/<Name>.lean` exists on the `main` branch.
+A step is closed when `Contributions/<Name>.lean` exists on the `main` branch. The nine steps
+posted so far are all closed.
 
 ## How to contribute
 
