@@ -508,3 +508,6 @@ import OddPerfect.EulerIndexPairHeight
 import OddPerfect.EulerIndexPairCofactor
 import OddPerfect.LargestPrimeSignedMulti
 import OddPerfect.LargestPrimeSignedMultiValues
+import OddPerfect.MixedPaletteEdges
+import OddPerfect.RankTwoPaletteFree
+import OddPerfect.SpecialRankThreeFree
