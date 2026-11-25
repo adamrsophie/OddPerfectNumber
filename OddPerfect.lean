@@ -504,3 +504,5 @@ import OddPerfect.EulerIndexPairOutside
 import OddPerfect.RestrainedCountThree
 import OddPerfect.ExceptRootsCases
 import OddPerfect.LargestPrimeParity
+import OddPerfect.EulerIndexPairHeight
+import OddPerfect.EulerIndexPairCofactor
