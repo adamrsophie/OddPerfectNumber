@@ -26,6 +26,12 @@ prime factors reached from a prime `r` in a given number of steps, where a step 
 to the prime factors of `N` that divide the divisor sum of the power of `p` in `N`. It is in
 `allowedDefinitions`, and two `example`s below pin its two defining equations.
 
+The restatement of the theorem on the 24 state Turing machine mentions
+`OddPerfect.TuringOPN.Halts`. It is in `allowedDefinitions`, and the `example`s of the section
+on the Turing machine pin `Halts`, the run function, the initial configuration, the step
+function, the head move of each direction and all 48 cells of the transition table, so that
+a changed machine breaks this file.
+
 The file opens no namespace and uses no notation of the library. Every name is written in
 full; `_root_` is put in front of `OddPerfect` and `Nat.Prime`, so that a declaration of the
 library in another namespace cannot take their place. The `example`s fix the meaning of the
@@ -2182,6 +2188,363 @@ theorem StatementGate.eulerIndex_pair_special_ge :
     ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → 2668049 ≤ q :=
   @OddPerfect.eulerIndex_pair_special_ge
 
+theorem StatementGate.restrained_two_mul_omega_add_le :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → 2 * ArithmeticFunction.cardDistinctFactors N + 3 * padicValNat 3
+    ((Nat.factorization N) q + 1) ≤ 3 * (Nat.factorization N) 3 + 2 * (Nat.factorization N) q +
+    4 :=
+  @OddPerfect.restrained_two_mul_omega_add_le
+
+theorem StatementGate.restrained_eight_mul_omega_add_le :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → 8 * ArithmeticFunction.cardDistinctFactors N + (Nat.factorization N) q + 3 *
+    padicValNat 3 ((Nat.factorization N) q + 1) ≤ 3 * ArithmeticFunction.cardFactors N + 16 :=
+  @OddPerfect.restrained_eight_mul_omega_add_le
+
+theorem StatementGate.restrained_three_mul_bigOmega_ge :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → 10710800 + (Nat.factorization N) q + 3 * padicValNat 3 ((Nat.factorization N) q
+    + 1) ≤ 3 * ArithmeticFunction.cardFactors N :=
+  @OddPerfect.restrained_three_mul_bigOmega_ge
+
+theorem StatementGate.restrained_three_mul_three_ge :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → 2677700 + 3 * padicValNat 3 ((Nat.factorization N) q + 1) ≤ 3 *
+    (Nat.factorization N) 3 + 2 * (Nat.factorization N) q :=
+  @OddPerfect.restrained_three_mul_three_ge
+
+theorem StatementGate.exceptRoots_three_cases :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → 3 ∣ N → _root_.Nat.Prime q → Odd ((Nat.factorization N)
+    q) → ∃ p ∈ if q = 13 then ({3, 7, 19, 127} : Finset ℕ) else if q = 61 then ({3, 13, 31, 331}
+    : Finset ℕ) else if q = 97 then ({3, 7, 13, 61} : Finset ℕ) else ({3, 13, 61, 97} : Finset
+    ℕ), p ∈ Nat.primeFactors N ∧ Even ((Nat.factorization N) p) ∧ 4 ≤ (Nat.factorization N) p :=
+  @OddPerfect.exceptRoots_three_cases
+
+theorem StatementGate.exceptRoots_le_97_of_special_ne :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → 3 ∣ N → _root_.Nat.Prime q → Odd ((Nat.factorization N)
+    q) → q ≠ 13 → q ≠ 61 → ∃ p ∈ Nat.primeFactors N, Even ((Nat.factorization N) p) ∧ 4 ≤
+    (Nat.factorization N) p ∧ p ≤ 97 :=
+  @OddPerfect.exceptRoots_le_97_of_special_ne
+
+theorem StatementGate.exceptRoots_le_127_of_special_ne :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → 3 ∣ N → _root_.Nat.Prime q → Odd ((Nat.factorization N)
+    q) → q ≠ 61 → ∃ p ∈ Nat.primeFactors N, Even ((Nat.factorization N) p) ∧ 4 ≤
+    (Nat.factorization N) p ∧ p ≤ 127 :=
+  @OddPerfect.exceptRoots_le_127_of_special_ne
+
+theorem StatementGate.factorization_mod_four_ne_three :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ (p : ℕ), (Nat.factorization N) p % 4 ≠ 3 :=
+  @OddPerfect.factorization_mod_four_ne_three
+
+theorem StatementGate.eulerIndex_pair_outside_succ_sq_le :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∀ p ∈
+    Nat.primeFactors N \ ({q, r, s} : Finset ℕ), 2 * p ^ (Nat.factorization N) p ≤ q + 1 ∧ (p +
+    1) ^ 2 ≤ q :=
+  @OddPerfect.eulerIndex_pair_outside_succ_sq_le
+
+theorem StatementGate.factorization_largest_le_fortyeight_of_odd_part_twentyseven :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 27 → (Nat.factorization N) P ≤ 48 :=
+  @OddPerfect.factorization_largest_le_fortyeight_of_odd_part_twentyseven
+
+theorem StatementGate.factorization_largest_le_sixtyone_of_odd_part_twentynine :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 29 → (Nat.factorization N) P ≤ 61 :=
+  @OddPerfect.factorization_largest_le_sixtyone_of_odd_part_twentynine
+
+theorem StatementGate.factorization_largest_le_sixtysix_of_odd_part_thirtyone :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 31 → (Nat.factorization N) P ≤ 66 :=
+  @OddPerfect.factorization_largest_le_sixtysix_of_odd_part_thirtyone
+
+theorem StatementGate.factorization_largest_le_fiftyeight_of_odd_part_thirtythree :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 33 → (Nat.factorization N) P ≤ 58 :=
+  @OddPerfect.factorization_largest_le_fiftyeight_of_odd_part_thirtythree
+
+theorem StatementGate.factorization_largest_le_sixtyfour_of_odd_part_thirtyfive :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 35 → (Nat.factorization N) P ≤ 64 :=
+  @OddPerfect.factorization_largest_le_sixtyfour_of_odd_part_thirtyfive
+
+theorem StatementGate.factorization_largest_le_seventyeight_of_odd_part_thirtyseven :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 37 → (Nat.factorization N) P ≤ 78 :=
+  @OddPerfect.factorization_largest_le_seventyeight_of_odd_part_thirtyseven
+
+theorem StatementGate.factorization_largest_le_sixtynine_of_odd_part_thirtynine :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 39 → (Nat.factorization N) P ≤ 69 :=
+  @OddPerfect.factorization_largest_le_sixtynine_of_odd_part_thirtynine
+
+theorem StatementGate.factorization_largest_le_eightysix_of_odd_part_fortyone :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 41 → (Nat.factorization N) P ≤ 86 :=
+  @OddPerfect.factorization_largest_le_eightysix_of_odd_part_fortyone
+
+theorem StatementGate.factorization_largest_le_seventysix_of_odd_part_fortyfive :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 45 → (Nat.factorization N) P ≤ 76 :=
+  @OddPerfect.factorization_largest_le_seventysix_of_odd_part_fortyfive
+
+theorem StatementGate.factorization_largest_le_onehundredten_of_odd_part_sixtythree :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 63 → (Nat.factorization N) P ≤ 110 :=
+  @OddPerfect.factorization_largest_le_onehundredten_of_odd_part_sixtythree
+
+theorem StatementGate.factorization_largest_le_twohundredeighteen_of_odd_part_onehundredone :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈
+    Nat.primeFactors N, r ≤ P) → P - 1 = 2 ^ a * 101 → (Nat.factorization N) P ≤ 218 :=
+  @OddPerfect.factorization_largest_le_twohundredeighteen_of_odd_part_onehundredone
+
+theorem StatementGate.mixed_square_prime_mod_three :
+    ∀ {N p : ℕ}, _root_.OddPerfect N → p ∈ Nat.primeFactors N → (Nat.factorization N) p = 2 → ¬3
+    ∣ N → p % 3 = 2 :=
+  @OddPerfect.mixed_square_prime_mod_three
+
+theorem StatementGate.mixed_quartic_prime_mod_five :
+    ∀ {N p : ℕ}, _root_.OddPerfect N → p ∈ Nat.primeFactors N → (Nat.factorization N) p = 4 → ¬5
+    ∣ N → p % 5 ≠ 1 :=
+  @OddPerfect.mixed_quartic_prime_mod_five
+
+theorem StatementGate.mixed_square_row_target_exponent_four :
+    ∀ {N q p r : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization
+    N) p = 2 ∨ (Nat.factorization N) p = 4) → ¬3 ∣ N → p ∈ Nat.primeFactors N →
+    (Nat.factorization N) p = 2 → _root_.Nat.Prime r → r ∣ (ArithmeticFunction.sigma 1) (p ^ 2)
+    → r ≠ q → (Nat.factorization N) r = 4 :=
+  @OddPerfect.mixed_square_row_target_exponent_four
+
+theorem StatementGate.mixed_quartic_row_target_exponent_two :
+    ∀ {N q p r : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization
+    N) p = 2 ∨ (Nat.factorization N) p = 4) → ¬5 ∣ N → p ∈ Nat.primeFactors N →
+    (Nat.factorization N) p = 4 → _root_.Nat.Prime r → r ∣ (ArithmeticFunction.sigma 1) (p ^ 4)
+    → r ≠ q → (Nat.factorization N) r = 2 :=
+  @OddPerfect.mixed_quartic_row_target_exponent_two
+
+theorem StatementGate.restrained_five_mod_twelve_sq_dvd :
+    ∀ {N q r p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → p ∈ Nat.primeFactors N → p % 12 = 5 → p ^ 2 ∣ (ArithmeticFunction.sigma 1) (q ^
+    (Nat.factorization N) q) / 2 :=
+  @OddPerfect.restrained_five_mod_twelve_sq_dvd
+
+theorem StatementGate.restrained_five_mod_twelve_prod_sq_dvd :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → ∏ p ∈ Nat.primeFactors N with p ≠ 3 ∧ p ≠ q ∧ p % 12 = 5, p ^ 2 ∣
+    (ArithmeticFunction.sigma 1) (q ^ (Nat.factorization N) q) / 2 :=
+  @OddPerfect.restrained_five_mod_twelve_prod_sq_dvd
+
+theorem StatementGate.restrained_five_mod_twelve_prod_sq_dvd_succ :
+    ∀ {N q r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → (Nat.factorization N) q = 1 → 2 * ∏ p ∈ Nat.primeFactors N with p ≠ 3 ∧ p ≠ q ∧
+    p % 12 = 5, p ^ 2 ∣ q + 1 :=
+  @OddPerfect.restrained_five_mod_twelve_prod_sq_dvd_succ
+
+theorem StatementGate.eulerIndex_pair_cofactor :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v) ∧ (∃ j, 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1)
+    (u ^ (Nat.factorization N) u) = t ^ j) ∧ ¬t ∣ q + 1 ∧ (Nat.factorization
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) t = (Nat.factorization N) t ∧
+    _root_.Nat.Prime ((Nat.factorization N) u + 1) ∧ orderOf (u : ZMod t) = (Nat.factorization
+    N) u + 1 ∧ t % (2 * ((Nat.factorization N) u + 1)) = 1 ∧ (_root_.Nat.Prime
+    ((Nat.factorization N) t + 1) ∨ ∃ p, _root_.Nat.Prime p ∧ (Nat.factorization N) t + 1 = p ^
+    2) ∧ (orderOf (q : ZMod t) = 1 ∨ orderOf (q : ZMod t) = (Nat.factorization N) u + 1) ∧ (∀ p
+    ∈ Nat.primeFactors N, p ≠ q → p ≠ t → p ≠ u → (∃ x y, (ArithmeticFunction.sigma 1) (p ^
+    (Nat.factorization N) p) = t ^ x * u ^ y) ∧ p ^ (Nat.factorization N) p ∣ q + 1 ∧
+    (_root_.Nat.Prime ((Nat.factorization N) p + 1) ∨ ∃ P, _root_.Nat.Prime P ∧
+    (Nat.factorization N) p + 1 = P ^ 2)) ∧ ∃ d, q + 1 = 2 * u ^ d * (∏ p ∈ Nat.primeFactors N \
+    ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2 :=
+  @OddPerfect.eulerIndex_pair_cofactor
+
+theorem StatementGate.eulerIndex_pair_t_count :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v) ∧ ¬t ∣ q + 1 ∧ orderOf (u : ZMod t) =
+    (Nat.factorization N) u + 1 ∧ ∃ j, 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1) (u ^
+    (Nat.factorization N) u) = t ^ j ∧ (Nat.factorization N) t = j + ∑ p ∈ Nat.primeFactors N \
+    ({q, r, s} : Finset ℕ), (Nat.factorization ((ArithmeticFunction.sigma 1) (p ^
+    (Nat.factorization N) p))) t ∧ Odd (∑ p ∈ Nat.primeFactors N \ ({q, r, s} : Finset ℕ),
+    (Nat.factorization ((ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p))) t) ∧ (∃ p ∈
+    Nat.primeFactors N \ ({q, r, s} : Finset ℕ), t ∣ (ArithmeticFunction.sigma 1) (p ^
+    (Nat.factorization N) p)) ∧ t ∣ (ArithmeticFunction.sigma 1) ((∏ p ∈ Nat.primeFactors N \
+    ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2) ∧ ∃ b,
+    (ArithmeticFunction.sigma 1) ((∏ p ∈ Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^
+    ((Nat.factorization N) p / 2)) ^ 2) = (t ^ ∑ p ∈ Nat.primeFactors N \ ({q, r, s} : Finset
+    ℕ), (Nat.factorization ((ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p))) t) * u
+    ^ b :=
+  @OddPerfect.eulerIndex_pair_t_count
+
+theorem StatementGate.eulerIndex_pair_character :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ ¬t ∣ q + 1 ∧ (∃ j, 0 < j ∧ Odd j ∧
+    (ArithmeticFunction.sigma 1) (u ^ (Nat.factorization N) u) = t ^ j) ∧ ∃ v,
+    (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v ∧ ((q * u ^ v : ℕ) :
+    ZMod t) = 1 ∧ IsSquare ((2 * (1 + u ^ v) : ℕ) : ZMod t) ∧ ((2 * (1 + u ^ v) : ℕ) : ZMod t) ≠
+    0 :=
+  @OddPerfect.eulerIndex_pair_character
+
+theorem StatementGate.special_exponent_eq_one_or_thirteen_of_not_three_five_dvd :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → P
+    ∈ Nat.primeFactors N → q < P → (∀ p ∈ Nat.primeFactors N, p ≠ P → p ≤ q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨ (Nat.factorization N) p = 4) → ¬3
+    ∣ N → ¬5 ∣ N → (Nat.factorization N) q = 1 ∨ (Nat.factorization N) q = 13 ∧ q % 60 = 1 :=
+  @OddPerfect.special_exponent_eq_one_or_thirteen_of_not_three_five_dvd
+
+theorem StatementGate.special_exponent_le_73_of_two_above_of_not_three_dvd :
+    ∀ {N q L R : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    L ∈ Nat.primeFactors N → R ∈ Nat.primeFactors N → q < L → L < R → (∀ p ∈ Nat.primeFactors N,
+    p ≠ L → p ≠ R → p ≤ q) → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨
+    (Nat.factorization N) p = 4) → ¬3 ∣ N → (Nat.factorization N) q ≤ 73 :=
+  @OddPerfect.special_exponent_le_73_of_two_above_of_not_three_dvd
+
+/-! ## The Turing machine -/
+
+example : OddPerfect.TuringOPN.Halts ↔
+    ∃ (k : ℕ) (c : OddPerfect.TuringOPN.Cfg),
+      OddPerfect.TuringOPN.run k OddPerfect.TuringOPN.init = some c ∧
+        OddPerfect.TuringOPN.step c = none := Iff.rfl
+
+example (c : OddPerfect.TuringOPN.Cfg) : OddPerfect.TuringOPN.run 0 c = some c := rfl
+
+example (k : ℕ) (c : OddPerfect.TuringOPN.Cfg) :
+    OddPerfect.TuringOPN.run (k + 1) c =
+      Option.bind (OddPerfect.TuringOPN.step c) (OddPerfect.TuringOPN.run k) := rfl
+
+example : OddPerfect.TuringOPN.init =
+    OddPerfect.TuringOPN.Cfg.mk OddPerfect.TuringOPN.St.A 0 (fun _ => false) := rfl
+
+example (c : OddPerfect.TuringOPN.Cfg) :
+    OddPerfect.TuringOPN.step c =
+      match OddPerfect.TuringOPN.table (OddPerfect.TuringOPN.Cfg.state c)
+          (OddPerfect.TuringOPN.Cfg.tape c (OddPerfect.TuringOPN.Cfg.pos c)) with
+      | none => none
+      | some (w, d, q) => some (OddPerfect.TuringOPN.Cfg.mk q
+          (OddPerfect.TuringOPN.Cfg.pos c + OddPerfect.TuringOPN.Dir.delta d)
+          (fun x => if x = OddPerfect.TuringOPN.Cfg.pos c then w
+            else OddPerfect.TuringOPN.Cfg.tape c x)) := rfl
+
+example : OddPerfect.TuringOPN.Dir.delta OddPerfect.TuringOPN.Dir.L = -1 := rfl
+
+example : OddPerfect.TuringOPN.Dir.delta OddPerfect.TuringOPN.Dir.R = 1 := rfl
+
+/-! The transition table, cell by cell (the bbchallenge string in the docstring of
+`OddPerfect/TuringOPNCode.lean`, state `A` to `X`, reading 0 and then 1). -/
+
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.A false =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.O) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.A true =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.T) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.B false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.I) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.B true =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.C) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.C false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.D) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.C true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.C) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.D false =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.E) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.D true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.D) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.E false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.G) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.E true =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.F) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.F false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.H) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.F true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.F) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.G false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.E) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.G true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.G) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.H false =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.B) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.H true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.H) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.I false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.K) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.I true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.J) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.J false =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.S) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.J true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.J) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.K false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.L) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.K true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.K) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.L false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.M) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.L true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.L) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.M false =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.N) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.M true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.M) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.N false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.U) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.N true =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.O) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.O false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.P) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.O true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.O) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.P false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.Q) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.P true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.P) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.Q false =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.R) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.Q true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.Q) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.R false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.S) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.R true =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.K) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.S false =
+    some (false, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.A) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.S true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.S) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.T false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.B) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.T true =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.T) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.U false =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.V) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.U true =
+    some (false, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.W) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.V false = none := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.V true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.X) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.W false =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.X) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.W true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.W) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.X false =
+    some (true, OddPerfect.TuringOPN.Dir.L, OddPerfect.TuringOPN.St.K) := rfl
+example : OddPerfect.TuringOPN.table OddPerfect.TuringOPN.St.X true =
+    some (true, OddPerfect.TuringOPN.Dir.R, OddPerfect.TuringOPN.St.X) := rfl
+
+theorem StatementGate.turing_halts_iff_exists_oddPerfect :
+    OddPerfect.TuringOPN.Halts ↔ ∃ N : ℕ, _root_.OddPerfect N :=
+  @OddPerfect.TuringOPN.halts_iff_exists_oddPerfect
+
 /-! ## The check of the statements -/
 
 namespace StatementGate
@@ -2199,7 +2562,7 @@ def allowedDefinitions : List Name :=
     ``OddPerfect.TwoExcEngine.FamV, ``OddPerfect.TwoExcEngine.Holds,
     ``OddPerfect.TwoExcEngine.DefSound, ``OddPerfect.TwoExcEngine.paramsOK,
     ``OddPerfect.TwoExcEngine.rootKeysV, ``OddPerfect.TwoExcEngine.checkV,
-    ``OddPerfect.ball]
+    ``OddPerfect.ball, ``OddPerfect.TuringOPN.Halts]
 
 /-- The inventory: every restatement of this file, paired with the library theorem that proves
 it. The check requires the theorems `StatementGate.*` to be exactly the first components, each
@@ -2693,7 +3056,63 @@ def expected : List (Name × Name) :=
     (`StatementGate.eulerIndex_pair_palette, ``OddPerfect.eulerIndex_pair_palette),
     (`StatementGate.eulerIndex_pair_outside_prod_dvd,
       ``OddPerfect.eulerIndex_pair_outside_prod_dvd),
-    (`StatementGate.eulerIndex_pair_special_ge, ``OddPerfect.eulerIndex_pair_special_ge)]
+    (`StatementGate.eulerIndex_pair_special_ge, ``OddPerfect.eulerIndex_pair_special_ge),
+    (`StatementGate.restrained_two_mul_omega_add_le, ``OddPerfect.restrained_two_mul_omega_add_le),
+    (`StatementGate.restrained_eight_mul_omega_add_le,
+      ``OddPerfect.restrained_eight_mul_omega_add_le),
+    (`StatementGate.restrained_three_mul_bigOmega_ge,
+      ``OddPerfect.restrained_three_mul_bigOmega_ge),
+    (`StatementGate.restrained_three_mul_three_ge, ``OddPerfect.restrained_three_mul_three_ge),
+    (`StatementGate.exceptRoots_three_cases, ``OddPerfect.exceptRoots_three_cases),
+    (`StatementGate.exceptRoots_le_97_of_special_ne, ``OddPerfect.exceptRoots_le_97_of_special_ne),
+    (`StatementGate.exceptRoots_le_127_of_special_ne,
+      ``OddPerfect.exceptRoots_le_127_of_special_ne),
+    (`StatementGate.factorization_mod_four_ne_three, ``OddPerfect.factorization_mod_four_ne_three),
+    (`StatementGate.eulerIndex_pair_outside_succ_sq_le,
+      ``OddPerfect.eulerIndex_pair_outside_succ_sq_le),
+    (`StatementGate.factorization_largest_le_fortyeight_of_odd_part_twentyseven,
+      ``OddPerfect.factorization_largest_le_fortyeight_of_odd_part_twentyseven),
+    (`StatementGate.factorization_largest_le_sixtyone_of_odd_part_twentynine,
+      ``OddPerfect.factorization_largest_le_sixtyone_of_odd_part_twentynine),
+    (`StatementGate.factorization_largest_le_sixtysix_of_odd_part_thirtyone,
+      ``OddPerfect.factorization_largest_le_sixtysix_of_odd_part_thirtyone),
+    (`StatementGate.factorization_largest_le_fiftyeight_of_odd_part_thirtythree,
+      ``OddPerfect.factorization_largest_le_fiftyeight_of_odd_part_thirtythree),
+    (`StatementGate.factorization_largest_le_sixtyfour_of_odd_part_thirtyfive,
+      ``OddPerfect.factorization_largest_le_sixtyfour_of_odd_part_thirtyfive),
+    (`StatementGate.factorization_largest_le_seventyeight_of_odd_part_thirtyseven,
+      ``OddPerfect.factorization_largest_le_seventyeight_of_odd_part_thirtyseven),
+    (`StatementGate.factorization_largest_le_sixtynine_of_odd_part_thirtynine,
+      ``OddPerfect.factorization_largest_le_sixtynine_of_odd_part_thirtynine),
+    (`StatementGate.factorization_largest_le_eightysix_of_odd_part_fortyone,
+      ``OddPerfect.factorization_largest_le_eightysix_of_odd_part_fortyone),
+    (`StatementGate.factorization_largest_le_seventysix_of_odd_part_fortyfive,
+      ``OddPerfect.factorization_largest_le_seventysix_of_odd_part_fortyfive),
+    (`StatementGate.factorization_largest_le_onehundredten_of_odd_part_sixtythree,
+      ``OddPerfect.factorization_largest_le_onehundredten_of_odd_part_sixtythree),
+    (`StatementGate.factorization_largest_le_twohundredeighteen_of_odd_part_onehundredone,
+      ``OddPerfect.factorization_largest_le_twohundredeighteen_of_odd_part_onehundredone),
+    (`StatementGate.mixed_square_prime_mod_three, ``OddPerfect.mixed_square_prime_mod_three),
+    (`StatementGate.mixed_quartic_prime_mod_five, ``OddPerfect.mixed_quartic_prime_mod_five),
+    (`StatementGate.mixed_square_row_target_exponent_four,
+      ``OddPerfect.mixed_square_row_target_exponent_four),
+    (`StatementGate.mixed_quartic_row_target_exponent_two,
+      ``OddPerfect.mixed_quartic_row_target_exponent_two),
+    (`StatementGate.restrained_five_mod_twelve_sq_dvd,
+      ``OddPerfect.restrained_five_mod_twelve_sq_dvd),
+    (`StatementGate.restrained_five_mod_twelve_prod_sq_dvd,
+      ``OddPerfect.restrained_five_mod_twelve_prod_sq_dvd),
+    (`StatementGate.restrained_five_mod_twelve_prod_sq_dvd_succ,
+      ``OddPerfect.restrained_five_mod_twelve_prod_sq_dvd_succ),
+    (`StatementGate.eulerIndex_pair_cofactor, ``OddPerfect.eulerIndex_pair_cofactor),
+    (`StatementGate.eulerIndex_pair_t_count, ``OddPerfect.eulerIndex_pair_t_count),
+    (`StatementGate.eulerIndex_pair_character, ``OddPerfect.eulerIndex_pair_character),
+    (`StatementGate.special_exponent_eq_one_or_thirteen_of_not_three_five_dvd,
+      ``OddPerfect.special_exponent_eq_one_or_thirteen_of_not_three_five_dvd),
+    (`StatementGate.special_exponent_le_73_of_two_above_of_not_three_dvd,
+      ``OddPerfect.special_exponent_le_73_of_two_above_of_not_three_dvd),
+    (`StatementGate.turing_halts_iff_exists_oddPerfect,
+      ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
 /-- Checks every theorem `StatementGate.*` of the environment against the inventory `exp` and
 the allowed list (see the module docstring). Throws an error listing every problem, or logs one
