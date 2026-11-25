@@ -1917,6 +1917,104 @@ theorem StatementGate.special_exponent_eq_one_nine_or_thirteen_of_not_three_dvd 
     N → (Nat.factorization N) q = 1 ∨ (Nat.factorization N) q = 9 ∨ (Nat.factorization N) q = 13 :=
   @OddPerfect.special_exponent_eq_one_nine_or_thirteen_of_not_three_dvd
 
+/-! ## Signed capacity for more odd parts, the rows of a two prime index, two primes above
+the special prime -/
+
+theorem StatementGate.card_le_of_two_signed_primes :
+    ∀ {P m j u v : ℕ}, _root_.Nat.Prime P → ¬P ∣ 2 * m → 1 ≤ j → _root_.Nat.Prime u ∧ u % 2 = 1 ∧
+    u < P ∧ u ^ (2 * m) ≡ 1 [MOD P ^ j] → _root_.Nat.Prime v ∧ v % 2 = 1 ∧ v < P ∧ v ^ (2 * m) ≡ 1
+    [MOD P ^ j] → u ≠ v → ∀ (V : Finset (ℕ × ℕ × ℕ × ℕ)), (∀ x ∈ V, Prod.fst x + Prod.fst
+    (Prod.snd x) ≤ j / 2 ∧ Prod.fst (Prod.snd (Prod.snd x)) + Prod.snd (Prod.snd (Prod.snd x)) ≤
+    (j + 1) / 2 ∧ Prod.fst x * Prod.fst (Prod.snd (Prod.snd x)) = 0 ∧ Prod.fst (Prod.snd x) *
+    Prod.snd (Prod.snd (Prod.snd x)) = 0) → Finset.card V ≤ m :=
+  @OddPerfect.card_le_of_two_signed_primes
+
+theorem StatementGate.card_le_one_of_signed_primes_four :
+    ∀ {P m : ℕ}, _root_.Nat.Prime P → ¬P ∣ 2 * m → m ≤ 18 → ∀ (s : Finset ℕ), (∀ u ∈ s,
+    _root_.Nat.Prime u ∧ u % 2 = 1 ∧ u < P ∧ u ^ (2 * m) ≡ 1 [MOD P ^ 4]) → Finset.card s ≤ 1 :=
+  @OddPerfect.card_le_one_of_signed_primes_four
+
+theorem StatementGate.card_le_one_of_signed_primes_five :
+    ∀ {P m : ℕ}, _root_.Nat.Prime P → ¬P ∣ 2 * m → m ≤ 26 → ∀ (s : Finset ℕ), (∀ u ∈ s,
+    _root_.Nat.Prime u ∧ u % 2 = 1 ∧ u < P ∧ u ^ (2 * m) ≡ 1 [MOD P ^ 5]) → Finset.card s ≤ 1 :=
+  @OddPerfect.card_le_one_of_signed_primes_five
+
+theorem StatementGate.card_le_two_of_signed_primes_cube :
+    ∀ {P m : ℕ}, _root_.Nat.Prime P → ¬P ∣ 2 * m → m ≤ 27 → ∀ (s : Finset ℕ), (∀ u ∈ s,
+    _root_.Nat.Prime u ∧ u % 2 = 1 ∧ u < P ∧ u ^ (2 * m) ≡ 1 [MOD P ^ 3]) → Finset.card s ≤ 2 :=
+  @OddPerfect.card_le_two_of_signed_primes_cube
+
+theorem StatementGate.factorization_largest_le_twentyfive_of_odd_part_thirteen :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈ Nat.primeFactors
+    N, r ≤ P) → P - 1 = 2 ^ a * 13 → (Nat.factorization N) P ≤ 25 :=
+  @OddPerfect.factorization_largest_le_twentyfive_of_odd_part_thirteen
+
+theorem StatementGate.factorization_largest_le_twentythree_of_odd_part_fifteen :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈ Nat.primeFactors
+    N, r ≤ P) → P - 1 = 2 ^ a * 15 → (Nat.factorization N) P ≤ 23 :=
+  @OddPerfect.factorization_largest_le_twentythree_of_odd_part_fifteen
+
+theorem StatementGate.factorization_largest_le_thirtyfive_of_odd_part_twentyone :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈ Nat.primeFactors
+    N, r ≤ P) → P - 1 = 2 ^ a * 21 → (Nat.factorization N) P ≤ 35 :=
+  @OddPerfect.factorization_largest_le_thirtyfive_of_odd_part_twentyone
+
+theorem StatementGate.factorization_largest_le_fortyseven_of_odd_part_twentyfive :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {P a : ℕ}, P ∈ Nat.primeFactors N → (∀ r ∈ Nat.primeFactors
+    N, r ≤ P) → P - 1 = 2 ^ a * 25 → (Nat.factorization N) P ≤ 47 :=
+  @OddPerfect.factorization_largest_le_fortyseven_of_odd_part_twentyfive
+
+theorem StatementGate.sigma_prime_pow_eq_prime_pow_row :
+    ∀ {u f t j : ℕ}, _root_.Nat.Prime u → u ≠ 2 → _root_.Nat.Prime t → t ≠ 2 → f ≠ 0 →
+    (ArithmeticFunction.sigma 1) (u ^ f) = t ^ j → Even f ∧ _root_.Nat.Prime (f + 1) ∧ orderOf (u
+    : ZMod t) = f + 1 ∧ t % (2 * (f + 1)) = 1 :=
+  @OddPerfect.sigma_prime_pow_eq_prime_pow_row
+
+theorem StatementGate.succ_prime_or_prime_sq_of_sigma_eq_mul_prime_pow :
+    ∀ {t e q u v : ℕ}, _root_.Nat.Prime t → 3 ≤ t → Even e → 2 ≤ e → _root_.Nat.Prime q →
+    _root_.Nat.Prime u → (ArithmeticFunction.sigma 1) (t ^ e) = q * u ^ v → (_root_.Nat.Prime (e +
+    1) ∨ ∃ p, _root_.Nat.Prime p ∧ e + 1 = p ^ 2) ∧ (v = 0 → _root_.Nat.Prime (e + 1)) :=
+  @OddPerfect.succ_prime_or_prime_sq_of_sigma_eq_mul_prime_pow
+
+theorem StatementGate.eulerIndex_pair_rows :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors ((ArithmeticFunction.sigma
+    1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} : Finset ℕ) = ({r, s} : Finset ℕ) ∧
+    t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v) ∧ (∃ j,
+    0 < j ∧ (ArithmeticFunction.sigma 1) (u ^ (Nat.factorization N) u) = t ^ j) ∧ ¬t ∣ q + 1 ∧
+    (Nat.factorization ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) t = (Nat.factorization N) t
+    ∧ _root_.Nat.Prime ((Nat.factorization N) u + 1) ∧ orderOf (u : ZMod t) = (Nat.factorization
+    N) u + 1 ∧ t % (2 * ((Nat.factorization N) u + 1)) = 1 ∧ (_root_.Nat.Prime ((Nat.factorization
+    N) t + 1) ∨ ∃ p, _root_.Nat.Prime p ∧ (Nat.factorization N) t + 1 = p ^ 2) :=
+  @OddPerfect.eulerIndex_pair_rows
+
+theorem StatementGate.sub_two_mul_cyclotomic_eval_le :
+    ∀ {n : ℕ} {x : ℝ}, 0 < n → 2 < x → (x - 2) * Polynomial.eval x (Polynomial.cyclotomic n ℝ) ≤
+    (x - 1) * x ^ Nat.totient n :=
+  @OddPerfect.sub_two_mul_cyclotomic_eval_le
+
+theorem StatementGate.special_exponent_le_eight_or_succ_le_pow_nine :
+    ∀ {N q L R : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → L
+    ∈ Nat.primeFactors N → R ∈ Nat.primeFactors N → q < L → L < R → (∀ p ∈ Nat.primeFactors N, p ≠
+    L → p ≠ R → p ≤ q) → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨
+    (Nat.factorization N) p = 4) → (Nat.factorization N) q ≤ 8 ∨ L + 1 ≤ q ^ 9 :=
+  @OddPerfect.special_exponent_le_eight_or_succ_le_pow_nine
+
+theorem StatementGate.special_exponent_le_113_or_eq_of_two_above :
+    ∀ {N q L R : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → L
+    ∈ Nat.primeFactors N → R ∈ Nat.primeFactors N → q < L → L < R → (∀ p ∈ Nat.primeFactors N, p ≠
+    L → p ≠ R → p ≤ q) → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨
+    (Nat.factorization N) p = 4) → (Nat.factorization N) q ≤ 113 ∨ (Nat.factorization N) q = 117 ∨
+    (Nat.factorization N) q = 121 :=
+  @OddPerfect.special_exponent_le_113_or_eq_of_two_above
+
+theorem StatementGate.special_exponent_le_121_of_two_above :
+    ∀ {N q L R : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → L
+    ∈ Nat.primeFactors N → R ∈ Nat.primeFactors N → q < L → L < R → (∀ p ∈ Nat.primeFactors N, p ≠
+    L → p ≠ R → p ≤ q) → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨
+    (Nat.factorization N) p = 4) → (Nat.factorization N) q ≤ 121 :=
+  @OddPerfect.special_exponent_le_121_of_two_above
+
 /-! ## The check of the statements -/
 
 namespace StatementGate
@@ -2363,7 +2461,34 @@ def expected : List (Name × Name) :=
     (`StatementGate.special_exponent_eq_one_five_nine_or_thirteen,
       ``OddPerfect.special_exponent_eq_one_five_nine_or_thirteen),
     (`StatementGate.special_exponent_eq_one_nine_or_thirteen_of_not_three_dvd,
-      ``OddPerfect.special_exponent_eq_one_nine_or_thirteen_of_not_three_dvd),]
+      ``OddPerfect.special_exponent_eq_one_nine_or_thirteen_of_not_three_dvd),
+    (`StatementGate.card_le_of_two_signed_primes, ``OddPerfect.card_le_of_two_signed_primes),
+    (`StatementGate.card_le_one_of_signed_primes_four,
+      ``OddPerfect.card_le_one_of_signed_primes_four),
+    (`StatementGate.card_le_one_of_signed_primes_five,
+      ``OddPerfect.card_le_one_of_signed_primes_five),
+    (`StatementGate.card_le_two_of_signed_primes_cube,
+      ``OddPerfect.card_le_two_of_signed_primes_cube),
+    (`StatementGate.factorization_largest_le_twentyfive_of_odd_part_thirteen,
+      ``OddPerfect.factorization_largest_le_twentyfive_of_odd_part_thirteen),
+    (`StatementGate.factorization_largest_le_twentythree_of_odd_part_fifteen,
+      ``OddPerfect.factorization_largest_le_twentythree_of_odd_part_fifteen),
+    (`StatementGate.factorization_largest_le_thirtyfive_of_odd_part_twentyone,
+      ``OddPerfect.factorization_largest_le_thirtyfive_of_odd_part_twentyone),
+    (`StatementGate.factorization_largest_le_fortyseven_of_odd_part_twentyfive,
+      ``OddPerfect.factorization_largest_le_fortyseven_of_odd_part_twentyfive),
+    (`StatementGate.sigma_prime_pow_eq_prime_pow_row,
+      ``OddPerfect.sigma_prime_pow_eq_prime_pow_row),
+    (`StatementGate.succ_prime_or_prime_sq_of_sigma_eq_mul_prime_pow,
+      ``OddPerfect.succ_prime_or_prime_sq_of_sigma_eq_mul_prime_pow),
+    (`StatementGate.eulerIndex_pair_rows, ``OddPerfect.eulerIndex_pair_rows),
+    (`StatementGate.sub_two_mul_cyclotomic_eval_le, ``OddPerfect.sub_two_mul_cyclotomic_eval_le),
+    (`StatementGate.special_exponent_le_eight_or_succ_le_pow_nine,
+      ``OddPerfect.special_exponent_le_eight_or_succ_le_pow_nine),
+    (`StatementGate.special_exponent_le_113_or_eq_of_two_above,
+      ``OddPerfect.special_exponent_le_113_or_eq_of_two_above),
+    (`StatementGate.special_exponent_le_121_of_two_above,
+      ``OddPerfect.special_exponent_le_121_of_two_above)]
 
 /-- Checks every theorem `StatementGate.*` of the environment against the inventory `exp` and
 the allowed list (see the module docstring). Throws an error listing every problem, or logs one
