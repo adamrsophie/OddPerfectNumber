@@ -512,3 +512,5 @@ import OddPerfect.MixedPaletteEdges
 import OddPerfect.RankTwoPaletteFree
 import OddPerfect.SpecialRankThreeFree
 import OddPerfect.RestrainedFiveModTwelve
+import OddPerfect.EulerIndexPairEmitters
+import OddPerfect.EulerIndexPairSmallPairs
