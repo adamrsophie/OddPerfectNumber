@@ -16,8 +16,8 @@ statements for `X ≡ 1 (mod 4)`; no odd perfect number appears.
 
 The hypothesis `X ≡ 1 (mod 4)` is needed: for `X = 23` one has `A_3 = 507 = 3 * 13 ^ 2`.
 
-Statements of this kind on `(x ^ n + 1) / (x + 1)` are classical; nothing new is claimed, and
-no published source was page checked. The proof here is elementary and self contained.
+No published source was checked for the two statements of this module, so their novelty is not
+verified. The proof here is elementary and self contained.
 
 Method. `A_n ≡ 1 (mod 4)`, `A_n ≡ 1 (mod X)` and `A_n ≡ n (mod X + 1)` follow from the
 recursion `A_(n + 2) = X ^ 2 A_n - X + 1`. Reciprocity gives `J(X | A_m) = J(A_m | X) = 1`. Since
@@ -154,9 +154,9 @@ end SignedRepunitJacobi
 open SignedRepunitJacobi
 
 /-- **Jacobi symbols of signed repunits.** For `X ≡ 1 (mod 4)` and odd coprime `n`, `m`, with
-`A_n = (X ^ n + 1) / (X + 1)`: `J(A_n | A_m) = 1`. Arithmetic only (no odd perfect number). Known
-mathematics, nothing new is claimed; the proof is elementary (reciprocity and a Euclidean
-descent on the index). -/
+`A_n = (X ^ n + 1) / (X + 1)`: `J(A_n | A_m) = 1`. Arithmetic only (no odd perfect number). No
+published source was checked; novelty not verified. The proof is elementary (reciprocity and a
+Euclidean descent on the index). -/
 theorem jacobiSym_signedRepunit {X n m : ℕ} (hX : X % 4 = 1) (hn : Odd n) (hm : Odd m)
     (hnm : Nat.Coprime n m) :
     jacobiSym (signedRepunit X n) (signedRepunit X m) = 1 := by
@@ -211,8 +211,8 @@ theorem jacobiSym_signedRepunit {X n m : ℕ} (hX : X % 4 = 1) (hn : Odd n) (hm 
 
 /-- **A signed repunit of prime length is not the prime times a square.** For `X ≡ 1 (mod 4)`,
 an odd prime `p` and every `y`: `X ^ p + 1 ≠ (X + 1) * (p * y ^ 2)`. Arithmetic only (no odd
-perfect number). Known mathematics (attributed to Le, Acta Arith. 82, 1997, not page
-checked); nothing new is claimed. The proof is elementary: Jacobi symbols of signed repunits
+perfect number). No published source was checked; novelty not verified. The proof is
+elementary: Jacobi symbols of signed repunits
 and an odd quadratic nonresidue modulo `p`. -/
 theorem alternating_sum_ne_prime_mul_sq {X p y : ℕ} (hX : X % 4 = 1) (hp : p.Prime)
     (hp2 : p ≠ 2) : X ^ p + 1 ≠ (X + 1) * (p * y ^ 2) := by

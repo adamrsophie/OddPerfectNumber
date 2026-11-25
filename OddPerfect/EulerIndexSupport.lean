@@ -331,9 +331,9 @@ theorem exists_two_odd_valuation_of_exponent_mod_twenty (h : OddPerfect N) (hq :
 /-- The statement that `(q ^ ℓ + 1) / 2` is never a square for a prime `q ≡ 1 (mod 4)` and an
 odd `ℓ ≥ 3`; equivalently, the equation `2 * x ^ 2 = q ^ ℓ + 1` has no solution in that range.
 It is not proved in this module; the module `OddPerfect.EulerIndexSupportAll` proves it
-(`halfPowerNotSquare`) by an elementary argument. It is reported to follow from a published
-classification of equations of the type `x ^ n + y ^ n = 2 * z ^ 2`; that attribution was not
-page checked.
+(`halfPowerNotSquare`) by an elementary argument. For odd `ℓ ≥ 5` it is a case of Theorem 1.1
+of M. A. Bennett and C. M. Skinner, Canad. J. Math. 56 (2004), on `x ^ n + y ^ n = 2 * z ^ 2`
+with `n ≥ 4` (page checked); for `ℓ = 3` no published source was checked.
 For `k > 1`, Y. Hirakawa (arXiv 2309.17084, abstract checked) states that the index is neither
 a square nor a prime times a square. -/
 def HalfPowerNotSquare : Prop :=

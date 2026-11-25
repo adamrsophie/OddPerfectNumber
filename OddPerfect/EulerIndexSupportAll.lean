@@ -7,9 +7,13 @@ import OddPerfect.EulerIndexSupport
 
 This module proves the proposition `HalfPowerNotSquare` of `OddPerfect.EulerIndexSupport`,
 exactly as defined there: for a prime `q ≡ 1 (mod 4)` and an odd `ℓ ≥ 3`, the number
-`(q ^ ℓ + 1) / 2` is not a square. This is arithmetic (no odd perfect number). Equations of
-the shape `x ^ n + 1 = 2 z ^ 2` are classical; nothing new is claimed, and no published source
-was page checked for this exact statement. The proof here is elementary and self contained.
+`(q ^ ℓ + 1) / 2` is not a square. This is arithmetic (no odd perfect number). Source status:
+for odd `ℓ ≥ 5` it is a case of a published theorem (M. A. Bennett and C. M. Skinner, Canad. J.
+Math. 56 (2004), Theorem 1.1, page 24, page checked: `x ^ n + y ^ n = 2 z ^ 2` has no solution
+in nonzero pairwise coprime integers with `x > y` for `n ≥ 4`, apart from two listed solutions,
+both with `y = -1`). For
+`ℓ = 3` no published source was checked. Nothing new is claimed. The proof here is elementary,
+self contained, and does not use that theorem.
 
 Method, for a prime `p ∣ ℓ` and `u = q ^ (ℓ / p)`: with `F = (u ^ p + 1) / (u + 1)` we get
 `((u + 1) / 2) * F = z ^ 2` and `F ≡ p (mod u + 1)`, so the gcd of the two factors divides `p`.
@@ -70,8 +74,9 @@ private lemma eisa_dvd_sub {u p F : ℕ} (hp : Odd p) (hF : u ^ p + 1 = (u + 1) 
 
 /-- **The half power statement.** `HalfPowerNotSquare` holds: for a prime `q ≡ 1 (mod 4)` and
 an odd `ℓ ≥ 3`, `(q ^ ℓ + 1) / 2` is not a square. Arithmetic only (no odd perfect number).
-Equations of this shape are classical; nothing new is claimed (no published source was page
-checked). The proof is elementary: a coprime split at a prime `p ∣ ℓ`, then
+For odd `ℓ ≥ 5` this is a case of Theorem 1.1 of Bennett and Skinner (Canad. J. Math. 56
+(2004), page checked); for `ℓ = 3` no published source was checked. Nothing new is claimed.
+The proof is elementary: a coprime split at a prime `p ∣ ℓ`, then
 `alternating_sum_prime_pow_ne_sq` and `alternating_sum_ne_prime_mul_sq`. -/
 theorem halfPowerNotSquare : HalfPowerNotSquare := by
   intro q L hq hq4 hL hL3 ⟨z, hz⟩
@@ -125,8 +130,9 @@ theorem halfPowerNotSquare : HalfPowerNotSquare := by
 `N = q ^ k * m ^ 2` with special prime `q` and `q ∤ m`, the Euler index `σ(m ^ 2) / q ^ k` has at
 least two distinct prime factors. This is the conditional theorem
 `two_le_card_primeFactors_eulerIndex_of_halfPowerNotSquare` with its hypothesis discharged by
-`halfPowerNotSquare`. It is a lower bound only, for every odd perfect number; known mathematics,
-nothing new is claimed, and the odd perfect number conjecture is not affected. -/
+`halfPowerNotSquare`. It is a lower bound only, for every odd perfect number. Nothing new is
+claimed; no published source was checked for this exact corollary. The odd perfect number
+conjecture is not affected. -/
 theorem two_le_card_primeFactors_eulerIndex {N q k m : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hN : N = q ^ k * m ^ 2) (hqm : ¬ q ∣ m) :
     2 ≤ (eulerIndex q k m).primeFactors.card :=

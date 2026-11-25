@@ -14,9 +14,10 @@ Let `q` be a prime with `q ≡ 1 (mod 4)` and `L ≥ 3` odd. This module shows t
 
 These conditions contain the landed cases (`q ≡ 5 (mod 8)`, or `L` divisible by one of
 `3, 5, 7, 11, 13`). They do not prove `HalfPowerNotSquare`; that proposition is proved in
-`OddPerfect.EulerIndexSupportAll`, so the conditions here are never met. The full statement is
-reported to follow from published work on the equation
-`x ^ n + y ^ n = 2 * z ^ 2`; nothing new is claimed.
+`OddPerfect.EulerIndexSupportAll`, so the conditions here are never met. For odd `L ≥ 5` the
+full statement is a case of Theorem 1.1 of M. A. Bennett and C. M. Skinner, Canad. J. Math. 56
+(2004), on `x ^ n + y ^ n = 2 * z ^ 2` with `n ≥ 4` (page checked); for `L = 3` no published
+source was checked. Nothing new is claimed.
 
 Method, for a prime `p ∣ L` and `u = q ^ (L / p)`: with `F = (u ^ p + 1) / (u + 1)` we get
 `((u + 1) / 2) * F = y ^ 2` and `F ≡ p (mod u + 1)`, so the gcd of the two factors divides `p`.
