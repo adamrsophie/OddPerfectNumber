@@ -524,3 +524,5 @@ import OddPerfect.EulerIndexOmegaFree
 import OddPerfect.SpecialRowResidue
 import OddPerfect.SignedRepunitJacobi
 import OddPerfect.EulerIndexSupportAll
+import OddPerfect.OddValuationCountSigned
+import OddPerfect.EulerIndexOmegaSigned
