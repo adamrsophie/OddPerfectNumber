@@ -494,3 +494,6 @@ import OddPerfect.EulerIndexSupportMore
 import OddPerfect.EulerIndexPairAll
 import OddPerfect.SignedRepunit
 import OddPerfect.HalfPowerResidue
+import OddPerfect.OddValuationCount
+import OddPerfect.EulerIndexOmegaOf
+import OddPerfect.EulerIndexOmega
