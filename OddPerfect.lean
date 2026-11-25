@@ -515,3 +515,6 @@ import OddPerfect.RestrainedFiveModTwelve
 import OddPerfect.EulerIndexPairEmitters
 import OddPerfect.EulerIndexPairSmallPairs
 import OddPerfect.EulerIndexPairSplit
+import OddPerfect.EulerIndexPairPrimeLength
+import OddPerfect.EulerIndexPairLargest
+import OddPerfect.EulerIndexPairShortRows
