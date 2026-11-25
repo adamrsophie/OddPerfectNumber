@@ -2472,6 +2472,140 @@ theorem StatementGate.eulerIndex_pair_split :
     ∧ P ∣ j ∧ orderOf (t : ZMod u) = P :=
   @OddPerfect.eulerIndex_pair_split
 
+/-! ## Two prime index: row length and largest prime; index support; special row residues -/
+
+theorem StatementGate.sigma_row_not_prime_sq :
+    ∀ {t u q e v f j : ℕ}, _root_.Nat.Prime t → t ≠ 2 → _root_.Nat.Prime u → u ≠ 2 →
+    _root_.Nat.Prime q → t ≠ u → u ≠ q → Even e → (ArithmeticFunction.sigma 1) (t ^ e) = q * u ^
+    v → 0 < j → j < e + 1 → f ≠ 0 → (ArithmeticFunction.sigma 1) (u ^ f) = t ^ j → orderOf (u :
+    ZMod t) ≠ 1 → ¬∃ P, _root_.Nat.Prime P ∧ e + 1 = P ^ 2 :=
+  @OddPerfect.sigma_row_not_prime_sq
+
+theorem StatementGate.sigma_row_special_mod_of_one :
+    ∀ {t u q e : ℕ}, _root_.Nat.Prime t → _root_.Nat.Prime u → u ≠ 2 → (ArithmeticFunction.sigma
+    1) (t ^ e) = q * u → u = e + 1 → t % u = 1 → q % u = 1 :=
+  @OddPerfect.sigma_row_special_mod_of_one
+
+theorem StatementGate.eulerIndex_pair_prime_length :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ ∃ v j, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1) (u ^
+    (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization N) t ∧ _root_.Nat.Prime
+    ((Nat.factorization N) t + 1) ∧ (v = 0 ∧ (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q ∨ v = 1 ∧ u = (Nat.factorization N) t + 1 ∧ t % u = 1 ∧ q % u =
+    1 ∧ q + 1 = 2 * (∏ p ∈ Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization
+    N) p / 2)) ^ 2) :=
+  @OddPerfect.eulerIndex_pair_prime_length
+
+theorem StatementGate.eulerIndex_pair_special_largest :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∀ p ∈
+    Nat.primeFactors N, p ≤ q :=
+  @OddPerfect.eulerIndex_pair_special_largest
+
+theorem StatementGate.three_le_card_primeFactors_eulerIndex_of_special_lt :
+    ∀ {N q m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m → ∀ {p :
+    ℕ}, p ∈ Nat.primeFactors N → q < p → 3 ≤ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) :=
+  @OddPerfect.three_le_card_primeFactors_eulerIndex_of_special_lt
+
+theorem StatementGate.sigma_prime_sq_row_eq_thirtyone :
+    ∀ {t u q d w f : ℕ}, _root_.Nat.Prime t → t ≠ 2 → _root_.Nat.Prime u → u ≠ 2 →
+    (ArithmeticFunction.sigma 1) (t ^ 2) = q → q + 1 = 2 * u ^ d * w ^ 2 →
+    (ArithmeticFunction.sigma 1) (u ^ f) = t → q = 31 :=
+  @OddPerfect.sigma_prime_sq_row_eq_thirtyone
+
+theorem StatementGate.sigma_prime_fourth_row_false :
+    ∀ {t u q d w j f : ℕ}, _root_.Nat.Prime t → t ≠ 2 → _root_.Nat.Prime u → u ≠ 2 →
+    (ArithmeticFunction.sigma 1) (t ^ 4) = q → q + 1 = 2 * u ^ d * w ^ 2 → ¬u ∣ w → j = 1 ∨ j =
+    3 → 2 ≤ f → Even f → (ArithmeticFunction.sigma 1) (u ^ f) = t ^ j → False :=
+  @OddPerfect.sigma_prime_fourth_row_false
+
+theorem StatementGate.sigma_outsider_row_three_false :
+    ∀ {t p q g y : ℕ}, _root_.Nat.Prime t → t ≠ 3 → _root_.Nat.Prime p → p ≠ 2 → p ≠ 3 → Even g
+    → 2 ≤ g → (_root_.Nat.Prime (g + 1) ∨ ∃ P, _root_.Nat.Prime P ∧ g + 1 = P ^ 2) →
+    (ArithmeticFunction.sigma 1) (p ^ g) = t * 3 ^ y → p ∣ q + 1 → (ArithmeticFunction.sigma 1)
+    (t ^ 2) = q * 3 → False :=
+  @OddPerfect.sigma_outsider_row_three_false
+
+theorem StatementGate.eulerIndex_pair_short_rows :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ ∃ v j, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1) (u ^
+    (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization N) t ∧ _root_.Nat.Prime
+    ((Nat.factorization N) t + 1) ∧ (v = 0 ∧ (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q ∧ 6 ≤ (Nat.factorization N) t ∨ v = 1 ∧ u = (Nat.factorization
+    N) t + 1 ∧ 5 ≤ u ∧ t % u = 1 ∧ q % u = 1 ∧ q + 1 = 2 * (∏ p ∈ Nat.primeFactors N \ ({q, r,
+    s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2) :=
+  @OddPerfect.eulerIndex_pair_short_rows
+
+theorem StatementGate.mixed_largest_cube_dvd_sigma_special :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization
+    N) p = 2 ∨ (Nat.factorization N) p = 4) → ¬3 ∣ N → ¬5 ∣ N → P ∈ Nat.primeFactors N → (∀ p ∈
+    Nat.primeFactors N, p ≤ P) → P ≠ q → (Nat.factorization N) P = 4 → P ^ 3 ∣
+    (ArithmeticFunction.sigma 1) (q ^ (Nat.factorization N) q) :=
+  @OddPerfect.mixed_largest_cube_dvd_sigma_special
+
+theorem StatementGate.mixed_largest_exponent_two_of_special_exponent_one :
+    ∀ {N q P : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization
+    N) p = 2 ∨ (Nat.factorization N) p = 4) → ¬3 ∣ N → ¬5 ∣ N → P ∈ Nat.primeFactors N → (∀ p ∈
+    Nat.primeFactors N, p ≤ P) → P ≠ q → (Nat.factorization N) q = 1 → (Nat.factorization N) P =
+    2 ∧ P % 15 = 11 :=
+  @OddPerfect.mixed_largest_exponent_two_of_special_exponent_one
+
+theorem StatementGate.cardFactors_add_free_le_card_odd_valuation_half_sigma :
+    ∀ {q L : ℕ}, _root_.Nat.Prime q → q % 4 = 1 → Odd L → (∀ (h n y : ℕ), Odd h → Odd n → 3 ≤ n
+    → ∑ i ∈ Finset.range n, (q ^ h) ^ i ≠ y ^ 2) → (∀ (h n y : ℕ), h ≠ 0 → q ^ h % 4 = 1 → Odd n
+    → 3 ≤ n → (q ^ h) ^ n + 1 ≠ (q ^ h + 1) * y ^ 2) → ArithmeticFunction.cardFactors L + ∑ p ∈
+    Nat.primeFactors L with ¬p ∣ q ^ 2 - 1, (Nat.factorization L) p ≤ Finset.card ({t ∈
+    Nat.primeFactors ((ArithmeticFunction.sigma 1) (q ^ (2 * L - 1)) / 2) | Odd
+    ((Nat.factorization ((ArithmeticFunction.sigma 1) (q ^ (2 * L - 1)) / 2)) t)}) :=
+  @OddPerfect.cardFactors_add_free_le_card_odd_valuation_half_sigma
+
+theorem StatementGate.cardFactors_add_free_le_card_odd_valuation_eulerIndex :
+    ∀ {N q a m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    ArithmeticFunction.cardFactors ((a + 1) / 2) + ∑ p ∈ Nat.primeFactors ((a + 1) / 2) with ¬p
+    ∣ q ^ 2 - 1, (Nat.factorization ((a + 1) / 2)) p ≤ Finset.card ({t ∈ Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)) | Odd ((Nat.factorization
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) t)}) :=
+  @OddPerfect.cardFactors_add_free_le_card_odd_valuation_eulerIndex
+
+theorem StatementGate.isSquare_of_dvd_geom_sum_of_mod_four :
+    ∀ {q a p : ℕ} [inst : Fact (_root_.Nat.Prime p)], a % 4 = 1 → p % 4 = 1 → p ∣ ∑ i ∈
+    Finset.range (a + 1), q ^ i → IsSquare (q : ZMod p) :=
+  @OddPerfect.isSquare_of_dvd_geom_sum_of_mod_four
+
+theorem StatementGate.isSquare_of_dvd_sigma_special :
+    ∀ {N q p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime p → p % 4 = 1 → p ∣ (ArithmeticFunction.sigma 1) (q ^ (Nat.factorization N)
+    q) → IsSquare (q : ZMod p) ∧ IsSquare (p : ZMod q) :=
+  @OddPerfect.isSquare_of_dvd_sigma_special
+
+theorem StatementGate.restrained_five_mod_twelve_isSquare :
+    ∀ {N q r p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime r → r ≠ q → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ r → (Nat.factorization
+    N) p = 2) → p ∈ Nat.primeFactors N → p % 12 = 5 → IsSquare (q : ZMod p) ∧ IsSquare (p : ZMod
+    q) :=
+  @OddPerfect.restrained_five_mod_twelve_isSquare
+
+theorem StatementGate.alternating_sum_ne_prime_mul_sq :
+    ∀ {X p y : ℕ}, X % 4 = 1 → _root_.Nat.Prime p → p ≠ 2 → X ^ p + 1 ≠ (X + 1) * (p * y ^ 2) :=
+  @OddPerfect.alternating_sum_ne_prime_mul_sq
+
+theorem StatementGate.halfPowerNotSquare :
+    ∀ (q ℓ : ℕ), _root_.Nat.Prime q → q % 4 = 1 → Odd ℓ → 3 ≤ ℓ → ¬IsSquare ((q ^ ℓ + 1) / 2) :=
+  @OddPerfect.halfPowerNotSquare
+
+theorem StatementGate.two_le_card_primeFactors_eulerIndex :
+    ∀ {N q k m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬q ∣ m → 2 ≤
+    Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k))) :=
+  @OddPerfect.two_le_card_primeFactors_eulerIndex
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3184,6 +3318,33 @@ def expected : List (Name × Name) :=
     (`StatementGate.eulerIndex_pair_emitter_ge, ``OddPerfect.eulerIndex_pair_emitter_ge),
     (`StatementGate.sigma_row_split, ``OddPerfect.sigma_row_split),
     (`StatementGate.eulerIndex_pair_split, ``OddPerfect.eulerIndex_pair_split),
+    (`StatementGate.sigma_row_not_prime_sq, ``OddPerfect.sigma_row_not_prime_sq),
+    (`StatementGate.sigma_row_special_mod_of_one, ``OddPerfect.sigma_row_special_mod_of_one),
+    (`StatementGate.eulerIndex_pair_prime_length, ``OddPerfect.eulerIndex_pair_prime_length),
+    (`StatementGate.eulerIndex_pair_special_largest, ``OddPerfect.eulerIndex_pair_special_largest),
+    (`StatementGate.three_le_card_primeFactors_eulerIndex_of_special_lt,
+      ``OddPerfect.three_le_card_primeFactors_eulerIndex_of_special_lt),
+    (`StatementGate.sigma_prime_sq_row_eq_thirtyone, ``OddPerfect.sigma_prime_sq_row_eq_thirtyone),
+    (`StatementGate.sigma_prime_fourth_row_false, ``OddPerfect.sigma_prime_fourth_row_false),
+    (`StatementGate.sigma_outsider_row_three_false, ``OddPerfect.sigma_outsider_row_three_false),
+    (`StatementGate.eulerIndex_pair_short_rows, ``OddPerfect.eulerIndex_pair_short_rows),
+    (`StatementGate.mixed_largest_cube_dvd_sigma_special,
+      ``OddPerfect.mixed_largest_cube_dvd_sigma_special),
+    (`StatementGate.mixed_largest_exponent_two_of_special_exponent_one,
+      ``OddPerfect.mixed_largest_exponent_two_of_special_exponent_one),
+    (`StatementGate.cardFactors_add_free_le_card_odd_valuation_half_sigma,
+      ``OddPerfect.cardFactors_add_free_le_card_odd_valuation_half_sigma),
+    (`StatementGate.cardFactors_add_free_le_card_odd_valuation_eulerIndex,
+      ``OddPerfect.cardFactors_add_free_le_card_odd_valuation_eulerIndex),
+    (`StatementGate.isSquare_of_dvd_geom_sum_of_mod_four,
+      ``OddPerfect.isSquare_of_dvd_geom_sum_of_mod_four),
+    (`StatementGate.isSquare_of_dvd_sigma_special, ``OddPerfect.isSquare_of_dvd_sigma_special),
+    (`StatementGate.restrained_five_mod_twelve_isSquare,
+      ``OddPerfect.restrained_five_mod_twelve_isSquare),
+    (`StatementGate.alternating_sum_ne_prime_mul_sq, ``OddPerfect.alternating_sum_ne_prime_mul_sq),
+    (`StatementGate.halfPowerNotSquare, ``OddPerfect.halfPowerNotSquare),
+    (`StatementGate.two_le_card_primeFactors_eulerIndex,
+      ``OddPerfect.two_le_card_primeFactors_eulerIndex),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
