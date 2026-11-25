@@ -480,3 +480,5 @@ import OddPerfect.LargestPrimeSigned
 import OddPerfect.SpecialRankSharp
 import OddPerfect.RankTwoPaletteAux
 import OddPerfect.RankTwoPalette
+import OddPerfect.EulerIndexSupport
+import OddPerfect.EulerIndexPair
