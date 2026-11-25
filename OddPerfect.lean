@@ -530,3 +530,4 @@ import OddPerfect.MixedOneAbove
 import OddPerfect.EulerIndexPairHigher
 import OddPerfect.LargestPrimeSafe
 import OddPerfect.LargestPrimeSafeNone
+import OddPerfect.LargestPrimeFour
