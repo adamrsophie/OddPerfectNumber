@@ -501,3 +501,4 @@ import OddPerfect.SpecialRankThreeJoint
 import OddPerfect.HalfSigmaSquare
 import OddPerfect.EulerIndexPairPalette
 import OddPerfect.EulerIndexPairOutside
+import OddPerfect.RestrainedCountThree
