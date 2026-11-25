@@ -2412,6 +2412,66 @@ theorem StatementGate.special_exponent_le_73_of_two_above_of_not_three_dvd :
     (Nat.factorization N) p = 4) → ¬3 ∣ N → (Nat.factorization N) q ≤ 73 :=
   @OddPerfect.special_exponent_le_73_of_two_above_of_not_three_dvd
 
+/-! ## Two prime index: small first labels and the exponent of the sender row -/
+
+theorem StatementGate.geom_sum_eq_pow_mod_four :
+    ∀ {u ℓ t j : ℕ}, Odd u → Odd ℓ → t % 4 = 3 → Odd j → ∑ i ∈ Finset.range ℓ, u ^ i = t ^ j → u
+    % 4 = 1 ∧ ℓ % 4 = 3 :=
+  @OddPerfect.geom_sum_eq_pow_mod_four
+
+theorem StatementGate.geom_sum_seven_ne_twentynine_pow :
+    ∀ (u : ℕ) {j : ℕ}, Odd j → ∑ i ∈ Finset.range 7, u ^ i ≠ 29 ^ j :=
+  @OddPerfect.geom_sum_seven_ne_twentynine_pow
+
+theorem StatementGate.geom_sum_five_ne_fortyone_pow :
+    ∀ (u : ℕ) {j : ℕ}, Odd j → ∑ i ∈ Finset.range 5, u ^ i ≠ 41 ^ j :=
+  @OddPerfect.geom_sum_five_ne_fortyone_pow
+
+theorem StatementGate.geom_sum_eleven_ne_twentythree_pow :
+    ∀ (u : ℕ) {j : ℕ}, Odd j → ∑ i ∈ Finset.range 11, u ^ i ≠ 23 ^ j :=
+  @OddPerfect.geom_sum_eleven_ne_twentythree_pow
+
+theorem StatementGate.geom_sum_twentythree_ne_fortyseven_pow :
+    ∀ (u : ℕ) {j : ℕ}, Odd j → ∑ i ∈ Finset.range 23, u ^ i ≠ 47 ^ j :=
+  @OddPerfect.geom_sum_twentythree_ne_fortyseven_pow
+
+theorem StatementGate.sigma_prime_pow_eq_pow_mul_pow_mod_four :
+    ∀ {p g t u x y : ℕ}, _root_.Nat.Prime p → p ≠ 2 → Even g → t % 4 = 3 → u % 4 = 1 → Odd x →
+    (ArithmeticFunction.sigma 1) (p ^ g) = t ^ x * u ^ y → p % 4 = 1 ∧ g % 4 = 2 :=
+  @OddPerfect.sigma_prime_pow_eq_pow_mul_pow_mod_four
+
+theorem StatementGate.eulerIndex_pair_emitter_ge :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v) ∧ (∃ j, 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1)
+    (u ^ (Nat.factorization N) u) = t ^ j) ∧ ¬t ∣ q + 1 ∧ _root_.Nat.Prime ((Nat.factorization
+    N) u + 1) ∧ t % (2 * ((Nat.factorization N) u + 1)) = 1 ∧ (t = 43 ∧ (Nat.factorization N) u
+    = 6 ∨ 53 ≤ t) :=
+  @OddPerfect.eulerIndex_pair_emitter_ge
+
+theorem StatementGate.sigma_row_split :
+    ∀ {t u q e v j : ℕ}, _root_.Nat.Prime t → t ≠ 2 → _root_.Nat.Prime u → u ≠ 2 →
+    _root_.Nat.Prime q → t ≠ u → u ≠ q → Even e → (ArithmeticFunction.sigma 1) (t ^ e) = q * u ^
+    v → 0 < j → j < e + 1 → (t : ZMod u) ^ j = 1 → (_root_.Nat.Prime (e + 1) → v = 0 ∨ v = 1 ∧ u
+    = e + 1 ∧ t % u = 1) ∧ ∀ (P : ℕ), _root_.Nat.Prime P → e + 1 = P ^ 2 → v = 2 ∧ u = P ∧ t % u
+    = 1 ∨ 0 < v ∧ P ∣ j ∧ orderOf (t : ZMod u) = P :=
+  @OddPerfect.sigma_row_split
+
+theorem StatementGate.eulerIndex_pair_split :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ ∃ v j, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1) (u ^
+    (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization N) t ∧ (_root_.Nat.Prime
+    ((Nat.factorization N) t + 1) → v = 0 ∧ (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization
+    N) t) = q ∨ v = 1 ∧ u = (Nat.factorization N) t + 1 ∧ t % u = 1) ∧ ∀ (P : ℕ),
+    _root_.Nat.Prime P → (Nat.factorization N) t + 1 = P ^ 2 → v = 2 ∧ u = P ∧ t % u = 1 ∨ 0 < v
+    ∧ P ∣ j ∧ orderOf (t : ZMod u) = P :=
+  @OddPerfect.eulerIndex_pair_split
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3111,6 +3171,19 @@ def expected : List (Name × Name) :=
       ``OddPerfect.special_exponent_eq_one_or_thirteen_of_not_three_five_dvd),
     (`StatementGate.special_exponent_le_73_of_two_above_of_not_three_dvd,
       ``OddPerfect.special_exponent_le_73_of_two_above_of_not_three_dvd),
+    (`StatementGate.geom_sum_eq_pow_mod_four, ``OddPerfect.geom_sum_eq_pow_mod_four),
+    (`StatementGate.geom_sum_seven_ne_twentynine_pow,
+      ``OddPerfect.geom_sum_seven_ne_twentynine_pow),
+    (`StatementGate.geom_sum_five_ne_fortyone_pow, ``OddPerfect.geom_sum_five_ne_fortyone_pow),
+    (`StatementGate.geom_sum_eleven_ne_twentythree_pow,
+      ``OddPerfect.geom_sum_eleven_ne_twentythree_pow),
+    (`StatementGate.geom_sum_twentythree_ne_fortyseven_pow,
+      ``OddPerfect.geom_sum_twentythree_ne_fortyseven_pow),
+    (`StatementGate.sigma_prime_pow_eq_pow_mul_pow_mod_four,
+      ``OddPerfect.sigma_prime_pow_eq_pow_mul_pow_mod_four),
+    (`StatementGate.eulerIndex_pair_emitter_ge, ``OddPerfect.eulerIndex_pair_emitter_ge),
+    (`StatementGate.sigma_row_split, ``OddPerfect.sigma_row_split),
+    (`StatementGate.eulerIndex_pair_split, ``OddPerfect.eulerIndex_pair_split),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
