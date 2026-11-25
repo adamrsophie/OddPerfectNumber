@@ -488,3 +488,5 @@ import OddPerfect.RestrainedTwenty
 import OddPerfect.RestrainedTwentyOne
 import OddPerfect.LargestPrimeSignedMore
 import OddPerfect.EulerIndexPairRows
+import OddPerfect.SpecialRankThreeAux
+import OddPerfect.SpecialRankThree
