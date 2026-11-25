@@ -12,13 +12,15 @@ prime `ℓ ∣ a`; then `p ^ 2 + p + 1 = (r ^ (a / ℓ)) ^ ℓ`. The case `ℓ =
 `p ^ 2 + p + 1` lies strictly between two consecutive squares (`not_isSquare_phi3`), and the case
 `ℓ = 3` is impossible for prime `p` (`phi3_ne_cube_of_prime`). So only prime exponents `ℓ ≥ 5`
 remain, which is the hypothesis `NagellHighPrimeExponent`. That hypothesis allows any `y`, not
-only a prime power, so it asks more than `NagellPrime` proves; it is not proved in this library.
+only a prime power, so it asks more than `nagellPrimePower` proves; it is not proved in this
+library.
 -/
 
 namespace OddPerfect
 
-/-- The part of the classical theorem that the library does not prove: no prime `p` has
-`p ^ 2 + p + 1 = y ^ ℓ` with `ℓ ≥ 5` prime. A hypothesis, not proved here. -/
+/-- No prime `p` has `p ^ 2 + p + 1 = y ^ ℓ` with `ℓ ≥ 5` prime and `y` arbitrary. A
+hypothesis, not proved in this library. It is stronger than `NagellPrimePower` (proved as
+`nagellPrimePower` in `OddPerfect/NagellPrime.lean`), which needs `y` prime. -/
 def NagellHighPrimeExponent : Prop :=
   ∀ p y ℓ : ℕ, p.Prime → ℓ.Prime → 5 ≤ ℓ → p ^ 2 + p + 1 ≠ y ^ ℓ
 
@@ -36,8 +38,8 @@ theorem five_le_of_phi3_eq_prime_pow {p y ℓ : ℕ} (hp : p.Prime) (hℓ : ℓ.
   · exact absurd hℓ (by norm_num)
 
 /-- The classical hypothesis `NagellPrimePower` follows from its part `NagellHighPrimeExponent`
-on prime exponents at least 5. An elementary reduction; the classical theorem itself is not
-proved in this library. -/
+on prime exponents at least 5. An elementary reduction. `NagellPrimePower` itself is proved
+unconditionally by another route (`nagellPrimePower` in `OddPerfect/NagellPrime.lean`). -/
 theorem nagellPrimePower_of_highPrimeExponent (H : NagellHighPrimeExponent) :
     NagellPrimePower := by
   intro p r a hp _hr _ha h
@@ -47,8 +49,9 @@ theorem nagellPrimePower_of_highPrimeExponent (H : NagellHighPrimeExponent) :
   exact H p (r ^ m) ℓ hp hℓ (five_le_of_phi3_eq_prime_pow hp hℓ h') h'
 
 /-- Unconditional: for primes `p`, `r`, if `p ^ 2 + p + 1 = r ^ a` then `a = 1`, or every prime
-factor of `a` is at least 5 (so `a ≥ 5`, `a` is odd and `3 ∤ a`). This does not prove the
-classical theorem, which would give `a = 1`. -/
+factor of `a` is at least 5 (so `a ≥ 5`, `a` is odd and `3 ∤ a`). This alone does not give
+`a = 1`; that conclusion (with `a ≥ 1`) is `nagellPrimePower` in `OddPerfect/NagellPrime.lean`.
+-/
 theorem phi3_prime_pow_exponent {p r a : ℕ} (hp : p.Prime) (_hr : r.Prime)
     (h : p ^ 2 + p + 1 = r ^ a) : a = 1 ∨ (5 ≤ a ∧ ∀ ℓ, ℓ.Prime → ℓ ∣ a → 5 ≤ ℓ) := by
   have hpf : ∀ ℓ, ℓ.Prime → ℓ ∣ a → 5 ≤ ℓ := by

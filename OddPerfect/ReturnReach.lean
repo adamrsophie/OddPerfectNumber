@@ -25,8 +25,9 @@ For an odd perfect number `N` say that a prime factor `p` *sends to* a prime `t`
   `E < 3 ^ (2 ^ d + 1)`. With the landed bound `E ≥ 288482`, some prime factor has distance at
   least 4 from 3 (`restrained_exists_far`).
 
-The distance from 3 is not bounded in general, so the restrained family is not excluded by
-these results. These are restricted results checked by the kernel; novelty is not verified.
+No uniform upper bound on the distance from 3 is proved here (for each `N` the number of
+prime factors minus one is a trivial bound), so the restrained family is not excluded by these
+results. These are restricted results checked by the kernel; novelty is not verified.
 The odd perfect number conjecture is open and nothing here decides it.
 -/
 
@@ -78,7 +79,9 @@ open ReturnReach
 `q + 1`, `q` does not divide `t² + t + 1`. With `q + 1 = t h`, `q ∣ t² + t + 1` gives
 `q ∣ h² + h + 1`; for `z = min(t, h)` this forces `z² + z + 1 = q` and `z ∣ 2`, so
 `q ∈ {3, 7}`. The primality of `q` and the positivity of `t` are not needed.
-Restricted result; novelty not verified. -/
+The statement also follows from `eq_one_or_two_or_four_of_dvd_phi3_of_dvd_succ` in
+`OddPerfect/LargePrimes.lean` (Zelinsky's Lemma 1, arXiv 1810.11734), which gives
+`t ∈ {1, 2, 4}`. Restricted result; novelty not verified. -/
 theorem not_dvd_phi3_of_dvd_succ {q t : ℕ} (h7 : 7 < q) (htd : t ∣ q + 1) :
     ¬ q ∣ t ^ 2 + t + 1 := by
   intro h
@@ -91,6 +94,8 @@ theorem not_dvd_phi3_of_dvd_succ {q t : ℕ} (h7 : 7 < q) (htd : t ∣ q + 1) :
 perfect number: the special prime with exponent 1), and let the prime `s` have exponent 2 and
 send to `q`, that is `q ∣ σ(s ^ 2) = s² + s + 1`. Then `q` does not send to `s`:
 `s ∤ σ(q) = q + 1`. The hypothesis that `N` is odd perfect is not needed.
+It also follows from `prime_dvd_phi3_dvd_succ` in `OddPerfect/LargePrimes.lean` (Zelinsky's
+Lemma 1, arXiv 1810.11734), which forces `(s, q) = (2, 7)`.
 Restricted result; novelty not verified. -/
 theorem sq_not_sends_back {N q s : ℕ} (hq : q.Prime) (h7 : 7 < q) (hq1 : N.factorization q = 1)
     (hs : s.Prime) (hs2 : N.factorization s = 2)
@@ -213,7 +218,8 @@ end ReturnReach
 factors of an odd perfect number `N`. Some prime factor `p ∉ U` sends to a member `t` of `U`:
 `t ∣ σ(p ^ v_p(N))`. The unitary divisor carried by the complement of `U` has a forced prime
 (`exists_forced_prime`), which lies in `U` and divides the divisor sum of a component of the
-complement. Restricted result; novelty not verified. -/
+complement. This restates `exists_sigmaEdge_crossing` (`OddPerfect/Network.lean`, proved for
+every perfect `N`) for odd perfect `N`. Restricted result; novelty not verified. -/
 theorem exists_sends_into {N : ℕ} (h : OddPerfect N) {U : Finset ℕ} (hU : U ⊆ N.primeFactors)
     (hne : U.Nonempty) (hproper : U ≠ N.primeFactors) :
     ∃ p ∈ N.primeFactors, p ∉ U ∧ ∃ t ∈ U, t ∣ σ 1 (p ^ N.factorization p) := by
@@ -460,8 +466,8 @@ an odd perfect number with special prime `q` of exponent 1, a prime `r ≠ q`, a
 factor other than `q` and `r` of exponent 2 (the landed results give `r = 3`). If every prime
 factor lies within distance `d` of 3 along the relation "sends to" (`ball N 3 d` is the set of
 all prime factors), then the product of the prime factors other than 3 is below
-`3 ^ ((E + 1)(2 ^ d - 1))` with `E = v_3(N)`. The distance from 3 is not bounded in general,
-and the family is not excluded. Restricted result; novelty not verified. -/
+`3 ^ ((E + 1)(2 ^ d - 1))` with `E = v_3(N)`. No uniform upper bound on the distance from 3 is
+proved here, and the family is not excluded. Restricted result; novelty not verified. -/
 theorem restrained_prod_lt {N q r d : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hq1 : N.factorization q = 1) (hr : r.Prime) (hrq : r ≠ q)
     (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)
@@ -575,8 +581,8 @@ theorem restrained_prod_lt {N q r d : ℕ} (h : OddPerfect N) (hq : q.Prime)
 `restrained_prod_lt` (special exponent 1), if every prime factor lies within distance `d` of 3
 then `E < 3 ^ (2 ^ d + 1)` with `E = v_3(N)`. With `a = 1` the `E` prime factors that are
 1 modulo 3 (`restrained_three_eq`) have product at least `E!`, and `E ^ E ≤ 3 ^ E E!`. This
-is an upper bound for `E` in a structural subfamily: the distance is not bounded in general,
-and the family is not excluded. Restricted result; novelty not verified. -/
+is an upper bound for `E` in a structural subfamily: no uniform upper bound on the distance
+is proved here, and the family is not excluded. Restricted result; novelty not verified. -/
 theorem restrained_three_lt {N q r d : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hq1 : N.factorization q = 1) (hr : r.Prime) (hrq : r ≠ q)
     (hsq : ∀ p ∈ N.primeFactors, p ≠ q → p ≠ r → N.factorization p = 2)

@@ -134,8 +134,9 @@ theorem not_phi3_eq_special_pow_of_dvd {q x j n j' : ℕ} (hq : q.Prime) (hq4 : 
 
 /-- For an odd prime `x` and a prime `q` with `q % 4 = 1`, `phi3 x = q ^ j` with `j ≥ 1` forces
 `j = 1`. This is Nagell's classical theorem restricted to primes `q ≡ 1 (mod 4)`, proved here
-elementarily; the classical theorem (not proved in this library) covers every prime `q`. Some
-hypothesis on `x` is needed: `phi3 18 = 7 ^ 3`. -/
+elementarily. The case of every prime `q` (with `x` prime) is now proved in
+`OddPerfect/NagellPrime.lean` (`phi3_eq_prime_pow_exponent`, and `nagellPrimePower` for the
+statement `NagellPrimePower`). Some hypothesis on `x` is needed: `phi3 18 = 7 ^ 3`. -/
 theorem phi3_eq_special_pow_exponent {q x j : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
     (hx : x.Prime) (hx2 : Odd x) (hj : 1 ≤ j) (h : phi3 x = q ^ j) : j = 1 := by
   by_contra hj1

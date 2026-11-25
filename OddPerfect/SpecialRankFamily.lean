@@ -22,6 +22,10 @@ most `q`.
   number. Hence, under the explicit hypothesis `3 ∤ N`, the palette family has
   `a ∉ {5, 17, 29, 41}` (`special_exponent_palette_of_not_three_dvd`), and `a ≤ 37` when
   the rows carry at most `8`.
+
+Stronger bounds for the same family are proved in `OddPerfect/PaletteGlue.lean`: capacity `8`
+(`sum_sigmaWeight_below_special_le_eight`), hence `a ≤ 41` (`special_exponent_le_41`) and,
+when `3 ∤ N`, `a ≤ 37` (`special_exponent_le_37_of_not_three_dvd`).
 -/
 
 open ArithmeticFunction
@@ -36,7 +40,8 @@ private theorem sigma_prime_four' {p : ℕ} (hp : p.Prime) :
 
 /-- Palette capacity at the special prime. Let `N` be an odd perfect number with special prime
 `q` such that every other prime factor has exponent `2` or `4`. Then the rows of the prime
-factors below `q` carry at most `9` at `q`. -/
+factors below `q` carry at most `9` at `q`. The stronger capacity `8` is
+`sum_sigmaWeight_below_special_le_eight` in `OddPerfect/PaletteGlue.lean`. -/
 theorem sum_sigmaWeight_below_special_le_nine {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q →
       N.factorization p = 2 ∨ N.factorization p = 4) :
@@ -110,6 +115,7 @@ theorem special_exponent_le_palette {N q P β : ℕ} (h : OddPerfect N) (hq : q.
 /-- Palette bound. Let `N` be an odd perfect number with special prime `q`, let every other
 prime factor have exponent `2` or `4`, and let `q` be the second largest prime factor (some
 prime factor `P > q`, every prime factor other than `P` at most `q`). Then `v_q(N) ≤ 45`.
+The stronger bound `v_q(N) ≤ 41` is `special_exponent_le_41` in `OddPerfect/PaletteGlue.lean`.
 Restricted family result; novelty not verified. -/
 theorem special_exponent_le_45 {N q P : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hP : P ∈ N.primeFactors) (hqP : q < P)
@@ -173,7 +179,8 @@ theorem not_three_dvd_succ_special_exponent {N q : ℕ} (h : OddPerfect N) (hq :
 
 /-- Palette family without the prime `3`. In the setting of `special_exponent_le_45`, under
 the explicit hypothesis `3 ∤ N`, the special exponent `a = v_q(N)` satisfies `a ≤ 45`,
-`a ≡ 1 (mod 4)`, and `a ∉ {5, 17, 29, 41}`. -/
+`a ≡ 1 (mod 4)`, and `a ∉ {5, 17, 29, 41}`. The stronger bound `a ≤ 37` is
+`special_exponent_le_37_of_not_three_dvd` in `OddPerfect/PaletteGlue.lean`. -/
 theorem special_exponent_palette_of_not_three_dvd {N q P : ℕ} (h : OddPerfect N)
     (hq : q.Prime) (hodd : Odd (N.factorization q)) (hP : P ∈ N.primeFactors) (hqP : q < P)
     (hsecond : ∀ p ∈ N.primeFactors, p ≠ P → p ≤ q)
