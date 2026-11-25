@@ -511,3 +511,4 @@ import OddPerfect.LargestPrimeSignedMultiValues
 import OddPerfect.MixedPaletteEdges
 import OddPerfect.RankTwoPaletteFree
 import OddPerfect.SpecialRankThreeFree
+import OddPerfect.RestrainedFiveModTwelve
