@@ -497,3 +497,4 @@ import OddPerfect.HalfPowerResidue
 import OddPerfect.OddValuationCount
 import OddPerfect.EulerIndexOmegaOf
 import OddPerfect.EulerIndexOmega
+import OddPerfect.SpecialRankThreeJoint
