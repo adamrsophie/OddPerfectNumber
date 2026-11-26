@@ -580,3 +580,5 @@ import OddPerfect.AbundancyTail
 import OddPerfect.TwoExceptionsNinetySevenData
 import OddPerfect.TwoExceptionsNinetySevenCore
 import OddPerfect.TwoExceptionsNinetySeven
+import OddPerfect.FifthOrderReceivers
+import OddPerfect.EulerIndexPairFive
