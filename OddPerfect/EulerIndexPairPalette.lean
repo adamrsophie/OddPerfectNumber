@@ -23,8 +23,9 @@ Let `N = q * m ^ 2` be an odd perfect number with special prime `q` of exponent 
 
 These are restricted results (special exponent 1, Euler index supported on exactly two
 primes, and for the second theorem both index primes with exponent 2 or 4). The remaining
-case `u ^ 4 + u ^ 3 + u ^ 2 + u + 1 = t ^ j` with `j ≥ 3` odd is NOT excluded here. Their
-novelty has not been verified.
+case `u ^ 4 + u ^ 3 + u ^ 2 + u + 1 = t ^ j` with `j ≥ 3` odd is excluded by
+`eulerIndex_pair_not_palette` in the later module `EulerIndexPairEmitterSix`. Their novelty
+has not been verified.
 -/
 
 open ArithmeticFunction
@@ -281,7 +282,8 @@ the Euler index have exponent `2` or `4` in `N`. Then for the labeling `(t, u)` 
 `σ(t ^ v_t(N)) = q u ^ v` and `t ∤ q + 1`) we have `v_u(N) = 4` and
 `σ(u ^ 4) = u ^ 4 + u ^ 3 + u ^ 2 + u + 1 = t ^ j` with `j ≥ 3` odd. This is a restricted
 result (special exponent 1, index supported on exactly two primes, both with exponent 2 or 4);
-the remaining case `σ(u ^ 4) = t ^ j` with `j ≥ 3` odd is NOT excluded here. Its novelty has
+the remaining case `σ(u ^ 4) = t ^ j` with `j ≥ 3` odd is excluded by
+`eulerIndex_pair_not_palette` in the later module `EulerIndexPairEmitterSix`. Its novelty has
 not been verified. -/
 theorem eulerIndex_pair_palette (h : OddPerfect N) (hq : q.Prime) (hN : N = q * m ^ 2)
     (hqm : ¬ q ∣ m) (hr : r.Prime) (hs : s.Prime) (hrs : r ≠ s)

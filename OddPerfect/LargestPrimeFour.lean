@@ -26,8 +26,9 @@ A root `x` of `1 + x + ⋯ + x ^ (R - 1)` modulo a prime `r` is `1` (then `r = R
 sender; an even exponent makes `σ(u ^ (R - 1))` a square, so `R = 5` and `P = 21`.
 
 Scope: these are necessary conditions in the restricted case that the largest prime factor
-is `4 R + 1` with `R > 3` prime; this case is not excluded here, and the odd perfect number
-conjecture remains open. No published source was checked; novelty not verified.
+is `4 R + 1` with `R > 3` prime; the later module `LargestPrimeFourNone` excludes this case.
+The odd perfect number conjecture remains open. No published source was checked; novelty not
+verified.
 -/
 
 open ArithmeticFunction
@@ -187,8 +188,8 @@ private theorem lpf_dvd_four_mul {t : ℕ} (hR : R.Prime) (ht : t ∣ 4 * R) (ht
 number `N` be `P = 4 R + 1` with `R > 3` prime, and let `u ≠ P` be a prime factor with even
 exponent and `P ∣ σ(u ^ e_u)`. Then `e_u = R - 1`, the order of `u` modulo `P` is `R`, and
 `1 + u + ⋯ + u ^ (R - 1) = P ^ j` with `j = v_P(σ(u ^ e_u)) ≥ 1`. A necessary condition in a
-restricted case; the case is not excluded. No published source was checked; novelty not
-verified. -/
+restricted case, which `LargestPrimeFourNone` excludes. No published source was checked;
+novelty not verified. -/
 theorem largest_four_sender_row (h : OddPerfect N) (hP : P ∈ N.primeFactors)
     (hmax : ∀ r ∈ N.primeFactors, r ≤ P) (hR : R.Prime) (hR3 : 3 < R) (hPR : P = 4 * R + 1)
     {u : ℕ} (hu : u ∈ N.primeFactors) (huP : u ≠ P) (hev : Even (N.factorization u))
@@ -249,8 +250,8 @@ theorem largest_four_sender_row (h : OddPerfect N) (hP : P ∈ N.primeFactors)
 
 /-- The special prime does not send into `P = 4 R + 1` (with `R > 3` prime and `P` the largest
 prime factor of an odd perfect number `N`): a prime factor `q ≠ P` with odd exponent has
-`¬ P ∣ σ(q ^ e_q)`. A necessary condition in a restricted case; the case is not excluded. No
-published source was checked; novelty not verified. -/
+`¬ P ∣ σ(q ^ e_q)`. A necessary condition in a restricted case, which
+`LargestPrimeFourNone` excludes. No published source was checked; novelty not verified. -/
 theorem largest_four_special_not_sender (h : OddPerfect N) (hP : P ∈ N.primeFactors)
     (hmax : ∀ r ∈ N.primeFactors, r ≤ P) (hR : R.Prime) (hR3 : 3 < R) (hPR : P = 4 * R + 1)
     {q : ℕ} (hq : q ∈ N.primeFactors) (hqP : q ≠ P) (hodd : Odd (N.factorization q)) :
@@ -465,7 +466,8 @@ private theorem lpf_even_of_sender (h : OddPerfect N) (hP : P ∈ N.primeFactors
 /-- At most one sender. Let the largest prime factor of an odd perfect number `N` be
 `P = 4 R + 1` with `R > 3` prime. If `u` and `v` are prime factors different from `P` with
 `P ∣ σ(u ^ e_u)` and `P ∣ σ(v ^ e_v)`, then `u = v`. A necessary condition in a restricted
-case; the case is not excluded. No published source was checked; novelty not verified. -/
+case, which `LargestPrimeFourNone` excludes. No published source was checked; novelty not
+verified. -/
 theorem largest_four_sender_unique (h : OddPerfect N) (hP : P ∈ N.primeFactors)
     (hmax : ∀ r ∈ N.primeFactors, r ≤ P) (hR : R.Prime) (hR3 : 3 < R) (hPR : P = 4 * R + 1)
     {u v : ℕ} (hu : u ∈ N.primeFactors) (huP : u ≠ P) (hdu : P ∣ σ 1 (u ^ N.factorization u))
@@ -507,8 +509,9 @@ private theorem lpf_sum_senders (h : OddPerfect N) (hP : P ∈ N.primeFactors) :
 of an odd perfect number `N` be `P = 4 R + 1` with `R > 3` prime. Then `v_P(N)` is odd,
 `v_P(N) ≡ 1 (mod 4)`, `5 ≤ v_P(N) < R`, and there is a prime factor `u ≠ P` with
 `v_u(N) = R - 1` and `1 + u + ⋯ + u ^ (R - 1) = P ^ v_P(N)`. These are necessary conditions in
-a restricted case; the case `P = 4 R + 1` is not excluded, and the odd perfect number
-conjecture remains open. No published source was checked; novelty not verified. -/
+a restricted case; the later module `LargestPrimeFourNone` excludes the case `P = 4 R + 1`.
+The odd perfect number conjecture remains open. No published source was checked; novelty not
+verified. -/
 theorem largest_four_special (h : OddPerfect N) (hP : P ∈ N.primeFactors)
     (hmax : ∀ r ∈ N.primeFactors, r ≤ P) (hR : R.Prime) (hR3 : 3 < R) (hPR : P = 4 * R + 1) :
     Odd (N.factorization P) ∧ N.factorization P % 4 = 1 ∧ 5 ≤ N.factorization P ∧
