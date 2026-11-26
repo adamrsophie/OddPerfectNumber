@@ -10,7 +10,10 @@ purpose; scans for those words exclude this folder by path.
 
 Expected result: the gate accepts this file (exit status 0). It contains a structurally
 recursive and a well founded recursive definition, whose compiler helpers `_unsafe_rec` must
-be exempted, a private definition, and ordinary theorems.
+be exempted, a private definition, and ordinary theorems. It also declares an inductive type
+with three constructors and an indexed family with a universe parameter, whose generated pairs
+`T.ctorIdx` and `T.ctorIdx._impl` must be exempted, and a structure, for which Lean generates
+`T.ctorIdx` with no `implemented_by` and no `_impl`, so it has no pair.
 -/
 
 namespace GateControls
@@ -27,6 +30,24 @@ termination_by n
 decreasing_by omega
 
 private def double (n : Nat) : Nat := 2 * n
+
+/-- Several constructors: Lean generates `Shade.ctorIdx` and `Shade.ctorIdx._impl`. -/
+inductive Shade where
+  | light
+  | mid
+  | dark
+
+/-- An indexed family with a universe parameter: also a generated pair. -/
+inductive Tagged (α : Type u) : Nat → Type u where
+  | none : Tagged α 0
+  | some (a : α) (n : Nat) : Tagged α (n + 1)
+
+/-- One constructor: `Point.ctorIdx` is generated without a partner. -/
+structure Point where
+  x : Nat
+  y : Nat
+
+theorem shade_ne : Shade.light ≠ Shade.dark := Shade.noConfusion
 
 theorem sumTo_three : sumTo 3 = 6 := by decide
 

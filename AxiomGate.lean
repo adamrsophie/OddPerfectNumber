@@ -21,16 +21,21 @@ Checks, for every constant whose defining module is `OddPerfect` or `OddPerfect.
 1. The axioms it depends on, transitively through mathlib and core, are among
    `propext`, `Classical.choice`, `Quot.sound`. This rejects `sorryAx`, the axioms that
    `native_decide` introduces (`Lean.ofReduceBool` and `Lean.trustCompiler` on older
-   toolchains, an auxiliary axiom `f._native.native_decide.ax_*` on Lean 4.33), and any
-   added axiom. The traversal walks
-   kernel bodies directly with one shared visited set; the per-constant attribution in the
+   toolchains, an auxiliary axiom `f._native.native_decide.ax_*` on Lean 4.33 and 4.36, made
+   by `Lean.nativeEqTrue` in `Lean/Meta/Native.lean`, the same file in both; under 4.36 a
+   theorem `nd` gets `nd._native.native_decide.ax_1_1`), and any added axiom. The traversal
+   walks kernel bodies directly with one shared visited set; the per-constant attribution in the
    failure report, and a consistency cross-check, use core `Lean.collectAxioms` (the
    traversal behind `#print axioms`).
 2. It is not an axiom, not `unsafe`, not `partial`, not `opaque`, and carries neither
-   `@[implemented_by]` nor `@[extern]`. The one exemption is the compiler auxiliary
-   `f._unsafe_rec`, which is `partial` but harmless when `f` is a safe definition. It is
-   exempt only when it has exactly the shape the elaborator produces (see `helperProblems`);
-   the complete inventory of exempted helpers is printed.
+   `@[implemented_by]` nor `@[extern]`. There are two exemptions, each granted only for exactly
+   the shape that Lean generates, and each with its complete inventory printed. First, the
+   compiler auxiliary `f._unsafe_rec`, which is `partial` but harmless when `f` is a safe
+   definition (see `helperProblems`). Second, the pair that Lean 4.36 generates for an
+   inductive type `T`: the safe `T.ctorIdx` is exempt from the `@[implemented_by]` complaint
+   and its `unsafe` partner `T.ctorIdx._impl` from the `unsafe` complaint, and nothing else
+   (see `ctorIdxProblems`). The kernel ignores `implemented_by` and no safe constant can refer
+   to an unsafe one, so neither affects a kernel checked theorem.
 3. `OddPerfectConjecture` is a definition of type `Prop`, and no project constant has a
    statement that settles it, unless its name ends in `oddPerfectConjecture`; such a theorem
    is printed prominently with its axioms instead. A statement settles the conjecture when
@@ -183,11 +188,12 @@ def foreignModules (env : Environment) (pred : Name → Bool) :
 /-- For a constant whose name has the compiler helper form `f._unsafe_rec`, the base `f` and
 the exemption conditions it fails; `none` when the name does not have that form.
 
-The elaborator (`Lean.Elab.addAndCompilePartialRec`, Lean 4.33) adds the helper for each
-function of a structurally, well founded, or partial fixpoint recursive definition that is
-compiled (not `noncomputable`), as a `partial` definition with the name `Compiler.mkUnsafeRecName f`, the same type
-and universe parameters as `f`, in the same module, with mutual block the helper names of the
-block of `f`. All those recursion strategies tag `f` with `Meta.recExt`. A `partial def f`
+The elaborator (`Lean.Elab.addAndCompilePartialRec` in `Lean/Elab/PreDefinition/Basic.lean`,
+unchanged from Lean 4.33 to 4.36) adds the helper for each function of a structurally, well
+founded, or partial fixpoint recursive definition that is compiled (not `noncomputable`), as
+a `partial` definition with the name `Compiler.mkUnsafeRecName f`, the same type and universe
+parameters as `f`, in the same module, with mutual block the helper names of the block of
+`f`. All those recursion strategies tag `f` with `Meta.recExt`. A `partial def f`
 itself is never exempt here, because `f` is then an opaque constant, not a safe definition. -/
 def helperProblems (env : Environment) (ci : ConstantInfo) : Option (Name × Array String) := do
   let base ← Compiler.isUnsafeRecName? ci.name
@@ -214,6 +220,48 @@ def helperProblems (env : Environment) (ci : ConstantInfo) : Option (Name × Arr
   | some _ => bad := bad.push "base is not a definition"
   | none => bad := bad.push "base does not exist"
   return (base, bad)
+
+/-- For a name `T.ctorIdx`, the conditions that the pair `T.ctorIdx`, `T.ctorIdx._impl` fails
+for the exemption of check 2; empty when the pair has exactly the generated shape.
+
+Lean 4.36 (`Lean.mkCtorIdx`, `Lean/Meta/Constructions/CtorIdx.lean`) adds, for every inductive
+type `T` with several constructors that eliminates into `Type`, a safe definition
+`T.ctorIdx : T → Nat` (cases on the constructors) tagged `@[implemented_by T.ctorIdx._impl]`,
+where `T.ctorIdx._impl` is an `unsafe` definition of the same type and universe parameters,
+in the same module, whose body applies the unsafe primitive `getObjTagNat` to the type and the
+last argument. The pair is harmless for kernel checked theorems: the kernel ignores
+`implemented_by`, a safe constant cannot refer to an unsafe one, and compiled code is trusted
+nowhere (`native_decide` shows up as an axiom in check 1). -/
+def ctorIdxProblems (env : Environment) (n : Name) : Array String := Id.run do
+  let impl := Name.mkStr n "_impl"
+  let mut bad : Array String := #[]
+  if (isCtorIdxCore? env n).isNone then bad := bad.push "not T.ctorIdx of an inductive type T"
+  match env.find? n with
+  | some (.defnInfo v) =>
+    unless v.safety == .safe do bad := bad.push "ctorIdx is not a safe definition"
+    unless v.type.getForallBody == mkConst ``Nat do bad := bad.push "result type is not Nat"
+    unless Compiler.implementedByAttr.getParam? env n == some impl do
+      bad := bad.push "target is not ctorIdx._impl"
+    if isExtern env n then bad := bad.push "ctorIdx has @[extern]"
+    match env.find? impl with
+    | some (.defnInfo w) =>
+      unless w.safety == .unsafe do bad := bad.push "_impl is not an unsafe definition"
+      unless w.levelParams == v.levelParams do bad := bad.push "universe parameters differ"
+      unless w.type == v.type do bad := bad.push "types differ"
+      unless env.getModuleIdxFor? impl == env.getModuleIdxFor? n do
+        bad := bad.push "_impl is defined in another module"
+      let ok : Bool := match w.value.getLambdaBody with
+        | .app (.app (.const ``getObjTagNat _) _) (.bvar 0) => w.value.getNumHeadLambdas > 0
+        | _ => false
+      unless ok do bad := bad.push "_impl body is not getObjTagNat"
+      if isExtern env impl then bad := bad.push "_impl has @[extern]"
+      if (Compiler.implementedByAttr.getParam? env impl).isSome then
+        bad := bad.push "_impl has @[implemented_by]"
+    | some _ => bad := bad.push "_impl is not a definition"
+    | none => bad := bad.push "_impl does not exist"
+  | some _ => bad := bad.push "ctorIdx is not a definition"
+  | none => bad := bad.push "ctorIdx does not exist"
+  return bad
 
 /-- Library module names for the files in a list of tracked paths: `OddPerfect.lean` and
 `OddPerfect/**.lean` relative to the repository root. -/
@@ -299,11 +347,20 @@ def run (cfg : Config := {}) : CommandElabM Unit := do
         components {", ".intercalate (depRoots.toList.map toString)}"
   -- Check 2: forbidden kinds of declarations.
   let mut helpers : Array MessageData := #[]
+  let mut ctorIdxPairs : Array MessageData := #[]
   for ci in consts do
     let n := ci.name
     let mut bad : Array String := #[]
     if ci matches .axiomInfo _ then bad := bad.push "is an axiom"
-    if ci.isUnsafe then bad := bad.push "is unsafe"
+    -- The generated `T.ctorIdx._impl` is exempt from this complaint only as the partner of a
+    -- `T.ctorIdx` that passes `ctorIdxProblems`; nothing else is exempted for either constant.
+    if ci.isUnsafe then
+      match n with
+      | .str idx@(.str _ "ctorIdx") "_impl" =>
+        let why := ctorIdxProblems env idx
+        unless why.isEmpty do
+          bad := bad.push s!"is unsafe (not a generated ctorIdx: {", ".intercalate why.toList})"
+      | _ => bad := bad.push "is unsafe"
     -- The compiler adds a `partial` auxiliary `f._unsafe_rec` for code generation of
     -- ordinary recursive definitions. It is harmless when `f` itself is a safe kernel
     -- definition: the kernel never lets a safe constant refer to a partial one. It is exempt
@@ -320,7 +377,18 @@ def run (cfg : Config := {}) : CommandElabM Unit := do
       | none => bad := bad.push "is partial"
     if ci matches .opaqueInfo _ then bad := bad.push "is opaque"
     if (Compiler.implementedByAttr.getParam? env n).isSome then
-      bad := bad.push "has @[implemented_by]"
+      match n with
+      | .str _ "ctorIdx" =>
+        let why := ctorIdxProblems env n
+        if why.isEmpty then
+          let mod := match env.getModuleIdxFor? n with
+            | some j => names[j.toNat]!
+            | none => env.mainModule
+          ctorIdxPairs := ctorIdxPairs.push m!"{n} with {Name.mkStr n "_impl"} (module {mod})"
+        else
+          bad := bad.push
+            s!"has @[implemented_by] (not a generated ctorIdx: {", ".intercalate why.toList})"
+      | _ => bad := bad.push "has @[implemented_by]"
     if isExtern env n then bad := bad.push "has @[extern]"
     unless bad.isEmpty do
       errors := errors.push m!"{n}: {", ".intercalate bad.toList}"
@@ -389,6 +457,8 @@ def run (cfg : Config := {}) : CommandElabM Unit := do
   | none => errors := errors.push m!"{conj} not found"
   logInfo (m!"exempted compiler helpers ({helpers.size}):\n" ++
     MessageData.joinSep helpers.toList "\n")
+  logInfo (m!"exempted generated ctorIdx pairs ({ctorIdxPairs.size}):\n" ++
+    MessageData.joinSep ctorIdxPairs.toList "\n")
   for r in notes do logInfo r
   for r in resolutions do logInfo r
   unless errors.isEmpty do

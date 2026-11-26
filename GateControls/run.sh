@@ -52,7 +52,8 @@ report() {
   if [ "$2" -eq 1 ]; then
     echo "ok   $1"
   else
-    grep -vF '_unsafe_rec (base ' "$3" | sed 's/^/     | /' | head -n 40
+    grep -vF -e '_unsafe_rec (base ' -e 'ctorIdx._impl (module ' "$3" |
+      sed 's/^/     | /' | head -n 40
     failures=$((failures + 1))
   fi
 }
@@ -88,13 +89,28 @@ check() {
 
 check Clean 0 - \
   'GateControls.sumTo._unsafe_rec (base GateControls.sumTo' \
-  'GateControls.halve._unsafe_rec (base GateControls.halve'
+  'GateControls.halve._unsafe_rec (base GateControls.halve' \
+  'exempted generated ctorIdx pairs (2):' \
+  'GateControls.Shade.ctorIdx with GateControls.Shade.ctorIdx._impl (module ' \
+  'GateControls.Tagged.ctorIdx with GateControls.Tagged.ctorIdx._impl (module '
 check PrivateAxiom 1 2 \
   'GateControls.unusedAxiom: is an axiom'
 check ForbiddenAxiom 1 3 \
   'GateControls.usesBadAxiom: depends on [GateControls.badAxiom]'
 check DisguisedHelper 1 1 \
   'GateControls.disguised._unsafe_rec: is partial (not a compiler helper: base is not a recursive definition, types differ)'
+check ImplementedBy 1 2 \
+  'GateControls.slowId: has @[implemented_by]' \
+  'GateControls.fastId: is unsafe'
+check CtorIdxTarget 1 3 \
+  'Foo.ctorIdx: has @[implemented_by] (not a generated ctorIdx: target is not ctorIdx._impl)' \
+  'Foo.ctorIdx._impl: is unsafe (not a generated ctorIdx: target is not ctorIdx._impl)' \
+  'GateControls.Foo.otherImpl: is unsafe'
+check CtorIdxBody 1 2 \
+  'Baz.ctorIdx: has @[implemented_by] (not a generated ctorIdx: _impl body is not getObjTagNat)' \
+  'Baz.ctorIdx._impl: is unsafe (not a generated ctorIdx: _impl body is not getObjTagNat)'
+check CtorIdxOrphan 1 1 \
+  'GateControls.Bar.ctorIdx._impl: is unsafe (not a generated ctorIdx: target is not ctorIdx._impl)'
 check RenamedConjecture 1 7 \
   'GateControls.restated: states OddPerfectConjecture but is not named oddPerfectConjecture' \
   'GateControls.restatedNeg: states the negation of OddPerfectConjecture but is not named oddPerfectConjecture' \
