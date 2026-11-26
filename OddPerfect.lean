@@ -544,3 +544,9 @@ import OddPerfect.EulerIndexPairSeven
 import OddPerfect.EqualExponentNotSpecial
 import OddPerfect.EqualExponentChainFar
 import OddPerfect.EqualExponentChainFar59
+import OddPerfect.EqualExponentChainFarCut
+import OddPerfect.EqualExponentChainFar53Data
+import OddPerfect.EqualExponentChainFar53Spec
+import OddPerfect.EqualExponentChainFar53Ord0
+import OddPerfect.EqualExponentChainFar53Ord1
+import OddPerfect.EqualExponentChainFar53
