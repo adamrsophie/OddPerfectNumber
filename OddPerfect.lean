@@ -584,3 +584,5 @@ import OddPerfect.FifthOrderReceivers
 import OddPerfect.EulerIndexPairFive
 import OddPerfect.EulerIndexPairFrame
 import OddPerfect.EulerIndexPairSmallCap
+import OddPerfect.EulerIndexPairReceiverSieve
+import OddPerfect.EulerIndexPairReceiverBound
