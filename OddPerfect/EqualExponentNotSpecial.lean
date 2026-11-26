@@ -43,8 +43,8 @@ private lemma eqExpNotSpecial_geom_sum_mod {r m : ℕ} (hr : r % m = 1) (n : ℕ
     ← Nat.mul_mod, mul_one]
 
 /-- If every ordinary exponent of the odd perfect number `N` equals `l - 1` for an odd prime
-`l`, then `l` is an ordinary prime factor of `N`: `l ∣ N` by Steuerwald's prime length
-argument, and `l ≠ q` by Kanold's congruence modulo `l`. -/
+`l`, then `l` is an ordinary prime factor of `N`: `l ∣ N` by the prime length argument
+(`not_all_exponents_eq_pred_prime`), and `l ≠ q` by a congruence modulo `l`. -/
 theorem ordinary_of_all_exponents_eq_pred {N q l : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hl : l.Prime) (hl2 : l ≠ 2)
     (hexp : ∀ p ∈ N.primeFactors, p ≠ q → N.factorization p = l - 1) :
