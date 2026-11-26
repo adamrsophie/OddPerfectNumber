@@ -111,6 +111,19 @@ check CtorIdxBody 1 2 \
   'Baz.ctorIdx._impl: is unsafe (not a generated ctorIdx: _impl body is not getObjTagNat)'
 check CtorIdxOrphan 1 1 \
   'GateControls.Bar.ctorIdx._impl: is unsafe (not a generated ctorIdx: target is not ctorIdx._impl)'
+# The reasons of the new ctorIdx controls, in the form the gate prints them.
+why='(not a generated ctorIdx: safe body is not the generated casesOn)'
+check CtorIdxConst 1 2 \
+  "Qux.ctorIdx: has @[implemented_by] $why" "Qux.ctorIdx._impl: is unsafe $why"
+why='(not a generated ctorIdx: argument type is not T applied to its parameters and indices)'
+check CtorIdxArg 1 2 \
+  "Arg.ctorIdx: has @[implemented_by] $why" "Arg.ctorIdx._impl: is unsafe $why"
+why='(not a generated ctorIdx: T has one constructor)'
+check CtorIdxOne 1 2 \
+  "Single.ctorIdx: has @[implemented_by] $why" "Single.ctorIdx._impl: is unsafe $why"
+why='(not a generated ctorIdx: T is defined in another module)'
+check CtorIdxModule 1 2 \
+  "Far.ctorIdx: has @[implemented_by] $why" "Far.ctorIdx._impl: is unsafe $why"
 check RenamedConjecture 1 7 \
   'GateControls.restated: states OddPerfectConjecture but is not named oddPerfectConjecture' \
   'GateControls.restatedNeg: states the negation of OddPerfectConjecture but is not named oddPerfectConjecture' \

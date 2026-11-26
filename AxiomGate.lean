@@ -28,14 +28,20 @@ Checks, for every constant whose defining module is `OddPerfect` or `OddPerfect.
    failure report, and a consistency cross-check, use core `Lean.collectAxioms` (the
    traversal behind `#print axioms`).
 2. It is not an axiom, not `unsafe`, not `partial`, not `opaque`, and carries neither
-   `@[implemented_by]` nor `@[extern]`. There are two exemptions, each granted only for exactly
-   the shape that Lean generates, and each with its complete inventory printed. First, the
+   `@[implemented_by]` nor `@[extern]`. There are two exemptions, each granted only for the shape
+   that Lean generates as far as the listed conditions describe it, and each with its complete
+   inventory printed. First, the
    compiler auxiliary `f._unsafe_rec`, which is `partial` but harmless when `f` is a safe
    definition (see `helperProblems`). Second, the pair that Lean 4.36 generates for an
    inductive type `T`: the safe `T.ctorIdx` is exempt from the `@[implemented_by]` complaint
-   and its `unsafe` partner `T.ctorIdx._impl` from the `unsafe` complaint, and nothing else
-   (see `ctorIdxProblems`). The kernel ignores `implemented_by` and no safe constant can refer
-   to an unsafe one, so neither affects a kernel checked theorem.
+   and its `unsafe` partner `T.ctorIdx._impl` from the `unsafe` complaint, and nothing else.
+   The exemption requires that `T` is a type for which Lean emits the pair, in the same module,
+   that `T.ctorIdx` has the type and the value (cases on `T` returning the constructor index)
+   that the generator builds, rebuilt from `T` and compared up to binder names and binder
+   annotations, and that `T.ctorIdx._impl` has the same type and a `getObjTagNat` body; the
+   exact list, and what is not compared, is in `ctorIdxProblems`. The kernel ignores
+   `implemented_by` and no safe constant can refer to an unsafe one, so neither affects a
+   kernel checked theorem.
 3. `OddPerfectConjecture` is a definition of type `Prop`, and no project constant has a
    statement that settles it, unless its name ends in `oddPerfectConjecture`; such a theorem
    is printed prominently with its axioms instead. A statement settles the conjecture when
@@ -221,25 +227,126 @@ def helperProblems (env : Environment) (ci : ConstantInfo) : Option (Name × Arr
   | none => bad := bad.push "base does not exist"
   return (base, bad)
 
-/-- For a name `T.ctorIdx`, the conditions that the pair `T.ctorIdx`, `T.ctorIdx._impl` fails
-for the exemption of check 2; empty when the pair has exactly the generated shape.
+/-- The first `n` binders of a chain of `∀` (name and domain, de Bruijn form) and the rest;
+`none` when fewer than `n` binders are syntactically there. -/
+def peelForall : Nat → Expr → Array (Name × Expr) → Option (Array (Name × Expr) × Expr)
+  | 0, e, acc => some (acc, e)
+  | n + 1, .forallE x d b _, acc => peelForall n b (acc.push (x, d))
+  | _ + 1, _, _ => none
 
-Lean 4.36 (`Lean.mkCtorIdx`, `Lean/Meta/Constructions/CtorIdx.lean`) adds, for every inductive
-type `T` with several constructors that eliminates into `Type`, a safe definition
-`T.ctorIdx : T → Nat` (cases on the constructors) tagged `@[implemented_by T.ctorIdx._impl]`,
-where `T.ctorIdx._impl` is an `unsafe` definition of the same type and universe parameters,
-in the same module, whose body applies the unsafe primitive `getObjTagNat` to the type and the
-last argument. The pair is harmless for kernel checked theorems: the kernel ignores
-`implemented_by`, a safe constant cannot refer to an unsafe one, and compiled code is trusted
-nowhere (`native_decide` shows up as an axiom in check 1). -/
+/-- The type and the value that `Lean.mkCtorIdx` gives `T.ctorIdx` for an inductive type `T`
+with a number of constructors other than one, rebuilt from the declarations of `T` and its
+constructors without `MetaM`: with `ps`, `is` the parameters and indices of `T` and `us` its
+universe parameters, the type is `∀ ps is, T.{us} ps is → Nat` and the value is
+`fun ps is (x : T.{us} ps is) => T.casesOn.{1, us} ps (fun is (x : T.{us} ps is) => Nat) is x
+alt_0 ... alt_{n-1}`, where `alt_c` takes the fields of constructor `c` (its type instantiated
+with `ps`) and returns the raw literal of its index `c`. `none` when a telescope is not
+syntactically a chain of `∀` (the generator would reduce it; the pair is then rejected). -/
+def expectedCtorIdx (env : Environment) (info : InductiveVal) : Option (Expr × Expr) := do
+  let np := info.numParams
+  let ni := info.numIndices
+  let k := np + ni
+  let us := info.levelParams.map mkLevelParam
+  let (bs, _) ← peelForall k info.type #[]
+  -- `T.{us} ps is` directly below the binders `ps is`.
+  let indTy := mkAppN (.const info.name us) ((Array.range k).map fun i => .bvar (k - 1 - i))
+  let natTy := mkConst ``Nat
+  let declType := bs.foldr (fun (x, d) acc => .forallE x d acc .implicit)
+    (.forallE `x indTy natTy .default)
+  -- Below `ps is x` (depth `k + 1`), binder `i` of `ps is` is `bvar (k - i)` and `x` is `bvar 0`.
+  let params := (Array.range np).map fun p => Expr.bvar (k - p)
+  let indices := (Array.range ni).map fun j => Expr.bvar (k - (np + j))
+  -- The motive binds fresh indices and a fresh major premise; the outer parameters are seen
+  -- `ni + 1` binders further away than in the type of `T`.
+  let motiveIdx := (Array.range ni).map fun j =>
+    let (x, d) := bs[np + j]!
+    (x, d.liftLooseBVars j (ni + 1))
+  let motiveMajor := mkAppN (.const info.name us)
+    ((Array.range np).map (fun p => Expr.bvar (k - p + ni)) ++
+     (Array.range ni).map (fun j => Expr.bvar (ni - 1 - j)))
+  let motive := motiveIdx.foldr (fun (x, d) acc => .lam x d acc .implicit)
+    (.lam `x motiveMajor natTy .default)
+  let mut alts : Array Expr := #[]
+  for c in info.ctors do
+    let some (.ctorInfo cv) := env.find? c | none
+    let (_, rest) ← peelForall cv.numParams cv.type #[]
+    let (fs, _) ← peelForall cv.numFields (rest.liftLooseBVars 0 (ni + 1)) #[]
+    alts := alts.push (fs.foldr (fun (y, d) acc => .lam y d acc .default) (mkRawNatLit cv.cidx))
+  let body := mkAppN (.const (mkCasesOnName info.name) (.one :: us))
+    (params ++ #[motive] ++ indices ++ #[.bvar 0] ++ alts)
+  let declValue := bs.foldr (fun (x, d) acc => .lam x d acc .implicit)
+    (.lam `x indTy body .default)
+  return (declType, declValue)
+
+/-- For a name `T.ctorIdx`, the conditions that the pair `T.ctorIdx`, `T.ctorIdx._impl` fails
+for the exemption of check 2; empty when the pair has the generated shape described here.
+
+Lean 4.36 (`Lean.mkCtorIdx`, `Lean/Meta/Constructions/CtorIdx.lean`) adds the pair for an
+inductive type `T` when the option `genCtorIdx` is on, `T` is not a `Prop` former
+(`Meta.isPropFormerType`: the level of its result sort is not `zero`), `T.casesOn`
+has more universe parameters than `T` (it eliminates into `Type`), `T` does not have exactly
+one constructor (zero constructors do get a pair), and `T` is not a type with builtin runtime
+support (`Compiler.LCNF.isRuntimeBuiltinType`). The safe `T.ctorIdx` is cases on `T` returning
+the constructor index (see `expectedCtorIdx`), tagged `@[implemented_by T.ctorIdx._impl]`; the
+`unsafe` `T.ctorIdx._impl` has the same type and universe parameters and applies the primitive
+`getObjTagNat` to the type of the last argument and that argument.
+
+Checked: `T` is an inductive type, not `unsafe`, whose result sort is never `Prop` (its level is
+syntactically never zero, `Level.isNeverZero`; stricter than the generator, which also emits the
+pair for a result sort such as `Sort u`), with `T.casesOn` having more universe parameters than
+`T`, a number of constructors other than one, no builtin runtime support, and the same module as
+`T.ctorIdx`. `T.ctorIdx` is a safe definition with the universe parameters of `T`, result type
+`Nat` and type equal to the rebuilt one (so its argument is `T` applied to its parameters and
+indices), with target `T.ctorIdx._impl` and no `@[extern]`. `T.ctorIdx._impl` is an unsafe
+definition with the same type and universe parameters, in the same module, with neither
+`@[extern]` nor `@[implemented_by]`, whose body below its lambdas is `getObjTagNat _ x` with `x`
+the last lambda. When all of that holds, the value of `T.ctorIdx` must equal the rebuilt one; it
+is not compared otherwise, since the pair is rejected anyway. Equality of types and values is
+`Expr` `==`, which ignores binder names and binder annotations.
+
+Not compared: the option `genCtorIdx` (a hand written pair equal to the generated one is
+accepted), the type argument, universe level and number of lambdas of the `_impl` body, the
+reducibility hints, and the protected, completion, inline and `meta` markers.
+
+The pair is harmless for kernel checked theorems: the kernel ignores `implemented_by`, a safe
+constant cannot refer to an unsafe one, and compiled code is trusted nowhere (`native_decide`
+shows up as an axiom in check 1). -/
 def ctorIdxProblems (env : Environment) (n : Name) : Array String := Id.run do
   let impl := Name.mkStr n "_impl"
   let mut bad : Array String := #[]
-  if (isCtorIdxCore? env n).isNone then bad := bad.push "not T.ctorIdx of an inductive type T"
+  let ind? := isCtorIdxCore? env n
+  match ind? with
+  | none => bad := bad.push "not T.ctorIdx of an inductive type T"
+  | some info =>
+    if info.isUnsafe then bad := bad.push "T is unsafe"
+    let neverProp := match info.type.getForallBody with
+      | .sort l => l.isNeverZero
+      | _ => false
+    unless neverProp do bad := bad.push "the sort of T may be Prop"
+    match env.find? (mkCasesOnName info.name) with
+    | some c =>
+      unless c.levelParams.length > info.levelParams.length do
+        bad := bad.push "T does not eliminate into Type"
+    | none => bad := bad.push "T.casesOn does not exist"
+    if info.numCtors == 1 then bad := bad.push "T has one constructor"
+    if Compiler.LCNF.isRuntimeBuiltinType info.name then
+      bad := bad.push "T has builtin runtime support"
+    unless env.getModuleIdxFor? info.name == env.getModuleIdxFor? n do
+      bad := bad.push "T is defined in another module"
   match env.find? n with
   | some (.defnInfo v) =>
     unless v.safety == .safe do bad := bad.push "ctorIdx is not a safe definition"
-    unless v.type.getForallBody == mkConst ``Nat do bad := bad.push "result type is not Nat"
+    let natResult := v.type.getForallBody == mkConst ``Nat
+    unless natResult do bad := bad.push "result type is not Nat"
+    let expected := ind?.bind (expectedCtorIdx env)
+    if let some info := ind? then
+      unless v.levelParams == info.levelParams do
+        bad := bad.push "universe parameters differ from T"
+      match expected with
+      | some (ty, _) =>
+        if natResult && v.type != ty then
+          bad := bad.push "argument type is not T applied to its parameters and indices"
+      | none => bad := bad.push "generated ctorIdx of T cannot be rebuilt"
     unless Compiler.implementedByAttr.getParam? env n == some impl do
       bad := bad.push "target is not ctorIdx._impl"
     if isExtern env n then bad := bad.push "ctorIdx has @[extern]"
@@ -259,6 +366,10 @@ def ctorIdxProblems (env : Environment) (n : Name) : Array String := Id.run do
         bad := bad.push "_impl has @[implemented_by]"
     | some _ => bad := bad.push "_impl is not a definition"
     | none => bad := bad.push "_impl does not exist"
+    -- Compared last, only when nothing else failed.
+    if bad.isEmpty then
+      if let some (_, val) := expected then
+        unless v.value == val do bad := bad.push "safe body is not the generated casesOn"
   | some _ => bad := bad.push "ctorIdx is not a definition"
   | none => bad := bad.push "ctorIdx does not exist"
   return bad
