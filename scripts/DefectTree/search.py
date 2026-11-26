@@ -22,6 +22,17 @@
 #   frozen row table (read if present, missing rows are factored with sympy and the file is
 #   rewritten). OUT gets the certificate. ROWS and OUT must be different files (also through a
 #   symbolic or a hard link), otherwise exit status 2 before the search.
+#   Root check: a ROOT below 2 ^ 32 by trial division (exit 2 when composite). From 2 ^ 32 on,
+#   before the search and before any file is touched: a Miller and Rabin base that proves ROOT
+#   composite is a usage error (exit 2); otherwise ROOT is admitted only when its exact Pratt
+#   certificate checks (certio.certify): the Pratt data of ROWS first, then each missing
+#   factorization of p - 1 under the factor_seconds deadline. Data that fails the exact check
+#   ends with exit status 3, a root left undecided (a timeout, no witness below
+#   certio.LEGACY_SCAN) with exit status 4 and a line starting with UNKNOWN; no probable prime
+#   test ever admits a root.
+#   Discovery checkpoint: when a run ends with exit status 3 or 4, the factorizations of p - 1
+#   it found (product checked, primality of the factors not) and their witnesses are written to
+#   ROWS.discovery.json, which no script reads as proof; ROWS and OUT stay unchanged.
 #   Flags: noledger, maxnodes=M (at most M nodes are expanded, leaves and high leaves included;
 #   every node beyond them is an open leaf, not counted), maxexp=E (a chain above exponent E is
 #   left open), factor_seconds=S (a deadline for each factoring step, also for the
@@ -37,7 +48,7 @@
 # certio.py. Pratt data is stored for every fact prime from 200 on and for the root prime, with
 # the least Pratt witness of each new factorization of p - 1 (field witness of ROWS), searched
 # below certio.LEGACY_SCAN only; when none is found there the factorization is kept, no witness
-# is stored, and validation leaves the prime undecided (exit 3).
+# is stored, and validation leaves the prime undecided (exit 3, or 4 for a root from 2 ^ 32 on).
 # Validation: before anything is written, every row the certificate uses must list each prime
 # once, multiply back (unless partial), and each of its facts and the root prime must be
 # certified prime by the route of check.py and gen.py (certio.certify). A tree that closed on
@@ -45,7 +56,8 @@
 # Exit status: 0 when the tree closes (no open leaf), every factorization finished and the
 # validation passed (the last line says closed and validated), 1 when a leaf stays open or a
 # row or a p - 1 stayed partial (check.py and gen.py reject such a certificate), 2 for a usage
-# error or an unreadable or rejected row table, 3 when the validation fails (nothing written).
+# error or an unreadable or rejected row table, 3 when the validation fails (nothing written), 4
+# when a root from 2 ^ 32 on is not certified within the budget (UNKNOWN, nothing written).
 # Output: both files are written under temporary names and renamed into place afterwards.
 # Requires: Python 3, sympy (only for rows not yet in ROWS).
 # Untrusted: every result is checked again by the Lean kernel.
@@ -90,7 +102,7 @@ K = nat_arg(args[0], 'K', 0)
 W = nat_arg(args[1], 'W', 0)
 U = nat_arg(args[2], 'U', 3)
 ROOT = nat_arg(args[3], 'ROOT', 3)
-if not is_prime_small(ROOT):
+if ROOT < 2 ** 32 and not is_prime_small(ROOT):     # larger roots: see the root admission
     usage('ROOT must be a prime, got %d' % ROOT)
 CAP = None if args[4] == 'none' else nat_arg(args[4], 'CAP', 0)
 ROWS, OUT = args[5], args[6]
@@ -113,6 +125,9 @@ def same_file(a, b):
 
 if same_file(ROWS, OUT):
     usage('ROWS and OUT name the same file %r' % OUT)
+DISCOVERY = ROWS + '.discovery.json'
+if same_file(DISCOVERY, OUT) or same_file(DISCOVERY, ROWS):
+    usage('the discovery checkpoint %r names OUT or ROWS' % DISCOVERY)
 
 def gs(p, m):
     return sum(p ** i for i in range(m + 1))
@@ -151,6 +166,9 @@ def odd_cofactor(n, fs):
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import certio     # the strict loader shared with check.py and gen.py (exit 2 on violation)
 
+if ROOT >= 2 ** 32 and certio.composite(ROOT):
+    usage('ROOT must be a prime, got %d (a Miller and Rabin base proves it composite)' % ROOT)
+
 rows = {}
 pm1 = {}
 PARTSET = set()       # marked rows: factored again when used
@@ -169,6 +187,7 @@ if os.path.exists(ROWS):
         if bad:
             print('rejected row table %s: %s' % (ROWS, bad), file=sys.stderr)
             sys.exit(2)
+START_PM1 = set(pm1)  # entries of the loaded table; the others are found in this run
 dirty = False
 used = set()
 
@@ -411,9 +430,6 @@ def node(os_, sp):
         return {'t': 'open'}
     return branch(os_, sp, fr[0])
 
-NODES[0] += 1
-cert = branch([], 0, ROOT)
-
 PARTIAL_PM1 = []      # primes whose p - 1 timed out in this run (not tried again)
 
 def pm1_of(p):
@@ -447,6 +463,56 @@ def pm1_of(p):
     for r in set(pm1[p]):
         if r >= 200:
             pm1_of(r)
+
+def write_files(pending):
+    """Writes each (path, object) under a temporary name next to the file the path resolves
+    to, then renames each into place, so that a failure never leaves a truncated file."""
+    made = []
+    for path, obj, kw in pending:
+        real = os.path.realpath(path)
+        tmp = os.path.join(os.path.dirname(real), '.%s.%d.tmp' % (os.path.basename(real),
+                                                                   os.getpid()))
+        with open(tmp, 'w') as f:
+            json.dump(obj, f, **kw)
+        made.append((tmp, real))
+    for tmp, real in made:
+        os.replace(tmp, real)
+
+
+def save_discoveries():
+    """Keeps the factorizations of p - 1 found in this run (product p - 1; the witness where
+    one was found) in the discovery checkpoint DISCOVERY when the run ends without writing ROWS.
+    Never proof: search.py does not read the checkpoint."""
+    new = sorted(p for p in pm1 if p not in START_PM1 and not certio.pm1_problem(p, pm1[p]))
+    if new:
+        write_files([(DISCOVERY, {'pm1': {str(p): pm1[p] for p in new},
+                                  'witness': {str(p): WIT[p] for p in new if p in WIT}},
+                      {'indent': 0, 'sort_keys': True})])
+        print('discovery checkpoint %s: %d factorizations of p - 1 (not validated)'
+              % (DISCOVERY, len(new)), file=sys.stderr)
+
+
+# Root admission from 2 ^ 32 on (below it the trial division above decides): the supplied Pratt
+# data first, missing data under the factoring deadline, then the exact recursive certificate.
+# Nothing is written on a failure: exit 3 when the data fails the exact check, 4 (UNKNOWN) when
+# the root stays undecided within the budget.
+if ROOT >= 2 ** 32:
+    bad = certio.certify(ROOT, pm1, WIT, set())
+    if bad and bad.startswith('no factorization'):
+        pm1_of(ROOT)
+        bad = certio.certify(ROOT, pm1, WIT, set(), PARTIAL_PM1)
+    if bad:
+        save_discoveries()
+        if bad == 'partial' or 'undecided' in bad:
+            print('UNKNOWN: the root prime %d is not certified within the budget: %s; nothing '
+                  'written' % (ROOT, 'a factorization of p - 1 timed out' if bad == 'partial'
+                               else bad), file=sys.stderr)
+            sys.exit(4)
+        print('root not validated: %s; nothing written' % bad, file=sys.stderr)
+        sys.exit(3)
+
+NODES[0] += 1
+cert = branch([], 0, ROOT)
 
 tab_rows = sorted(used)
 # Pratt data for every prime the Lean checker tests with isPr (DefectTreeCode.lean): each fact
@@ -487,22 +553,8 @@ bad = validation_problem()
 if bad:
     print('%s, not validated: %s; nothing written' % ('open' if OPEN else 'raw closed', bad),
           file=sys.stderr)
+    save_discoveries()
     sys.exit(3)
-
-
-def write_files(pending):
-    """Writes each (path, object) under a temporary name next to the file the path resolves
-    to, then renames each into place, so that a failure never leaves a truncated file."""
-    made = []
-    for path, obj, kw in pending:
-        real = os.path.realpath(path)
-        tmp = os.path.join(os.path.dirname(real), '.%s.%d.tmp' % (os.path.basename(real),
-                                                                   os.getpid()))
-        with open(tmp, 'w') as f:
-            json.dump(obj, f, **kw)
-        made.append((tmp, real))
-    for tmp, real in made:
-        os.replace(tmp, real)
 
 
 pending = []

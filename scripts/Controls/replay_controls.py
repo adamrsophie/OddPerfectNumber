@@ -6,9 +6,11 @@
 # of Pratt/gen.py: every archived valid input must pass with exit status 0,
 # and each mutated input must be rejected with the expected nonzero status (1: a well formed
 # input fails a check; 2: malformed input, a usage error or an unreadable file; 3: a search
-# that closed on facts that fail validation; 4: a replay left undecided), with no Python
-# traceback. The helpers run as subprocesses with `sys.executable -I -B`, in normal and in
-# optimized (-O) mode, so a check written as an `assert` would show up as a failure.
+# that closed on facts that fail validation; 4: a replay or a search root left undecided),
+# with no Python traceback. The helpers run as subprocesses with `sys.executable -I -B`, in
+# normal and in optimized (-O) mode, so a check written as an `assert` would show up as a
+# failure. The root admission of DefectTree/search.py from 2 ^ 32 on (an 87 bit prime, a forged
+# witness, a strong pseudoprime, a nested factoring timeout) is controlled in defect_tree_root.
 # SpecialFive and SpecialFiveMore keep no certificate in the repository: the controls build
 # them in a temporary folder (SpecialFive/gen.py 24, whose certificate and Lean module must
 # equal the published ones, and SpecialFiveMore/gen.py 12 with small chunks). The partial rows
@@ -66,7 +68,7 @@ HARDENED = [DT_CHECK, DT_SEARCH, DT_GEN, DT_IO, SS_REPLAY, SS_GEN, SF_REPLAY, SF
 # arguments. Modes: both (factorint of 13 sleeps, also with a limit), first (it sleeps only
 # without a limit), empty (factorint finds no factor at all), pm1 (factorint of 330 = 331 - 1
 # sleeps), plain (trial division, nothing sleeps), row (the full factorization of
-# sigma(88741^10) sleeps, the one with a limit finds only 89).
+# sigma(88741^10) sleeps, the one with a limit finds only 89), sleep (every factorint sleeps).
 DRIVER = '''import runpy, sys, time, types
 mode, script = sys.argv[1], sys.argv[2]
 def factorint(n, limit=None):
@@ -77,7 +79,7 @@ def factorint(n, limit=None):
             return {89: 1}
         while True:
             time.sleep(1)
-    if (mode == 'both' and n == 13) or (mode == 'first' and n == 13 and limit is None) or \\
+    if mode == 'sleep' or (mode == 'both' and n == 13) or (mode == 'first' and n == 13 and limit is None) or \\
             (mode == 'pm1' and n == 330):
         while True:
             time.sleep(1)
@@ -808,6 +810,103 @@ def defect_tree_four(t):
             expect="nodes 1 stats {'br': 1} open 1")
 
 
+def defect_tree_root(t):
+    """Controls of the root admission of DefectTree/search.py from 2 ^ 32 on: a root is admitted
+    only by its exact Pratt certificate, missing data is searched under the factoring deadline,
+    and every failure or UNKNOWN exit leaves the existing ROWS and OUT byte for byte unchanged."""
+    T = f'{t}/root'
+    os.makedirs(T, exist_ok=True)
+    driver = f'{t}/driver.py'
+    with open(driver, 'w') as f:
+        f.write(DRIVER)
+    p87 = 140194179307171898833699259
+    pm87 = {'809': [2, 2, 2, 101], '2887': [2, 3, 13, 37], '6473': [2, 2, 2, 809],
+            '28871': [2, 5, 2887], '346453': [2, 2, 3, 28871], '2304389': [2, 2, 89, 6473],
+            '22223351': [2, 5, 5, 19, 149, 157],
+            '13568242433': [2, 2, 2, 2, 2, 2, 2, 2, 23, 2304389],
+            str(p87): [2, 11, 61, 346453, 22223351, 13568242433]}
+    wit87 = {'809': 3, '2887': 5, '6473': 3, '28871': 13, '346453': 2, '2304389': 2,
+             '22223351': 19, '13568242433': 3, str(p87): 2}
+    old = b'previous certificate\n'
+
+    def prepared(name, table):
+        rows_, out_ = f'{T}/r_{name}.json', f'{T}/o_{name}.json'
+        write_json(rows_, table)
+        with open(out_, 'wb') as f:
+            f.write(old)
+        return rows_, out_
+
+    def unchanged(rows_, out_, table):
+        def check():
+            with open(out_, 'rb') as f:
+                if f.read() != old or \
+                        sha(rows_) != hashlib.sha256(json.dumps(table).encode()).hexdigest():
+                    return 'an existing output file changed'
+            left = [x for x in os.listdir(T) if x.endswith('.tmp')]
+            return f'temporary files left: {left}' if left else None
+        return check
+
+    budget = ['maxnodes=1', 'factor_seconds=1']
+    for mode in ('', '-O'):
+        # 1. The 87 bit prime, maxnodes=1 factor_seconds=1: bounded in both dispositions.
+        table = {'rows': [], 'pm1': {}}
+        rows_, out_ = prepared('87sleep', table)
+        control('DefectTree/search.py: the 87 bit prime root, factoring of p - 1 times out '
+                '(stand in): UNKNOWN', driver, ['sleep', DT_SEARCH, '2', '0', '3', str(p87),
+                                                'none', rows_, out_] + budget, 4,
+                modes=(mode,), cwd=t, timeout=30, expect='UNKNOWN: the root prime',
+                after=unchanged(rows_, out_, table))
+        table = {'rows': [], 'pm1': pm87, 'witness': wit87}
+        rows_, out_ = prepared('87data', table)
+        control('DefectTree/search.py: the 87 bit prime root with its Pratt data is admitted, '
+                'one node', DT_SEARCH, ['2', '0', '3', str(p87), 'none', rows_, out_] + budget,
+                1, modes=(mode,), cwd=t, timeout=30, expect="nodes 1 stats {'br': 1} open 1",
+                after=lambda r=rows_: None if load(r) == {'rows': [], 'pm1': pm87,
+                                                          'witness': wit87} else
+                'the row table changed')
+        # 2. A forged certificate for the prime: the stored witness 4 (a square) fails.
+        table = {'rows': [], 'pm1': pm87, 'witness': dict(wit87, **{str(p87): 4})}
+        rows_, out_ = prepared('87forged', table)
+        control('DefectTree/search.py: the 87 bit prime root with a forged witness is rejected',
+                DT_SEARCH, ['2', '0', '3', str(p87), 'none', rows_, out_] + budget, 3,
+                modes=(mode,), cwd=t, timeout=30, expect='stored Pratt witness 4',
+                after=unchanged(rows_, out_, table))
+        # 3. The composite 318665857834031151167461 passes the Miller and Rabin bases 2 to 37;
+        # with a complete factorization of p - 1 it stays undecided, never admitted.
+        huge = 318665857834031151167461
+        table = {'rows': [], 'pm1': {
+            str(huge): [2, 2, 3, 3, 3, 5, 11, 17, 474349721, 6652754837],
+            '474349721': [2, 2, 2, 5, 13, 912211], '6652754837': [2, 2, 7, 13, 18276799],
+            '912211': [2, 3, 5, 13, 2339], '18276799': [2, 3, 3046133], '2339': [2, 7, 167],
+            '3046133': [2, 2, 761533], '761533': [2, 2, 3, 17, 3733],
+            '3733': [2, 2, 3, 311], '311': [2, 5, 31]}}
+        rows_, out_ = prepared('huge', table)
+        control('DefectTree/search.py: the strong pseudoprime 318665857834031151167461 as root '
+                'is UNKNOWN, not admitted', DT_SEARCH, ['2', '0', '3', str(huge), 'none', rows_,
+                                                         out_] + budget, 4,
+                modes=(mode,), cwd=t, timeout=30, expect='undecided',
+                after=unchanged(rows_, out_, table))
+        table = {'rows': [], 'pm1': {}}
+        rows_, out_ = prepared('fermat', table)
+        control('DefectTree/search.py: the root 2 ^ 32 + 1 is proven composite (usage error)',
+                DT_SEARCH, ['2', '0', '3', str(2 ** 32 + 1), 'none', rows_, out_] + budget, 2,
+                modes=(mode,), cwd=t, timeout=30, expect='proves it composite',
+                after=unchanged(rows_, out_, table))
+        # 4. A nested timeout: 4295069903 - 1 = 2 * 31 * 47 * 61 * 73 * 331 is factored, the
+        # factorization of 330 sleeps; ROWS and OUT stay unchanged, the checkpoint keeps it.
+        table = {'rows': [], 'pm1': {}}
+        rows_, out_ = prepared(f'nested{mode}', table)
+        disc = rows_ + '.discovery.json'
+        control('DefectTree/search.py: a nested factoring timeout leaves the files unchanged '
+                '(stand in)', driver, ['pm1', DT_SEARCH, '2', '0', '3', '4295069903', 'none',
+                                       rows_, out_] + budget, 4, modes=(mode,), cwd=t,
+                timeout=30, expect='PARTIAL pm1 331',
+                after=lambda r=rows_, o=out_, tb=table, dc=disc: unchanged(r, o, tb)() or (
+                    None if os.path.exists(dc) and load(dc)['pm1'] ==
+                    {'4295069903': [2, 31, 47, 61, 73, 331]} else
+                    'no discovery checkpoint with the factorization of 4295069902'))
+
+
 def row_of(dd, key):
     return next((r[2] for r in dd['rows'] if r[:2] == key), None)
 
@@ -1029,6 +1128,7 @@ def main(argv):
         defect_tree(t)
         defect_tree_three(t)
         defect_tree_four(t)
+        defect_tree_root(t)
         shape_small(t)
         special_five(t, argv[1:] == ['--stdlib-only'])
         special_five_args(t)

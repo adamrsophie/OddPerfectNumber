@@ -43,9 +43,24 @@ counted) and `maxexp=E` leaves a chain open above the exponent `E` (open leaves 
 primality checks, and after a timeout the factorization with a limit; for a prime `p` from 200 on
 the factorization of `p - 1` with its primality checks. Every parameter is checked before the
 search starts (decimal digits only; `K`, `W` and `CAP` at least 0, `U` at least 3, `ROOT` a prime
-at least 3, `M` and `S` at least 1, `E` at least 2; no unknown or repeated option; a number of
+at least 3 (see "Root check" below), `M` and `S` at least 1, `E` at least 2; no unknown or repeated option; a number of
 more than 4300 digits is a bad one; `ROWS` and `OUT` different files, also through a symbolic or
 a hard link); a bad one ends with exit status 2 and a message, before anything is written.
+
+Root check. A `ROOT` below `2 ^ 32` is checked by trial division. From `2 ^ 32` on, before the
+search and before any file is touched, a Miller and Rabin base that proves `ROOT` composite is a
+usage error (exit status 2); otherwise the root is admitted only when its exact Pratt
+certificate checks (`certio.certify`): the Pratt data of `ROWS` first, then each missing
+factorization of `p - 1` under the `factor_seconds` deadline. Data that fails the exact check
+(for example a stored witness that fails) ends with exit status 3; a root left undecided within
+the budget (a factorization of `p - 1` that timed out, also a nested one, or no witness below
+10000) ends with exit status 4 and a line starting with `UNKNOWN`. No probable prime test ever
+admits a root, and `ROWS` and `OUT` are not touched on either exit.
+
+Discovery checkpoint. When a run ends with exit status 3 or 4, the factorizations of `p - 1` it
+found (each product checked, the primality of the factors not) and their witnesses are written
+to `ROWS.discovery.json` (fields `pm1` and `witness`). No script reads it as proof; it only
+saves the factoring work for a later run that validates it again.
 
 Partial rows. A row whose factorization does not multiply back to its value (up to a power of 2)
 after the deadlines keeps only the factors proven prime, which is still a valid lower bound; it is
@@ -77,12 +92,14 @@ recursively, and a Pratt witness). A tree that closed on facts that fail this, s
 row with a composite "prime" or a factorization of `p - 1` with a composite factor, is only raw
 closed: the message says `raw closed, not validated`, no file is written and the exit status is
 3. A prime whose `p - 1` timed out is left to the partial status (exit 1, files written), so a
-retry with better data still works.
+retry with better data still works; a root from `2 ^ 32` on is instead decided before the search
+(see "Root check").
 
 Exit statuses: `search.py` ends with 0 when the tree closes, every factorization finished and
 the validation passed (last line `closed and validated`), 1 when a leaf stays open or a row or a
 `p - 1` stayed partial (such a certificate is rejected by `check.py` and `gen.py`), 2 for a
-usage error or an unreadable or rejected row table, 3 when the validation fails. `search.py`
+usage error or an unreadable or rejected row table, 3 when the validation fails, 4 when a root
+from `2 ^ 32` on is not certified within the budget (`UNKNOWN`, see "Root check"). `search.py`
 writes both files under temporary names and renames them into place, so a failure never leaves
 a truncated file. `check.py`
 ends with 0 when it accepts, 1 when it rejects (also with the flag `corrupt`) and 2 for malformed
@@ -138,7 +155,8 @@ ends with exit status 1 and the words `no Pratt witness found below` (undecided,
 composite `318665857834031151167461 = 399165290221 * 798330580441`, which passes the Miller and
 Rabin test and has a complete factorization of `p - 1`). `search.py` also scans below 10000 only;
 when no witness is found there it keeps the factorization, stores no witness, and validation
-leaves the prime undecided (exit status 3).
+leaves the prime undecided (exit status 3, or 4 for a root from `2 ^ 32` on; the factorization is
+kept in the discovery checkpoint).
 
 Resumed rows. When `search.py` factors a marked row again, the new facts are merged with the
 stored ones: for each prime the larger valuation is kept, no stored factor is dropped, and the
