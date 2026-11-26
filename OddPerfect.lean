@@ -539,3 +539,4 @@ import OddPerfect.EulerIndexPairEmitterSix
 import OddPerfect.HalfSigmaSix
 import OddPerfect.EulerIndexPairSixParity
 import OddPerfect.EulerIndexPairEmitterTen
+import OddPerfect.EulerIndexPaletteThree
