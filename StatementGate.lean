@@ -2913,6 +2913,28 @@ theorem StatementGate.not_all_exponents_eq_sixty_six :
     Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 66) → False :=
   @OddPerfect.not_all_exponents_eq_sixty_six
 
+/-! ## Equal exponents by the counting checker: l = 61, 71, 73, 79 -/
+
+theorem StatementGate.not_all_exponents_eq_sixty :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 60) → False :=
+  @OddPerfect.not_all_exponents_eq_sixty
+
+theorem StatementGate.not_all_exponents_eq_seventy :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 70) → False :=
+  @OddPerfect.not_all_exponents_eq_seventy
+
+theorem StatementGate.not_all_exponents_eq_seventy_two :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 72) → False :=
+  @OddPerfect.not_all_exponents_eq_seventy_two
+
+theorem StatementGate.not_all_exponents_eq_seventy_eight :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 78) → False :=
+  @OddPerfect.not_all_exponents_eq_seventy_eight
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3716,6 +3738,12 @@ def expected : List (Name × Name) :=
     (`StatementGate.not_all_exponents_eq_fifty_eight,
       ``OddPerfect.not_all_exponents_eq_fifty_eight),
     (`StatementGate.not_all_exponents_eq_sixty_six, ``OddPerfect.not_all_exponents_eq_sixty_six),
+    (`StatementGate.not_all_exponents_eq_sixty, ``OddPerfect.not_all_exponents_eq_sixty),
+    (`StatementGate.not_all_exponents_eq_seventy, ``OddPerfect.not_all_exponents_eq_seventy),
+    (`StatementGate.not_all_exponents_eq_seventy_two,
+      ``OddPerfect.not_all_exponents_eq_seventy_two),
+    (`StatementGate.not_all_exponents_eq_seventy_eight,
+      ``OddPerfect.not_all_exponents_eq_seventy_eight),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
