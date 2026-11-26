@@ -604,3 +604,7 @@ import OddPerfect.ImpureRowBase
 import OddPerfect.ImpureRowFourBase
 import OddPerfect.ImpureRowCount
 import OddPerfect.ImpureRowCountFour
+import OddPerfect.EqualExponentCount109Data
+import OddPerfect.EqualExponentCount109
+import OddPerfect.EqualExponentCount113Data
+import OddPerfect.EqualExponentCount113
