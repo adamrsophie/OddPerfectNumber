@@ -543,3 +543,4 @@ import OddPerfect.EulerIndexPaletteThree
 import OddPerfect.EulerIndexPairSeven
 import OddPerfect.EqualExponentNotSpecial
 import OddPerfect.EqualExponentChainFar
+import OddPerfect.EqualExponentChainFar59
