@@ -532,3 +532,5 @@ import OddPerfect.LargestPrimeSafe
 import OddPerfect.LargestPrimeSafeNone
 import OddPerfect.LargestPrimeFour
 import OddPerfect.SpecialBelowCapacity
+import OddPerfect.SpecialRankLadder
+import OddPerfect.SpecialRankLadderCube
