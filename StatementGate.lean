@@ -2873,6 +2873,46 @@ theorem StatementGate.eulerIndex_pair_emitter_ten_all :
     2) :=
   @OddPerfect.eulerIndex_pair_emitter_ten_all
 
+/-! ## Equal exponents: the prime l is ordinary; l = 47, 53, 59, 67 -/
+
+theorem StatementGate.ordinary_of_all_exponents_eq_pred :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → l ∈ Nat.primeFactors N ∧ l ≠ q :=
+  @OddPerfect.ordinary_of_all_exponents_eq_pred
+
+theorem StatementGate.card_mod_one_le_of_all_exponents_eq_pred :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → Finset.card ({p ∈ Nat.primeFactors N | p % l = 1}) ≤ l :=
+  @OddPerfect.card_mod_one_le_of_all_exponents_eq_pred
+
+theorem StatementGate.sigma_pred_dvd_of_ordinary :
+    ∀ {N q l p : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → p
+    ∈ Nat.primeFactors N → p ≠ q → (Nat.factorization N) p = l - 1 → (ArithmeticFunction.sigma 1)
+    (p ^ (l - 1)) ∣ N :=
+  @OddPerfect.sigma_pred_dvd_of_ordinary
+
+theorem StatementGate.not_all_exponents_eq_forty_six :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 46) → False :=
+  @OddPerfect.not_all_exponents_eq_forty_six
+
+theorem StatementGate.not_all_exponents_eq_fifty_two :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 52) → False :=
+  @OddPerfect.not_all_exponents_eq_fifty_two
+
+theorem StatementGate.not_all_exponents_eq_fifty_eight :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 58) → False :=
+  @OddPerfect.not_all_exponents_eq_fifty_eight
+
+theorem StatementGate.not_all_exponents_eq_sixty_six :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 66) → False :=
+  @OddPerfect.not_all_exponents_eq_sixty_six
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3666,6 +3706,16 @@ def expected : List (Name × Name) :=
     (`StatementGate.three_pow_ne_seven_pow_add_two, ``OddPerfect.three_pow_ne_seven_pow_add_two),
     (`StatementGate.sigma_prime_pow_ne_seven_pow, ``OddPerfect.sigma_prime_pow_ne_seven_pow),
     (`StatementGate.eulerIndex_pair_emitter_ten_all, ``OddPerfect.eulerIndex_pair_emitter_ten_all),
+    (`StatementGate.ordinary_of_all_exponents_eq_pred,
+      ``OddPerfect.ordinary_of_all_exponents_eq_pred),
+    (`StatementGate.card_mod_one_le_of_all_exponents_eq_pred,
+      ``OddPerfect.card_mod_one_le_of_all_exponents_eq_pred),
+    (`StatementGate.sigma_pred_dvd_of_ordinary, ``OddPerfect.sigma_pred_dvd_of_ordinary),
+    (`StatementGate.not_all_exponents_eq_forty_six, ``OddPerfect.not_all_exponents_eq_forty_six),
+    (`StatementGate.not_all_exponents_eq_fifty_two, ``OddPerfect.not_all_exponents_eq_fifty_two),
+    (`StatementGate.not_all_exponents_eq_fifty_eight,
+      ``OddPerfect.not_all_exponents_eq_fifty_eight),
+    (`StatementGate.not_all_exponents_eq_sixty_six, ``OddPerfect.not_all_exponents_eq_sixty_six),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
