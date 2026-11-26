@@ -35,7 +35,9 @@
 # of LANDED_PARTIAL, pinned to their recorded facts), and every stored factorization of p - 1
 # must list integers above 1 that multiply back to p - 1. ROWS is read by the strict loader
 # certio.py. Pratt data is stored for every fact prime from 200 on and for the root prime, with
-# the least Pratt witness of each new factorization of p - 1 (field witness of ROWS).
+# the least Pratt witness of each new factorization of p - 1 (field witness of ROWS), searched
+# below certio.LEGACY_SCAN only; when none is found there the factorization is kept, no witness
+# is stored, and validation leaves the prime undecided (exit 3).
 # Validation: before anything is written, every row the certificate uses must list each prime
 # once, multiply back (unless partial), and each of its facts and the root prime must be
 # certified prime by the route of check.py and gen.py (certio.certify). A tree that closed on

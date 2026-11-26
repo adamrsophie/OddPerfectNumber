@@ -205,9 +205,11 @@ def least_witness(p, fs, bound=None):
 
 
 def pratt_witness(p, fs):
-    """The least a < p with a ^ (p - 1) = 1 and a ^ ((p - 1) / r) != 1 mod p for every r of fs,
-    or None (also at once when p is proven composite)."""
-    return least_witness(p, fs)[0]
+    """The least a < min(p, LEGACY_SCAN) with a ^ (p - 1) = 1 and a ^ ((p - 1) / r) != 1 mod p
+    for every r of fs, or None. None decides nothing (the scan stops at LEGACY_SCAN, so that a
+    composite that passes the prefilter composite never starts an endless scan); callers treat
+    it as undecided, neither prime nor composite."""
+    return least_witness(p, fs, LEGACY_SCAN)[0]
 
 
 def certify(p, pm1, wit, done, skip=()):

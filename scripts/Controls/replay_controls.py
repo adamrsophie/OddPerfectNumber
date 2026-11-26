@@ -734,6 +734,27 @@ def defect_tree_four(t):
             DT_CHECK, [c_big, write_json(f'{T}/r_bigw.json', {'rows': [], 'pm1': pm_big,
                                                               'witness': {str(big): 2}})], 1,
             cwd=t, timeout=30, expect='first rejected node')
+    # 4b. The composite 318665857834031151167461 = 399165290221 * 798330580441 passes the
+    # prefilter certio.composite and has a complete factorization of p - 1 (each factor from 200
+    # on with its own): the witness scan of gen.py stops at LEGACY_SCAN, undecided.
+    huge = 318665857834031151167461
+    pm_huge = {str(huge): [2, 2, 3, 3, 3, 5, 11, 17, 474349721, 6652754837],
+               '474349721': [2, 2, 2, 5, 13, 912211], '6652754837': [2, 2, 7, 13, 18276799],
+               '912211': [2, 3, 5, 13, 2339], '18276799': [2, 3, 3046133], '2339': [2, 7, 167],
+               '3046133': [2, 2, 761533], '761533': [2, 2, 3, 17, 3733], '3733': [2, 2, 3, 311],
+               '311': [2, 5, 31]}
+    c_huge = write_json(f'{T}/c_huge.json', {
+        'params': {'K': 0, 'w': 0, 'u': 3, 'root': huge, 'cap': 0}, 'rows': [],
+        'cert': br(huge, [{'t': 'ord', 'kid': {'t': 'budget'}}, high_budget])})
+    g = f'{T}/g_huge.lean'
+    control('DefectTree/gen.py: the composite 318665857834031151167461 without a witness is '
+            'undecided', DT_GEN, [c_huge, write_json(f'{T}/r_huge.json', {
+                'rows': [], 'pm1': pm_huge}), 'X', g], 1, cwd=t, timeout=30,
+            expect='no Pratt witness found below 10000', after=nothing(g))
+    control('DefectTree/gen.py: the composite 318665857834031151167461 with the witness 2 is '
+            'rejected', DT_GEN, [c_huge, write_json(f'{T}/r_hugew.json', {
+                'rows': [], 'pm1': pm_huge, 'witness': {str(huge): 2}}), 'X', g], 1, cwd=t,
+            timeout=30, expect='stored Pratt witness 2', after=nothing(g))
 
     # 5. ROWS and OUT the same file: by path, through a symbolic link, through a hard link.
     for kind in ('the same path', 'a symbolic link', 'a hard link'):

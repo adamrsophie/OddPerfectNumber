@@ -117,8 +117,9 @@ forced and so a fact prime. `search.py` stores the factorization of `p - 1` for 
 primes from 200 on (the root included), `gen.py` writes a Pratt entry for each of them and
 `check.py` certifies each. A factorization of `p - 1` must list integers above 1 (no booleans),
 each prime (below 200 by trial division, from 200 on by its own entry), whose product is
-`p - 1`; the witness is searched below `p` only, after a Miller and Rabin test that rejects a
-proven composite at once, so a wrong list ends with exit status 1 and never loops.
+`p - 1`; the witness is searched below `min(p, 10000)` only, after a Miller and Rabin test that
+rejects a proven composite at once, so a wrong list ends with exit status 1 and never loops (a
+composite that passes the Miller and Rabin test ends undecided at the bound).
 
 Pratt witnesses. The row table may carry the optional field `"witness": {"p": a, ...}`, a Pratt
 witness for entries of `pm1`. `search.py` stores the least witness of each factorization of
@@ -131,8 +132,13 @@ the legacy path: the Miller and Rabin bases 2, 3, 5, 7, then a scan for a witnes
 scan reaches 10000 the replay stops with exit status 4 and the word `undecided`: the prime is
 reported neither prime nor composite (for example the composite
 `3215031751 = 151 * 751 * 28351`, a strong pseudoprime to the bases 2, 3, 5, 7). `gen.py`
-verifies a stored witness and writes it; without one it computes the least witness as before,
-so the landed modules are unchanged.
+verifies a stored witness and writes it; without one it computes the least witness below
+`min(p, 10000)`, so the landed modules are unchanged; when there is none it writes nothing and
+ends with exit status 1 and the words `no Pratt witness found below` (undecided, for example the
+composite `318665857834031151167461 = 399165290221 * 798330580441`, which passes the Miller and
+Rabin test and has a complete factorization of `p - 1`). `search.py` also scans below 10000 only;
+when no witness is found there it keeps the factorization, stores no witness, and validation
+leaves the prime undecided (exit status 3).
 
 Resumed rows. When `search.py` factors a marked row again, the new facts are merged with the
 stored ones: for each prime the larger valuation is kept, no stored factor is dropped, and the

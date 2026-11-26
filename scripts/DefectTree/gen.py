@@ -21,7 +21,8 @@
 # Lean checker tests (each fact prime of the table and the root prime); each factorization of
 # p - 1 it uses must list integers above 1 (no booleans) that multiply back to p - 1, each prime
 # (below 200 by trial division, from 200 on by its own entry), and the witness is searched
-# below p only; a stored witness (field witness of the table) must pass the same test and is
+# below min(p, certio.LEGACY_SCAN) only (none found: undecided, exit 1); a stored witness
+# (field witness of the table) must pass the same test and is
 # used in its place. Each row of the table lists every prime once (tabOK tests nodupB). Every
 # chain is nonempty and ends with an item high. The inputs are read by the strict loader
 # certio.py (exact types, natural numbers, a closed set of fields and tags).
@@ -158,7 +159,7 @@ def pratt(p):
         fail(bad)
     for r in sorted(set(fs)):
         pratt(r)
-    # a < p: when no such a exists, p is not prime (or the factor list is wrong).
+    # The scan stops at certio.LEGACY_SCAN: no witness below it leaves p undecided.
     if p in WIT:
         a = WIT[p]
         if not certio.witness_ok(p, fs, a):
@@ -166,7 +167,8 @@ def pratt(p):
     else:
         a = certio.pratt_witness(p, fs)
     if a is None:
-        fail('no Pratt witness below %d for the factorization %r of %d - 1' % (p, fs, p))
+        fail('no Pratt witness found below %d for the factorization %r of %d - 1 (undecided, '
+             'neither prime nor composite)' % (min(p, certio.LEGACY_SCAN), fs, p))
     done.add(p)
     out.append((p, a, fs))
 
