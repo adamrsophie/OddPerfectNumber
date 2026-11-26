@@ -594,3 +594,8 @@ import OddPerfect.EqualExponentCount103Data
 import OddPerfect.EqualExponentCount103
 import OddPerfect.EqualExponentCount107Data
 import OddPerfect.EqualExponentCount107
+import OddPerfect.TwoExceptionsGeneralCore
+import OddPerfect.TwoExceptionsSixtySevenData
+import OddPerfect.TwoExceptionsEightyNineData
+import OddPerfect.TwoExceptionsSixtySeven
+import OddPerfect.TwoExceptionsEightyNine
