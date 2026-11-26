@@ -559,3 +559,4 @@ import OddPerfect.EqualExponentChainFar67
 import OddPerfect.EqualExponentCount
 import OddPerfect.EqualExponentCountGeneral
 import OddPerfect.EqualExponentCount61
+import OddPerfect.EqualExponentCount71
