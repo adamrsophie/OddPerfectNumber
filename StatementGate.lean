@@ -2699,6 +2699,104 @@ theorem StatementGate.largest_four_special :
     u ^ i = P ^ (Nat.factorization N) P :=
   @OddPerfect.largest_four_special
 
+/-! ## Special exponent ladder; capacity below q; largest prime never 4R + 1; emitter exponent -/
+
+theorem StatementGate.sum_sigmaWeight_below_le_cube :
+    ∀ {N q E : ℕ}, _root_.Nat.Prime q → (∀ p ∈ Nat.primeFactors N, p < q → (Nat.factorization N)
+    p ≤ E) → ∑ p ∈ Nat.primeFactors N with p < q, (Nat.factorization (ArithmeticFunction.sigma 1
+    (p ^ (Nat.factorization N) p))) q ≤ E ^ 3 :=
+  @OddPerfect.sum_sigmaWeight_below_le_cube
+
+theorem StatementGate.sum_sigmaWeight_below_special_le_cube :
+    ∀ {N q E : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → (∀ p ∈ Nat.primeFactors N, p < q →
+    (Nat.factorization N) p ≤ E) → ∑ p ∈ Nat.primeFactors N with p < q, (Nat.factorization
+    (ArithmeticFunction.sigma 1 (p ^ (Nat.factorization N) p))) q ≤ E ^ 3 :=
+  @OddPerfect.sum_sigmaWeight_below_special_le_cube
+
+theorem StatementGate.sigma_sub_mul_pred_lt_card_mul :
+    ∀ {T : Finset ℕ} {R : ℕ} {e : ℕ → ℕ}, (∀ p ∈ T, _root_.Nat.Prime p) → 2 ≤ R → (∀ p ∈ T, R ≤
+    p) → Finset.Nonempty T → ((ArithmeticFunction.sigma 1) (∏ p ∈ T, p ^ e p) - ∏ p ∈ T, p ^ e
+    p) * (R - 1) < Finset.card T * ∏ p ∈ T, p ^ e p :=
+  @OddPerfect.sigma_sub_mul_pred_lt_card_mul
+
+theorem StatementGate.special_exponent_ladder :
+    ∀ {N q E β t k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N)
+    q) → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p ≤ E) → ∑ p ∈
+    Nat.primeFactors N with p < q, (Nat.factorization (ArithmeticFunction.sigma 1 (p ^
+    (Nat.factorization N) p))) q ≤ β → E ≤ β + 1 → Finset.card ({x ∈ Nat.primeFactors N | q <
+    x}) = k → k ≤ (q - 2) * q ^ t → E * (Nat.factorization N) q + E * t + E - 1 ≤ (E + 1) ^ k *
+    (E * β + E * t + E - 1) :=
+  @OddPerfect.special_exponent_ladder
+
+theorem StatementGate.special_exponent_ladder_palette :
+    ∀ {N q t k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨ (Nat.factorization N) p =
+    4) → Finset.card ({x ∈ Nat.primeFactors N | q < x}) = k → k ≤ (q - 2) * q ^ t → 4 *
+    (Nat.factorization N) q + 4 * t + 3 ≤ 5 ^ k * (4 * t + 35) :=
+  @OddPerfect.special_exponent_ladder_palette
+
+theorem StatementGate.special_exponent_ladder_palette_card :
+    ∀ {N q k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀
+    p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨ (Nat.factorization N) p = 4) →
+    Finset.card ({x ∈ Nat.primeFactors N | q < x}) = k → 4 * (Nat.factorization N) q + 4 * k + 3
+    ≤ 5 ^ k * (4 * k + 35) :=
+  @OddPerfect.special_exponent_ladder_palette_card
+
+theorem StatementGate.special_exponent_le_1093_of_three_above :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p
+    ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨ (Nat.factorization N) p = 4) →
+    Finset.card ({x ∈ Nat.primeFactors N | q < x}) ≤ 3 → (Nat.factorization N) q ≤ 1093 :=
+  @OddPerfect.special_exponent_le_1093_of_three_above
+
+theorem StatementGate.special_exponent_ladder_cube :
+    ∀ {N q E t k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q)
+    → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p ≤ E) → Finset.card ({x ∈
+    Nat.primeFactors N | q < x}) = k → k ≤ (q - 2) * q ^ t → E * (Nat.factorization N) q + E * t
+    + E - 1 ≤ (E + 1) ^ k * (E * E ^ 3 + E * t + E - 1) :=
+  @OddPerfect.special_exponent_ladder_cube
+
+theorem StatementGate.special_exponent_ladder_cube_card :
+    ∀ {N q E k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p ≤ E) → Finset.card ({x ∈
+    Nat.primeFactors N | q < x}) = k → E * (Nat.factorization N) q + E * k + E - 1 ≤ (E + 1) ^ k
+    * (E * E ^ 3 + E * k + E - 1) :=
+  @OddPerfect.special_exponent_ladder_cube_card
+
+theorem StatementGate.geom_sum_mod_three_of_mod_six :
+    ∀ (u : ℕ) {R : ℕ}, R % 6 = 1 → (∑ i ∈ Finset.range R, u ^ i) % 3 = 1 :=
+  @OddPerfect.geom_sum_mod_three_of_mod_six
+
+theorem StatementGate.largest_primeFactor_ne_four_mul_prime_add_one :
+    ∀ {N P R : ℕ}, _root_.OddPerfect N → P ∈ Nat.primeFactors N → (∀ r ∈ Nat.primeFactors N, r ≤
+    P) → _root_.Nat.Prime R → P ≠ 4 * R + 1 :=
+  @OddPerfect.largest_primeFactor_ne_four_mul_prime_add_one
+
+theorem StatementGate.sigma_prime_pow_ne_five_pow :
+    ∀ {p g w : ℕ}, _root_.Nat.Prime p → p ≠ 2 → 2 ≤ g → (ArithmeticFunction.sigma 1) (p ^ g) ≠ 5
+    ^ w :=
+  @OddPerfect.sigma_prime_pow_ne_five_pow
+
+theorem StatementGate.eulerIndex_pair_emitter_six :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ ∃ v j, (ArithmeticFunction.sigma 1) (t ^
+    (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧ (ArithmeticFunction.sigma 1) (u ^
+    (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization N) t ∧ _root_.Nat.Prime
+    ((Nat.factorization N) t + 1) ∧ 6 ≤ (Nat.factorization N) t ∧ (v = 0 ∧
+    (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q ∧ 6 ≤ (Nat.factorization N) t
+    ∨ v = 1 ∧ u = (Nat.factorization N) t + 1 ∧ 5 ≤ u ∧ t % u = 1 ∧ q % u = 1 ∧ q + 1 = 2 * (∏ p
+    ∈ Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2) :=
+  @OddPerfect.eulerIndex_pair_emitter_six
+
+theorem StatementGate.eulerIndex_pair_not_palette :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ¬(((Nat.factorization
+    N) r = 2 ∨ (Nat.factorization N) r = 4) ∧ ((Nat.factorization N) s = 2 ∨ (Nat.factorization
+    N) s = 4)) :=
+  @OddPerfect.eulerIndex_pair_not_palette
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3458,6 +3556,25 @@ def expected : List (Name × Name) :=
     (`StatementGate.largest_primeFactor_ne_two_mul_prime_add_one,
       ``OddPerfect.largest_primeFactor_ne_two_mul_prime_add_one),
     (`StatementGate.largest_four_special, ``OddPerfect.largest_four_special),
+    (`StatementGate.sum_sigmaWeight_below_le_cube, ``OddPerfect.sum_sigmaWeight_below_le_cube),
+    (`StatementGate.sum_sigmaWeight_below_special_le_cube,
+      ``OddPerfect.sum_sigmaWeight_below_special_le_cube),
+    (`StatementGate.sigma_sub_mul_pred_lt_card_mul, ``OddPerfect.sigma_sub_mul_pred_lt_card_mul),
+    (`StatementGate.special_exponent_ladder, ``OddPerfect.special_exponent_ladder),
+    (`StatementGate.special_exponent_ladder_palette, ``OddPerfect.special_exponent_ladder_palette),
+    (`StatementGate.special_exponent_ladder_palette_card,
+      ``OddPerfect.special_exponent_ladder_palette_card),
+    (`StatementGate.special_exponent_le_1093_of_three_above,
+      ``OddPerfect.special_exponent_le_1093_of_three_above),
+    (`StatementGate.special_exponent_ladder_cube, ``OddPerfect.special_exponent_ladder_cube),
+    (`StatementGate.special_exponent_ladder_cube_card,
+      ``OddPerfect.special_exponent_ladder_cube_card),
+    (`StatementGate.geom_sum_mod_three_of_mod_six, ``OddPerfect.geom_sum_mod_three_of_mod_six),
+    (`StatementGate.largest_primeFactor_ne_four_mul_prime_add_one,
+      ``OddPerfect.largest_primeFactor_ne_four_mul_prime_add_one),
+    (`StatementGate.sigma_prime_pow_ne_five_pow, ``OddPerfect.sigma_prime_pow_ne_five_pow),
+    (`StatementGate.eulerIndex_pair_emitter_six, ``OddPerfect.eulerIndex_pair_emitter_six),
+    (`StatementGate.eulerIndex_pair_not_palette, ``OddPerfect.eulerIndex_pair_not_palette),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
