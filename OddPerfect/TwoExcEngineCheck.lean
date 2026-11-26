@@ -550,7 +550,7 @@ theorem ordOK_dvd {d g p k : ℕ} (hp : p.Prime) (hg : g.Prime) (h : ordOK d g p
       push_cast at this
       exact this
     have hord : orderOf ((g : ZMod p)) = d := by
-      refine orderOf_eq_of_pow_and_pow_div_prime (by omega) (cast_one d hpow) ?_
+      refine orderOf_eq_of_pow_and_pow_div_prime (cast_one d hpow) ?_
       intro r hr hrd hone
       have hmem := mem_of_dvd_prod hr (fun a ha => primeB_sound (hprime a ha)) (by rw [hprod]; exact hrd)
       apply hnot r hmem

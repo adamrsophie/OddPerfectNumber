@@ -306,7 +306,7 @@ private theorem close {N : ℕ} (h : OddPerfect N) (K : Finset ℕ) (hK : K ⊆ 
   have hK0 : 0 ≤ ∏ p ∈ K, abundancy (p ^ N.factorization p) :=
     Finset.prod_nonneg fun _ _ => abundancy_nonneg _
   have hKC : ∏ p ∈ K, abundancy (p ^ N.factorization p) ≤ ∏ p ∈ K, c p :=
-    Finset.prod_le_prod (fun _ _ => abundancy_nonneg _) hC
+    Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg _) hC
   have hPT : (∏ t ∈ T, fv t) * (1 - S) ≤ 1 := by
     nlinarith [mul_le_mul_of_nonneg_left hS hP0]
   have hpos : 0 < 1 - S := by linarith
@@ -348,6 +348,7 @@ private theorem box_13_61 : ∀ a < 2, ∀ b < 4, a + b ≠ 0 → (a, b) ≠ (1,
 private theorem one_le_pv {x n : ℕ} (hx : x.Prime) (hn : n ≠ 0) (hd : x ∣ n) :
     1 ≤ padicValNat x n := by
   have := Fact.mk hx
+  rw [Nat.padicValNat_def]
   exact one_le_padicValNat_of_dvd hn hd
 
 private theorem sigma_ne_zero' {p e : ℕ} (hp : p.Prime) : σ 1 (p ^ e) ≠ 0 :=
@@ -516,7 +517,8 @@ theorem restrained_not_97 {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
       have ht2 := key2 ht
       have hcap : (phi3 t).factorization 61 ≤ 1 := by
         have := cap61 t t13
-        rwa [ht2, sigma_prime_sq htp, ← Nat.factorization_def (phi3 t) (p := 61) (by norm_num)]
+        rwa [ht2, sigma_prime_sq htp, Nat.padicValNat_def,
+          ← Nat.factorization_def (phi3 t) (p := 61) (by norm_num)]
           at this
       refine ⟨?_, supp ht, hcap, ?_, fun _ => ?_⟩
       · by_contra hlt
@@ -690,7 +692,8 @@ theorem restrained_sixty_one_mod_three {N q r : ℕ} (h : OddPerfect N) (hq : q.
       have ht2 := key2 ht
       have hcap : (phi3 t).factorization 13 ≤ 1 := by
         have := cap13 t t3
-        rwa [ht2, sigma_prime_sq htp, ← Nat.factorization_def (phi3 t) (p := 13) (by norm_num)]
+        rwa [ht2, sigma_prime_sq htp, Nat.padicValNat_def,
+          ← Nat.factorization_def (phi3 t) (p := 13) (by norm_num)]
           at this
       refine ⟨?_, supp ht, hcap, ?_, fun hd => absurd hd (qnd t)⟩
       · by_contra hlt

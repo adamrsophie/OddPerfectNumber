@@ -21,7 +21,7 @@ lake exe cache get
 lake build
 ```
 
-The toolchain is Lean 4.33.1. Mathlib is pinned to commit `0df444a360eaa60ab8c11dca51a86af692955474`.
+The toolchain is Lean 4.36.0. Mathlib is pinned to commit `fc4f59e577feb1a4956671bc04ac18aaaf8cd842` (its tag `v4.36.0`).
 
 Memory: the modules with large kernel checked tables (for example the `OmegaSevenRoots` files and the `CommonOneFifteen` files) each need 8 to 10 GB while they compile, and Lake compiles several modules at once. A full build fits on a machine with 24 GB with some swapping; with less memory it may be killed. Mathlib itself comes from the cache and is not rebuilt.
 

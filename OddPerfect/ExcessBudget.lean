@@ -78,7 +78,8 @@ theorem padicValNat_sigma_prime_pow_row {p r e : ℕ} (hp : p.Prime) (hr : r.Pri
     have hrd : ¬ r ∣ d := fun h => by have := Nat.le_of_dvd (by omega) h; omega
     obtain ⟨k, hk⟩ := hd
     have hk0 : k ≠ 0 := by rintro rfl; simp at hk
-    rw [hk, Nat.mul_div_cancel_left _ (by omega), padicValNat.mul (by omega) hk0,
+    rw [hk, Nat.mul_div_cancel_left _ (by omega), Nat.padicValNat_def (n := k),
+      Nat.padicValNat_def (n := d * k), padicValNat.mul (by omega) hk0,
       padicValNat.eq_zero_of_not_dvd hrd, zero_add]
 
 /-- One row, combined form: `v_r(σ(p ^ e)) ≤ budgetBase p r e + v_r(e + 1)`. -/
@@ -225,7 +226,7 @@ theorem five_pow_three_mul_le_budget {N q : ℕ} (h : OddPerfect N) (hq : q.Prim
           have hpp := hrow p (Finset.mem_of_mem_erase hp)
           rw [sigmaWeight_eq_padicValNat N p hrp]
           simp only [hb, hg]
-          rw [Nat.factorization_def _ hrp]
+          rw [Nat.factorization_def _ hrp, ← Nat.padicValNat_def]
           exact padicValNat_sigma_prime_pow_le_budgetBase hpp hrp hr2 hpr
       _ = (∑ p ∈ (insert q H).erase r, b p r) + ∑ p ∈ (insert q H).erase r, g p r :=
           Finset.sum_add_distrib
@@ -246,7 +247,7 @@ theorem five_pow_three_mul_le_budget {N q : ℕ} (h : OddPerfect N) (hq : q.Prim
     rw [← Finset.prod_pow_eq_pow_sum]
     refine Finset.prod_le_prod' fun r hr => ?_
     simp only [hg]
-    rw [Nat.factorization_def _ (hF hr).2.1]
+    rw [Nat.factorization_def _ (hF hr).2.1, ← Nat.padicValNat_def]
     exact Nat.pow_le_pow_left (hH5 r hr) _
   set P := ∏ p ∈ H, (N.factorization p + 1) with hP
   have hrows : 5 ^ (∑ p ∈ H, ∑ r ∈ H, g p r) ≤ P := by
@@ -277,8 +278,11 @@ theorem budgetBase_le_one {p r e : ℕ} (hp : p.Prime) (hr : r.Prime) (hpr : p �
   split_ifs with hc
   · by_contra hlt
     obtain ⟨k, hk⟩ := orderOf_dvd_sub_one hp hr hpr
+    have hdv : r ^ padicValNat r (p ^ orderOf (p : ZMod r) - 1) ∣
+        p ^ orderOf (p : ZMod r) - 1 := by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
     refine hW (((pow_dvd_pow r (by omega :
-      2 ≤ padicValNat r (p ^ orderOf (p : ZMod r) - 1))).trans pow_padicValNat_dvd).trans ?_)
+      2 ≤ padicValNat r (p ^ orderOf (p : ZMod r) - 1))).trans hdv).trans ?_)
     rw [hk, pow_mul]
     simpa using Nat.sub_dvd_pow_sub_pow (p ^ orderOf (p : ZMod r)) 1 k
   · exact Nat.zero_le _
@@ -304,7 +308,7 @@ theorem three_mul_excess_add_le_budget {N q : ℕ} (h : OddPerfect N) (hq : q.Pr
   have hA1 : budgetA N q = 1 := by
     refine Finset.prod_eq_one fun r hr => ?_
     have : Fact r.Prime := ⟨(hF hr).2.1⟩
-    rw [padicValNat.eq_zero_of_not_dvd (hA r hr), pow_zero]
+    rw [Nat.padicValNat_def, padicValNat.eq_zero_of_not_dvd (hA r hr), pow_zero]
   have hC : budgetC N q ≤ H.card * H.card := by
     unfold budgetC
     rw [← hHdef]

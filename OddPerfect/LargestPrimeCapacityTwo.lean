@@ -140,6 +140,7 @@ theorem false_of_largest_40961 {N : ℕ} (h : OddPerfect N) (hP : 40961 ∈ N.pr
   rw [factorization_eq_sum_erase h.perfect (Nat.prime_of_mem_primeFactors hP) (by norm_num)]
   refine Finset.sum_eq_zero fun p hp => ?_
   obtain ⟨hpP, hpN⟩ := Finset.mem_erase.mp hp
+  rw [Nat.padicValNat_def]
   refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
   obtain ⟨hlt, hp2, ht, -, -⟩ :=
     sender_data h hP hmax (a := 13) (m := 5) (by norm_num) hpN hpP hd
@@ -193,7 +194,8 @@ theorem false_of_largest_18433 {N : ℕ} (h : OddPerfect N) (hP : 18433 ∈ N.pr
         omega
       by_contra hw2
       push Not at hw2
-      have h1 : 18433 ^ 2 ∣ 4481 ^ t - 1 := (padicValNat_dvd_iff_le hne).mpr hw2
+      have h1 : 18433 ^ 2 ∣ 4481 ^ t - 1 := (multiplicity_dvd_iff_le hne).mpr
+        (by rw [← Nat.padicValNat_def]; omega)
       obtain ⟨c, hc⟩ := ht
       have h2 : 4481 ^ t - 1 ∣ 4481 ^ 18 - 1 := by
         simpa only [one_pow, ← pow_mul, ← hc] using Nat.sub_dvd_pow_sub_pow (4481 ^ t) 1 c
@@ -211,7 +213,7 @@ theorem false_of_largest_18433 {N : ℕ} (h : OddPerfect N) (hP : 18433 ∈ N.pr
             by_cases hqd : 18433 ∣ σ 1 (q ^ N.factorization q)
             · obtain ⟨rfl, -, hw⟩ := key q hq hqd
               simpa using hw
-            · rw [padicValNat.eq_zero_of_not_dvd hqd]
+            · rw [Nat.padicValNat_def, padicValNat.eq_zero_of_not_dvd hqd]
               exact Nat.zero_le _
         _ ≤ 1 := by
             rw [Finset.sum_ite_eq']
@@ -225,7 +227,8 @@ theorem false_of_largest_18433 {N : ℕ} (h : OddPerfect N) (hP : 18433 ∈ N.pr
     norm_num at this
   · apply hpos
     rw [hsum]
-    refine Finset.sum_eq_zero fun q hq => padicValNat.eq_zero_of_not_dvd fun hd => hs ⟨q, hq, hd⟩
+    refine Finset.sum_eq_zero fun q hq => by
+      rw [Nat.padicValNat_def]; exact padicValNat.eq_zero_of_not_dvd fun hd => hs ⟨q, hq, hd⟩
 
 /-- `40961` is not the largest prime factor of an odd perfect number `N`: if `40961 ∣ N`,
 some prime factor of `N` exceeds `40961`. This excludes one isolated value; it does not say

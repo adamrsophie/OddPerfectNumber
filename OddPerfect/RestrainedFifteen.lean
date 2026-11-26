@@ -99,7 +99,7 @@ theorem restrained_three_eq {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
       hp3 ((Nat.prime_dvd_prime_iff_eq Nat.prime_three hpp).mp (Nat.dvd_of_mod_eq_zero h0)).symm
     by_cases h1 : p % 3 = 1
     · rw [padicValNat_three_sigma_prime_pow_of_mod_one hpp h1]
-      simp [hp3, hpq, h1]
+      simp [hp3, hpq, h1, Nat.padicValNat_def, Nat.multiplicity_self (by norm_num : 1 < 3)]
     · have h2 : p % 3 = 2 := by omega
       rw [padicValNat_three_sigma_prime_pow_of_mod_two hpp h2]
       simp [hpq, h1]
@@ -174,10 +174,12 @@ theorem restrained_prod_sq_dvd {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have hneq : σ 1 (q ^ N.factorization q) ≠ 0 :=
     (sigma_pos 1 _ (pow_ne_zero _ hq.ne_zero)).ne'
   have hv : padicValNat t (σ 1 (3 ^ N.factorization 3) * σ 1 (q ^ N.factorization q)) = 2 := by
-    rw [padicValNat.mul hne3 hneq, hs]
+    rw [Nat.padicValNat_def, padicValNat.mul hne3 hneq]
+    simpa only [Nat.padicValNat_def] using hs
   have hdvd : t ^ 2 ∣ σ 1 (3 ^ N.factorization 3) * σ 1 (q ^ N.factorization q) := by
-    have := pow_padicValNat_dvd (p := t)
-      (n := σ 1 (3 ^ N.factorization 3) * σ 1 (q ^ N.factorization q))
+    have : t ^ padicValNat t (σ 1 (3 ^ N.factorization 3) * σ 1 (q ^ N.factorization q)) ∣
+        σ 1 (3 ^ N.factorization 3) * σ 1 (q ^ N.factorization q) := by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
     rwa [hv] at this
   have hcop : Nat.Coprime (t ^ 2) 2 :=
     Nat.Coprime.pow_left 2 ((Nat.coprime_primes htp Nat.prime_two).mpr ht2)

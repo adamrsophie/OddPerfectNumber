@@ -219,13 +219,13 @@ private theorem ec_prod_le_of_card_le {T L : Finset ℕ} (f : ℕ → ℚ) (c : 
     rw [Finset.inter_comm] at h2
     omega
   calc ∏ t ∈ T \ L, f t ≤ ∏ _t ∈ T \ L, c :=
-        Finset.prod_le_prod (fun t ht => hT0 t (Finset.mem_sdiff.mp ht).1)
+        Finset.prod_le_prod₀ (fun t ht => hT0 t (Finset.mem_sdiff.mp ht).1)
           fun t ht => hTc t (Finset.mem_sdiff.mp ht).1 (Finset.mem_sdiff.mp ht).2
     _ = c ^ (T \ L).card := Finset.prod_const c
     _ ≤ c ^ (L \ T).card := pow_le_pow_right₀ hc hc1
     _ = ∏ _l ∈ L \ T, c := (Finset.prod_const c).symm
     _ ≤ ∏ l ∈ L \ T, f l :=
-        Finset.prod_le_prod (fun _ _ => by linarith) fun l hl => hLc l (Finset.mem_sdiff.mp hl).1
+        Finset.prod_le_prod₀ (fun _ _ => by linarith) fun l hl => hLc l (Finset.mem_sdiff.mp hl).1
 
 private theorem ec_five_le {N p : ℕ} (h : OddPerfect N) (h3 : ¬ 3 ∣ N)
     (hp : p ∈ N.primeFactors) : 5 ≤ p := by
@@ -296,7 +296,7 @@ private theorem ec_core {N q m : ℕ} {Y : Finset ℕ} (h : OddPerfect N)
     obtain ⟨-, -, -, b, hb, hyb⟩ := hmemX hy
     exact ec_sep hq13 ha hb hxa hyb hxy
   have hZ : ∏ x ∈ Z, abundancy (x ^ N.factorization x) ≤ ∏ x ∈ Z, (x : ℚ) / (x - 1) :=
-    Finset.prod_le_prod (fun _ _ => ec_abundancy_nonneg _) fun x hx =>
+    Finset.prod_le_prod₀ (fun _ _ => ec_abundancy_nonneg _) fun x hx =>
       (abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors
         (Finset.mem_of_mem_erase (Finset.mem_of_mem_filter x hx))) _).le
   have hX0 : 0 ≤ ∏ x ∈ X, abundancy (x ^ N.factorization x) :=

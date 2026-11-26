@@ -165,7 +165,8 @@ theorem card_erase_special_le {N q l : ℕ} (h : OddPerfect N) (hl : l.Prime) (h
       obtain ⟨hpq, hpS⟩ := Finset.mem_erase.mp hp
       obtain ⟨hpp, hpN, hpl⟩ := hS p hpS
       rw [hexp p (Nat.mem_primeFactors.mpr ⟨hpp, hpN, h.ne_zero⟩) hpq]
-      exact one_le_padicValNat_of_dvd (sigma_pos 1 _ (pow_pos hpp.pos _).ne').ne'
+      rw [Nat.padicValNat_def]
+      exact one_le_multiplicity_of_dvd (sigma_pos 1 _ (pow_pos hpp.pos _).ne').ne'
         (dvd_sigma_pred_of_mod_eq_one hpp hl.one_lt.le hpl)
     _ ≤ _ := Finset.sum_le_sum_of_subset hsub
 

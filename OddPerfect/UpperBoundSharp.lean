@@ -123,7 +123,7 @@ private theorem prod_lt_d_div_n (hN1 : 1 < N) (hd : 0 < d) (hσ : d * σ 1 N = n
         rw [mul_comm, abundancy_mul_one_sub (Nat.prime_of_mem_primeFactors hp)])
     rw [this]
     calc _ < ∏ p ∈ N.primeFactors, (1 : ℚ) := by
-          apply prod_lt_prod_of_nonempty
+          apply prod_lt_prod_of_nonempty₀
           · intro p hp
             exact one_sub_inv_pos (le_trans (two_le_of_mem hp)
               (Nat.le_self_pow (by omega) p))
@@ -166,7 +166,7 @@ private theorem prod_pp_le (hN : 0 < N) (hd : 0 < d) (hσ : d * σ 1 N = n * N) 
     le_trans zero_le_one (h1 p hp)
   have : 1 ≤ ∏ p ∈ N.primeFactors \ R, abundancy (p ^ N.factorization p) := by
     calc (1 : ℚ) = ∏ p ∈ N.primeFactors \ R, (1 : ℚ) := prod_const_one.symm
-      _ ≤ _ := prod_le_prod (fun _ _ => zero_le_one)
+      _ ≤ _ := prod_le_prod₀ (fun _ _ => zero_le_one)
           (fun p hp => h1 p (sdiff_subset hp))
   have hpos : 0 ≤ ∏ p ∈ R, abundancy (p ^ N.factorization p) :=
     prod_nonneg (fun p hp => h0 p (hR hp))

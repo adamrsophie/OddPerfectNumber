@@ -53,7 +53,7 @@ private theorem coprime_prod_pow {n : ℕ} {w : Fin n → ℕ} (hw : Function.In
 private theorem prod_pow_le {n m : ℕ} {w : Fin n → ℕ} (hw : ∀ i, w i ≤ m) (α : Fin n → ℕ) :
     ∏ i, w i ^ α i ≤ m ^ ∑ i, α i := by
   rw [← Finset.prod_pow_eq_pow_sum]
-  exact Finset.prod_le_prod (fun _ _ => Nat.zero_le _) fun i _ => Nat.pow_le_pow_left (hw i) _
+  exact Finset.prod_le_prod₀ (fun _ _ => Nat.zero_le _) fun i _ => Nat.pow_le_pow_left (hw i) _
 
 private theorem prod_pow_pow_modEq {n d M : ℕ} {w : Fin n → ℕ}
     (hw : ∀ i, w i ^ d ≡ 1 [MOD M]) (α : Fin n → ℕ) : (∏ i, w i ^ α i) ^ d ≡ 1 [MOD M] := by
@@ -424,8 +424,9 @@ theorem padicValNat_geom_sum_eq_ite_gcd {P u d : ℕ} (hP : P.Prime) (hP2 : P �
   -- valuation and divisibility of the geometric sum through `u ^ n - 1`
   have hval : ∀ n, 1 ≤ n → padicValNat P (∑ i ∈ range n, u ^ i) = padicValNat P (u ^ n - 1) := by
     intro n hn
-    rw [← geom_sum_mul_pred hu1.le n, padicValNat.mul (hne n hn) (by omega),
-      padicValNat.eq_zero_of_not_dvd hPu1, add_zero]
+    simp only [Nat.padicValNat_def]
+    rw [← geom_sum_mul_pred hu1.le n, Nat.multiplicity_mul (hne n hn) (by omega),
+      multiplicity_eq_zero_of_not_dvd hPu1, add_zero]
   have hdiv : ∀ n, P ∣ ∑ i ∈ range n, u ^ i ↔ P ∣ u ^ n - 1 := by
     intro n
     rw [← geom_sum_mul_pred hu1.le n]
@@ -453,14 +454,16 @@ theorem padicValNat_geom_sum_eq_ite_gcd {P u d : ℕ} (hP : P.Prime) (hP2 : P �
     have hlte := padicValNat.pow_sub_pow (hP.odd_of_ne_two hP2) hug (by simpa using hPg) hPug
       hdg0
     rw [one_pow, ← pow_mul, Nat.mul_div_cancel' hgd] at hlte
+    simp only [Nat.padicValNat_def]
     rw [hlte]
     congr 1
-    have hm := padicValNat.mul (p := P) hg0.ne' hdg0
-    rw [Nat.mul_div_cancel' hgd, padicValNat.eq_zero_of_not_dvd (n := g) (fun h' => by
+    have hm := Nat.multiplicity_mul (p := P) hg0.ne' hdg0
+    rw [Nat.mul_div_cancel' hgd, multiplicity_eq_zero_of_not_dvd (b := g) (fun h' => by
       have := Nat.le_of_dvd hg0 h'
       omega), zero_add] at hm
     exact hm.symm
-  · exact padicValNat.eq_zero_of_not_dvd fun h' => h (hiff.mp h')
+  · rw [Nat.padicValNat_def]
+    exact multiplicity_eq_zero_of_not_dvd fun h' => h (hiff.mp h')
 
 /-- Receiver index `1`. If `P` is an odd prime, `1 < u < P`, `1 ≤ d` and `gcd(d, P - 1) = 1`,
 then `P ∤ ∑ i < d, u ^ i`: the valuation is `0`. -/
@@ -500,7 +503,7 @@ theorem sum_padicValNat_geom_sum_le_of_gcd {P d : ℕ} (hP : P.Prime) (hP2 : P �
     have h2 : ∑ u ∈ V, padicValNat P (∑ i ∈ range g, u ^ i) ≤
         ∑ u ∈ U, padicValNat P (∑ i ∈ range g, u ^ i) :=
       Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
-    simp only [Nat.factorization_def _ hP] at h1
+    simp only [Nat.factorization_def _ hP, ← Nat.padicValNat_def] at h1
     omega
   have hcard : #V + 1 ≤ g := card_add_one_le_of_primes hP hPg V fun u hu => by
     obtain ⟨huU, hdv⟩ := Finset.mem_filter.mp hu

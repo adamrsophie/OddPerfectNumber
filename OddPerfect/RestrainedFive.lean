@@ -964,7 +964,7 @@ theorem restrained_not_thirteen {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
     rw [Finset.sum_singleton, key2 hy] at hle
     have hs0 : σ 1 (p ^ N.factorization p) ≠ 0 := (sigma_pos 1 _ (pow_ne_zero _ hp0)).ne'
     have h3' := (hyp.pow_dvd_iff_le_factorization hs0).mp (hd.trans hm)
-    rw [Nat.factorization_def _ hyp] at h3'
+    rw [Nat.factorization_def _ hyp, ← Nat.padicValNat_def] at h3'
     omega
   -- prime factors of `σ(w^2)`
   have hstr : ∀ w ∈ T, ∀ d, d.Prime → d ∣ phi3 w →
@@ -1162,7 +1162,7 @@ theorem restrained_not_thirteen {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
         (Nat.dvd_of_mod_eq_zero (by omega : (q + 1) % 3 = 0)).trans
           (succ_dvd_sigma_special hq hodd)
       have := (Nat.prime_three.dvd_iff_one_le_factorization hsig0).mp h3d
-      rw [Nat.factorization_def _ Nat.prime_three] at this
+      rw [Nat.factorization_def _ Nat.prime_three, ← Nat.padicValNat_def] at this
       omega
     have hOone : ∀ {x y}, x ∈ O → y ∈ O → x = y := fun hx hy =>
       Finset.card_le_one.mp hOc _ hx _ hy

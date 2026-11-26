@@ -82,10 +82,11 @@ theorem restrained_two_mod_three_cases {N q r t : ℕ} (h : OddPerfect N) (hq : 
   refine Or.inr (Or.inr ?_)
   have htp := Nat.prime_of_mem_primeFactors ht
   have hsrc := restrained_two_sources h hq hodd hr hrq hsq ht ht3
-  rw [padicValNat.eq_zero_of_not_dvd hA, add_zero] at hsrc
+  rw [Nat.padicValNat_def (n := σ 1 (q ^ N.factorization q)),
+    padicValNat.eq_zero_of_not_dvd hA, add_zero] at hsrc
   have h2 : t ^ 2 ∣ σ 1 (3 ^ N.factorization 3) := by
-    rw [← hsrc]
-    exact pow_padicValNat_dvd
+    rw [← hsrc, Nat.padicValNat_def]
+    exact pow_multiplicity_dvd _ _
   have h3 : t ^ 2 ∣ 3 ^ (N.factorization 3 + 1) - 1 := by
     rw [← two_mul_sigma_three_pow_add_one, Nat.add_sub_cancel]
     exact Dvd.dvd.mul_left h2 2

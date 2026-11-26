@@ -65,7 +65,9 @@ private theorem fermat_factor_cost {F : ℕ} (hF5 : 5 ≤ F) (e : ℕ) :
     dsimp [c]
     omega
   have hpow : F ^ m ≤ e + 1 :=
-    Nat.le_of_dvd e.succ_pos (pow_padicValNat_dvd (p := F) (n := e + 1))
+    Nat.le_of_dvd e.succ_pos
+      (show F ^ padicValNat F (e + 1) ∣ e + 1 by
+        rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
   have hbernoulli : 1 + m * (2 * c + 2) ≤ F ^ m :=
     calc
       _ ≤ (1 + (2 * c + 2)) ^ m :=
@@ -88,8 +90,9 @@ theorem fermat_factor_mul_le_excess {N q F k : ℕ} (h : OddPerfect N) (hq : q.P
     refine Finset.mem_erase.mpr ⟨hFq.symm, ?_⟩
     rw [← Nat.support_factorization, Finsupp.mem_support_iff]
     omega
-  have hvq : v q = 0 := padicValNat.eq_zero_of_not_dvd
-    (not_fermat_dvd_sigma_special hF hFk hq h1 h2 hqa)
+  have hvq : v q = 0 := by
+    simp only [v, Nat.padicValNat_def]
+    exact multiplicity_eq_zero_of_not_dvd (not_fermat_dvd_sigma_special hF hFk hq h1 h2 hqa)
   have hledger : N.factorization F = ∑ p ∈ (N.primeFactors.erase q).erase F, v p :=
     calc
       _ = ∑ p ∈ N.primeFactors.erase F, v p :=

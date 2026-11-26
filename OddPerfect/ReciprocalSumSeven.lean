@@ -321,7 +321,7 @@ theorem prod_div_sub_one_le_two_add_of_seven_le {N p₁ : ℕ} (h : OddPerfect N
       positivity
   have hprod : ∏ p ∈ S, ((p : ℝ) / (p - 1)) ≤ 2 * Real.exp (∑ p ∈ S, b p) := by
     calc ∏ p ∈ S, ((p : ℝ) / (p - 1)) ≤ ∏ p ∈ S, (A p * (1 + b p)) := by
-          refine Finset.prod_le_prod (fun p hp => ?_) hfac
+          refine Finset.prod_le_prod₀ (fun p hp => ?_) hfac
           have := hpos p hp
           exact div_nonneg (by linarith) (by linarith)
       _ = (∏ p ∈ S, A p) * ∏ p ∈ S, (1 + b p) := Finset.prod_mul_distrib

@@ -39,6 +39,7 @@ theorem padicValNat_three_sigma_special_of_equal_exponents {N q β : ℕ} (h : O
   have hqN : q ∈ N.primeFactors := Nat.mem_primeFactors.mpr ⟨hq,
     Nat.dvd_of_factorization_pos (by obtain ⟨k, hk⟩ := hodd; omega), h.ne_zero⟩
   have hv : padicValNat 3 (2 * β + 1) = 0 := by
+    rw [Nat.padicValNat_def]
     refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
     exact mcdaniel h hq hodd fun p hp hpq => by rw [hexp p hp hpq]; omega
   rw [← hexp 3 h3N h3q, factorization_eq_sum_erase h.perfect Nat.prime_three (by norm_num),

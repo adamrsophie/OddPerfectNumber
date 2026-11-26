@@ -100,6 +100,7 @@ theorem sum_card_le_sum_min_compatible (h : OddPerfect N) {A : Finset ℕ}
     rw [Finset.card_eq_sum_ones]
     refine Finset.sum_le_sum fun p hp => ?_
     obtain ⟨hpA, hpd, -⟩ := Finset.mem_filter.mp hp
+    rw [Nat.padicValNat_def]
     refine one_le_padicValNat_of_dvd ?_ hpd
     exact (sigma_pos 1 _ (pow_ne_zero _
       (Nat.prime_of_mem_primeFactors (hA hpA)).ne_zero)).ne'

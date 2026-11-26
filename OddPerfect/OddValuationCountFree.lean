@@ -60,7 +60,8 @@ private lemma ovcf_exists_odd_val {B : ℕ} (hB : B ≠ 0) (hns : ∀ y : ℕ, B
   have htd : d₂.minFac ∣ d₂ := Nat.minFac_dvd d₂
   refine ⟨d₂.minFac, ht, ?_, ?_⟩
   · rw [← hd]; exact dvd_mul_of_dvd_right htd _
-  · rw [← Nat.factorization_def B ht, ← hd, Nat.factorization_mul (pow_ne_zero 2 hd₁) hd₂0,
+  · rw [Nat.padicValNat_def, ← Nat.factorization_def B ht, ← hd,
+      Nat.factorization_mul (pow_ne_zero 2 hd₁) hd₂0,
       Finsupp.add_apply, Nat.factorization_pow, Finsupp.smul_apply, smul_eq_mul,
       Nat.factorization_eq_one_of_squarefree hsf ht htd]
     exact ⟨_, rfl⟩
@@ -109,7 +110,8 @@ private lemma ovcf_factors_ne_zero {X p : ℕ} (hp : Odd p) :
 private lemma ovcf_val3 {r a b c : ℕ} (hr : r.Prime) (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0) :
     padicValNat r (a * b * c) = padicValNat r a + padicValNat r b + padicValNat r c := by
   have := Fact.mk hr
-  rw [padicValNat.mul (mul_ne_zero ha hb) hc, padicValNat.mul ha hb]
+  simp only [Nat.padicValNat_def]
+  rw [Nat.multiplicity_mul (mul_ne_zero ha hb) hc, Nat.multiplicity_mul ha hb]
 
 /-- `2 ≠ 0` modulo a prime above an odd prime. -/
 private lemma ovcf_two_ne_zero {r p : ℕ} (hp : p.Prime) (hpr : p < r) :
@@ -443,18 +445,19 @@ private lemma ovcf_main {q : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
     have hpr : p < r := hinv p hp hmin'
     have hrH : r ∣ ovcfH q L' := by
       have := Fact.mk hrp
-      exact dvd_of_one_le_padicValNat hodd.pos
+      exact dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; exact hodd.pos)
     obtain ⟨h1, h2⟩ := ovcf_survive hp hp2 hrp hpr hX (hrH.trans hHdvd)
     refine ⟨hrp, ?_, fun s hs hst => hinv s hs fun t ht htL =>
       hst t ht (Dvd.dvd.mul_left htL p)⟩
-    rw [hHm, ovcf_val3 hrp hH0 hB.1 hB.2, padicValNat.eq_zero_of_not_dvd h1,
-      padicValNat.eq_zero_of_not_dvd h2]
-    simpa using hodd
+    rw [hHm, ovcf_val3 hrp hH0 hB.1 hB.2]
+    simp only [Nat.padicValNat_def, multiplicity_eq_zero_of_not_dvd h1,
+      multiplicity_eq_zero_of_not_dvd h2]
+    simpa [Nat.padicValNat_def] using hodd
   have hnotW : ∀ r, ¬ r ∣ ovcfH q L' → r ∉ W := by
     intro r hrH hrW
     obtain ⟨hrp, hodd', -⟩ := hW r hrW
     have := Fact.mk hrp
-    exact hrH (dvd_of_one_le_padicValNat hodd'.pos)
+    exact hrH (dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; exact hodd'.pos))
   have hinvnew : ∀ r, p < r → ∀ s, s.Prime → (∀ t, t.Prime → t ∣ p * L' → s ≤ t) → s < r :=
     fun r hpr s _ hst => lt_of_le_of_lt (hst p hp (dvd_mul_right p L')) hpr
   -- a new witness in the positive factor
@@ -467,9 +470,10 @@ private lemma ovcf_main {q : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
       (ovcf_avail_plus hp hq.one_le hL'0 hmin' hpq) (fun y => hpos L' p y hL'o hpo hp3)
     have hrH : ¬ r ∣ ovcfH q L' := fun h => hrX (h.trans hHdvd)
     refine ⟨r, hnotW r hrH, hr, ?_, hinvnew r hpr, hrC⟩
-    rw [hHm, ovcf_val3 hr hH0 hB.1 hB.2, padicValNat.eq_zero_of_not_dvd hrH,
-      padicValNat.eq_zero_of_not_dvd hrC]
-    simpa using hodd
+    rw [hHm, ovcf_val3 hr hH0 hB.1 hB.2]
+    simp only [Nat.padicValNat_def, multiplicity_eq_zero_of_not_dvd hrH,
+      multiplicity_eq_zero_of_not_dvd hrC]
+    simpa [Nat.padicValNat_def] using hodd
   -- a new witness in the negative factor
   have hnewm : ¬ p ∣ q + 1 → ∃ r, r ∉ W ∧ r.Prime ∧
       Odd (padicValNat r (ovcfH q (p * L'))) ∧
@@ -487,9 +491,10 @@ private lemma ovcf_main {q : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1)
       (ovcf_avail_minus hp hL'o hmin' hpq) hns
     have hrH : ¬ r ∣ ovcfH q L' := fun h => hrX (h.trans hHdvd)
     refine ⟨r, hnotW r hrH, hr, ?_, hinvnew r hpr, hrC⟩
-    rw [hHm, ovcf_val3 hr hH0 hB.1 hB.2, padicValNat.eq_zero_of_not_dvd hrH,
-      padicValNat.eq_zero_of_not_dvd hrB]
-    simpa using hodd
+    rw [hHm, ovcf_val3 hr hH0 hB.1 hB.2]
+    simp only [Nat.padicValNat_def, multiplicity_eq_zero_of_not_dvd hrH,
+      multiplicity_eq_zero_of_not_dvd hrB]
+    simpa [Nat.padicValNat_def] using hodd
   -- the count
   have hcard : cardFactors (p * L') = cardFactors L' + 1 := by
     rw [cardFactors_mul hp.ne_zero hL'0, cardFactors_apply_prime hp]
@@ -571,7 +576,7 @@ theorem cardFactors_add_free_le_card_odd_valuation_half_sigma {q L : ℕ} (hq : 
   obtain ⟨hr, hodd, -⟩ := hW r hr
   unfold ovcfH at hodd
   have hodd' : Odd ((σ 1 (q ^ (2 * L - 1)) / 2).factorization r) := by
-    rw [Nat.factorization_def _ hr]
+    rw [Nat.factorization_def _ hr, ← Nat.padicValNat_def]
     exact hodd
   refine Finset.mem_filter.mpr ⟨?_, hodd'⟩
   rw [← Nat.support_factorization, Finsupp.mem_support_iff]

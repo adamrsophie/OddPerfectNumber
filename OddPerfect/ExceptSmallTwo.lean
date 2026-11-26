@@ -559,7 +559,7 @@ theorem exceptSmallTwo_bound {N : ℕ} (h : OddPerfect N) :
   have hprod : ∏ p ∈ N.primeFactors, ((p : ℝ) / ((p : ℝ) - 1)) ≤
       Real.exp (∑ p ∈ N.primeFactors, f p) := by
     rw [Real.exp_sum]
-    apply Finset.prod_le_prod
+    apply Finset.prod_le_prod₀
     · intro p hp
       have : (2 : ℝ) ≤ p := by exact_mod_cast (Nat.prime_of_mem_primeFactors hp).two_le
       exact div_nonneg (by linarith) (by linarith)

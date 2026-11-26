@@ -294,7 +294,8 @@ theorem eulerIndex_pair_emitter_ten_all (h : OddPerfect N) (hq : q.Prime)
       obtain ⟨k, hk⟩ := hge
       have hr6 : (N.factorization 3 + 1) % 6 = 1 ∨ (N.factorization 3 + 1) % 6 = 3 ∨
           (N.factorization 3 + 1) % 6 = 5 := by omega
-      rcases hr6 with h6 | h6 | h6 <;> rw [h6] at hm7 <;> norm_num at hm7 <;> omega
+      rcases hr6 with h6 | h6 | h6 <;> rw [h6] at hm7 <;> norm_num at hm7 <;>
+        simp only [← Nat.factorization_def _ Nat.prime_three] at hm7 <;> omega
     have hy0 : y = 0 := by
       by_contra hy
       exact h7 (hxy ▸ dvd_mul_of_dvd_right (dvd_pow_self 7 hy) _)

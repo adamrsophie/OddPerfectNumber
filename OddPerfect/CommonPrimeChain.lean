@@ -48,8 +48,9 @@ theorem mul_card_le_factorization {N q r k : ℕ} (h : OddPerfect N) (hr : r.Pri
   have : Fact r.Prime := ⟨hr⟩
   have hsub : T ⊆ N.primeFactors.filter (fun p => p % r = 1) := fun p hp =>
     Finset.mem_filter.mpr ⟨(hT p hp).1, (hT p hp).2.2⟩
-  have hlo : ∀ p ∈ T, k ≤ padicValNat r (N.factorization p + 1) := fun p hp =>
-    (padicValNat_dvd_iff_le (by omega)).mp (hexp p (hT p hp).1 (hT p hp).2.1)
+  have hlo : ∀ p ∈ T, k ≤ padicValNat r (N.factorization p + 1) := fun p hp => by
+    rw [Nat.padicValNat_def]
+    exact (padicValNat_dvd_iff_le (by omega)).mp (hexp p (hT p hp).1 (hT p hp).2.1)
   have hsum := Finset.card_nsmul_le_sum T _ k hlo
   have hs := Finset.sum_le_sum_of_subset (f := fun p => padicValNat r (N.factorization p + 1))
     hsub

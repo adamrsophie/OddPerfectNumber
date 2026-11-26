@@ -50,7 +50,7 @@ theorem least_odd_factor_le_excess {N q L : ℕ} (h : OddPerfect N) (hq : q.Prim
   have hrp : r.Prime := Nat.prime_of_mem_primeFactors hrN
   have hdiv : q ∣ σ 1 (r ^ N.factorization r) := by
     by_contra hn
-    exact hval (padicValNat.eq_zero_of_not_dvd hn)
+    exact hval (by rw [Nat.padicValNat_def]; exact padicValNat.eq_zero_of_not_dvd hn)
   have he := even_factorization_of_ne h hq hodd hrp hrq
   obtain ⟨d, hd, hd2, hde, hcase⟩ := exists_odd_prime_dvd_succ_of_dvd_sigma hq hrp hrq he hdiv
   have hLd : L ≤ d := by

@@ -891,7 +891,7 @@ theorem le_of_card_primeFactors_consec (h : OddPerfect N) {m : ℕ} (l : List �
   have h2 : (∏ p ∈ N.primeFactors.erase q, p) ^ 2 ≤
       ∏ p ∈ N.primeFactors.erase q, p ^ N.factorization p := by
     rw [← Finset.prod_pow]
-    refine Finset.prod_le_prod (fun _ _ => Nat.zero_le _) fun p hp => ?_
+    refine Finset.prod_le_prod₀ (fun _ _ => Nat.zero_le _) fun p hp => ?_
     have hpS := Finset.mem_of_mem_erase hp
     have hpp := Nat.prime_of_mem_primeFactors hpS
     obtain ⟨j, hj⟩ := hev p hpp (Finset.ne_of_mem_erase hp)
@@ -941,7 +941,7 @@ theorem le_of_card_primeFactors (h : OddPerfect N) {m k : ℕ}
   have h2 : (∏ p ∈ N.primeFactors.erase q, p) ^ 2 ≤
       ∏ p ∈ N.primeFactors.erase q, p ^ N.factorization p := by
     rw [← Finset.prod_pow]
-    refine Finset.prod_le_prod (fun _ _ => Nat.zero_le _) fun p hp => ?_
+    refine Finset.prod_le_prod₀ (fun _ _ => Nat.zero_le _) fun p hp => ?_
     have hpS := Finset.mem_of_mem_erase hp
     have hpp := Nat.prime_of_mem_primeFactors hpS
     obtain ⟨j, hj⟩ := hev p hpp (Finset.ne_of_mem_erase hp)

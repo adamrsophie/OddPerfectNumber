@@ -91,6 +91,7 @@ theorem card_primeFactors_le_of_common_index {N q l E : ℕ} (h : OddPerfect N)
     calc ∑ p ∈ G, 1 ≤ ∑ p ∈ G, padicValNat l (N.factorization p + 1) :=
           Finset.sum_le_sum fun p hp => by
             obtain ⟨hpN, h1⟩ := Finset.mem_filter.mp hp
+            rw [Nat.padicValNat_def]
             exact one_le_padicValNat_of_dvd (by omega)
               (hidx p hpN (by rintro rfl; exact hq1 h1))
       _ ≤ N.factorization l := sum_padicValNat_succ_le h.perfect hl hl2

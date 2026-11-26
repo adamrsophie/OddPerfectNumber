@@ -127,19 +127,19 @@ theorem card_gt_of_cert {N q X X₁ B c a b K : ℕ} (h : OddPerfect N) (h3 : 3 
   have hP0 : 0 ≤ ∏ r ∈ R, abundancy (r ^ N.factorization r) :=
     Finset.prod_nonneg fun r hr => (abundancy_pos (pow_ne_zero _ (hrp r hr).ne_zero)).le
   have hP1 : ∏ r ∈ R, abundancy (r ^ N.factorization r) ≤ ∏ r ∈ R, y * fac X r := by
-    refine Finset.prod_le_prod (fun r hr => (abundancy_pos (pow_ne_zero _
+    refine Finset.prod_le_prod₀ (fun r hr => (abundancy_pos (pow_ne_zero _
       (hrp r hr).ne_zero)).le) fun r hr => ?_
     rw [hy, ← div_pred_eq hX (hrp r hr).two_le]
     exact (abundancy_prime_pow_lt (hrp r hr) _).le
   rw [Finset.prod_mul_distrib, Finset.prod_const] at hP1
   have hF0 : ∀ n, 0 ≤ fac X n := fac_nonneg X
   have hsub1 : ∏ r ∈ R, fac X r ≤ ∏ r ∈ R ∩ T, fac X r := by
-    refine Finset.prod_le_prod_of_subset_of_le_one Finset.inter_subset_left
+    refine Finset.prod_le_prod_of_subset_of_le_one₀ Finset.inter_subset_left
       (fun r _ => hF0 r) fun r hr hrT => fac_le_one hX ?_
     by_contra hlt
     exact hrT (Finset.mem_inter.mpr ⟨hr, hcov r (hR r hr).2 (by omega) (hrp r hr) (hR r hr).1⟩)
   have hsub2 : ∏ r ∈ R ∩ T, fac X r ≤ ∏ n ∈ T, fac X n := by
-    refine Finset.prod_le_prod_of_subset_of_one_le Finset.inter_subset_right
+    refine Finset.prod_le_prod_of_subset_of_one_le₀ Finset.inter_subset_right
       (fun r _ => hF0 r) fun n hn _ => ?_
     have := hT n hn
     exact one_le_fac (by omega) (by omega)

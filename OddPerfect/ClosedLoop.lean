@@ -84,14 +84,15 @@ private lemma pow_pred_dvd_succ {p q e c k : ℕ} (hp : p.Prime) (hp2 : p ≠ 2)
   have hps : ¬ p ∣ s := not_dvd_sigma hp e'
   have hQ1 : 1 < q ^ c := by rw [hQ]; have := Nat.mul_pos hp.pos (Nat.pos_of_ne_zero hs0); omega
   have hvQ : padicValNat p (q ^ c - 1) = 1 := by
-    rw [hQ, Nat.add_sub_cancel_left, padicValNat.mul hp.ne_zero hs0, padicValNat_self,
+    rw [hQ, Nat.add_sub_cancel_left, Nat.padicValNat_def, padicValNat.mul hp.ne_zero hs0,
+      padicValNat_self,
       padicValNat.eq_zero_of_not_dvd hps]
   have hlte := padicValNat.pow_sub_pow (p := p) (x := q ^ c) (y := 1) (hp.odd_of_ne_two hp2) hQ1
     (by rw [hQ, Nat.add_sub_cancel_left]; exact dvd_mul_right p s)
     (by rw [hQ]; intro h; exact hp.one_lt.ne' (Nat.dvd_one.mp
       ((Nat.dvd_add_left (dvd_mul_right p s)).mp h)))
     (n := k + 1) (by omega)
-  rw [one_pow, hvQ] at hlte
+  rw [one_pow, ← Nat.padicValNat_def (n := q ^ c - 1), hvQ] at hlte
   have hne : (q ^ c) ^ (k + 1) - 1 ≠ 0 := by
     have := Nat.one_lt_pow (n := k + 1) (by omega) hQ1; omega
   have hd : p ^ (e' + 1) ∣ (q ^ c) ^ (k + 1) - 1 := by

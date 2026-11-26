@@ -72,9 +72,11 @@ theorem restrained_five_mod_twelve_sq_dvd {N q r p : ℕ} (h : OddPerfect N) (hq
     rw [sigma_one_apply_prime_pow Nat.prime_three] at hd
     have := mod_three_eq_one_of_dvd_geom_sum_three hpp (by omega) hE hd
     omega
-  rw [padicValNat.eq_zero_of_not_dvd hnd, zero_add] at hs
+  rw [Nat.padicValNat_def (n := σ 1 (3 ^ N.factorization 3)),
+    padicValNat.eq_zero_of_not_dvd hnd, zero_add] at hs
   have hdvd : p ^ 2 ∣ σ 1 (q ^ N.factorization q) := by
-    have := pow_padicValNat_dvd (p := p) (n := σ 1 (q ^ N.factorization q))
+    have : p ^ padicValNat p (σ 1 (q ^ N.factorization q)) ∣ σ 1 (q ^ N.factorization q) := by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
     rwa [hs] at this
   have h2q : 2 ∣ σ 1 (q ^ N.factorization q) :=
     two_dvd_sigma_odd hq (by have := F.mod12; omega) hodd

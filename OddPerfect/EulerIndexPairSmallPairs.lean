@@ -127,7 +127,8 @@ private lemma espp_pure_row {p g t x : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) (hg :
   rcases espp_order hp ht hpt hl htd with ⟨hlt, htp⟩ | hd
   · exfalso
     have hv := padicValNat_sigma_prime_pow_of_dvd_pred (a := g) hp ht ht2 htp
-    rw [h, padicValNat.prime_pow, hlt, padicValNat_self] at hv
+    rw [h, Nat.padicValNat_def, padicValNat.prime_pow, hlt, Nat.padicValNat_def,
+      padicValNat_self] at hv
     have h' : σ 1 (p ^ g) = g + 1 := by rw [h, hv, pow_one, hlt]
     rw [h'] at hge
     generalize p ^ g = P at hge hgp

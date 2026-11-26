@@ -254,7 +254,7 @@ theorem exists_pow_succ_lt_of_certificate {N B : ℕ} (h : OddPerfect N) (hB : O
   have hmono : ∏ p ∈ N.primeFactors, f p ≤ ∏ p ∈ T, f p := by
     rw [← Finset.prod_sdiff hT]
     apply mul_le_of_le_one_left (Finset.prod_nonneg fun p hp => hf0 p (hT hp))
-    exact Finset.prod_le_one (fun p hp => hf0 p (Finset.mem_sdiff.mp hp).1)
+    exact Finset.prod_le_one₀ (fun p hp => hf0 p (Finset.mem_sdiff.mp hp).1)
       fun p hp => hf1 p (Finset.mem_sdiff.mp hp).1
   have hRT : (0 : ℚ) < ((∏ p ∈ T, p : ℕ) : ℚ) := by
     exact_mod_cast Finset.prod_pos fun p hp => (Nat.prime_of_mem_primeFactors (hT hp)).pos

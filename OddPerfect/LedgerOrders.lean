@@ -82,6 +82,7 @@ theorem sum_card_receiversIn_le (h : OddPerfect N) {A : Finset ℕ} (hA : A ⊆ 
   rw [Finset.card_eq_sum_ones]
   refine Finset.sum_le_sum fun p hp => ?_
   have hpd := (Finset.mem_filter.mp hp).2
+  rw [Nat.padicValNat_def]
   refine one_le_padicValNat_of_dvd ?_ hpd
   exact (sigma_pos 1 _ (pow_ne_zero _
     (Nat.prime_of_mem_primeFactors (hA (Finset.mem_filter.mp hp).1)).ne_zero)).ne'

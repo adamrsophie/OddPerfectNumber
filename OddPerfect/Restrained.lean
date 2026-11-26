@@ -301,7 +301,7 @@ private theorem close_leaf {N : ℕ} (h : OddPerfect N) (K : Finset ℕ) (hK : K
   have hK0 : 0 ≤ ∏ p ∈ K, abundancy (p ^ N.factorization p) :=
     Finset.prod_nonneg fun _ _ => abundancy_nonneg' _
   have hKC : ∏ p ∈ K, abundancy (p ^ N.factorization p) ≤ ∏ p ∈ K, c p :=
-    Finset.prod_le_prod (fun _ _ => abundancy_nonneg' _) hC
+    Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg' _) hC
   have hPT : (∏ t ∈ T, fval t) * (1 - 2 * S) ≤ 1 := by
     nlinarith [mul_le_mul_of_nonneg_left hxs hP0]
   have hpos : 0 < 1 - 2 * S := by linarith
@@ -426,6 +426,7 @@ private theorem sigma_ne_zero' {p e : ℕ} (hp : p.Prime) : σ 1 (p ^ e) ≠ 0 :
 private theorem one_le_pv {x n : ℕ} (hx : x.Prime) (hn : n ≠ 0) (hd : x ∣ n) :
     1 ≤ padicValNat x n := by
   have := Fact.mk hx
+  rw [Nat.padicValNat_def]
   exact one_le_padicValNat_of_dvd hn hd
 
 /-- Three distinct exact square primes `≡ 1 (mod 3)` overflow `3^2 ∥ N`. -/
@@ -525,8 +526,10 @@ private theorem leaf_97_7 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factorizat
     have s3 : 1 ≤ padicValNat 61 (σ 1 (13 ^ 2)) := one_le_pv (by norm_num)
       (sigma_ne_zero' (by norm_num)) (by rw [sigma_prime_sq (by norm_num)]; decide)
     have hmem := search (I := 1) (J := 2) (K := 7) (L := 15) (by norm_num) (by norm_num)
-      box_97_7 hrep (by rw [Nat.factorization_def _ (by norm_num)]; omega)
-      (by rw [Nat.factorization_def _ (by norm_num)]; omega) (by norm_num) (by norm_num) hlt
+      box_97_7 hrep
+      (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+      (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+      (by norm_num) (by norm_num) hlt
     simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
     rcases hmem with rfl | rfl | rfl
     · exact absurd htp (by norm_num)
@@ -598,8 +601,10 @@ private theorem leaf_61_331 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriz
       (sigma_ne_zero' (by norm_num)) ((by norm_num : 31 ∣ 61 + 1).trans
         (succ_dvd_sigma_special (by norm_num) hodd))
     have hmem := search (I := 2) (J := 2) (K := 7) (L := 5) (by norm_num) (by norm_num)
-      box_61_331 hrep (by rw [Nat.factorization_def _ (by norm_num)]; omega)
-      (by rw [Nat.factorization_def _ (by norm_num)]; omega) (by norm_num) (by norm_num) hlt
+      box_61_331 hrep
+      (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+      (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+      (by norm_num) (by norm_num) hlt
     simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
     rcases hmem with rfl | rfl | rfl
     · exact absurd htp (by norm_num)
@@ -668,9 +673,10 @@ private theorem leaf_13_127 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriz
     have s2 : 1 ≤ padicValNat 19 (σ 1 (7 ^ 2)) := one_le_pv (by norm_num)
       (sigma_ne_zero' (by norm_num)) (by rw [sigma_prime_sq (by norm_num)]; decide)
     have hmem := search (I := 2) (J := 2) (K := 15) (L := 8) (by norm_num) (by norm_num)
-      box_13_127 hrep (by rw [Nat.factorization_def _ (by norm_num)]; omega)
-      (by rw [Nat.factorization_def _ (by norm_num)]; omega) (by norm_num) (by norm_num)
-      hlt.1
+      box_13_127 hrep
+      (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+      (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+      (by norm_num) (by norm_num) hlt.1
     simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
     rcases hmem with rfl | rfl | rfl | rfl | rfl | rfl | rfl
     · exact absurd htp (by norm_num)
@@ -909,7 +915,8 @@ private theorem leaf_61_31 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriza
         exp_lt_of_pow (by norm_num) hV0 dv3 hlt (by norm_num)
       have hl0 : (phi3 t).factorization d = 0 := by omega
       rw [hl0, pow_zero, mul_one] at hrep
-      have hmem := ok_sound (box_61_31_t _ (by rw [Nat.factorization_def _ (by norm_num)]; omega)
+      have hmem := ok_sound (box_61_31_t _
+        (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
         _ hj _ hk (hrep ▸ hlt)) hrep
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
       rcases hmem with rfl | rfl | rfl
@@ -936,7 +943,7 @@ private theorem leaf_61_31 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriza
           simp only [hK0, Finset.mem_insert, Finset.mem_singleton] at hp0
           rcases hp0 with rfl | rfl | rfl | rfl <;> norm_num [cbound, fval]
       calc ∏ p ∈ K, c p ≤ ∏ p ∈ insert d K0, c p :=
-            Finset.prod_le_prod_of_subset_of_one_le hsub (fun p hp => hc0 p (hsub hp)) (fun p hp hpK => by
+            Finset.prod_le_prod_of_subset_of_one_le₀ hsub (fun p hp => hc0 p (hsub hp)) (fun p hp hpK => by
               rcases Finset.mem_insert.mp hp with rfl | hp0
               · rw [hcd]; norm_num
               · exact absurd (hK0K hp0) hpK)
@@ -977,7 +984,8 @@ private theorem leaf_61_31 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriza
       have c13 := cap13 x hxN hxK0
       have hmem := search (I := 2) (J := 2) (K := 17) (L := 14) (by norm_num) (by norm_num)
         box_61_31_x hrep (by rw [factorization_three_phi3]; split_ifs <;> omega)
-        (by rw [Nat.factorization_def _ (by norm_num)]; omega) (by norm_num) (by norm_num) hlt
+        (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+        (by norm_num) (by norm_num) hlt
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
       rcases hmem with rfl | rfl | rfl | rfl | rfl
       · exact absurd hxp (by norm_num)
@@ -1097,7 +1105,8 @@ private theorem leaf_13_19 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriza
         exp_lt_of_pow (by norm_num) hV0 dv3 hlt.1 (by norm_num)
       have hl0 : (phi3 t).factorization d = 0 := by omega
       rw [hl0, pow_zero, mul_one] at hrep
-      have hmem := ok_sound (box_13_19_t _ (by rw [Nat.factorization_def _ (by norm_num)]; omega)
+      have hmem := ok_sound (box_13_19_t _
+        (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
         _ hj _ hk (hrep ▸ hlt.1)) hrep
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
       rcases hmem with rfl | rfl | rfl | rfl | rfl | rfl | rfl
@@ -1148,7 +1157,7 @@ private theorem leaf_13_19 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriza
           rcases hp0 with rfl | rfl | rfl | rfl <;> norm_num [cbound, fval]
         · exact le_trans zero_le_one (hc1 p hp0)
       calc ∏ p ∈ K', c p ≤ ∏ p ∈ insert 653 (insert d K0), c p :=
-            Finset.prod_le_prod_of_subset_of_one_le hsub (fun p hp => hc0 p (hsub hp)) (fun p _ hpK =>
+            Finset.prod_le_prod_of_subset_of_one_le₀ hsub (fun p hp => hc0 p (hsub hp)) (fun p _ hpK =>
               hc1 p (fun hm => hpK (hK0K' hm)))
         _ = c 653 * (c d * ∏ p ∈ K0, cbound 13 19 p) := by
             rw [Finset.prod_insert h653, Finset.prod_insert hdK0, hcK0]
@@ -1222,7 +1231,8 @@ private theorem leaf_13_19 {N : ℕ} (h : OddPerfect N) (hodd : Odd (N.factoriza
       have c7 := cap7 x hxN hxK0
       have hmem := search (I := 2) (J := 2) (K := 22) (L := 19) (by norm_num) (by norm_num)
         box_13_19_x hrep (by rw [factorization_three_phi3]; split_ifs <;> omega)
-        (by rw [Nat.factorization_def _ (by norm_num)]; omega) (by norm_num) (by norm_num) hlt
+        (by rw [Nat.factorization_def _ (by norm_num), ← Nat.padicValNat_def]; omega)
+        (by norm_num) (by norm_num) hlt
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
       rcases hmem with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
       all_goals first
@@ -1424,14 +1434,14 @@ theorem restrained_exception_three {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
       intro p hp hp3
       obtain ⟨hpq, hpN⟩ := Finset.mem_erase.mp hp
       have hpp := Nat.prime_of_mem_primeFactors hpN
-      rw [hsq p hpN hpq hp3, sigma_prime_sq hpp]
-      refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
+      rw [hsq p hpN hpq hp3, sigma_prime_sq hpp, Nat.padicValNat_def]
+      refine multiplicity_eq_zero_of_not_dvd fun hd => ?_
       have := prime_dvd_phi3_mod_three hq (Ne.symm hq3) hd
       omega
     have h3d : q ∣ σ 1 (3 ^ N.factorization 3) := by
       by_contra hnd
-      have h0 : padicValNat q (σ 1 (3 ^ N.factorization 3)) = 0 :=
-        padicValNat.eq_zero_of_not_dvd hnd
+      have h0 : padicValNat q (σ 1 (3 ^ N.factorization 3)) = 0 := by
+        rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd hnd
       have hs : ∑ p ∈ N.primeFactors.erase q, padicValNat q (σ 1 (p ^ N.factorization p)) =
           0 := Finset.sum_eq_zero fun p hp => by
         by_cases hp3 : p = 3

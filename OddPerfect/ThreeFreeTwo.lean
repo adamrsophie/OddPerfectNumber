@@ -217,7 +217,7 @@ private theorem prod_bound (S : Finset ℕ) (π : ℕ → ℕ × ℕ × ℕ) (hi
   set Sg := S.filter (fun s => ¬ s < cap)
   have hfv0 : ∀ s ∈ S, 0 ≤ fv s := fun s hs => le_trans zero_le_one (one_le_fv (hS1 s hs))
   have h1 : ∏ s ∈ Sl, fv s ≤ ∏ s ∈ C, fv s := by
-    apply Finset.prod_le_prod_of_subset_of_one_le
+    apply Finset.prod_le_prod_of_subset_of_one_le₀
     · intro s hs; rw [Finset.mem_filter] at hs; exact hsmall s hs.1 hs.2
     · intro s hs; exact hfv0 s (Finset.mem_of_mem_filter s hs)
     · intro s hs _; exact one_le_fv (hC s hs)

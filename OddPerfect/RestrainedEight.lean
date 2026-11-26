@@ -64,6 +64,7 @@ theorem prod_erase_three_gt {N : ℕ} (h : OddPerfect N) (h3 : 3 ∣ N) :
   rw [abundancy_eq_prod_primeFactors h.ne_zero, ← Finset.mul_prod_erase _ _ h3m] at hab
   have h32 := abundancy_prime_pow_lt Nat.prime_three (N.factorization 3)
   norm_num at h32
+  simp only [← Nat.factorization_def _ Nat.prime_three] at h32
   have hP : 0 < ∏ p ∈ N.primeFactors.erase 3, abundancy (p ^ N.factorization p) :=
     Finset.prod_pos fun p hp => abundancy_pos (pow_ne_zero _
       (Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase hp)).ne_zero)
@@ -93,7 +94,7 @@ theorem card_ge_of_min {N B c k : ℕ} (h : OddPerfect N) (h3 : 3 ∣ N) (hBc : 
     linarith
   have hP : ∏ p ∈ N.primeFactors.erase 3, abundancy (p ^ N.factorization p) ≤ x ^ m := by
     rw [hm, ← Finset.prod_const]
-    refine Finset.prod_le_prod (fun p hp => (abundancy_pos (pow_ne_zero _
+    refine Finset.prod_le_prod₀ (fun p hp => (abundancy_pos (pow_ne_zero _
       (Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase hp)).ne_zero)).le) fun p hp => ?_
     obtain ⟨hp3, hpN⟩ := Finset.mem_erase.mp hp
     exact (abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors hpN) _).le.trans
@@ -270,6 +271,7 @@ theorem restrained_two_sources_cor {N q r t : ℕ} (h : OddPerfect N) (hq : q.Pr
   refine ⟨by omega, by omega, fun h1 => by omega, fun hdvd => ?_⟩
   have : Fact t.Prime := ⟨Nat.prime_of_mem_primeFactors ht⟩
   have h3 := (padicValNat_dvd_iff_le (sigma_pos 1 _ (by positivity)).ne').mp hdvd
+  rw [← Nat.padicValNat_def] at h3
   omega
 
 /-- **Small primes in `σ(3 ^ (d - 1))`.** In the restrained family, if a prime `5 ≤ s < 132257`

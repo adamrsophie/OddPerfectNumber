@@ -120,7 +120,8 @@ private lemma eiph_exists_odd {n : ℕ} (hn : n ≠ 0) (hns : ∀ y, n ≠ y ^ 2
     ∃ p, p.Prime ∧ Odd (n.factorization p) := by
   by_contra hall
   push Not at hall
-  rcases eiph_sq_or hn (t := 1) (fun p hp ho => absurd ho (hall p hp)) with ⟨y, hy⟩ | ⟨y, hy⟩
+  rcases eiph_sq_or hn (t := 1)
+    (fun p hp ho => absurd ho (Nat.not_odd_iff_even.mpr (hall p hp))) with ⟨y, hy⟩ | ⟨y, hy⟩
   · exact hns y hy
   · exact hns y (by rw [hy, one_mul])
 
@@ -363,14 +364,14 @@ private lemma eiph_core {q L r s : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1) (hL : L
       exact hL.ne_one (Nat.dvd_one.mp h1)
     have hv := padicValNat.pow_add_pow hLo hLq hLq' hLo (y := 1)
     rw [one_pow, ← hAmul, padicValNat.mul (by omega) hA0, padicValNat_self] at hv
-    have hvA : padicValNat L A = 1 := by omega
+    have hvA : padicValNat L A = 1 := by rw [Nat.padicValNat_def]; omega
     obtain ⟨A', hA'⟩ : L ∣ A := by
-      have := pow_padicValNat_dvd (p := L) (n := A)
-      rwa [hvA, pow_one] at this
+      have := pow_multiplicity_dvd L A
+      rwa [← Nat.padicValNat_def, hvA, pow_one] at this
     have hLA' : ¬ L ∣ A' := by
       rintro ⟨c, hc⟩
       have := pow_succ_padicValNat_not_dvd (p := L) hA0
-      rw [hvA] at this
+      rw [← Nat.padicValNat_def, hvA] at this
       exact this ⟨c, by rw [hA', hc]; ring⟩
     have hA'0 : A' ≠ 0 := by rintro rfl; exact hLA' (dvd_zero L)
     have hcop : Nat.Coprime B A' := by

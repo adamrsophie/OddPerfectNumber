@@ -150,7 +150,7 @@ theorem of_dvd (hF : ForcingClosed S e) {e' : ℕ → ℕ} (q : ℕ) (hq : q ∈
   · have hsp := (hF.1 s hs).1
     exact hF.mem_of_dvd hs (Nat.prime_of_mem_primeFactors hr) hr2
       ((Nat.dvd_of_mem_primeFactors hr).trans (sigma_prime_pow_dvd_of_dvd hsp (hdvd s hs)))
-  · refine le_trans (Finset.prod_le_prod (fun s _ => ?_) fun s hs =>
+  · refine le_trans (Finset.prod_le_prod₀ (fun s _ => ?_) fun s hs =>
       abundancy_prime_pow_mono (hF.1 s hs).1 (hle s hs)) hF.2.2.2
     unfold abundancy
     positivity
@@ -326,7 +326,7 @@ theorem prod_list_le (hF : ForcingClosed S e) {L : List ℕ} (hnd : L.Nodup)
   have h1le : ∀ p ∈ S, 1 ≤ abundancy (p ^ e p) := fun p hp => by
     have h := abundancy_prime_pow_mono (hF.1 p hp).1 (Nat.zero_le (e p))
     simpa [abundancy] using h
-  refine le_trans (Finset.prod_le_prod_of_subset_of_one_le hsub
+  refine le_trans (Finset.prod_le_prod_of_subset_of_one_le₀ hsub
     (fun p hp => zero_le_one.trans (h1le p (hsub hp))) fun p hp _ => h1le p hp) hF.2.2.2
 
 private lemma sigma_prime_one {q : ℕ} (hq : q.Prime) : σ 1 (q ^ 1) = q + 1 := by

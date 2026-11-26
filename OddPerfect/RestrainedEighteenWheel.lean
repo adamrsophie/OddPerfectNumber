@@ -170,7 +170,7 @@ theorem wheel_pow_le {W x₀ : ℕ} (hW : 0 < W) (hx₀ : W + 1 < 2 * x₀) (S :
       = ∏ j ∈ J, (∏ t ∈ S with t % W = j, (t : ℚ) / (t - 1)) ^ W := by
         rw [← hsplit, Finset.prod_pow]
     _ ≤ ∏ j ∈ J, (1 + c * (S.filter (fun t => t % W = j)).card) :=
-        Finset.prod_le_prod (fun j _ => pow_nonneg (Finset.prod_nonneg fun t ht =>
+        Finset.prod_le_prod₀ (fun j _ => pow_nonneg (Finset.prod_nonneg fun t ht =>
           hf0 t (Finset.mem_filter.mp ht).1) _) hclass
     _ ≤ ((∑ j ∈ J, (1 + c * (S.filter (fun t => t % W = j)).card)) / J.card) ^ J.card :=
         prod_le_mean_pow J _ fun j _ => by positivity

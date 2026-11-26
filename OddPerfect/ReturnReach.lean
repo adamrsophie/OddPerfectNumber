@@ -591,7 +591,8 @@ theorem restrained_three_lt {N q r d : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have hodd : Odd (N.factorization q) := by rw [hq1]; exact odd_one
   have hlt := restrained_prod_lt h hq hq1 hr hrq hsq hball
   have hE := restrained_three_eq h hq hodd hr hrq hsq
-  rw [hq1, show padicValNat 3 (1 + 1) = 0 by norm_num, add_zero] at hE
+  rw [hq1, show padicValNat 3 (1 + 1) = 0 by
+    rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd (by norm_num), add_zero] at hE
   set E := N.factorization 3
   set O := {p ∈ N.primeFactors | p ≠ 3 ∧ p ≠ q ∧ p % 3 = 1}
   have hsub : O ⊆ N.primeFactors.erase 3 := fun p hp => by
@@ -646,6 +647,7 @@ theorem restrained_exists_far {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have h1 := restrained_three_lt h hq hq1 hr hrq hsq hb
   have h2 := restrained_three_ge_wheel h hq hodd hr hrq hsq
   norm_num at h1
+  simp only [← Nat.factorization_def _ Nat.prime_three] at h1
   omega
 
 end OddPerfect

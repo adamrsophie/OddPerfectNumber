@@ -239,7 +239,8 @@ theorem largest_four_sender_row (h : OddPerfect N) (hP : P ∈ N.primeFactors)
     exact OPNStarter.component_sigma_dvd h.perfect hup hedef.symm
   obtain ⟨k, hk⟩ := lpf_row_pow h hmax hR hR3 hR1 hPR
     (lpf_mod_ne_one hup hu2 hR3 hR1 hRo (by omega)) hF2N
-  have hj : padicValNat P (σ 1 (u ^ e)) = k := by rw [hσ, hk, padicValNat.prime_pow]
+  have hj : padicValNat P (σ 1 (u ^ e)) = k := by
+    rw [hσ, hk, Nat.padicValNat_def, padicValNat.prime_pow]
   refine ⟨by omega, htR, by rw [hj]; exact hk, ?_⟩
   rw [hj]
   rcases Nat.eq_zero_or_pos k with h0 | h0
@@ -503,7 +504,7 @@ private theorem lpf_sum_senders (h : OddPerfect N) (hP : P ∈ N.primeFactors) :
     Finset.sum_filter_of_ne]
   intro p _ hne
   by_contra hd
-  exact hne (padicValNat.eq_zero_of_not_dvd hd)
+  exact hne (by rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd hd)
 
 /-- **Largest prime factor `4 R + 1`: it is the special prime.** Let the largest prime factor
 of an odd perfect number `N` be `P = 4 R + 1` with `R > 3` prime. Then `v_P(N)` is odd,

@@ -247,7 +247,7 @@ private theorem prod_bound4 (S : Finset ℕ) (π : ℕ → ℕ × ℕ × ℕ × 
   set Sg := S.filter (fun s => ¬ s < cap)
   have hfv0 : ∀ s ∈ S, 0 ≤ fv s := fun s hs => le_trans zero_le_one (one_le_fv (hS1 s hs))
   have h1 : ∏ s ∈ Sl, fv s ≤ ∏ s ∈ C, fv s := by
-    apply Finset.prod_le_prod_of_subset_of_one_le
+    apply Finset.prod_le_prod_of_subset_of_one_le₀
     · intro s hs; rw [Finset.mem_filter] at hs; exact hsmall s hs.1 hs.2
     · intro s hs; exact hfv0 s (Finset.mem_of_mem_filter s hs)
     · intro s hs _; exact one_le_fv (hC s hs)
@@ -770,7 +770,7 @@ theorem Ctx4.abund_lt (c : Ctx4 N q r₁ r₂ r₃) :
   set A := ∏ x ∈ ord4 N q r₁ r₂ r₃, abundancy (x ^ N.factorization x)
   have hA0 : 0 ≤ A := Finset.prod_nonneg fun x _ => abundancy_nonneg _
   have hle : A ≤ ∏ s ∈ ord4 N q r₁ r₂ r₃, rv s :=
-    Finset.prod_le_prod (fun x _ => abundancy_nonneg _)
+    Finset.prod_le_prod₀ (fun x _ => abundancy_nonneg _)
       fun x hx => (abundancy_prime_pow_lt (c.ord_facts hx).1 _).le
   have hP : 0 < ∏ s ∈ ord4 N q r₁ r₂ r₃, rv s := Finset.prod_pos fun s hs =>
     lt_of_lt_of_le zero_lt_one (one_le_rv (le_trans (by norm_num) (c.ord_facts hs).2.2.1))
@@ -834,7 +834,7 @@ theorem Ctx4.close (c : Ctx4 N q r₁ r₂ r₃) (cap M : ℕ) (hcap : 2 ≤ cap
   have hTg := prod_rv_le cap hcap Sg fun s hs => (hSg s hs).2
   -- the small ordinary primes: `∏ rv ≤ ∏_C rv`
   have hl : ∏ s ∈ S.filter (fun s => s < cap), rv s ≤ ∏ s ∈ C, rv s := by
-    apply Finset.prod_le_prod_of_subset_of_one_le
+    apply Finset.prod_le_prod_of_subset_of_one_le₀
     · intro s hs; rw [Finset.mem_filter] at hs; exact hsmall s hs.1 hs.2
     · intro s hs
       exact zero_le_one.trans (one_le_rv (hS2 s (Finset.mem_of_mem_filter s hs)))

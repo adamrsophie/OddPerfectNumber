@@ -26,13 +26,16 @@ private theorem dvd_sub_one_iff {q x : ℕ} (hx : 1 ≤ x) : q ∣ x - 1 ↔ (x 
 private theorem padicValNat_sigma_add {p q : ℕ} (hp : p.Prime) (hq : q.Prime) (a : ℕ) :
     padicValNat q (σ 1 (p ^ a)) + padicValNat q (p - 1) = padicValNat q (p ^ (a + 1) - 1) := by
   have : Fact q.Prime := ⟨hq⟩
-  rw [← sigma_prime_pow_mul_pred hp a, padicValNat.mul (sigma_ne_zero' hp a)
+  rw [← sigma_prime_pow_mul_pred hp a]
+  simp only [Nat.padicValNat_def]
+  rw [padicValNat.mul (sigma_ne_zero' hp a)
     (by have := hp.one_lt; omega)]
 
 /-- `q = p`: the prime `p` never divides `σ 1 (p ^ a)`. -/
 theorem padicValNat_sigma_prime_pow_self {p : ℕ} (hp : p.Prime) (a : ℕ) :
-    padicValNat p (σ 1 (p ^ a)) = 0 :=
-  padicValNat.eq_zero_of_not_dvd fun h => (prime_dvd_sigma_prime_pow hp hp h).1 rfl
+    padicValNat p (σ 1 (p ^ a)) = 0 := by
+  rw [Nat.padicValNat_def]
+  exact padicValNat.eq_zero_of_not_dvd fun h => (prime_dvd_sigma_prime_pow hp hp h).1 rfl
 
 /-- Odd `q`, general order: if the order `d` of `p` modulo `q` exceeds 1 and divides
 `a + 1`, then `v_q(σ(p ^ a)) = v_q(p ^ d - 1) + v_q((a + 1) / d)`. -/
@@ -60,6 +63,7 @@ theorem padicValNat_sigma_prime_pow_of_orderOf_dvd {p q a : ℕ} (hp : p.Prime) 
     (hq.odd_of_ne_two hq2) hpd (by simpa using hqd)
     (fun h => hqp (hq.dvd_of_dvd_pow h)) hm0
   have hsum := padicValNat_sigma_add hp hq a
+  simp only [Nat.padicValNat_def] at hsum ⊢
   rw [padicValNat.eq_zero_of_not_dvd hqp1, hm, pow_mul] at hsum
   rw [one_pow] at hlte
   rw [hm, Nat.mul_div_cancel_left _ (by omega)]
@@ -82,8 +86,9 @@ private theorem orderOf_dvd_of_dvd_sigma {p q a : ℕ} (hp : p.Prime) (hq : q.Pr
 divide `σ 1 (p ^ a)`. -/
 theorem padicValNat_sigma_prime_pow_of_not_orderOf_dvd {p q a : ℕ} (hp : p.Prime)
     (hq : q.Prime) (hd : ¬ orderOf (p : ZMod q) ∣ a + 1) :
-    padicValNat q (σ 1 (p ^ a)) = 0 :=
-  padicValNat.eq_zero_of_not_dvd fun h => hd (orderOf_dvd_of_dvd_sigma hp hq h)
+    padicValNat q (σ 1 (p ^ a)) = 0 := by
+  rw [Nat.padicValNat_def]
+  exact padicValNat.eq_zero_of_not_dvd fun h => hd (orderOf_dvd_of_dvd_sigma hp hq h)
 
 /-- Unified divisibility criterion: with `d` the order of `p` modulo a prime `q ≠ p`,
 `q ∣ σ 1 (p ^ a)` iff `q ∣ a + 1` when `d = 1`, and iff `d ∣ a + 1` otherwise. -/
@@ -106,7 +111,8 @@ theorem padicValNat_two_sigma_prime_pow {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2)
       if Even a then 0 else padicValNat 2 (p + 1) + padicValNat 2 (a + 1) - 1 := by
   have hpo : ¬ 2 ∣ p := fun h => hp2 ((Nat.prime_dvd_prime_iff_eq Nat.prime_two hp).mp h).symm
   split_ifs with ha
-  · refine padicValNat.eq_zero_of_not_dvd fun h => ?_
+  · rw [Nat.padicValNat_def]
+    refine padicValNat.eq_zero_of_not_dvd fun h => ?_
     rcases (prime_dvd_sigma_prime_pow hp Nat.prime_two h).2 with ⟨-, h2⟩ | ⟨h1, -, h2⟩
     · obtain ⟨k, hk⟩ := ha
       omega
@@ -115,8 +121,9 @@ theorem padicValNat_two_sigma_prime_pow {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2)
   · have hsum := padicValNat_sigma_add hp Nat.prime_two a
     have hlte := padicValNat.pow_two_sub_one hp.one_lt hpo (n := a + 1) (by omega)
       (by rw [Nat.not_even_iff_odd] at ha; exact ha.add_one)
-    have h1 : 1 ≤ padicValNat 2 (p + 1) :=
-      one_le_padicValNat_of_dvd (by omega) (by omega)
+    have h1 : 1 ≤ padicValNat 2 (p + 1) := by
+      rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd (by omega) (by omega)
+    simp only [Nat.padicValNat_def] at hsum h1 ⊢
     omega
 
 /-- `q = 3`, `p ≡ 1 (mod 3)`: `v_3(σ(p ^ a)) = v_3(a + 1)`. -/
@@ -149,11 +156,12 @@ theorem padicValNat_three_sigma_prime_pow_of_mod_two {p : ℕ} (hp : p.Prime) (h
       zify [Nat.one_le_pow 2 p hp.pos, this.le]
       ring
     have h2 : a + 1 = 2 * (k + 1) := by omega
+    simp only [Nat.padicValNat_def]
     rw [h1, padicValNat.mul (by omega) (by have := hp.one_lt; omega),
-      padicValNat.eq_zero_of_not_dvd (n := p - 1) (by omega), h2,
+      padicValNat.eq_zero_of_not_dvd (b := p - 1) (by omega), h2,
       Nat.mul_div_cancel_left _ (by norm_num),
       padicValNat.mul (by norm_num) (by omega),
-      padicValNat.eq_zero_of_not_dvd (n := 2) (by norm_num)]
+      padicValNat.eq_zero_of_not_dvd (b := 2) (by norm_num)]
     simp
 
 /-- `q = 3`, `p = 3`: `3` never divides `σ 1 (3 ^ a)`. -/
@@ -187,7 +195,7 @@ theorem padicValNat_three_sigma_prime_pow {p : ℕ} (hp : p.Prime) (a : ℕ) :
 theorem sigmaWeight_eq_padicValNat (N p : ℕ) {q : ℕ} (hq : q.Prime) :
     sigmaWeight N p q = padicValNat q (σ 1 (p ^ N.factorization p)) := by
   have : Fact q.Prime := ⟨hq⟩
-  rw [sigmaWeight, Nat.factorization_def _ hq]
+  rw [sigmaWeight, Nat.factorization_def _ hq, ← Nat.padicValNat_def]
 
 /-- The special prime `s` of an odd perfect number, with odd exponent `k`, satisfies
 `v_2(s + 1) = 1` and `v_2(k + 1) = 1`: the special component alone supplies the single
@@ -206,10 +214,11 @@ theorem padicValNat_two_special {N s : ℕ} (h : OddPerfect N) (hs : s.Prime)
   rw [sigmaWeight_eq_padicValNat N s Nat.prime_two, padicValNat_two_sigma_prime_pow hs hs2,
     if_neg (Nat.not_even_iff_odd.mpr hodd)] at hle
   have hso : s % 2 = 1 := Nat.odd_iff.mp (hs.odd_of_ne_two hs2)
-  have h1 : 1 ≤ padicValNat 2 (s + 1) := one_le_padicValNat_of_dvd (by omega) (by omega)
+  have h1 : 1 ≤ padicValNat 2 (s + 1) := by
+    rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd (by omega) (by omega)
   have h2 : 1 ≤ padicValNat 2 (N.factorization s + 1) := by
     obtain ⟨j, hj⟩ := hodd
-    exact one_le_padicValNat_of_dvd (by omega) (by omega)
+    rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd (by omega) (by omega)
   omega
 
 /-- Consistency with Euler: the special prime and its exponent are both `≡ 1 (mod 4)`,
@@ -221,10 +230,12 @@ theorem mod_four_special {N s : ℕ} (h : OddPerfect N) (hs : s.Prime)
   have key : ∀ n : ℕ, padicValNat 2 (n + 1) = 1 → n % 4 = 1 := by
     intro n hn
     have h2d : 2 ∣ n + 1 := by
-      have := pow_padicValNat_dvd (p := 2) (n := n + 1)
+      have : 2 ^ padicValNat 2 (n + 1) ∣ n + 1 := by
+        rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
       rwa [hn, pow_one] at this
     have h4d : ¬ 4 ∣ n + 1 := by
       intro h4
+      rw [Nat.padicValNat_def] at hn
       have := (padicValNat_dvd_iff_le (p := 2) (n := 2) (a := n + 1) (by omega)).mp
         (by norm_num; exact h4)
       omega

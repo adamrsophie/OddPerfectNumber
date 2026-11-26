@@ -117,7 +117,7 @@ theorem one_sub_sum_le_prod_one_sub {ι : Type*} (s : Finset ι) (x : ι → ℚ
       (fun i hi => h1 i (Finset.mem_insert_of_mem hi))
     have ha0 := h0 a (Finset.mem_insert_self a s)
     have ha1 := h1 a (Finset.mem_insert_self a s)
-    have hP : ∏ i ∈ s, (1 - x i) ≤ 1 := Finset.prod_le_one
+    have hP : ∏ i ∈ s, (1 - x i) ≤ 1 := Finset.prod_le_one₀
       (fun i hi => by linarith [h1 i (Finset.mem_insert_of_mem hi)])
       (fun i hi => by linarith [h0 i (Finset.mem_insert_of_mem hi)])
     have hs0 : 0 ≤ ∑ i ∈ s, x i := Finset.sum_nonneg fun i hi => h0 i (Finset.mem_insert_of_mem hi)
@@ -199,7 +199,7 @@ theorem prod_le_pow_succ_mul {N : ℕ} (hN : N.Perfect) {p : ℕ} (hp : p ∈ N.
   have hpp := Nat.prime_of_mem_primeFactors hp
   have hP := prod_one_sub_eq hN
   rw [← Finset.mul_prod_erase _ _ hp] at hP
-  have hrest : ∏ q ∈ N.primeFactors.erase p, (1 - x q) ≤ 1 := Finset.prod_le_one
+  have hrest : ∏ q ∈ N.primeFactors.erase p, (1 - x q) ≤ 1 := Finset.prod_le_one₀
     (fun q hq => by
       linarith [(inv_pow_nonneg_le_one (Nat.prime_of_mem_primeFactors
         (Finset.mem_of_mem_erase hq)) (N.factorization q)).2])
@@ -379,12 +379,12 @@ private theorem prod_abundancy_le_two {N : ℕ} (hN : N.Perfect) {S : Finset ℕ
   rw [← (perfect_iff_abundancy_eq_two hN.2).mp hN, abundancy_eq_prod_primeFactors hN.2.ne']
   calc ∏ p ∈ S, abundancy (p ^ g p)
       ≤ ∏ p ∈ S, abundancy (p ^ N.factorization p) := by
-        apply Finset.prod_le_prod
+        apply Finset.prod_le_prod₀
         · intro p hp
           exact zero_le_one.trans (one_le_abundancy_pow (Nat.prime_of_mem_primeFactors (hS hp)) _)
         · intro p hp
           exact abundancy_prime_pow_mono (Nat.prime_of_mem_primeFactors (hS hp)) (hg p hp)
-    _ ≤ _ := Finset.prod_le_prod_of_subset_of_one_le hS
+    _ ≤ _ := Finset.prod_le_prod_of_subset_of_one_le₀ hS
         (fun p hp => zero_le_one.trans
           (one_le_abundancy_pow (Nat.prime_of_mem_primeFactors (hS hp)) _))
         fun p hp _ => one_le_abundancy_pow (Nat.prime_of_mem_primeFactors hp) _
@@ -558,7 +558,7 @@ theorem abundancy_three_components_lt {N a b c : ℕ} (h : OddPerfect N) (ha : a
         have x0 := abundancy_pos (by norm_num : Nat.Prime 3) (N.factorization 3)
         have z0 := abundancy_pos (by norm_num : Nat.Prime 11) (N.factorization 11)
         rw [abundancy_prime_pow (by norm_num : Nat.Prime 5)]
-        norm_num [Finset.sum_range_succ] at x z ⊢
+        norm_num [Finset.sum_range_succ] at x z x0 z0 ⊢
         nlinarith
       · have h13 : 13 ∣ N := hc13 ▸ Nat.dvd_of_mem_primeFactors hc
         have x := abundancy_prime_pow_lt (by norm_num : Nat.Prime 3) (N.factorization 3)
@@ -570,10 +570,10 @@ theorem abundancy_three_components_lt {N a b c : ℕ} (h : OddPerfect N) (ha : a
         rw [ha3, hb5, hc13]
         rcases factorization_five_eq_one_or_three_eq_two_of_thirteen h h3 h5 h13 with e | e
         · rw [e, abundancy_prime_pow (by norm_num : Nat.Prime 5)]
-          norm_num [Finset.sum_range_succ] at x z ⊢
+          norm_num [Finset.sum_range_succ] at x z x0 z0 ⊢
           nlinarith
         · rw [e, abundancy_prime_pow (by norm_num : Nat.Prime 3)]
-          norm_num [Finset.sum_range_succ] at y z ⊢
+          norm_num [Finset.sum_range_succ] at y z y0 z0 ⊢
           nlinarith
       · have := gen (ma := 3) (mb := 5) (mc := 17) (by norm_num) (by norm_num) (by norm_num)
           (by omega) (by omega) hc17
@@ -621,7 +621,7 @@ theorem fourth_prime_le {N p q₁ q₂ q₃ : ℕ} (h : OddPerfect N) (hq₁ : q
   have hB0 : 0 < ∏ r ∈ S, abundancy (r ^ N.factorization r) :=
     Finset.prod_pos fun r hr => abundancy_pos (Nat.prime_of_mem_primeFactors (hSpf r hr)) _
   have hBT : ∏ r ∈ S, abundancy (r ^ N.factorization r) ≤ ∏ r ∈ S, (r : ℚ) / (r - 1) :=
-    Finset.prod_le_prod (fun r hr => (abundancy_pos (Nat.prime_of_mem_primeFactors (hSpf r hr)) _).le)
+    Finset.prod_le_prod₀ (fun r hr => (abundancy_pos (Nat.prime_of_mem_primeFactors (hSpf r hr)) _).le)
       fun r hr => (abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors (hSpf r hr)) _).le
   have hk : 3 ≤ N.primeFactors.card := three_le_card_primeFactors h
   have hp' : (2 : ℚ) ≤ p := by exact_mod_cast hp2

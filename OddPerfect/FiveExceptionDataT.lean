@@ -88,7 +88,9 @@ theorem g67_ok : smoothOK (sqOK hits67) (100000 ^ 4) (67 :: 7 :: [13, 19, 31]) 6
     (by norm_num) (by norm_num) (by norm_num) g67L
     (by simp only [g67L, List.all_append,
       g67_c0, g67_c1, g67_c2, g67_c3, Bool.and_self])
-    (by decide +kernel)
+    (by refine @of_decide_eq_true _ (@Nat.decidableBallLT 10 _ fun _ _ =>
+          @Nat.decidableBallLT 22 _ fun _ _ => inferInstance) ?_
+        decide +kernel)
 
 /-- The hits with a positive exponent of 307. -/
 def hits307 : List ℕ := [17]
@@ -149,7 +151,9 @@ theorem g307_ok : smoothOK (sqOK hits307) (100000 ^ 4) (307 :: 7 :: [13, 19, 31]
     (by norm_num) (by norm_num) (by norm_num) g307L
     (by simp only [g307L, List.all_append,
       g307_c0, g307_c1, g307_c2, Bool.and_self])
-    (by decide +kernel)
+    (by refine @of_decide_eq_true _ (@Nat.decidableBallLT 8 _ fun _ _ =>
+          @Nat.decidableBallLT 21 _ fun _ _ => inferInstance) ?_
+        decide +kernel)
 
 /-- The hits of the interval table for the fourth prime 17. -/
 def hitsT17 : List ℕ := [5, 11, 191, 653]

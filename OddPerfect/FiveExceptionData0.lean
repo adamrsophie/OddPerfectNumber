@@ -210,7 +210,9 @@ theorem g0_ok : smoothOK (sqOK hits0) (10 ^ 28) (7 :: 13 :: [19, 31]) 1 = true :
     (by norm_num) (by norm_num) (by norm_num) g0L
     (by simp only [g0L, List.all_append,
       g0_c0, g0_c1, g0_c2, g0_c3, g0_c4, g0_c5, g0_c6, Bool.and_self])
-    (by decide +kernel)
+    (by refine @of_decide_eq_true _ (@Nat.decidableBallLT 34 _ fun _ _ =>
+          @Nat.decidableBallLT 26 _ fun _ _ => inferInstance) ?_
+        decide +kernel)
 
 end FiveException
 

@@ -166,6 +166,7 @@ theorem not_all_exponents_eq_twenty_four {N q : ℕ} (h : OddPerfect N) (hq : q.
   have hlo : ∀ p ∈ T, 2 ≤ padicValNat 5 (N.factorization p + 1) := by
     intro p hp
     have : Fact (Nat.Prime 5) := ⟨p5⟩
+    rw [Nat.padicValNat_def]
     exact (padicValNat_dvd_iff_le (by omega)).mp
       (h25 p (Finset.mem_filter.mp (hTsub hp)).1 (Finset.ne_of_mem_erase hp))
   have hsum := Finset.card_nsmul_le_sum T _ 2 hlo

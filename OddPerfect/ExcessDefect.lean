@@ -196,7 +196,7 @@ theorem three_ledger {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     by_cases h3 : p = 3
     · subst h3; simp
     · by_cases h1 : p % 3 = 1
-      · simp [h3, h1]
+      · simp [h3, h1, Nat.padicValNat_def, Nat.multiplicity_self (by norm_num : 1 < 3)]
       · simp [h3, h1]
   rw [hS]
   unfold highThreeWeight

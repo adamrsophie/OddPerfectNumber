@@ -29,7 +29,7 @@ theorem padicValNat_sigma_prime_pow_le_of_fermat {f p e k : ℕ} (hf : f.Prime)
       apply (Nat.modEq_iff_dvd' hp.one_lt.le).mp
       rw [Nat.ModEq, hm, Nat.mod_eq_of_lt hf.one_lt]
     exact (padicValNat_sigma_prime_pow_of_dvd_pred hp hf hf2 hpred).le
-  · rw [padicValNat.eq_zero_of_not_dvd hd]
+  · rw [Nat.padicValNat_def, multiplicity_eq_zero_of_not_dvd hd]
     exact Nat.zero_le _
 
 /-- If the special prime `q` of an odd perfect number is a Fermat prime (at least 5), then
@@ -52,7 +52,8 @@ theorem fermat_special_mul_le_excess {N q k : ℕ} (h : OddPerfect N) (hq : q.Pr
       exact Nat.zero_le _
     have hm1 : 1 ≤ m := by omega
     have hpow : q ^ m ≤ e + 1 :=
-      Nat.le_of_dvd e.succ_pos (pow_padicValNat_dvd (p := q) (n := e + 1))
+      Nat.le_of_dvd e.succ_pos (show q ^ padicValNat q (e + 1) ∣ e + 1 by
+        rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
     have hbernoulli : 1 + m * (2 * c + 2) ≤ q ^ m :=
       calc
         _ ≤ (1 + (2 * c + 2)) ^ m :=

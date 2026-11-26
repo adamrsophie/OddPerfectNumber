@@ -42,7 +42,8 @@ theorem sigma_row_split {t u q e v j : ℕ} (ht : t.Prime) (ht2 : t ≠ 2) (hu :
       (v = 2 ∧ u = P ∧ t % u = 1) ∨ (0 < v ∧ P ∣ j ∧ orderOf (t : ZMod u) = P)) := by
   have := Fact.mk hu
   have hval : padicValNat u (σ 1 (t ^ e)) = v := by
-    rw [hrow, padicValNat.mul hq.ne_zero (pow_ne_zero _ hu.ne_zero), padicValNat.prime_pow,
+    rw [hrow, Nat.padicValNat_def, padicValNat.mul hq.ne_zero (pow_ne_zero _ hu.ne_zero),
+      padicValNat.prime_pow,
       padicValNat.eq_zero_of_not_dvd
         (fun hd => huq ((Nat.prime_dvd_prime_iff_eq hu hq).mp hd)), zero_add]
   -- order 1: `t ≡ 1 (mod u)` and lifting the exponent
@@ -75,7 +76,7 @@ theorem sigma_row_split {t u q e v j : ℕ} (ht : t.Prime) (ht2 : t ≠ 2) (hu :
     · have hue : u = e + 1 := (Nat.prime_dvd_prime_iff_eq hu hp).mp hud
       obtain ⟨hmod, hv'⟩ := hone hD
       refine ⟨?_, hue, hmod⟩
-      rw [hv', ← hue, padicValNat_self]
+      rw [hv', ← hue, Nat.padicValNat_def, padicValNat_self]
     · rcases (Nat.dvd_prime hp).mp hd with h1 | h1
       · exact absurd h1 hD
       · have := Nat.le_of_dvd hj (h1 ▸ hDj); omega
@@ -94,7 +95,7 @@ theorem sigma_row_split {t u q e v j : ℕ} (ht : t.Prime) (ht2 : t ≠ 2) (hu :
         (Nat.prime_dvd_prime_iff_eq hu hP).mp (hu.dvd_of_dvd_pow (hPe ▸ hud))
       obtain ⟨hmod, hv'⟩ := hone hD
       refine ⟨?_, huP, hmod⟩
-      rw [hv', hPe, ← huP, padicValNat.prime_pow]
+      rw [hv', hPe, ← huP, Nat.padicValNat_def, padicValNat.prime_pow]
     · right
       rw [hPe] at hd
       obtain ⟨k, hk, hk'⟩ := (Nat.dvd_prime_pow hP).mp hd

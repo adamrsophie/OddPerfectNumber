@@ -233,8 +233,8 @@ theorem not_dvd_succ_of_mod_eq_one (h : OddPerfect N) {l : ℕ} (hl : l.Prime) (
     rw [hpl, Nat.mod_eq_of_lt hl.one_lt]
   have hv := padicValNat_sigma_prime_pow_of_dvd_pred (a := N.factorization p) hpp hl hl2 hlp
   have hpos := one_le_padicValNat_of_dvd (Nat.succ_ne_zero _) hd
-  rw [← hv] at hpos
-  exact dvd_of_one_le_padicValNat hpos
+  rw [← Nat.padicValNat_def, ← hv] at hpos
+  exact dvd_of_one_le_padicValNat (by rw [← Nat.padicValNat_def]; exact hpos)
 
 /-- If an odd prime `l ∤ N` and a prime factor `p` has order `d > 1` modulo `l`, then
 `d ∤ e + 1`. -/

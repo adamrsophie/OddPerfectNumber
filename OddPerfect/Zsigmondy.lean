@@ -137,8 +137,10 @@ private theorem not_sq_dvd_natAbs_cyclotomic_eval {a q n : ℕ} (ha : 2 ≤ a) (
       have := Nat.one_lt_pow hq.ne_zero hx1; omega
     have h3 : q ^ (2 + padicValNat q (x - 1)) ∣ x ^ q - 1 := by
       rw [pow_add]
-      exact (mul_dvd_mul hsq pow_padicValNat_dvd).trans hdvd
+      exact (mul_dvd_mul hsq (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)).trans
+        hdvd
     have := (padicValNat_dvd_iff_le hne).mp h3
+    simp only [Nat.padicValNat_def] at this hlte ⊢
     omega
 
 /-- Bang's theorem for bases at least three: for `n ≥ 3` there is a prime `q` such that

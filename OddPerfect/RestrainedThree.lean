@@ -386,7 +386,7 @@ private theorem close {N : ℕ} (h : OddPerfect N) (K : Finset ℕ) (hK : K ⊆ 
   have hK0 : 0 ≤ ∏ p ∈ K, abundancy (p ^ N.factorization p) :=
     Finset.prod_nonneg fun _ _ => abundancy_nonneg _
   have hKC : ∏ p ∈ K, abundancy (p ^ N.factorization p) ≤ ∏ p ∈ K, c p :=
-    Finset.prod_le_prod (fun _ _ => abundancy_nonneg _) hC
+    Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg _) hC
   have hPT : (∏ t ∈ T, fv t) * (1 - S) ≤ 1 := by
     nlinarith [mul_le_mul_of_nonneg_left hS hP0]
   have hpos : 0 < 1 - S := by linarith
@@ -499,6 +499,7 @@ private theorem box_7_13 : ∀ a < 19, ∀ b < 15, 7 ^ a * 13 ^ b < 10 ^ 16 →
 private theorem one_le_pv {x n : ℕ} (hx : x.Prime) (hn : n ≠ 0) (hd : x ∣ n) :
     1 ≤ padicValNat x n := by
   have := Fact.mk hx
+  rw [Nat.padicValNat_def]
   exact one_le_padicValNat_of_dvd hn hd
 
 private theorem exp_lt_of_pow {c k V B K : ℕ} (hc : 1 ≤ c) (hV0 : 0 < V) (hdvd : c ^ k ∣ V)
@@ -769,7 +770,7 @@ theorem restrained_not_thirteen_seven {N q r : ℕ} (h : OddPerfect N)
     have hle := sum_padicValNat_sigma_le_factorization h.perfect hyp
       (by have := (memO.mp hy).2; rintro rfl; norm_num at this) {w}
     rw [Finset.sum_singleton, key2 hwT, sigma_prime_sq (hTmem hwT).1, key2 hyT] at hle
-    rwa [Nat.factorization_def _ hyp]
+    rwa [Nat.factorization_def _ hyp, ← Nat.padicValNat_def]
   -- two distinct large primes covering the slots
   obtain ⟨x, y, hxp, hyp, hx, hy, hxy, hOxy⟩ : ∃ x y : ℕ, x.Prime ∧ y.Prime ∧ 10000 ≤ x ∧
       10000 ≤ y ∧ x ≠ y ∧ O ⊆ {x, y} := by

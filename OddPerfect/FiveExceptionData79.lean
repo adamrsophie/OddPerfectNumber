@@ -130,7 +130,9 @@ theorem g79_ok : smoothOK (sqOK hits79) (1000000 ^ 4) (79 :: 7 :: [13, 19, 31]) 
     (by norm_num) (by norm_num) (by norm_num) g79L
     (by simp only [g79L, List.all_append,
       g79_c0, g79_c1, g79_c2, g79_c3, g79_c4, g79_c5, g79_c6, g79_c7, g79_c8, Bool.and_self])
-    (by decide +kernel)
+    (by refine @of_decide_eq_true _ (@Nat.decidableBallLT 12 _ fun _ _ =>
+          @Nat.decidableBallLT 27 _ fun _ _ => inferInstance) ?_
+        decide +kernel)
 
 end FiveException
 

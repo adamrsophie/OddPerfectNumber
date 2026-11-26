@@ -53,7 +53,7 @@ theorem exists_odd_sigmaWeight_of_factorization_eq_two (h : OddPerfect N) {p : �
   by_cases hr : r ∈ N.primeFactors
   · have := hno r hr
     rw [sigmaWeight, he] at this
-    exact Nat.not_odd_iff_even.mp this
+    exact this
   · by_contra hev
     have hpos : 0 < (σ 1 (p ^ 2)).factorization r := by
       rcases Nat.eq_zero_or_pos ((σ 1 (p ^ 2)).factorization r) with h0 | h0

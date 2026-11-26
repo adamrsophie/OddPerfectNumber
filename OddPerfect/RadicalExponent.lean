@@ -46,7 +46,7 @@ private lemma rad_pow_mul_le {N : ℕ} (a : ℕ) (hN : N ≠ 0) (f g : ℕ → �
       = ∏ t ∈ N.primeFactors, (t ^ a * f t) := by
         rw [← Finset.prod_pow, ← Finset.prod_mul_distrib]
     _ ≤ ∏ t ∈ N.primeFactors, (g t * t ^ N.factorization t) :=
-        Finset.prod_le_prod (fun _ _ => Nat.zero_le _) h
+        Finset.prod_le_prod₀ (fun _ _ => Nat.zero_le _) h
     _ = (∏ t ∈ N.primeFactors, g t) * N := by
         rw [Finset.prod_mul_distrib, prod_pow_factorization_eq hN]
 

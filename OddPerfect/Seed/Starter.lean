@@ -4,7 +4,7 @@ import Mathlib.Data.Nat.Factorization.Basic
 /-!
 # Exact components of a perfect number
 
-Checked with Lean 4.33.1 and mathlib commit 0df444a360eaa60ab8c11dca51a86af692955474.
+Checked with the Lean version in `lean-toolchain` and the Mathlib commit in `lake-manifest.json`.
 For a prime `p`, `n.factorization p = e` says that the exponent is exactly `e`.
 All lemmas here apply to every perfect number.
 -/

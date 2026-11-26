@@ -94,15 +94,17 @@ private theorem geomSum_succ_not_dvd_mul_prime_pow {p v n k s : ℕ} (hp : p.Pri
   have hval : padicValNat p sum = j := by
     have hlte :
         padicValNat p (v ^ (n + 1) - 1) = padicValNat p (v - 1) + j := by
-      simpa only [one_pow] using
-        padicValNat.pow_sub_pow (hp.odd_of_ne_two hp2) hv hvp hvnd (Nat.succ_ne_zero n)
-    rw [← geomSum_mul_sub_one hv.le,
-      padicValNat.mul hsum0 (Nat.ne_of_gt hvsub)] at hlte
+      have := padicValNat.pow_sub_pow (hp.odd_of_ne_two hp2) hv hvp hvnd (Nat.succ_ne_zero n)
+      simp only [one_pow, ← Nat.padicValNat_def] at this
+      exact this
+    rw [← geomSum_mul_sub_one hv.le, Nat.padicValNat_def,
+      padicValNat.mul hsum0 (Nat.ne_of_gt hvsub), ← Nat.padicValNat_def,
+      ← Nat.padicValNat_def] at hlte
     change padicValNat p sum + padicValNat p (v - 1) = padicValNat p (v - 1) + j at hlte
     omega
   have hsum : sum = p ^ j * c := by
     have hfactor := (Nat.pow_padicValNat_mul_divMaxPow p sum).symm
-    rw [hval] at hfactor
+    rw [← Nat.padicValNat_def, hval] at hfactor
     exact hfactor
   have hcsum : c ∣ sum := by
     rw [hsum]
@@ -117,7 +119,9 @@ private theorem geomSum_succ_not_dvd_mul_prime_pow {p v n k s : ℕ} (hp : p.Pri
       _ ≤ sum := hlower
       _ = c := by rw [hsum, hj, pow_zero, one_mul]
     omega
-  · have hjdvd : p ^ j ∣ n + 1 := pow_padicValNat_dvd (p := p) (n := n + 1)
+  · have hjdvd : p ^ j ∣ n + 1 := by
+      show p ^ padicValNat p (n + 1) ∣ n + 1
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd p (n + 1)
     have hjle : p ^ j ≤ n + 1 := Nat.le_of_dvd (Nat.succ_pos n) hjdvd
     have hpn : p ≤ n + 1 := (Nat.le_of_dvd (pow_pos hp.pos j) (dvd_pow_self p hj)).trans hjle
     have hcn : c ≤ n := by omega

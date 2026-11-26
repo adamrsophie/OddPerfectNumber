@@ -132,11 +132,14 @@ theorem card_divisors_le_four_mul_of_card_filter_three {n T : ℕ} (hn4 : n % 4 
     n.divisors.card ≤ 4 * T := by
   have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
   have hn0 : n ≠ 0 := by omega
-  have hv1 : 1 ≤ padicValNat 3 n := one_le_padicValNat_of_dvd hn0 h3
-  have hns := pow_succ_padicValNat_not_dvd (p := 3) hn0
+  have hv1 : 1 ≤ padicValNat 3 n := by
+    rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd hn0 h3
+  have hns : ¬ 3 ^ (padicValNat 3 n + 1) ∣ n := by
+    rw [Nat.padicValNat_def]; exact pow_succ_padicValNat_not_dvd (p := 3) hn0
   obtain ⟨v, hvdef⟩ : ∃ v, padicValNat 3 n = v := ⟨_, rfl⟩
   rw [hvdef] at hv1 hns hD
-  obtain ⟨m, hm⟩ : 3 ^ v ∣ n := hvdef ▸ pow_padicValNat_dvd
+  obtain ⟨m, hm⟩ : 3 ^ v ∣ n := by
+    rw [← hvdef, Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
   have hm3 : ¬ 3 ∣ m := by
     rintro ⟨c, rfl⟩
     exact hns ⟨c, by rw [hm, pow_succ]; ring⟩

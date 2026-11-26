@@ -42,7 +42,7 @@ private theorem sum_le_sum_primeFactors (N q : ℕ) (S : Finset ℕ) :
   · intro p hpS hp
     have hp' : p ∉ N.primeFactors := fun h => hp (Finset.mem_inter.mpr ⟨hpS, h⟩)
     rw [← Nat.support_factorization, Finsupp.notMem_support_iff] at hp'
-    simp [hp']
+    simp [hp', Nat.padicValNat_def]
 
 /-- Budget overshoot, lower bound form: for a perfect number `N` and an odd prime `q`, the
 components over any finite set `S` of primes supply at most `v_q(N)`. Primes outside
@@ -82,7 +82,9 @@ private theorem padicValNat_le_card_filter {q n n' : ℕ} (hq : q.Prime) (hq3 : 
         obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hd
         rw [Finset.mem_range] at hi
         rw [Finset.mem_filter, Nat.mem_divisors]
-        refine ⟨⟨(pow_dvd_pow q (by omega)).trans (pow_padicValNat_dvd.trans hn'), hn⟩, ?_⟩
+        have hpow : q ^ padicValNat q n' ∣ n' := by
+          rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
+        refine ⟨⟨(pow_dvd_pow q (by omega)).trans (hpow.trans hn'), hn⟩, ?_⟩
         calc 3 ≤ q ^ 1 := by rw [pow_one]; exact hq3
           _ ≤ q ^ (i + 1) := Nat.pow_le_pow_right hq.pos (by omega)
 
@@ -230,7 +232,8 @@ private theorem orderWeight_special_le (h : OddPerfect N) {s q j : ℕ} (hs : s.
       have := hs.one_lt
       zify [Nat.one_le_pow 2 s hs.pos, this.le]
       ring
-    rw [hfac, padicValNat.mul (by omega) (by have := hs.one_lt; omega),
+    rw [hfac, Nat.padicValNat_def, Nat.padicValNat_def (n := s + 1),
+      padicValNat.mul (by omega) (by have := hs.one_lt; omega),
       padicValNat.eq_zero_of_not_dvd hs1, add_zero]
   · exact Nat.zero_le _
 

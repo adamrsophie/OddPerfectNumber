@@ -46,6 +46,7 @@ theorem padicValNat_sigma_three_pow {t : ℕ} (ht : t.Prime) (ht2 : t ≠ 2) (E 
   have : Fact t.Prime := ⟨ht⟩
   have h := two_mul_sigma_three_pow_add_one' E
   rw [show 3 ^ (E + 1) - 1 = 2 * σ 1 (3 ^ E) by omega,
+    Nat.padicValNat_def (n := σ 1 (3 ^ E)), Nat.padicValNat_def (n := 2 * σ 1 (3 ^ E)),
     padicValNat.mul two_ne_zero (sigma_pos 1 _ (by positivity)).ne',
     padicValNat.eq_zero_of_not_dvd
       (fun hd => ht2 ((Nat.prime_dvd_prime_iff_eq ht Nat.prime_two).mp hd)), zero_add]
@@ -85,6 +86,7 @@ theorem padicValNat_pow_sub_one_eq {t b m : ℕ} (ht : t.Prime) (ht2 : t ≠ 2) 
   have hndvd : ¬ t ∣ b ^ orderOf (b : ZMod t) := fun h => htb (ht.dvd_of_dvd_pow h)
   have key := padicValNat.pow_sub_pow (p := t) (ht.odd_of_ne_two ht2) hx1 hdvd hndvd hk
   rw [one_pow] at key
+  simp only [Nat.padicValNat_def]
   rw [pow_mul, key, padicValNat.mul hd0.ne' hk,
     padicValNat.eq_zero_of_not_dvd (fun h => absurd (Nat.le_of_dvd hd0 h) (by omega)),
     zero_add]
@@ -152,8 +154,10 @@ theorem restrained_clock_padicValNat_le_one {N q r t : ℕ} (h : OddPerfect N) (
   have hF : Fact t.Prime := ⟨ht⟩
   have key := restrained_clock h hq hodd hr hrq hsq ht ht2 ht3 htq hd
   obtain ⟨hd0, -, hdvd⟩ := orderOf_three_facts ht ht3
-  have h1 : 1 ≤ padicValNat t (3 ^ orderOf (3 : ZMod t) - 1) := one_le_padicValNat_of_dvd
-    (by have := Nat.one_lt_pow hd0.ne' (by norm_num : 1 < 3); omega) hdvd
+  have h1 : 1 ≤ padicValNat t (3 ^ orderOf (3 : ZMod t) - 1) := by
+    rw [Nat.padicValNat_def]
+    exact one_le_padicValNat_of_dvd
+      (by have := Nat.one_lt_pow hd0.ne' (by norm_num : 1 < 3); omega) hdvd
   omega
 
 /-- In the restrained family, if `t ^ 3 ∣ 3 ^ ord_t(3) - 1` for a prime `t ∉ {2, 3, q}`, then
@@ -171,6 +175,7 @@ theorem restrained_clock_not_dvd {N q r t : ℕ} (h : OddPerfect N) (hq : q.Prim
   obtain ⟨hd0, -, -⟩ := orderOf_three_facts ht ht3
   have h3 := (padicValNat_dvd_iff_le
     (by have := Nat.one_lt_pow hd0.ne' (by norm_num : 1 < 3); omega)).mp hcube
+  rw [← Nat.padicValNat_def] at h3
   omega
 
 /-- **Clock restriction at the special prime.** In the restrained family, if the order `d` of 3
@@ -284,7 +289,8 @@ theorem restrained_big_special {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
       split_ifs with hc
       · by_contra hgt
         have hpos : phi3 p ≠ 0 := by unfold phi3; omega
-        obtain ⟨c, hc'⟩ : q ^ 2 ∣ phi3 p := (padicValNat_dvd_iff_le hpos).mpr (by omega)
+        obtain ⟨c, hc'⟩ : q ^ 2 ∣ phi3 p :=
+          (padicValNat_dvd_iff_le hpos).mpr (by rw [← Nat.padicValNat_def]; omega)
         have hb := hbig p hpN
         have hq1 := hq.two_le
         have hsmall : phi3 p < 3 * q ^ 2 := by
@@ -299,7 +305,8 @@ theorem restrained_big_special {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
         · omega
         · exact not_isSquare_phi3 hpp.one_lt.le ⟨q, by rw [hc']; ring⟩
         · omega
-      · exact (padicValNat.eq_zero_of_not_dvd (fun hd => hc ⟨hpq, hd⟩)).le
+      · rw [Nat.padicValNat_def]
+        exact (padicValNat.eq_zero_of_not_dvd (fun hd => hc ⟨hpq, hd⟩)).le
   have hle2 : ∑ p ∈ N.primeFactors.erase 3, sigmaWeight N p q ≤ 2 :=
     hle.trans (by rw [← Finset.card_filter]; exact hcard)
   omega
@@ -332,7 +339,8 @@ theorem restrained_big_pow_modEq {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have h12 := F.mod12
   have hC := restrained_big_special h hq hodd hr hrq hsq hbig
   have hv : 3 ≤ padicValNat q (3 ^ (N.factorization 3 + 1) - 1) := by omega
-  have hqd : q ∣ 3 ^ (N.factorization 3 + 1) - 1 := dvd_of_one_le_padicValNat (by omega)
+  have hqd : q ∣ 3 ^ (N.factorization 3 + 1) - 1 :=
+    dvd_of_one_le_padicValNat (by rw [← Nat.padicValNat_def]; omega)
   have hord : orderOf (3 : ZMod q) ∣ N.factorization 3 + 1 := by
     rw [orderOf_dvd_iff_pow_eq_one]
     have h0 := (ZMod.natCast_eq_zero_iff (3 ^ (N.factorization 3 + 1) - 1) q).2 hqd
@@ -340,12 +348,14 @@ theorem restrained_big_pow_modEq {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
     push_cast at h0
     exact h0
   have hA := padicValNat_three_pow_sub_one_eq hq (by omega) (by omega) hord (by omega)
-  rw [padicValNat.eq_zero_of_not_dvd hndvd, add_zero] at hA
+  rw [Nat.padicValNat_def (n := N.factorization 3 + 1), padicValNat.eq_zero_of_not_dvd hndvd,
+    add_zero] at hA
   obtain ⟨hd0, -, -⟩ := orderOf_three_facts hq (by omega)
   have hne : 3 ^ orderOf (3 : ZMod q) - 1 ≠ 0 := by
     have := Nat.one_lt_pow hd0.ne' (by norm_num : 1 < 3)
     omega
-  have h3d : q ^ 3 ∣ 3 ^ orderOf (3 : ZMod q) - 1 := (padicValNat_dvd_iff_le hne).mpr (by omega)
+  have h3d : q ^ 3 ∣ 3 ^ orderOf (3 : ZMod q) - 1 :=
+    (padicValNat_dvd_iff_le hne).mpr (by rw [← Nat.padicValNat_def]; omega)
   have hmod : 3 ^ orderOf (3 : ZMod q) ≡ 1 [MOD q ^ 3] :=
     ((Nat.modEq_iff_dvd' (Nat.one_le_pow _ _ (by norm_num))).mpr h3d).symm
   have h30 : (3 : ZMod q) ≠ 0 := by
@@ -396,7 +406,8 @@ theorem restrained_big_succ_lt {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
     by_contra hlt
     have h1 : 1 < 3 ^ (N.factorization 3 + 1) := Nat.one_lt_pow (by omega) (by norm_num)
     have hd := Nat.le_of_dvd (by omega)
-      (pow_padicValNat_dvd (p := q) (n := 3 ^ (N.factorization 3 + 1) - 1))
+      (show q ^ padicValNat q (3 ^ (N.factorization 3 + 1) - 1) ∣ 3 ^ (N.factorization 3 + 1) - 1
+        by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
     have h2 : 3 ^ (N.factorization 3 + 1) ≤ q ^ (N.factorization 3 + 1) :=
       Nat.pow_le_pow_left (by have := hq.two_le; omega) _
     have h3 : q ^ (N.factorization 3 + 1) ≤
@@ -406,7 +417,8 @@ theorem restrained_big_succ_lt {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have hw : padicValNat 3 (N.factorization q + 1) ≤ m := by
     by_contra hlt
     have hd := Nat.le_of_dvd (by omega)
-      (pow_padicValNat_dvd (p := 3) (n := N.factorization q + 1))
+      (show 3 ^ padicValNat 3 (N.factorization q + 1) ∣ N.factorization q + 1
+        by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
     have h2 : 3 ^ (m + 1) ≤ 3 ^ padicValNat 3 (N.factorization q + 1) :=
       Nat.pow_le_pow_right (by norm_num) (by omega)
     have h3 := two_mul_add_three_lt_three_pow (m := m) (by omega)

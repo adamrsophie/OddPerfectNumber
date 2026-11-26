@@ -122,7 +122,7 @@ private theorem three_primes {N : ℕ} (h : OddPerfect N) (hc : N.primeFactors.c
   have h3 : 3 ∈ P := by
     by_contra h3
     have hle : ∏ p ∈ P, g p ≤ ∏ _p ∈ P, (5 / 4 : ℚ) := by
-      apply Finset.prod_le_prod hpos
+      apply Finset.prod_le_prod₀ hpos
       intro p hp
       have := gle 5 p (by norm_num) (lb5 p hp (by rintro rfl; exact h3 hp))
       norm_num at this ⊢

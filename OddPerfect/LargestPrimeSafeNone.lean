@@ -161,7 +161,7 @@ private theorem lpsn_sum_senders (h : OddPerfect N) (hP : P ∈ N.primeFactors) 
     Finset.sum_filter_of_ne]
   intro p _ hne
   by_contra hd
-  exact hne (padicValNat.eq_zero_of_not_dvd hd)
+  exact hne (by rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd hd)
 
 /-- **The largest prime factor of an odd perfect number is never `2 R + 1` with `R` an odd
 prime.** This excludes one shape of the largest prime factor; it is not a bound and does not

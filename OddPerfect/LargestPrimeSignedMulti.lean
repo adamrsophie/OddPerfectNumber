@@ -330,7 +330,7 @@ private theorem lpsm_sum_senders (h : OddPerfect N) {P : ℕ} (hP : P ∈ N.prim
     Finset.sum_filter_of_ne]
   intro p _ hne
   by_contra hd
-  exact hne (padicValNat.eq_zero_of_not_dvd hd)
+  exact hne (by rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd hd)
 
 /-- A sender `u` into the largest prime factor `P` with `P - 1 = 2 ^ a · m`, `m` odd, is an odd
 prime below `P` of weight at most `φ(m) - 1`, with `u ^ (2 m) ≡ 1 (mod P ^ j)` for every `j`
@@ -372,7 +372,7 @@ private theorem lpsm_sender_signed (h : OddPerfect N) {P a m : ℕ} (hP : P ∈ 
   · rw [hw] at hj
     have hpt : 1 ≤ u ^ orderOf (u : ZMod P) := Nat.one_le_pow _ _ hup.pos
     have hdvd : P ^ j ∣ u ^ orderOf (u : ZMod P) - 1 :=
-      (pow_dvd_pow P hj).trans pow_padicValNat_dvd
+      (pow_dvd_pow P hj).trans (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
     have hmod : u ^ orderOf (u : ZMod P) ≡ 1 [MOD P ^ j] :=
       ((Nat.modEq_iff_dvd' hpt).mpr hdvd).symm
     obtain ⟨k, hk⟩ := ht2m

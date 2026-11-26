@@ -196,7 +196,7 @@ theorem factorization_three_ne_four_of_supportDefect_le_two {N q : ℕ} (h : Odd
     have hm := defect_lower_bound (N := N) (q := q) (S₂ := ∅) (S₄ := {11})
       (Finset.empty_subset _) (Finset.singleton_subset_iff.mpr hX)
     simp only [Finset.filter_singleton, Finset.sum_singleton, Finset.sum_empty] at hm
-    norm_num at hm
+    norm_num at hm hj hne h2
     omega
   -- `σ(11 ^ 2) = 7 * 19`
   have hσ11 : σ 1 (11 ^ N.factorization 11) = 133 := by

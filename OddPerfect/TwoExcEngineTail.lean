@@ -1231,14 +1231,14 @@ theorem defSound (P : Params) : DefSound P := by
   have b2 : ∏ t ∈ Ufs, abundancy (t ^ N.factorization t) ≤ ((x : ℚ) / (x - 1)) ^ uOf P ks := by
     have h1 : (1 : ℚ) ≤ x / (x - 1) := by rw [le_div_iff₀ (by linarith)]; linarith
     calc ∏ t ∈ Ufs, abundancy (t ^ N.factorization t) ≤ ∏ t ∈ Ufs, ((x : ℚ) / (x - 1)) :=
-          Finset.prod_le_prod (fun _ _ => abund_nonneg _) fun t ht => by
+          Finset.prod_le_prod₀ (fun _ _ => abund_nonneg _) fun t ht => by
             obtain ⟨-, htp, -, hxt⟩ := hNKm t (Finset.mem_filter.mp ht).1
             exact ab_le_x htp hx2 hxt
       _ = ((x : ℚ) / (x - 1)) ^ Ufs.card := Finset.prod_const _
       _ ≤ _ := pow_le_pow_right₀ h1 cU
   have b3 : ∏ t ∈ CD, fv t ≤ fv x ^ cdOf ks bud3 cs3 := by
     calc ∏ t ∈ CD, fv t ≤ ∏ t ∈ CD, fv x :=
-          Finset.prod_le_prod (fun t _ => fv_nonneg t) fun t ht =>
+          Finset.prod_le_prod₀ (fun t _ => fv_nonneg t) fun t ht =>
             fv_anti (by omega) (hR1m t (Finset.mem_filter.mp ht).1).2.2.2.1
       _ = fv x ^ CD.card := Finset.prod_const _
       _ ≤ _ := pow_le_pow_right₀ (one_le_fv' (by omega)) cCD

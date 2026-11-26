@@ -49,7 +49,8 @@ theorem restrained_big_special_fermat {N q r : ℕ} (h : OddPerfect N) (hq : q.P
   have h12 := F.mod12
   have hC := restrained_big_special h hq hodd hr hrq hsq hbig
   have hlt := restrained_big_succ_lt h hq hodd hr hrq hsq hbig
-  have hqd : q ∣ 3 ^ (N.factorization 3 + 1) - 1 := dvd_of_one_le_padicValNat (by omega)
+  have hqd : q ∣ 3 ^ (N.factorization 3 + 1) - 1 :=
+    dvd_of_one_le_padicValNat (by rw [← Nat.padicValNat_def]; omega)
   have hord : orderOf (3 : ZMod q) ∣ N.factorization 3 + 1 := by
     rw [orderOf_dvd_iff_pow_eq_one]
     have h0 := (ZMod.natCast_eq_zero_iff (3 ^ (N.factorization 3 + 1) - 1) q).2 hqd
@@ -66,10 +67,14 @@ theorem restrained_big_special_fermat {N q r : ℕ} (h : OddPerfect N) (hq : q.P
   have hq2 := hq.two_le
   have hA := padicValNat_three_pow_sub_one_eq hq (by omega) (by omega) hord (by omega)
   have hB := padicValNat_three_pow_sub_one_eq hq (by omega) (by omega) hfer (by omega)
-  have hm0 : padicValNat q (N.factorization 3 + 1) = 0 := padicValNat.eq_zero_of_not_dvd
-    (fun hd => absurd (Nat.le_of_dvd (by omega) hd) (by omega))
-  have hq0 : padicValNat q (q - 1) = 0 := padicValNat.eq_zero_of_not_dvd
-    (fun hd => absurd (Nat.le_of_dvd (by omega) hd) (by omega))
+  have hm0 : padicValNat q (N.factorization 3 + 1) = 0 := by
+    rw [Nat.padicValNat_def]
+    exact padicValNat.eq_zero_of_not_dvd
+      (fun hd => absurd (Nat.le_of_dvd (by omega) hd) (by omega))
+  have hq0 : padicValNat q (q - 1) = 0 := by
+    rw [Nat.padicValNat_def]
+    exact padicValNat.eq_zero_of_not_dvd
+      (fun hd => absurd (Nat.le_of_dvd (by omega) hd) (by omega))
   omega
 
 /-- In the restrained family, if every prime factor of `N` is at most `q`, then
@@ -97,8 +102,10 @@ theorem restrained_big_pow_dvd {N q r : ℕ} (h : OddPerfect N) (hq : q.Prime)
     q ^ (N.factorization q - 2) ∣ 3 ^ (q - 1) - 1 := by
   have hF : Fact q.Prime := ⟨hq⟩
   have hC := restrained_big_special_fermat h hq hodd hr hrq hsq hbig
-  exact (pow_dvd_pow q (by omega)).trans
-    (pow_padicValNat_dvd (p := q) (n := 3 ^ (q - 1) - 1))
+  exact (pow_dvd_pow q
+    (show N.factorization q - 2 ≤ padicValNat q (3 ^ (q - 1) - 1) by omega)).trans
+    (show q ^ padicValNat q (3 ^ (q - 1) - 1) ∣ 3 ^ (q - 1) - 1 by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
 
 /-- In the restrained family, if every prime factor of `N` is at most `q`, then
 `q ^ (a - 2) ∣ 3 ^ (q - 1) - 1` (from `restrained_big_pow_dvd`).
@@ -148,6 +155,7 @@ theorem saturated_receiver {N t : ℕ} (h : OddPerfect N) (h3 : 3 ∣ N) (ht : t
   rw [sigmaWeight_eq_padicValNat _ _ ht] at hw
   have := one_le_padicValNat_of_dvd
     (sigma_pos 1 _ (pow_ne_zero _ (Nat.prime_of_mem_primeFactors hp).ne_zero)).ne' hdvd
+  rw [← Nat.padicValNat_def] at this
   omega
 
 /-- **Tight clock.** In the restrained family, if a prime `t ∉ {2, 3, q}` has order of 3

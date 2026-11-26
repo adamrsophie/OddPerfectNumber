@@ -356,7 +356,8 @@ theorem not_threeWeight_ledger_abs_voight :
     (voight.map fun x => threeWeight x.1.natAbs x.2).sum = 2 ∧
       ¬ (3 ^ 2 ∣ (value voight).natAbs ∧ ¬ 3 ^ 3 ∣ (value voight).natAbs) := by
   refine ⟨?_, by decide⟩
-  simp [voight, threeWeight, padicValNat.eq_zero_of_not_dvd (by norm_num : ¬ 3 ∣ 2)]
+  simp [voight, threeWeight, Nat.padicValNat_def, Nat.multiplicity_self (by norm_num : 1 < 3),
+    multiplicity_eq_zero_of_not_dvd (by norm_num : ¬ 3 ∣ 2)]
 
 /-- The closed form `3`-adic ledger with signed residues balances: `-127 ≡ 2 (mod 3)` at odd
 exponent `1` contributes `v_3(|-127 + 1|) + v_3(2) = 2`, and the other bases contribute
@@ -366,10 +367,11 @@ theorem threeWeight_ledger_signed_voight :
       threeWeight 3 4 + threeWeight 7 2 + threeWeight 11 2 + threeWeight 19 2 + 2 = 4 := by
   refine ⟨⟨by decide, ?_⟩, ?_⟩
   · have h126 : ((-127 + 1 : ℤ).natAbs) = 3 ^ 2 * 14 := by decide
-    rw [h126, padicValNat.mul (by norm_num) (by norm_num), padicValNat.prime_pow,
+    rw [h126, Nat.padicValNat_def, Nat.padicValNat_def,
+      padicValNat.mul (by norm_num) (by norm_num), padicValNat.prime_pow,
       padicValNat.eq_zero_of_not_dvd (by norm_num : ¬ 3 ∣ 14),
       padicValNat.eq_zero_of_not_dvd (by norm_num : ¬ 3 ∣ 2)]
-  · simp [threeWeight]
+  · simp [threeWeight, Nat.padicValNat_def, Nat.multiplicity_self (by norm_num : 1 < 3)]
 
 /-! ## Formal conservation -/
 

@@ -114,8 +114,8 @@ theorem prime_index_of_sigma_prime_pow {r p g w : ℕ} (hr : r.Prime) (hp : p.Pr
     rw [hsub, padicValNat.mul (pow_ne_zero _ hp.ne_zero)
       (show r - 1 ≠ 0 by have := hr.two_le; omega),
       padicValNat.prime_pow] at hlte
-    have hv : w = padicValNat p (g + 1) := by omega
-    have hdvd : p ^ w ∣ g + 1 := by rw [hv]; exact pow_padicValNat_dvd
+    have hv : w = multiplicity p (g + 1) := by omega
+    have hdvd : p ^ w ∣ g + 1 := by rw [hv]; exact pow_multiplicity_dvd _ _
     have hle := Nat.le_of_dvd (by omega) hdvd
     have hlt := scd_lt_geom (x := r) (n := g) hr.two_le hg
     omega

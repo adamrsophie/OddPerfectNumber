@@ -113,13 +113,13 @@ theorem kanold_square_normal_form {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     rwa [hp1] at this
   have hlo : ∀ p ∈ S, 2 ≤ f p := by
     intro p hp
-    rw [hfS p hp]
+    rw [hfS p hp, Nat.padicValNat_def]
     exact (padicValNat_dvd_iff_le (by omega)).mp (hexp p (hSN p hp) (hSq p hp))
   have hhi : ∀ p ∈ S, f p + 1 ≤ S.card := by
     intro p hp
     rw [hfS p hp]
     exact succ_le_card_filter_mod_eq_one h (by omega) (hSN p hp)
-      (Finset.mem_filter.mp hp).2 pow_padicValNat_dvd
+      (Finset.mem_filter.mp hp).2 (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
   -- the exact ledger, split along `S`
   have hSsub : S ⊆ N.primeFactors.erase q := fun p hp =>
     Finset.mem_erase.mpr ⟨hSq p hp, hSN p hp⟩
@@ -188,7 +188,8 @@ theorem kanold_square_normal_form {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     obtain ⟨hpq, hpN⟩ := Finset.mem_erase.mp hpE
     by_contra hne
     rw [hf] at hne
-    exact hpS (hA p hpN hpq (dvd_of_one_le_padicValNat (Nat.one_le_iff_ne_zero.mpr hne)))
+    exact hpS (hA p hpN hpq (dvd_of_one_le_padicValNat
+      (Nat.one_le_iff_ne_zero.mpr (by rwa [← Nat.padicValNat_def]))))
   have hsum9 : S.sum f = 9 := by
     have : ∑ p ∈ S, f p = 9 := by omega
     exact this
@@ -226,7 +227,8 @@ theorem kanold_square_normal_form {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have hpure : ∀ s ∈ S, N.factorization s + 1 = q ^ padicValNat q (N.factorization s + 1) := by
     intro s hs
     have hv2 : 2 ≤ padicValNat q (N.factorization s + 1) := hfS s hs ▸ hlo s hs
-    obtain ⟨k, hk⟩ := pow_padicValNat_dvd (p := q) (n := N.factorization s + 1)
+    obtain ⟨k, hk⟩ := (show q ^ padicValNat q (N.factorization s + 1) ∣ N.factorization s + 1 by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
     set v := padicValNat q (N.factorization s + 1) with hv
     by_contra hne
     have hk1 : k ≠ 1 := by rintro rfl; rw [mul_one] at hk; exact hne hk
@@ -237,7 +239,7 @@ theorem kanold_square_normal_form {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
     have huq : u ≠ q := by
       intro huq
       apply pow_succ_padicValNat_not_dvd (p := q) (n := N.factorization s + 1) (by omega)
-      rw [← hv, hk, pow_succ]
+      rw [← Nat.padicValNat_def, ← hv, hk, pow_succ]
       exact Nat.mul_dvd_mul_left _ (huq ▸ huk)
     have hvd : q ^ 2 ∣ q ^ v := pow_dvd_pow q hv2
     have huq2 : u * q ^ 2 ∣ N.factorization s + 1 := by

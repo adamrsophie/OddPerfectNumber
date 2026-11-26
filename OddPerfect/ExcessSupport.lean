@@ -287,8 +287,9 @@ private theorem index_succ_le_sigma {N q : ℕ} (hq : q.Prime) (hodd : Odd (N.fa
   have hs := padicValNat_three_sigma_prime_pow_of_mod_two hq hq3 (N.factorization q)
   rw [if_neg (Nat.not_even_iff_odd.mpr hodd)] at hs
   have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
-  have h1 : 1 ≤ padicValNat 3 (q + 1) :=
-    one_le_padicValNat_of_dvd (by omega) (Nat.dvd_of_mod_eq_zero (by omega))
+  have h1 : 1 ≤ padicValNat 3 (q + 1) := by
+    rw [Nat.padicValNat_def]
+    exact one_le_multiplicity_of_dvd (by omega) (Nat.dvd_of_mod_eq_zero (by omega))
   omega
 
 /-- For an odd perfect number `N` with special prime `q ≡ 2 (mod 3)` of exponent `a`,

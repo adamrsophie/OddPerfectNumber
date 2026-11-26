@@ -129,13 +129,13 @@ private theorem tf_prod_le_of_card_le {T L : Finset ℕ} (f : ℕ → ℚ) (c : 
     rw [Finset.inter_comm] at h2
     omega
   calc ∏ t ∈ T \ L, f t ≤ ∏ _t ∈ T \ L, c :=
-        Finset.prod_le_prod (fun t ht => hT0 t (Finset.mem_sdiff.mp ht).1)
+        Finset.prod_le_prod₀ (fun t ht => hT0 t (Finset.mem_sdiff.mp ht).1)
           fun t ht => hTc t (Finset.mem_sdiff.mp ht).1 (Finset.mem_sdiff.mp ht).2
     _ = c ^ (T \ L).card := Finset.prod_const c
     _ ≤ c ^ (L \ T).card := pow_le_pow_right₀ hc hc1
     _ = ∏ _l ∈ L \ T, c := (Finset.prod_const c).symm
     _ ≤ ∏ l ∈ L \ T, f l :=
-        Finset.prod_le_prod (fun _ _ => by linarith) fun l hl => hLc l (Finset.mem_sdiff.mp hl).1
+        Finset.prod_le_prod₀ (fun _ _ => by linarith) fun l hl => hLc l (Finset.mem_sdiff.mp hl).1
 
 private theorem tf_five_le {N p : ℕ} (h : OddPerfect N) (h3 : ¬ 3 ∣ N)
     (hp : p ∈ N.primeFactors) : 5 ≤ p := by
@@ -219,11 +219,11 @@ private theorem tf_res {N q : ℕ} {E : Finset ℕ} (h : OddPerfect N) (h3 : ¬ 
     intro h1
     have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
     have hv := padicValNat_three_sigma_prime_pow_of_mod_one hr h1 (N.factorization r)
-    have hpos : 1 ≤ padicValNat 3 (N.factorization r + 1) :=
-      one_le_padicValNat_of_dvd (by omega) hm
+    have hpos : 1 ≤ padicValNat 3 (N.factorization r + 1) := by
+      rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd (by omega) hm
     rw [← hv] at hpos
     exact h3 (OPNStarter.force_prime h.perfect hr rfl Nat.prime_three (by norm_num)
-      (dvd_of_one_le_padicValNat hpos))
+      (dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; exact hpos)))
   omega
 
 /-- Under `3 ∤ N` with all other prime factors `≡ 2 (mod 3)`, a prime factor `p ≠ q` with
@@ -313,7 +313,7 @@ private theorem tf_core {N q m : ℕ} {E : Finset ℕ} (h : OddPerfect N) (hq : 
   have hPrime : ∀ {x}, x ∈ N.primeFactors.erase q → x.Prime := fun hx =>
     Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase hx)
   have hX : ∏ x ∈ X, abundancy (x ^ N.factorization x) ≤ tfT m := by
-    refine le_trans (Finset.prod_le_prod (fun x _ => (tf_abund_pos
+    refine le_trans (Finset.prod_le_prod₀ (fun x _ => (tf_abund_pos
       (pow_ne_zero _ (hmemX ‹_›).1.ne_zero)).le) fun x hx =>
       (abundancy_prime_pow_lt (hmemX hx).1 _).le) ?_
     refine tf_prod_le X (fun x hx y hy hxy => ?_) m hm fun x hx => (hmemX hx).2.1
@@ -321,7 +321,7 @@ private theorem tf_core {N q m : ℕ} {E : Finset ℕ} (h : OddPerfect N) (hq : 
     obtain ⟨-, -, b, hb, hyb⟩ := hmemX hy
     exact tf_sep hq13 ha hb hxa hyb hxy
   have hZ : ∏ x ∈ Z, abundancy (x ^ N.factorization x) ≤ ∏ x ∈ Z, (x : ℚ) / (x - 1) :=
-    Finset.prod_le_prod (fun x hx => (tf_abund_pos (pow_ne_zero _
+    Finset.prod_le_prod₀ (fun x hx => (tf_abund_pos (pow_ne_zero _
       (hPrime (Finset.mem_of_mem_filter x hx)).ne_zero)).le) fun x hx =>
       (abundancy_prime_pow_lt (hPrime (Finset.mem_of_mem_filter x hx)) _).le
   have hX0 : 0 < ∏ x ∈ X, abundancy (x ^ N.factorization x) :=
@@ -790,10 +790,12 @@ private theorem tf_109 {N : ℕ} {E : Finset ℕ} (h : OddPerfect N)
     rw [padicValNat_sigma_prime_pow_of_orderOf_dvd hq h5p (by norm_num) (by norm_num)
       (by rw [hord]; norm_num) (by rw [hord]; exact ha2), hord]
     have h1 : padicValNat 5 (109 ^ 2 - 1) = 1 := by
-      rw [show 109 ^ 2 - 1 = 5 * 2376 by norm_num, padicValNat.mul (by norm_num) (by norm_num),
-        padicValNat_self, padicValNat.eq_zero_of_not_dvd (by norm_num)]
-    have h2 : padicValNat 5 ((N.factorization 109 + 1) / 2) = 0 :=
-      padicValNat.eq_zero_of_not_dvd fun hd => ha5 (hd.trans (Nat.div_dvd_of_dvd ha2))
+      rw [show 109 ^ 2 - 1 = 5 * 2376 by norm_num, Nat.padicValNat_def,
+        padicValNat.mul (by norm_num) (by norm_num), Nat.Prime.multiplicity_self,
+        multiplicity_eq_zero_of_not_dvd (by norm_num)]
+    have h2 : padicValNat 5 ((N.factorization 109 + 1) / 2) = 0 := by
+      rw [Nat.padicValNat_def]
+      exact padicValNat.eq_zero_of_not_dvd fun hd => ha5 (hd.trans (Nat.div_dvd_of_dvd ha2))
     rw [h1, h2]
   -- the ledger at `5`
   have hled : N.factorization 5 = 1 + ∑ p ∈ O, tfW N p := by
@@ -801,6 +803,7 @@ private theorem tf_109 {N : ℕ} {E : Finset ℕ} (h : OddPerfect N)
       ← Finset.add_sum_erase _ (fun p => sigmaWeight N p 5) hqN]
     rw [sigmaWeight_eq_padicValNat N 109 h5p, hw109]
     congr 1
+    exact Finset.sum_congr rfl fun p _ => sigmaWeight_eq_padicValNat N p h5p
   have hsum3 : 3 ≤ ∑ p ∈ O, tfW N p := by omega
   -- the weight of one component
   have hwdvd : ∀ p ∈ O, ∀ k, k ≤ tfW N p →
@@ -812,9 +815,11 @@ private theorem tf_109 {N : ℕ} {E : Finset ℕ} (h : OddPerfect N)
         padicValNat_sigma_prime_pow_of_dvd_pred hp' h5p (by norm_num)
           (Nat.dvd_of_mod_eq_zero (by omega))
       rw [hv] at hk
-      exact ⟨(padicValNat_dvd_iff_le (by omega)).mpr hk, fun _ => hp5⟩
+      exact ⟨(padicValNat_dvd_iff_le (by omega)).mpr (by rw [← Nat.padicValNat_def]; exact hk),
+        fun _ => hp5⟩
     · have hv : tfW N p = 0 := by
-        refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
+        rw [tfW, Nat.padicValNat_def]
+        refine multiplicity_eq_zero_of_not_dvd fun hd => ?_
         rcases (prime_dvd_sigma_prime_pow hp' h5p hd).2 with ⟨h1, -⟩ | ⟨h1, hd1, hd2⟩
         · exact hp5 h1
         · obtain ⟨j, hj⟩ := hev

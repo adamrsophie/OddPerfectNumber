@@ -216,7 +216,7 @@ theorem prod_nonpure_gt_of_not_three_dvd {N q : ℕ} {Y : Finset ℕ} (h : OddPe
     norm_num at this ⊢
     linarith
   have hZ : ∏ x ∈ Z, abundancy (x ^ N.factorization x) ≤ ∏ x ∈ Z, (x : ℚ) / (x - 1) :=
-    Finset.prod_le_prod (fun _ _ => abundancy_nonneg' _) fun x hx =>
+    Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg' _) fun x hx =>
       (abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors
         (Finset.mem_of_mem_erase (Finset.mem_of_mem_filter x hx))) _).le
   have hX0 : 0 ≤ ∏ x ∈ X, abundancy (x ^ N.factorization x) :=
@@ -256,13 +256,13 @@ private theorem prod_le_of_card_le {T L : Finset ℕ} (f : ℕ → ℚ) (c : ℚ
     rw [Finset.inter_comm] at h2
     omega
   calc ∏ t ∈ T \ L, f t ≤ ∏ _t ∈ T \ L, c :=
-        Finset.prod_le_prod (fun t ht => hT0 t (Finset.mem_sdiff.mp ht).1)
+        Finset.prod_le_prod₀ (fun t ht => hT0 t (Finset.mem_sdiff.mp ht).1)
           fun t ht => hTc t (Finset.mem_sdiff.mp ht).1 (Finset.mem_sdiff.mp ht).2
     _ = c ^ (T \ L).card := Finset.prod_const c
     _ ≤ c ^ (L \ T).card := pow_le_pow_right₀ hc hc1
     _ = ∏ _l ∈ L \ T, c := (Finset.prod_const c).symm
     _ ≤ ∏ l ∈ L \ T, f l :=
-        Finset.prod_le_prod (fun _ _ => by linarith) fun l hl => hLc l (Finset.mem_sdiff.mp hl).1
+        Finset.prod_le_prod₀ (fun _ _ => by linarith) fun l hl => hLc l (Finset.mem_sdiff.mp hl).1
 
 /-- In an odd perfect number with `3 ∤ N`, every prime factor is at least 5. -/
 private theorem five_le_of_mem {N p : ℕ} (h : OddPerfect N) (h3 : ¬ 3 ∣ N)

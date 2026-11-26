@@ -158,7 +158,8 @@ theorem card_feeders_le {N s : ℕ} (hN : N.Perfect) (hs : s.Prime) (hs2 : s ≠
         refine Finset.sum_le_sum fun p hp => ?_
         obtain ⟨hp', hd⟩ := Finset.mem_filter.mp hp
         have hpp := Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase hp')
-        exact one_le_padicValNat_of_dvd (sigma_pos 1 _ (pow_ne_zero _ hpp.ne_zero)).ne' hd
+        rw [Nat.padicValNat_def]
+        exact one_le_multiplicity_of_dvd (sigma_pos 1 _ (pow_ne_zero _ hpp.ne_zero)).ne' hd
     _ ≤ _ := Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
 
 /-- `σ(p ^ (k + 1)) = 1 + p σ(p ^ k)`. -/
@@ -186,10 +187,12 @@ theorem pow_dvd_succ_of_sigma_eq_pow {p q β c a : ℕ} (hp : p.Prime) (hp2 : p 
   have hk' : 2 * β - 1 = k := by omega
   rw [hk']
   rw [hk] at hc hv
-  have hpd : p ∣ σ 1 (q ^ a) := dvd_of_one_le_padicValNat (by omega)
+  have hpd : p ∣ σ 1 (q ^ a) :=
+    dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; omega)
   rcases (prime_dvd_sigma_prime_pow hq hp hpd).2 with ⟨h1, -⟩ | ⟨ho1, hod, -⟩
   · rw [padicValNat_sigma_of_mod_eq_one hq hp hp2 h1] at hv
-    have := pow_padicValNat_dvd (p := p) (n := a + 1)
+    have : p ^ padicValNat p (a + 1) ∣ a + 1 := by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
     rw [hv] at this
     exact (pow_dvd_pow p (by omega)).trans this
   · rw [padicValNat_sigma_prime_pow_of_orderOf_dvd hq hp hp2 (Ne.symm hpq) ho1 hod] at hv
@@ -207,13 +210,14 @@ theorem pow_dvd_succ_of_sigma_eq_pow {p q β c a : ℕ} (hp : p.Prime) (hp2 : p 
     have hqo : 1 < q ^ o := Nat.one_lt_pow (by omega) hq.one_lt
     have hle : padicValNat p (q ^ o - 1) ≤ 1 := by
       by_contra hlt
-      have h2 : p ^ 2 ∣ q ^ o - 1 := (padicValNat_dvd_iff_le (by omega)).mpr (by omega)
+      have h2 : p ^ 2 ∣ q ^ o - 1 :=
+        (multiplicity_dvd_iff_le (by omega)).mpr (by rw [← Nat.padicValNat_def]; omega)
       exact not_sq_dvd_sigma_sub_one hp k (hc ▸ h2.trans hdvd)
     obtain ⟨m, hm⟩ := hod
     have ho0 : 0 < o := by omega
     rw [hm, Nat.mul_div_cancel_left _ ho0] at hv
     have hm0 : m ≠ 0 := by rintro rfl; omega
-    have : p ^ k ∣ m := (padicValNat_dvd_iff_le hm0).mpr (by omega)
+    have : p ^ k ∣ m := (multiplicity_dvd_iff_le hm0).mpr (by rw [← Nat.padicValNat_def]; omega)
     rw [hm]
     exact this.trans (dvd_mul_left m o)
 
@@ -233,7 +237,7 @@ theorem two_mul_pow_le_card_divisors {n b : ℕ} (U : Finset ℕ) (hn : n ≠ 0)
   have h2f : 1 ≤ n.factorization 2 := (Nat.prime_two.dvd_iff_one_le_factorization hn).mp h2
   have hprod : (b + 1) ^ U.card ≤ ∏ x ∈ U, (n.factorization x + 1) := by
     rw [← Finset.prod_const]
-    refine Finset.prod_le_prod (fun _ _ => Nat.zero_le _) fun p hp => ?_
+    refine Finset.prod_le_prod₀ (fun _ _ => Nat.zero_le _) fun p hp => ?_
     have := ((hU p hp).1.pow_dvd_iff_le_factorization hn).mp (hU p hp).2.2
     omega
   calc 2 * (b + 1) ^ U.card ≤ ∏ x ∈ insert 2 U, (n.factorization x + 1) := by
@@ -290,7 +294,8 @@ theorem padicValNat_sigma_special_eq {N q l β p : ℕ} (h : OddPerfect N) (hq :
   rw [Finset.sum_eq_single q]
   · intro r hr hrq
     obtain ⟨-, hrN⟩ := Finset.mem_erase.mp hr
-    refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
+    rw [Nat.padicValNat_def]
+    refine multiplicity_eq_zero_of_not_dvd fun hd => ?_
     rw [hexp r hrN hrq] at hd
     obtain ⟨-, h1 | h2 | h3⟩ := prime_dvd_sigma_of_equal_exponents h hl hβ hexp hrN hrq hpp hd
     · exact hpl h1
@@ -371,8 +376,9 @@ theorem card_primeFactors_le_of_equal_exponents {N q β : ℕ} (h : OddPerfect N
         intro h1
         have : Fact l.Prime := ⟨hlp⟩
         have hv := padicValNat_sigma_of_mod_eq_one hpp hlp hl2 h1 (a := 2 * β)
-        rw [hβl, padicValNat_self, hc] at hv
-        have hld : l ∣ q ^ c := dvd_of_one_le_padicValNat (by omega)
+        rw [hβl, Nat.padicValNat_def (p := l) (n := l), Nat.Prime.multiplicity_self, hc] at hv
+        have hld : l ∣ q ^ c :=
+          dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; omega)
         exact hlq ((Nat.prime_dvd_prime_iff_eq hlp hq).mp (hlp.dvd_of_dvd_pow hld))
       exact ⟨hpp, hp2, pow_dvd_succ_of_sigma_eq_pow hpp hp2 hq hpq hβ1 hc
         (padicValNat_sigma_special_eq h hq hodd hlp hβl hexp hpN hpq hpl hp1)⟩
@@ -412,7 +418,8 @@ theorem card_primeFactors_le_of_equal_exponents {N q β : ℕ} (h : OddPerfect N
         have h1 : S.card * padicValNat l (2 * β + 1) ≤ 2 * β := by
           convert card_mul_padicValNat_le_of_ordinary h.perfect hlp hl2 hexp hlmem hlq
         have : Fact l.Prime := ⟨hlp⟩
-        have h2 : 1 ≤ padicValNat l (2 * β + 1) := one_le_padicValNat_of_dvd (by omega) hld
+        have h2 : 1 ≤ padicValNat l (2 * β + 1) := by
+          rw [Nat.padicValNat_def]; exact one_le_multiplicity_of_dvd (by omega) hld
         nlinarith
       have hAle : ∀ s ∈ S, (A s).card ≤ 2 * β := fun s hs => by
         obtain ⟨hsN, hsq, -⟩ := Finset.mem_filter.mp hs

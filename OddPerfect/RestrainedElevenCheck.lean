@@ -124,7 +124,7 @@ theorem fac_step {X n acc : ℕ} (hn : 3 ≤ n) :
   refine le_trans (le_of_eq ?_) (div_le_cdiv hb)
   unfold fac
   push_cast
-  ring
+  simp only [mul_div_assoc, mul_assoc]
 
 theorem runLimb_sound {X : ℕ} : ∀ (c n W acc a : ℕ), runLimb X c n W acc = some a →
     n % 2 = 1 → 3 ≤ n → Cert X n (n + 2 * c) acc a

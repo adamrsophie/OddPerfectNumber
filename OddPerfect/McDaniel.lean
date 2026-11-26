@@ -299,7 +299,7 @@ private theorem subset_prod_bound (T : Finset ℕ) (hT : ∀ c ∈ T, 1 ≤ c) :
     have := Finset.le_sup (f := id) hc
     simp only [Finset.mem_Ico]
     exact ⟨hT c hc, by simp at this; omega⟩
-  refine (Finset.prod_le_prod_of_subset_of_one_le hsub (fun _ _ => by positivity)
+  refine (Finset.prod_le_prod_of_subset_of_one_le₀ hsub (fun _ _ => by positivity)
     (fun i _ _ => by
       have : (0 : ℚ) ≤ (1 / 3) ^ i := by positivity
       linarith)).trans ?_
@@ -607,7 +607,7 @@ theorem mcdaniel_of_not_three_dvd {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have hrest : ∏ p ∈ S, abundancy (p ^ N.factorization p) ≤ 8 / 5 := by
     calc ∏ p ∈ S, abundancy (p ^ N.factorization p)
         ≤ ∏ p ∈ S, (1 + ((1 : ℚ) / 3) ^ cf p) := by
-          apply Finset.prod_le_prod (fun _ _ => hnonneg _)
+          apply Finset.prod_le_prod₀ (fun _ _ => hnonneg _)
           intro p hp
           have hpS := Finset.mem_of_mem_erase hp
           obtain ⟨hp5, hpow, -⟩ := key p hpS (Finset.ne_of_mem_erase hp)

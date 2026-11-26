@@ -270,7 +270,8 @@ theorem expo_dvd (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization 
     · intro p hp hpq
       obtain ⟨-, hpN⟩ := Finset.mem_erase.mp hp
       rw [hexp p hpN hpq]
-      refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
+      rw [Nat.padicValNat_def]
+      refine multiplicity_eq_zero_of_not_dvd fun hd => ?_
       rcases prime_dvd_sigma_prime_pow_of_prime_length (Nat.prime_of_mem_primeFactors hpN) hs
         hl hd with h1 | h1
       · exact hsl h1
@@ -290,8 +291,8 @@ theorem expo_dvd (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization 
       exact hpow.symm)
     have hv' := padicValNat_sigma_prime_pow_of_dvd_pred hq hs hs2 hdvd (a := N.factorization q)
     rw [key] at hv'
-    rw [hv']
-    exact pow_padicValNat_dvd
+    rw [hv', Nat.padicValNat_def]
+    exact pow_multiplicity_dvd _ _
   · have hd2 : 1 < d := by omega
     have hdk : d ∣ N.factorization q + 1 := by
       by_contra hnd
@@ -305,7 +306,8 @@ theorem expo_dvd (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization 
     have hvle : padicValNat s (q ^ d - 1) ≤ v := by
       by_contra hlt
       push Not at hlt
-      have hdv : s ^ (v + 1) ∣ q ^ d - 1 := (padicValNat_dvd_iff_le (by omega)).mpr hlt
+      have hdv : s ^ (v + 1) ∣ q ^ d - 1 :=
+        (multiplicity_dvd_iff_le (by omega)).mpr (by rw [← Nat.padicValNat_def]; omega)
       have hm := (Nat.modEq_iff_dvd' hqd.le).mpr hdv
       have h1v : 1 % s ^ (v + 1) = 1 := Nat.mod_eq_of_lt (Nat.one_lt_pow (by omega) hs.one_lt)
       rw [Nat.ModEq, h1v] at hm
@@ -313,7 +315,8 @@ theorem expo_dvd (h : OddPerfect N) (hq : q.Prime) (hodd : Odd (N.factorization 
     obtain ⟨t, ht⟩ := hdk
     have ht0 : t ≠ 0 := by rintro rfl; omega
     rw [ht, Nat.mul_div_cancel_left _ (by omega)] at hf
-    have hst : s ^ (l - 1 - v) ∣ t := (padicValNat_dvd_iff_le ht0).mpr (by omega)
+    have hst : s ^ (l - 1 - v) ∣ t :=
+      (multiplicity_dvd_iff_le ht0).mpr (by rw [← Nat.padicValNat_def]; omega)
     simp only [expoFactor, if_neg hd]
     rw [ht]
     exact Nat.mul_dvd_mul_left d hst

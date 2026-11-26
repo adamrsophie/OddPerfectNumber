@@ -225,7 +225,8 @@ theorem factorization_three_le_sq_of_dvd_sigma (h : OddPerfect N) {s : ℕ} (hs 
     (hodd : Odd (N.factorization s)) (hdvd : s ∣ σ 1 (3 ^ N.factorization 3)) :
     N.factorization 3 ≤ (N.primeFactors.card - 1) ^ 2 := by
   have := factorization_three_le h hs hodd
-  rwa [padicValNat.eq_zero_of_not_dvd (not_three_dvd_succ_special h hs hodd hdvd),
+  rwa [Nat.padicValNat_def, padicValNat.eq_zero_of_not_dvd
+    (not_three_dvd_succ_special h hs hodd hdvd),
     add_zero] at this
 
 /-- An edge from an odd Fermat type prime `q` into the special prime `s` gives
@@ -241,7 +242,8 @@ theorem two_mul_factorization_le_of_fermat_of_dvd_sigma (h : OddPerfect N) {s q 
     rintro rfl
     omega
   have h2 := three_mul_le_of_dvd_sigma hs hq hs2 hq2 hdvd
-    (pow_padicValNat_dvd (p := q) (n := s + 1))
+    (show q ^ padicValNat q (s + 1) ∣ s + 1 by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
   omega
 
 /-! ## Group C: a kernel checked control -/

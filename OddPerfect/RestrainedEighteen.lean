@@ -73,7 +73,7 @@ theorem card_gt_of_wheel {N q X B c a b d M W φ D Ep Em : ℕ} (h : OddPerfect 
   have hP0 : 0 ≤ ∏ r ∈ R, abundancy (r ^ N.factorization r) :=
     Finset.prod_nonneg fun r hr => (abundancy_pos (pow_ne_zero _ (hrp r hr).ne_zero)).le
   have hP1 : ∏ r ∈ R, abundancy (r ^ N.factorization r) ≤ ∏ r ∈ R, y * fac X r := by
-    refine Finset.prod_le_prod (fun r hr => (abundancy_pos (pow_ne_zero _
+    refine Finset.prod_le_prod₀ (fun r hr => (abundancy_pos (pow_ne_zero _
       (hrp r hr).ne_zero)).le) fun r hr => ?_
     rw [hy, ← div_pred_eq hX1 (hrp r hr).two_le]
     exact (abundancy_prime_pow_lt (hrp r hr) _).le
@@ -94,11 +94,11 @@ theorem card_gt_of_wheel {N q X B c a b d M W φ D Ep Em : ℕ} (h : OddPerfect 
   have hfR : ∏ r ∈ R, fac X r = (∏ r ∈ Rhi, fac X r) * ∏ r ∈ Rlo, fac X r :=
     (Finset.prod_filter_mul_prod_filter_not R _ _).symm
   have hlo : ∏ r ∈ Rlo, fac X r ≤ ∏ n ∈ T, fac X n := by
-    refine Finset.prod_le_prod_of_subset_of_one_le hlo_sub (fun r _ => hF0 r) fun n hn _ => ?_
+    refine Finset.prod_le_prod_of_subset_of_one_le₀ hlo_sub (fun r _ => hF0 r) fun n hn _ => ?_
     have := hT n hn
     exact one_le_fac (by omega) (by omega)
   have hhi : ∏ r ∈ Rhi, fac X r ≤ ∏ r ∈ S, fac X r := by
-    refine Finset.prod_le_prod_of_subset_of_le_one hSsub (fun r _ => hF0 r) fun r hr _ => ?_
+    refine Finset.prod_le_prod_of_subset_of_le_one₀ hSsub (fun r _ => hF0 r) fun r hr _ => ?_
     exact fac_le_one hX1 (Finset.mem_filter.mp hr).2
   have ha' : (0 : ℚ) < a := by exact_mod_cast ha
   have hTb : ∏ n ∈ T, fac X n ≤ (b : ℚ) / a := by

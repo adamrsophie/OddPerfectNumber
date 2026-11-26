@@ -100,7 +100,7 @@ theorem sub_two_mul_cyclotomic_eval_le {n : ℕ} {x : ℝ} (hn : 0 < n) (hx : 2 
   have hle : f n ≤ ∏ i ∈ n.divisorsAntidiagonal, (g i.2)⁻¹ := by
     show (cyclotomic n ℝ).eval x / x ^ n.totient ≤ _
     rw [← hm]
-    refine Finset.prod_le_prod (fun i hi => (zpow_pos (hg0 _ ?_) _).le) (fun i hi => ?_)
+    refine Finset.prod_le_prod₀ (fun i hi => (zpow_pos (hg0 _ ?_) _).le) (fun i hi => ?_)
     · exact Nat.pos_of_mem_divisors (Nat.snd_mem_divisors_of_mem_antidiagonal hi)
     · have hpos := hg0 _ (Nat.pos_of_mem_divisors (Nat.snd_mem_divisors_of_mem_antidiagonal hi))
       have hmu : (-1 : ℤ) ≤ μ i.1 := (abs_le.mp abs_moebius_le_one).1

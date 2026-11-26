@@ -104,19 +104,22 @@ theorem not_all_exponents_four_of_five_special {N : ℕ} (h : OddPerfect N)
   · intro p hp hp5
     rw [hexp p hp hp5]
     unfold threeWeight
-    have h50 : padicValNat 3 5 = 0 := padicValNat.eq_zero_of_not_dvd (by norm_num)
+    have h50 : padicValNat 3 5 = 0 := by
+      rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd (by norm_num)
     split_ifs with h1 h2 h4
     · rfl
     · exact h50
     · rfl
     · exact absurd (by decide : Even 4) h4
   have h6 : padicValNat 3 6 = 1 := by
-    rw [show (6 : ℕ) = 3 * 2 by rfl, padicValNat.mul (by norm_num) (by norm_num),
+    rw [Nat.padicValNat_def, show (6 : ℕ) = 3 * 2 by rfl,
+      padicValNat.mul (by norm_num) (by norm_num),
       padicValNat_self, padicValNat.eq_zero_of_not_dvd (by norm_num)]
   unfold threeWeight at hled
   rw [if_neg (by norm_num), if_neg (by norm_num), if_neg (Nat.not_even_iff_odd.mpr hodd),
     e3, show (5 : ℕ) + 1 = 6 by rfl, h6] at hled
-  have h3k : 3 ∣ N.factorization 5 + 1 := dvd_of_one_le_padicValNat (by omega)
+  have h3k : 3 ∣ N.factorization 5 + 1 :=
+    dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; omega)
   have h6k : 5 + 1 ∣ N.factorization 5 + 1 := by
     obtain ⟨j, hj⟩ := hodd
     omega

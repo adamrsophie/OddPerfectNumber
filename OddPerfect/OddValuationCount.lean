@@ -49,7 +49,8 @@ private lemma ovc_exists_odd_val {B : ℕ} (hB : B ≠ 0) (hns : ∀ y : ℕ, B 
   have htd : d₂.minFac ∣ d₂ := Nat.minFac_dvd d₂
   refine ⟨d₂.minFac, ht, ?_, ?_⟩
   · rw [← hd]; exact dvd_mul_of_dvd_right htd _
-  · rw [← Nat.factorization_def B ht, ← hd, Nat.factorization_mul (pow_ne_zero 2 hd₁) hd₂0,
+  · rw [Nat.padicValNat_def, ← Nat.factorization_def B ht, ← hd,
+      Nat.factorization_mul (pow_ne_zero 2 hd₁) hd₂0,
       Finsupp.add_apply, Nat.factorization_pow, Finsupp.smul_apply, smul_eq_mul,
       Nat.factorization_eq_one_of_squarefree hsf ht htd]
     exact ⟨_, rfl⟩
@@ -206,7 +207,8 @@ private lemma ovc_plus_witness {q p : ℕ} (hq : q.Prime) (hq4 : q % 4 = 1) (hp 
     exact h0
   refine ⟨t, ht, ht2, htp, hord, ?_, ?_⟩
   · rw [← hBu]; exact dvd_mul_of_dvd_left htB _
-  · rw [← hBu, padicValNat.mul hB0 (by omega), padicValNat.eq_zero_of_not_dvd htu, add_zero]
+  · rw [← hBu, Nat.padicValNat_def, Nat.multiplicity_mul hB0 (by omega),
+      multiplicity_eq_zero_of_not_dvd htu, add_zero, ← Nat.padicValNat_def]
     exact hodd
 
 /-- A negative witness at the level `p ^ (k + 1)`: if `p ∤ q + 1`, a prime `t ≠ 2, p` with `-q`
@@ -277,7 +279,8 @@ private lemma ovc_minus_witness {q p : ℕ} (hq4 : q % 4 = 1) (hp : p.Prime)
     linear_combination -h0
   refine ⟨t, ht, ht2, htp, hord, ?_, ?_⟩
   · rw [← hBu]; exact dvd_mul_of_dvd_left htB _
-  · rw [← hBu, padicValNat.mul hB0 (by omega), padicValNat.eq_zero_of_not_dvd htu, add_zero]
+  · rw [← hBu, Nat.padicValNat_def, Nat.multiplicity_mul hB0 (by omega),
+      multiplicity_eq_zero_of_not_dvd htu, add_zero, ← Nat.padicValNat_def]
     exact hodd
 
 /-! ## Valuations in `H` -/
@@ -316,9 +319,10 @@ private lemma ovc_val_H {q L t : ℕ} (hq : q.Prime) (hqo : Odd q) (hL : 1 ≤ L
   have hH : σ 1 (q ^ (2 * L - 1)) / 2 ≠ 0 := fun h0 => hprod (by rw [h0]; simp)
   have ht2' : ¬ t ∣ 2 := fun h => ht2 ((Nat.prime_dvd_prime_iff_eq ht Nat.prime_two).mp h)
   have h := congrArg (padicValNat t) e
-  rw [padicValNat.mul hq1 (mul_ne_zero two_ne_zero hH), padicValNat.mul two_ne_zero hH,
-    padicValNat.mul hne1 hne2, padicValNat.eq_zero_of_not_dvd htq,
-    padicValNat.eq_zero_of_not_dvd ht2'] at h
+  simp only [Nat.padicValNat_def] at h ⊢
+  rw [Nat.multiplicity_mul hq1 (mul_ne_zero two_ne_zero hH), Nat.multiplicity_mul two_ne_zero hH,
+    Nat.multiplicity_mul hne1 hne2, multiplicity_eq_zero_of_not_dvd htq,
+    multiplicity_eq_zero_of_not_dvd ht2'] at h
   omega
 
 /-- Valuation of a positive witness in `H`. -/
@@ -349,8 +353,9 @@ private lemma ovc_val_H_plus {q L t d : ℕ} (hq : q.Prime) (hqo : Odd q) (hL : 
   have hlte := padicValNat.pow_sub_pow (p := t) (ht.odd_of_ne_two ht2) (x := q ^ d) (y := 1)
     hqd hdt htqd hm0
   rw [one_pow] at hlte
-  rw [padicValNat.eq_zero_of_not_dvd htL', add_zero, hLeq, hlte, hm, padicValNat.mul hd0 hm0,
-    padicValNat.eq_zero_of_not_dvd htd, zero_add]
+  simp only [Nat.padicValNat_def]
+  rw [multiplicity_eq_zero_of_not_dvd htL', add_zero, hLeq, hlte, hm, Nat.multiplicity_mul hd0 hm0,
+    multiplicity_eq_zero_of_not_dvd htd, zero_add]
 
 /-- Valuation of a negative witness in `H`. -/
 private lemma ovc_val_H_minus {q L t d : ℕ} (hq : q.Prime) (hqo : Odd q) (hL : Odd L)
@@ -380,8 +385,9 @@ private lemma ovc_val_H_minus {q L t d : ℕ} (hq : q.Prime) (hqo : Odd q) (hL :
   have hlte := padicValNat.pow_add_pow (p := t) (ht.odd_of_ne_two ht2) (x := q ^ d) (y := 1)
     hdt htqd hmo
   rw [one_pow] at hlte
-  rw [padicValNat.eq_zero_of_not_dvd htL', zero_add, hLeq, hlte, hm, padicValNat.mul hd0 hm0,
-    padicValNat.eq_zero_of_not_dvd htd, zero_add]
+  simp only [Nat.padicValNat_def]
+  rw [multiplicity_eq_zero_of_not_dvd htL', zero_add, hLeq, hlte, hm, Nat.multiplicity_mul hd0 hm0,
+    multiplicity_eq_zero_of_not_dvd htd, zero_add]
 
 /-! ## The count -/
 
@@ -477,11 +483,12 @@ theorem cardFactors_le_card_odd_valuation_half_sigma {q L : ℕ} (hq : q.Prime) 
     intro t ht h1 h2 a ha hv
     by_cases hodd : Odd (padicValNat t H)
     · refine Finset.mem_union_left _ (Finset.mem_filter.mpr ⟨?_, ?_⟩)
-      · rw [← Nat.support_factorization, Finsupp.mem_support_iff, Nat.factorization_def H ht]
+      · rw [← Nat.support_factorization, Finsupp.mem_support_iff, Nat.factorization_def H ht,
+        ← Nat.padicValNat_def]
         intro h0
         rw [h0] at hodd
         exact Nat.not_odd_zero hodd
-      · rw [Nat.factorization_def H ht]
+      · rw [Nat.factorization_def H ht, ← Nat.padicValNat_def]
         exact hodd
     · have hb : Odd (padicValNat t L) := by
         rcases Nat.even_or_odd (padicValNat t L) with he | ho
@@ -490,7 +497,8 @@ theorem cardFactors_le_card_odd_valuation_half_sigma {q L : ℕ} (hq : q.Prime) 
         · exact ho
       have := Fact.mk ht
       refine Finset.mem_union_right _ (Finset.mem_filter.mpr ⟨?_, h1, h2⟩)
-      exact Nat.mem_primeFactors.mpr ⟨ht, dvd_of_one_le_padicValNat hb.pos, hL0⟩
+      exact Nat.mem_primeFactors.mpr ⟨ht,
+        dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; exact hb.pos), hL0⟩
   have hinj := Finset.card_le_card_of_injOn (s := Pp.disjSum Pm) (t := O ∪ G) (Sum.elim f g)
     ?maps ?inj
   · rw [Finset.card_disjSum] at hinj

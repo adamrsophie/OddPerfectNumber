@@ -137,7 +137,7 @@ theorem false_of_ctx (C : Ctx N q) : False := by
       have hle := Nat.pow_le_pow_left (show p' + 1 ≤ 8 * p + 1 by omega) 2
       nlinarith
     calc _ ≤ ∏ p ∈ N.primeFactors with IsPure q p, ((p : ℚ) / (p - 1)) :=
-          Finset.prod_le_prod (fun _ _ => abundancy_nonneg _) (fun p hp =>
+          Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg _) (fun p hp =>
             (abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors
               (Finset.mem_filter.mp hp).1) _).le)
       _ ≤ 1 + 6 / (5 * ((79 : ℕ) : ℚ)) := prod_ratio_le _ 79 (by norm_num) (fun p hp => by
@@ -173,7 +173,7 @@ theorem false_of_ctx (C : Ctx N q) : False := by
     exact ⟨hpN, h3, h11, hnp⟩
   have hK'prod : ∏ p ∈ K', abundancy (p ^ N.factorization p) ≤ (79 / 78) ^ K'.card := by
     rw [← Finset.prod_const]
-    exact Finset.prod_le_prod (fun _ _ => abundancy_nonneg _) (fun p hp => by
+    exact Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg _) (fun p hp => by
       obtain ⟨hpN, h3, h11, -⟩ := hK'mem p hp
       have h79 : 79 ≤ p := by rcases hsmall p hpN with h | h | h <;> omega
       exact (abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors hpN) _).le.trans

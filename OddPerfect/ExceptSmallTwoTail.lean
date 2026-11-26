@@ -54,7 +54,7 @@ is the number of factors. -/
 theorem exceptSmallTwo_prod_le {z : ℝ} (hz1 : z < 1) (w : ℕ → ℝ) (H : Finset ℕ)
     (hH : ∀ t ∈ H, 0 ≤ w t ∧ w t ≤ z) : ∏ t ∈ H, (1 - w t)⁻¹ ≤ ((1 - z) ^ H.card)⁻¹ := by
   rw [← Finset.prod_const, ← Finset.prod_inv_distrib]
-  apply Finset.prod_le_prod
+  apply Finset.prod_le_prod₀
   · intro t ht
     exact (inv_pos.mpr (by linarith [(hH t ht).2])).le
   · intro t ht

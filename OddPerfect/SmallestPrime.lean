@@ -114,13 +114,13 @@ theorem prod_div_sub_one_mul_le_of_card_lt {S T : Finset ℕ} {L : ℕ}
   have hfS : ∀ s ∈ S, 0 ≤ f s := fun s hs => (zero_le_one.trans (f_one_le (hS s hs)))
   have step1 : ∏ s ∈ S \ T, f s ≤ f L ^ (S \ T).card := by
     rw [← Finset.prod_const]
-    apply Finset.prod_le_prod (fun s hs => hfS s (Finset.mem_sdiff.mp hs).1)
+    apply Finset.prod_le_prod₀ (fun s hs => hfS s (Finset.mem_sdiff.mp hs).1)
     intro s hs
     obtain ⟨hs1, hs2⟩ := Finset.mem_sdiff.mp hs
     exact f_anti hL (hST s hs1 hs2).le
   have step2 : f L ^ R.card ≤ ∏ r ∈ R, f r := by
     rw [← Finset.prod_const]
-    apply Finset.prod_le_prod (fun _ _ => by positivity)
+    apply Finset.prod_le_prod₀ (fun _ _ => by positivity)
     intro r hr
     have := hT r (Finset.mem_sdiff.mp (hRsub hr)).1
     exact f_anti this.1 this.2
@@ -129,7 +129,7 @@ theorem prod_div_sub_one_mul_le_of_card_lt {S T : Finset ℕ} {L : ℕ}
     intro x hx hxR
     exact (Finset.mem_sdiff.mp (hRsub hxR)).2 (Finset.mem_inter.mp hx).1
   have step3 : ∏ x ∈ (S ∩ T) ∪ R, f x ≤ ∏ t ∈ T, f t := by
-    apply Finset.prod_le_prod_of_subset_of_one_le
+    apply Finset.prod_le_prod_of_subset_of_one_le₀
     · intro x hx
       rcases Finset.mem_union.mp hx with h | h
       · exact (Finset.mem_inter.mp h).2

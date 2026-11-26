@@ -144,6 +144,7 @@ theorem padicValNat_sigma_special_eq_of_prime_pow_index {N q l p : ℕ} (h : Odd
   rw [factorization_eq_sum_erase h.perfect hpp hp2 (N := N), Finset.sum_eq_single q]
   · intro r hr hrq
     obtain ⟨-, hrN⟩ := Finset.mem_erase.mp hr
+    rw [Nat.padicValNat_def]
     refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
     obtain ⟨γ, hγ⟩ := hidx r hrN hrq
     rcases prime_dvd_sigma_of_succ_eq_pow (Nat.prime_of_mem_primeFactors hrN) hpp hl hγ hd with
@@ -201,6 +202,7 @@ theorem card_primeFactors_le_of_prime_pow_index {N q l E : ℕ} (h : OddPerfect 
           refine Finset.sum_le_sum fun p hp => ?_
           obtain ⟨hpN, hpq, -⟩ := Finset.mem_filter.mp hp
           obtain ⟨γ, hγ1, hγ⟩ := hidx p hpN hpq
+          rw [Nat.padicValNat_def]
           exact one_le_padicValNat_of_dvd (by omega)
             (hγ ▸ dvd_pow_self l (by omega : γ ≠ 0))
       _ ≤ ∑ p ∈ N.primeFactors.filter (fun p => p % l = 1),

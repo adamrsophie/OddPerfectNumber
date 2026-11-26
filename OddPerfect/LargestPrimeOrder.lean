@@ -173,8 +173,9 @@ theorem orderOf_eq_three_or_six {p q e j : ℕ} (hp : p.Prime) (hq : q.Prime)
     exact ⟨3 * c - 1, by omega⟩
 
 private theorem padicValNat_quot_eq_zero {q e d : ℕ} (hd : d ∣ e + 1) (hd0 : 0 < d)
-    (he : e + 1 < q) : padicValNat q ((e + 1) / d) = 0 :=
-  padicValNat.eq_zero_of_not_dvd fun h => by
+    (he : e + 1 < q) : padicValNat q ((e + 1) / d) = 0 := by
+  rw [Nat.padicValNat_def]
+  exact padicValNat.eq_zero_of_not_dvd fun h => by
     have := Nat.le_of_dvd (Nat.div_pos (Nat.le_of_dvd (by omega) hd) hd0) h
     have := Nat.div_le_self (e + 1) d
     omega
@@ -194,7 +195,8 @@ theorem padicValNat_sigma_of_orderOf_eq_three {p q e : ℕ} (hp : p.Prime) (hq :
   have hp1 : ¬ q ∣ p - 1 := by
     rw [← ZMod.natCast_eq_zero_iff, Nat.cast_sub hp.one_lt.le, Nat.cast_one, sub_eq_zero]
     intro h; rw [h, orderOf_one] at h3; omega
-  rw [hfac, padicValNat.mul (by have := hp.one_lt; omega) (by positivity),
+  rw [hfac, Nat.padicValNat_def, Nat.padicValNat_def (n := p ^ 2 + p + 1),
+    padicValNat.mul (by have := hp.one_lt; omega) (by positivity),
     padicValNat.eq_zero_of_not_dvd hp1, zero_add]
 
 /-- Weight of an order `6` sender: `v_q(σ(p ^ e)) = v_q(p ^ 2 - p + 1)` when `e + 1 < q`. -/
@@ -222,14 +224,16 @@ theorem padicValNat_sigma_of_orderOf_eq_six {p q e : ℕ} (hp : p.Prime) (hq : q
       have := orderOf_dvd_of_pow_eq_one this
       rw [h6] at this; norm_num at this
   have hp1 := hp.one_lt
-  rw [hfac, padicValNat.mul (Nat.mul_ne_zero (Nat.mul_ne_zero (by omega) (by omega))
+  rw [hfac, Nat.padicValNat_def, Nat.padicValNat_def (n := p ^ 2 - p + 1),
+    padicValNat.mul (Nat.mul_ne_zero (Nat.mul_ne_zero (by omega) (by omega))
     (by positivity)) (by omega), padicValNat.eq_zero_of_not_dvd hA,
     zero_add]
 
 private theorem padicValNat_le_one {q n : ℕ} [Fact q.Prime] (hn : 0 < n) (hlt : n < q ^ 2) :
     padicValNat q n ≤ 1 := by
   by_contra hc
-  have := (padicValNat_dvd_iff_le (p := q) hn.ne').mpr (by omega : 2 ≤ padicValNat q n)
+  have := (multiplicity_dvd_iff_le (p := q) hn.ne').mpr
+    (show 2 ≤ multiplicity q n by rw [← Nat.padicValNat_def]; omega)
   exact absurd (Nat.le_of_dvd hn this) (by omega)
 
 private theorem sq_sub_add_one_lt {p q : ℕ} (hp : 1 ≤ p) (hpq : p < q) :
@@ -282,6 +286,7 @@ theorem false_of_senders_odd (h : OddPerfect N) {q : ℕ} (hq : q ∈ N.primeFac
       padicValNat q (σ 1 (p ^ N.factorization p)) = 0 := by
     intro p hp hpe
     obtain ⟨hpq, hpN⟩ := Finset.mem_erase.mp hp
+    rw [Nat.padicValNat_def]
     refine padicValNat.eq_zero_of_not_dvd fun hd => ?_
     exact (Nat.not_even_iff_odd.mpr (hsend p hpN hpq hd).1) hpe
   by_cases hqs : q = s
@@ -299,7 +304,7 @@ theorem false_of_senders_odd (h : OddPerfect N) {q : ℕ} (hq : q ∈ N.primeFac
     have hle : padicValNat q (σ 1 (s ^ N.factorization s)) ≤ 1 := by
       by_cases hd : q ∣ σ 1 (s ^ N.factorization s)
       · exact (hsend s (Finset.mem_of_mem_erase hsmem) (Ne.symm hqs) hd).2
-      · rw [padicValNat.eq_zero_of_not_dvd hd]; exact Nat.zero_le _
+      · rw [Nat.padicValNat_def, padicValNat.eq_zero_of_not_dvd hd]; exact Nat.zero_le _
     obtain ⟨k, hk⟩ := hqe
     omega
 
@@ -529,7 +534,7 @@ private theorem sum_senders (h : OddPerfect N) {P : ℕ} (hP : P ∈ N.primeFact
     (ne_two_of_mem' h hP), Finset.sum_filter_of_ne]
   intro p _ hne
   by_contra hd
-  exact hne (padicValNat.eq_zero_of_not_dvd hd)
+  exact hne (by rw [Nat.padicValNat_def]; exact padicValNat.eq_zero_of_not_dvd hd)
 
 private theorem mem_senders {P p : ℕ} (hp : p ∈ (N.primeFactors.erase P).filter
     (fun p => P ∣ σ 1 (p ^ N.factorization p))) :
@@ -627,6 +632,7 @@ theorem largest_cube_roots_odd (h : OddPerfect N) {P j : ℕ}
         (by push_cast; exact sq_add_add_one_of_orderOf_eq_three h3.1)
       have := padicValNat_le_one (q := P) (by positivity) (sq_add_add_one_lt (by omega) hlt)
       have := one_le_padicValNat_of_dvd (by positivity) hdv
+      rw [← Nat.padicValNat_def] at this
       omega
     · exfalso
       have hx := sq_sub_add_one_of_orderOf_eq_six h6

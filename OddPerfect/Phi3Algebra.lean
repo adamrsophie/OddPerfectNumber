@@ -581,11 +581,14 @@ theorem padicValNat_five_phi5 (z : ℕ) :
     have hle : padicValNat 5 (phi5 z) ≤ 1 := by
       by_contra hc
       have : 5 ^ 2 ∣ phi5 z :=
-        (pow_dvd_pow 5 (by omega)).trans pow_padicValNat_dvd
+        (pow_dvd_pow 5 (show 2 ≤ padicValNat 5 (phi5 z) by omega)).trans
+          (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
       exact not_twentyfive_dvd_phi5 z (by simpa using this)
-    have : 1 ≤ padicValNat 5 (phi5 z) := one_le_padicValNat_of_dvd hpos h5
+    have : 1 ≤ padicValNat 5 (phi5 z) := by
+      rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd hpos h5
     omega
-  · exact padicValNat.eq_zero_of_not_dvd (fun h5 => h ((five_dvd_phi5_iff z).1 h5))
+  · rw [Nat.padicValNat_def]
+    exact padicValNat.eq_zero_of_not_dvd (fun h5 => h ((five_dvd_phi5_iff z).1 h5))
 
 /-- Zelinsky's "miraculous factorization" (arXiv 1810.13063):
 `Φ₃(Φ₅(x)) = (x ^ 2 - x + 1)(x ^ 6 + 3 x ^ 5 + 5 x ^ 4 + 6 x ^ 3 + 7 x ^ 2 + 6 x + 3)`.

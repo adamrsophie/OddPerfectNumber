@@ -443,10 +443,10 @@ private theorem rest_ge {T : Finset ℕ} (h : OddPerfect N) (hT : ∀ q ∈ T, q
     linarith
   constructor
   · calc (1 : ℚ) = ∏ q ∈ T, (1 : ℚ) := by simp
-      _ ≤ _ := Finset.prod_le_prod (fun _ _ => zero_le_one) (fun q hq => (hgt q hq).le)
+      _ ≤ _ := Finset.prod_le_prod₀ (fun _ _ => zero_le_one) (fun q hq => (hgt q hq).le)
   · intro hne
     calc (1 : ℚ) = ∏ q ∈ T, (1 : ℚ) := by simp
-      _ < _ := Finset.prod_lt_prod_of_nonempty (fun _ _ => one_pos) hgt hne
+      _ < _ := Finset.prod_lt_prod_of_nonempty₀ (fun _ _ => one_pos) hgt hne
 
 private theorem ab_prod_nonneg {l : List Ent} (hpr : ∀ e ∈ l, e.p.Prime) : 0 ≤ (l.map (ab N)).prod :=
   List.prod_nonneg (by
@@ -689,7 +689,7 @@ theorem enum_sound {l : List Ent} {j m : ℕ} (H : Holds N l j m) (hj : j ≠ 0)
         have hc_eq : c = ((B : ℚ) + 1) / B := by simp [c]
         have hRlt : ∏ q ∈ T, abundancy (q ^ N.factorization q) < c ^ j := by
           rw [← hTc, ← Finset.prod_const]
-          apply Finset.prod_lt_prod_of_nonempty _ _ hne
+          apply Finset.prod_lt_prod_of_nonempty₀ _ _ hne
           · intro q hq
             have := one_lt_abundancy_pow (hT q hq).1 H.1
             have : (0 : ℚ) < (q : ℚ)⁻¹ := by

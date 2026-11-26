@@ -179,7 +179,8 @@ theorem largest_safe_sender_row (h : OddPerfect N) (hP : P ∈ N.primeFactors)
       omega
   obtain ⟨k, hk⟩ : ∃ k, ∑ i ∈ Finset.range R, u ^ i = P ^ k :=
     ⟨_, Nat.eq_prime_pow_of_unique_prime_dvd hF0 hprime⟩
-  have hj : padicValNat P (σ 1 (u ^ e)) = k := by rw [hσ, hk, padicValNat.prime_pow]
+  have hj : padicValNat P (σ 1 (u ^ e)) = k := by
+    rw [hσ, hk, Nat.padicValNat_def, padicValNat.prime_pow]
   refine ⟨by omega, htR, by rw [hj]; exact hk, ?_⟩
   rw [hj]
   rcases Nat.eq_zero_or_pos k with h0 | h0
@@ -294,7 +295,7 @@ private theorem lps_sum_senders (h : OddPerfect N) (hP : P ∈ N.primeFactors) :
     Finset.sum_filter_of_ne]
   intro p _ hne
   by_contra hd
-  exact hne (padicValNat.eq_zero_of_not_dvd hd)
+  exact hne (by rw [Nat.padicValNat_def]; exact padicValNat.eq_zero_of_not_dvd hd)
 
 /-- Number of senders. If the largest prime factor of an odd perfect number `N` is
 `P = 2 R + 1` with `R` an odd prime, and `3` is not a sender (for example `3 ∤ N`), then the

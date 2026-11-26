@@ -85,7 +85,8 @@ theorem succ_le_padicValNat_sigma_of_not_mod_eq_one {p q a e : ℕ} (hp : p.Prim
   set d := orderOf (p : ZMod q) with hdd
   have hpd : 1 < p ^ d := Nat.one_lt_pow (by omega) hp.one_lt
   have hA : 1 ≤ padicValNat q (p ^ d - 1) := by
-    refine one_le_padicValNat_of_dvd (by omega) ?_
+    rw [Nat.padicValNat_def]
+    refine one_le_multiplicity_of_dvd (by omega) ?_
     rw [← ZMod.natCast_eq_zero_iff, Nat.cast_sub hpd.le, Nat.cast_pow, hdd, pow_orderOf_eq_one,
       Nat.cast_one, sub_self]
   have hq1 := hq.one_lt
@@ -101,7 +102,8 @@ theorem succ_le_padicValNat_sigma_of_not_mod_eq_one {p q a e : ℕ} (hp : p.Prim
     exact hqa
   have hm0 : (e + 1) / d ≠ 0 :=
     (Nat.div_pos (Nat.le_of_dvd (by omega) hd) hdpos).ne'
-  have hB := (padicValNat_dvd_iff_le hm0).mp hm
+  have hB := (multiplicity_dvd_iff_le hm0).mp hm
+  rw [← Nat.padicValNat_def] at hB
   omega
 
 /-- The exponent `a (a + 1) + 1` is impossible at the special prime. Let `N` be an odd perfect
@@ -141,13 +143,13 @@ theorem factorization_special_ne {N q a : ℕ} (h : OddPerfect N) (hq : q.Prime)
     rwa [hp1] at this
   have hlo : ∀ p ∈ S, a ≤ f p := by
     intro p hp
-    rw [hfS p hp]
-    exact (padicValNat_dvd_iff_le (by omega)).mp (hexp p (hSN p hp) (hSq p hp))
+    rw [hfS p hp, Nat.padicValNat_def]
+    exact (multiplicity_dvd_iff_le (by omega)).mp (hexp p (hSN p hp) (hSq p hp))
   have hhi : ∀ p ∈ S, f p + 1 ≤ S.card := by
     intro p hp
     rw [hfS p hp]
     exact succ_le_card_filter_mod_eq_one h (by omega) (hSN p hp)
-      (Finset.mem_filter.mp hp).2 pow_padicValNat_dvd
+      (Finset.mem_filter.mp hp).2 (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
   -- the exact ledger, split along `S`
   have hSsub : S ⊆ N.primeFactors.erase q := fun p hp =>
     Finset.mem_erase.mpr ⟨hSq p hp, hSN p hp⟩
@@ -181,7 +183,8 @@ theorem factorization_special_ne {N q a : ℕ} (h : OddPerfect N) (hq : q.Prime)
   obtain ⟨hpq, hpN⟩ := Finset.mem_erase.mp hpE
   have hp1 : p % q ≠ 1 := fun h1 => hpS (Finset.mem_filter.mpr ⟨hpN, h1⟩)
   have hbig := succ_le_padicValNat_sigma_of_not_mod_eq_one (Nat.prime_of_mem_primeFactors hpN)
-    hq hq2 hpq hp1 (hexp p hpN hpq) (dvd_of_one_le_padicValNat hfp)
+    hq hq2 hpq hp1 (hexp p hpN hpq)
+    (dvd_of_one_le_multiplicity (by rw [← Nat.padicValNat_def]; exact hfp))
   have := Finset.single_le_sum (f := f) (fun _ _ => Nat.zero_le _) hpT
   change a + 1 ≤ f p at hbig
   omega
@@ -284,7 +287,8 @@ theorem factorization_five_ne_four {N q : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have hlo : ∀ p ∈ T, 1 ≤ padicValNat 5 (N.factorization p + 1) := by
     intro p hp
     have : Fact (Nat.Prime 5) := ⟨by norm_num⟩
-    exact one_le_padicValNat_of_dvd (by omega)
+    rw [Nat.padicValNat_def]
+    exact one_le_multiplicity_of_dvd (by omega)
       (hexp p (Finset.mem_filter.mp (hTsub hp)).1 (Finset.ne_of_mem_erase hp))
   have hsum := Finset.card_nsmul_le_sum T _ 1 hlo
   have hsub := Finset.sum_le_sum_of_subset (f := fun p => padicValNat 5 (N.factorization p + 1))
@@ -379,7 +383,8 @@ theorem factorization_five_ne_nine_of_special {N : ℕ} (h : OddPerfect N)
     intro p hp
     have hpf := Finset.mem_filter.mp (hTsub hp)
     have hp5 : p ≠ 5 := by have := hpf.2; omega
-    exact (padicValNat_dvd_iff_le (by omega)).mp (hexp p hpf.1 hp5)
+    rw [Nat.padicValNat_def]
+    exact (multiplicity_dvd_iff_le (by omega)).mp (hexp p hpf.1 hp5)
   have hsum := Finset.card_nsmul_le_sum T _ 2 hlo
   have hsub := Finset.sum_le_sum_of_subset (f := fun p => padicValNat 5 (N.factorization p + 1))
     hTsub
@@ -395,7 +400,7 @@ theorem thirteen_le_factorization_five_of_special {N : ℕ} (h : OddPerfect N)
   have h1 := mul_succ_le_factorization_special h (by norm_num) hodd hexp
   have h2 := factorization_five_ne_nine_of_special h hexp
   have h4 := (mod_four_special h (by norm_num) hodd).2
-  norm_num at h1
+  norm_num at h1 h2 h4 ⊢
   omega
 
 /-- The fifth power for the special prime `5` and `a = 2`: if `5` is the special prime of the

@@ -178,6 +178,7 @@ theorem factorization_special_eq_of_three_pow_four {N q : ℕ} (h : OddPerfect N
   refine Finset.sum_eq_single 11 (fun p hp hp11 => ?_) (fun h11 => ?_)
   · obtain ⟨hpq, hpN⟩ := Finset.mem_erase.mp hp
     have hpP := Nat.prime_of_mem_primeFactors hpN
+    rw [Nat.padicValNat_def]
     apply padicValNat.eq_zero_of_not_dvd
     by_cases hp3 : p = 3
     · subst hp3
@@ -191,7 +192,7 @@ theorem factorization_special_eq_of_three_pow_four {N q : ℕ} (h : OddPerfect N
       exact h11 (Finset.mem_erase.mpr ⟨Ne.symm hq11, Nat.mem_primeFactors.mpr
         ⟨by norm_num, Nat.dvd_of_factorization_pos hc, h.ne_zero⟩⟩)
     rw [this]
-    simp
+    simp [Nat.padicValNat_def]
 
 /-- Receipt at 11: under the hypotheses of `factorization_special_eq_of_three_pow_four`, the
 exponent of 11 is `2 + v_11(σ(q^α))` for the exponent `α` of `q`. -/
@@ -206,6 +207,7 @@ theorem factorization_eleven_eq_of_three_pow_four {N q : ℕ} (h : OddPerfect N)
       padicValNat 11 (σ 1 (p ^ N.factorization p)) = 0 := by
     intro p hp hpn
     obtain ⟨hp11, hpN⟩ := Finset.mem_erase.mp hp
+    rw [Nat.padicValNat_def]
     apply padicValNat.eq_zero_of_not_dvd
     rw [hsq p hpN hpn.2 hpn.1 hp11]
     exact not_dvd_sigma_sq_of_mod_three_two (Nat.prime_of_mem_primeFactors hpN) p11
@@ -222,11 +224,11 @@ theorem factorization_eleven_eq_of_three_pow_four {N q : ℕ} (h : OddPerfect N)
       exact hqn (Finset.mem_erase.mpr ⟨hq11, Nat.mem_primeFactors.mpr
         ⟨hq, Nat.dvd_of_factorization_pos hc, h.ne_zero⟩⟩)
     rw [this]
-    simp
+    simp [Nat.padicValNat_def]
   rw [factorization_eq_sum_erase h.perfect p11 (by norm_num),
     Finset.sum_eq_add (f := fun p => padicValNat 11 (σ 1 (p ^ N.factorization p))) 3 q
       (Ne.symm hq3') h0 ha hb]
-  rw [h34, sigma_three_pow_four, padicValNat.prime_pow]
+  rw [h34, sigma_three_pow_four, Nat.padicValNat_def, padicValNat.prime_pow]
 
 /-- Let `N` be an odd perfect number with special prime `q` and `e₃ = 4`, in which every prime
 factor other than `q`, `r₁` and `r₂` has exponent exactly 2. Then `q ≡ 1 (mod 12)`. This holds
@@ -265,13 +267,16 @@ theorem two_exceptions_three_pow_four_special_mod_twelve
   have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   -- the quotient A
   have hdA : q ^ N.factorization q ∣ σ 1 (11 ^ N.factorization 11) := by
-    have := pow_padicValNat_dvd (p := q) (n := σ 1 (11 ^ N.factorization 11))
+    have : q ^ padicValNat q (σ 1 (11 ^ N.factorization 11)) ∣ σ 1 (11 ^ N.factorization 11) := by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
     rwa [← hα] at this
   -- the quotient B
   set e' := padicValNat 11 (σ 1 (q ^ N.factorization q)) with he'
-  have hd11 : 11 ^ e' ∣ σ 1 (q ^ N.factorization q) := pow_padicValNat_dvd
+  have hd11 : 11 ^ e' ∣ σ 1 (q ^ N.factorization q) := by
+    rw [he', Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
   have hd2 : 2 ∣ σ 1 (q ^ N.factorization q) := by
     apply dvd_of_one_le_padicValNat
+    rw [← Nat.padicValNat_def]
     obtain ⟨t1, t2⟩ := padicValNat_two_special h hq hodd
     rw [padicValNat_two_sigma_prime_pow hq hq2,
       if_neg (Nat.not_even_iff_odd.mpr hodd), t1, t2]

@@ -110,6 +110,7 @@ theorem exists_primeFactor_gt_of_no_prime_root {N P a m : ℕ} (h : OddPerfect N
   rw [factorization_eq_sum_erase h.perfect hPp hP2]
   refine Finset.sum_eq_zero fun p hp => ?_
   obtain ⟨hpP, hpN⟩ := Finset.mem_erase.mp hp
+  rw [Nat.padicValNat_def]
   refine padicValNat.eq_zero_of_not_dvd fun hdv => ?_
   obtain ⟨hlt, -, -, h4, -⟩ := sender_largest_data h hP hc hpN hpP hdv
   have : Fact P.Prime := ⟨hPp⟩

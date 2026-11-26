@@ -64,9 +64,11 @@ theorem mod_ne_one_of_not_dvd {N l p : ℕ} (h : OddPerfect N) (hl : l.Prime) (h
   have : Fact l.Prime := ⟨hl⟩
   have hσ0 : σ 1 (p ^ N.factorization p) ≠ 0 := (sigma_pos 1 _ (pow_ne_zero _ hp.ne_zero)).ne'
   have hv := padicValNat_sigma_of_mod_eq_one hp hl hl2 h1 (a := N.factorization p)
-  have hpos : 1 ≤ padicValNat l (N.factorization p + 1) := one_le_padicValNat_of_dvd (by omega) hle
+  have hpos : 1 ≤ padicValNat l (N.factorization p + 1) := by
+    rw [Nat.padicValNat_def]; exact one_le_multiplicity_of_dvd (by omega) hle
   have hd : l ∣ σ 1 (p ^ N.factorization p) := by
-    have := pow_padicValNat_dvd (p := l) (n := σ 1 (p ^ N.factorization p))
+    have : l ^ padicValNat l (σ 1 (p ^ N.factorization p)) ∣ σ 1 (p ^ N.factorization p) := by
+      rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
     exact (dvd_pow_self l (by omega)).trans this
   exact hlN (OPNStarter.force_prime h.perfect hp rfl hl hl2 hd)
 
@@ -127,7 +129,7 @@ theorem card_mod_one_le {N q l β : ℕ} (hN : N.Perfect) (hl : l.Prime) (hl2 : 
     (N.primeFactors.filter (fun p => p ≠ q ∧ p % l = 1)).card ≤ 2 * β := by
   have hc := card_mul_padicValNat_le_of_ordinary hN hl hl2 hexp hlN hlq
   have : Fact l.Prime := ⟨hl⟩
-  rwa [hβ, padicValNat_self, mul_one] at hc
+  rwa [hβ, Nat.padicValNat_def (p := l) (n := l), Nat.Prime.multiplicity_self, mul_one] at hc
 
 /-- If an odd prime `l` does not divide the odd perfect number `N` with special prime `q`,
 and every ordinary exponent `e` has `e + 1` a power of `l`, then every ordinary component
@@ -240,7 +242,8 @@ theorem factorization_special_eq_card {N q β : ℕ} (h : OddPerfect N) (hq : q.
   have hpp := Nat.prime_of_mem_primeFactors hpN
   rw [hexp p hpN hpq]
   split_ifs with h1
-  · rw [padicValNat_sigma_of_mod_eq_one hpp hq hq2 h1, hβ, padicValNat_self]
+  · rw [padicValNat_sigma_of_mod_eq_one hpp hq hq2 h1, hβ, Nat.padicValNat_def,
+      Nat.Prime.multiplicity_self]
   · rw [show 2 * β = q - 1 by omega]
     exact padicValNat_sigma_pred_of_mod_ne_one hpp hq hpq h1
 
@@ -281,7 +284,8 @@ theorem five_le_factorization_special {N q β : ℕ} (h : OddPerfect N) (hq : q.
       exact (prime_dvd_sigma_prime_pow hpp ht htd).1 htS
   obtain hc := Nat.eq_prime_pow_of_unique_prime_dvd hσ0 hall
   have hv := padicValNat_sigma_of_mod_eq_one hpp hq hq2 hp1 (a := 2 * β)
-  rw [hc, padicValNat.prime_pow, hβ, padicValNat_self] at hv
+  simp only [Nat.padicValNat_def] at hv
+  rw [hc, Nat.multiplicity_prime_pow, hβ, Nat.Prime.multiplicity_self] at hv
   rw [hv, pow_one] at hc
   have hle := one_add_le_sigma hpp (show 1 ≤ 2 * β by omega)
   have hpq' : q < p := by
@@ -375,7 +379,8 @@ theorem card_not_special_pow_le {N q l β : ℕ} (h : OddPerfect N) (hl : l.Prim
           refine Finset.sum_le_sum fun p hp => ?_
           obtain ⟨hp', hd⟩ := Finset.mem_filter.mp hp
           have hpp := Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase hp')
-          exact one_le_padicValNat_of_dvd (sigma_pos 1 _ (pow_ne_zero _ hpp.ne_zero)).ne' hd
+          rw [Nat.padicValNat_def]
+          exact one_le_multiplicity_of_dvd (sigma_pos 1 _ (pow_ne_zero _ hpp.ne_zero)).ne' hd
       _ ≤ _ := Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
   -- the set in question lies in `S ∪ ⋃_{s ∈ S} A s`
   have hsub : N.primeFactors.filter (fun p => p ≠ q ∧ ¬ ∃ c, σ 1 (p ^ (2 * β)) = q ^ c) ⊆
@@ -400,7 +405,8 @@ theorem card_not_special_pow_le {N q l β : ℕ} (h : OddPerfect N) (hl : l.Prim
       · have hv := padicValNat_sigma_pred_of_mod_ne_one hpp ht hpl hp1
         rw [show t - 1 = 2 * β by omega] at hv
         have : Fact t.Prime := ⟨ht⟩
-        have := one_le_padicValNat_of_dvd hσ0 htd
+        have : 1 ≤ padicValNat t (σ 1 (p ^ (2 * β))) := by
+          rw [Nat.padicValNat_def]; exact one_le_multiplicity_of_dvd hσ0 htd
         omega
     · exact absurd htq' htq
     · refine Finset.mem_biUnion.mpr ⟨t, htS, Finset.mem_filter.mpr ⟨?_, ?_⟩⟩

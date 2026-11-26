@@ -228,7 +228,7 @@ private theorem prod_fourRole_le_two {N : ℕ} (h : OddPerfect N) {q : ℕ}
     linarith
   calc ∏ p ∈ l.toFinset, fourRole q p
       ≤ ∏ p ∈ l.toFinset, abundancy (p ^ N.factorization p) := by
-        refine Finset.prod_le_prod (fun p _ => ?_) (fun p hp => ?_)
+        refine Finset.prod_le_prod₀ (fun p _ => ?_) (fun p hp => ?_)
         · unfold fourRole
           split_ifs <;> positivity
         · have hpN := hl p (List.mem_toFinset.mp hp)
@@ -247,7 +247,7 @@ private theorem prod_fourRole_le_two {N : ℕ} (h : OddPerfect N) {q : ℕ}
             field_simp
             ring
     _ ≤ ∏ p ∈ N.primeFactors, abundancy (p ^ N.factorization p) := by
-        refine Finset.prod_le_prod_of_subset_of_one_le (fun p hp => hl p (List.mem_toFinset.mp hp))
+        refine Finset.prod_le_prod_of_subset_of_one_le₀ (fun p hp => hl p (List.mem_toFinset.mp hp))
           (fun p hp => le_trans zero_le_one (hone p (hl p (List.mem_toFinset.mp hp))))
           (fun p hp _ => hone p hp)
     _ = 2 := by rw [← abundancy_eq_prod_primeFactors h.ne_zero, hab]

@@ -80,7 +80,8 @@ theorem padicValNat_sigma_special_of_mem_otherPrimes {N q l w : ℕ} (h : OddPer
   rw [hexp p hpN hpq]
   by_contra hne
   have : Fact w.Prime := ⟨hwp⟩
-  have hd : w ∣ σ 1 (p ^ (l - 1)) := dvd_of_one_le_padicValNat (Nat.one_le_iff_ne_zero.mpr hne)
+  have hd : w ∣ σ 1 (p ^ (l - 1)) :=
+    dvd_of_one_le_padicValNat (Nat.one_le_iff_ne_zero.mpr (by rwa [← Nat.padicValNat_def]))
   rcases prime_dvd_sigma_prime_pow_of_prime_length hpp hwp hl hd with h' | h'
   · exact hwl h'
   · exact hw1 h'
@@ -112,8 +113,9 @@ theorem two_mul_prod_otherPrimes_pow_dvd {N q l : ℕ} (h : OddPerfect N)
   have hW : (∏ w ∈ otherPrimes N q l, w) ^ (l - 1) ∣ σ 1 (q ^ N.factorization q) := by
     refine prod_pow_dvd (fun w hw => (odd_prime_of_mem h (hmemW w hw)).1) fun w hw => ?_
     have : Fact w.Prime := ⟨(odd_prime_of_mem h (hmemW w hw)).1⟩
-    exact (padicValNat_dvd_iff_le hσ0).mpr
-      (padicValNat_sigma_special_of_mem_otherPrimes h hodd hl hexp hw).ge
+    exact (padicValNat_dvd_iff_le hσ0).mpr (by
+      rw [← Nat.padicValNat_def]
+      exact (padicValNat_sigma_special_of_mem_otherPrimes h hodd hl hexp hw).ge)
   have h2 : 2 ∣ σ 1 (q ^ N.factorization q) := by
     have := (mod_four_special h hq hodd).1
     exact (show 2 ∣ q + 1 by omega).trans (succ_dvd_sigma_special hq hodd)
@@ -327,7 +329,7 @@ private lemma prod_primeFactors_le {N q l : ℕ} (hq : q.Prime)
     · exact (Nat.prime_of_mem_primeFactors hx).two_le
   calc ∏ p ∈ N.primeFactors, (p : ℚ) / (p - 1)
       ≤ ∏ p ∈ insert q (insert l (congrPrimes N q l ∪ otherPrimes N q l)), (p : ℚ) / (p - 1) :=
-        Finset.prod_le_prod_of_subset_of_one_le hsub
+        Finset.prod_le_prod_of_subset_of_one_le₀ hsub
           (fun x hx => zero_le_one.trans (one_le_ratio (Nat.prime_of_mem_primeFactors hx).two_le))
           (fun x hx _ => one_le_ratio (hge x hx))
     _ ≤ _ := prod_insert_le_mul fun x hx => one_le_ratio (hge x hx)
@@ -587,7 +589,7 @@ private lemma dvd_sigma_of_mem_otherPrimes {N q l w : ℕ} (h : OddPerfect N)
     (hw : w ∈ otherPrimes N q l) : w ∣ σ 1 (q ^ N.factorization q) := by
   have : Fact w.Prime := ⟨(odd_prime_of_mem h (Finset.mem_filter.mp hw).1).1⟩
   refine dvd_of_one_le_padicValNat ?_
-  rw [padicValNat_sigma_special_of_mem_otherPrimes h hodd hl hexp hw]
+  rw [← Nat.padicValNat_def, padicValNat_sigma_special_of_mem_otherPrimes h hodd hl hexp hw]
   have := hl.two_le
   omega
 
@@ -638,8 +640,8 @@ theorem pow_dvd_mul_of_mem_otherPrimes {N q l w : ℕ} (h : OddPerfect N)
       rwa [Nat.mod_eq_of_lt hwp.one_lt] at this
     have hv := padicValNat_succ_of_mem_otherPrimes_of_mod_eq_one h hq hodd hl hexp hw hqw
     refine Dvd.dvd.mul_left ?_ _
-    rw [← hv]
-    exact pow_padicValNat_dvd
+    rw [← hv, Nat.padicValNat_def]
+    exact pow_multiplicity_dvd _ _
   · obtain ⟨hdvd, hv⟩ := padicValNat_of_mem_otherPrimes_of_one_lt_orderOf h hq hodd hl hexp hw h1
     have hq1 : 1 < q ^ orderOf (q : ZMod w) := Nat.one_lt_pow (by omega) hq.one_lt
     have hk0 : N.factorization q + 1 ≠ 0 := by omega
@@ -647,9 +649,12 @@ theorem pow_dvd_mul_of_mem_otherPrimes {N q l w : ℕ} (h : OddPerfect N)
         padicValNat w (N.factorization q + 1) := by
       obtain ⟨c, hc⟩ := hdvd
       have hc0 : c ≠ 0 := by rintro rfl; rw [mul_zero] at hc; omega
-      rw [hc, Nat.mul_div_cancel_left _ (by omega), padicValNat.mul (by omega) hc0]
+      rw [hc, Nat.mul_div_cancel_left _ (by omega)]
+      simp only [Nat.padicValNat_def]
+      rw [padicValNat.mul (by omega) hc0]
       omega
     rw [padicValNat_dvd_iff_le (mul_ne_zero (by omega) hk0), padicValNat.mul (by omega) hk0]
+    simp only [Nat.padicValNat_def] at hv hmul
     omega
 
 /-- Step 4, the case `w ∣ q + 1` (order two): `v_w(q + 1) + v_w(k + 1) = l - 1`. -/
@@ -684,11 +689,13 @@ theorem padicValNat_add_of_mem_otherPrimes_of_dvd_succ {N q l w : ℕ} (h : OddP
     have := hq.one_lt
     zify [Nat.one_le_pow 2 q hq.pos, this.le]
     ring
+  simp only [Nat.padicValNat_def] at hv
   rw [hsq, padicValNat.mul (by omega) (by have := hq.one_lt; omega),
     padicValNat.eq_zero_of_not_dvd hq1] at hv
   obtain ⟨c, hc⟩ := hdvd
   rw [hc, Nat.mul_div_cancel_left _ (by norm_num)] at hv
   have hc0 : c ≠ 0 := by rintro rfl; omega
+  simp only [Nat.padicValNat_def]
   rw [hc, padicValNat.mul (by norm_num) hc0, padicValNat.eq_zero_of_not_dvd hw2']
   omega
 
@@ -701,6 +708,7 @@ theorem pow_dvd_succ_mul_succ_of_mem_otherPrimes {N q l w : ℕ} (h : OddPerfect
   have : Fact w.Prime := ⟨(odd_prime_of_mem h (Finset.mem_filter.mp hw).1).1⟩
   have hv := padicValNat_add_of_mem_otherPrimes_of_dvd_succ h hq hodd hl hexp hw hwq1
   rw [padicValNat_dvd_iff_le (by positivity), padicValNat.mul (by omega) (by omega)]
+  simp only [Nat.padicValNat_def] at hv
   omega
 
 /-- Step 4, the prime `3`: if `3 ∈ W` then either `q ≡ 1 (mod 3)` and `v_3(k + 1) = l - 1`,
@@ -743,7 +751,7 @@ theorem special_mod_eq_one {N q l : ℕ} (h : OddPerfect N) (hq : q.Prime)
   have : Fact q.Prime := ⟨hq⟩
   have hd : q ∣ σ 1 (p ^ (l - 1)) := by
     rw [← hexp p hpN hpq]
-    exact dvd_of_one_le_padicValNat (Nat.one_le_iff_ne_zero.mpr hne)
+    exact dvd_of_one_le_padicValNat (Nat.one_le_iff_ne_zero.mpr (by rwa [← Nat.padicValNat_def]))
   rcases prime_dvd_sigma_prime_pow_of_prime_length (Nat.prime_of_mem_primeFactors hpN) hq hl hd
     with h' | h'
   · exact absurd h'.symm hlq
@@ -785,7 +793,7 @@ theorem card_congrPrimes_add_padicValNat {N q l : ℕ} (h : OddPerfect N) (hq : 
     rw [hexp p hpN hpq]
     split_ifs with h1
     · rw [padicValNat_sigma_of_mod_eq_one hpp hl hl2 h1, Nat.sub_add_cancel hl.one_lt.le,
-        padicValNat_self]
+        Nat.padicValNat_def (p := l) (n := l), Nat.Prime.multiplicity_self]
     · exact padicValNat_sigma_pred_of_mod_ne_one hpp hl hpl h1
   omega
 

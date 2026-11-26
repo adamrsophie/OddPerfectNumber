@@ -72,7 +72,7 @@ theorem prod_mul_prod_sdiff_eq_two (hN : N.Perfect) {S : Finset ℕ} (hS : S ⊆
 private theorem one_lt_prod_sdiff (hN : N.Perfect) {S : Finset ℕ} {p : ℕ}
     (hp : p ∈ N.primeFactors) (hpS : p ∉ S) :
     1 < ∏ q ∈ N.primeFactors \ S, abundancy (q ^ N.factorization q) := by
-  have h := Finset.prod_lt_prod_of_nonempty (s := N.primeFactors \ S) (f := fun _ => (1 : ℚ))
+  have h := Finset.prod_lt_prod_of_nonempty₀ (s := N.primeFactors \ S) (f := fun _ => (1 : ℚ))
     (g := fun q => abundancy (q ^ N.factorization q)) (fun _ _ => zero_lt_one)
     (fun q hq => by
       have hqN := (Finset.mem_sdiff.mp hq).1
@@ -108,7 +108,7 @@ theorem exists_min_not_mem_of_prod_lt_two (hN : N.Perfect) {S : Finset ℕ}
     rw [Finset.sdiff_self, Finset.prod_empty, mul_one] at this
     have hle : ∏ q ∈ N.primeFactors, abundancy (q ^ N.factorization q) ≤
         ∏ q ∈ S, abundancy (q ^ N.factorization q) := by
-      apply Finset.prod_le_prod_of_subset_of_one_le hsub
+      apply Finset.prod_le_prod_of_subset_of_one_le₀ hsub
       · intro q hq; exact (abund_pos (Nat.prime_of_mem_primeFactors hq) _).le
       · intro q hq hqN
         by_cases hq' : q.Prime
@@ -136,7 +136,7 @@ theorem two_mul_sub_one_lt (hN : N.Perfect) {S : Finset ℕ} (hS : S ⊆ N.prime
   have hcard : T.card = m := Finset.card_sdiff_of_subset hS
   have hsplit := prod_mul_prod_sdiff_eq_two hN hS
   have hG : ∏ q ∈ T, abundancy (q ^ N.factorization q) < ∏ q ∈ T, (q : ℚ) / (q - 1) :=
-    Finset.prod_lt_prod_of_nonempty
+    Finset.prod_lt_prod_of_nonempty₀
       (fun q hq => abund_pos (Nat.prime_of_mem_primeFactors (hTpf q hq)) _)
       (fun q hq => abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors (hTpf q hq)) _)
       ⟨p, hpT⟩
@@ -173,7 +173,7 @@ theorem four_mul_sub_two_lt (h : OddPerfect N) {S : Finset ℕ} (hS : S ⊆ N.pr
   have hcard : T.card = m := Finset.card_sdiff_of_subset hS
   have hsplit := prod_mul_prod_sdiff_eq_two h.perfect hS
   have hG : ∏ q ∈ T, abundancy (q ^ N.factorization q) < ∏ q ∈ T, (q : ℚ) / (q - 1) :=
-    Finset.prod_lt_prod_of_nonempty
+    Finset.prod_lt_prod_of_nonempty₀
       (fun q hq => abund_pos (Nat.prime_of_mem_primeFactors (hTpf q hq)) _)
       (fun q hq => abundancy_prime_pow_lt (Nat.prime_of_mem_primeFactors (hTpf q hq)) _)
       ⟨p, hpT⟩
@@ -479,12 +479,12 @@ theorem prod_div_sub_one_le_of_exchange {S T : Finset ℕ} (hS : ∀ s ∈ S, 2 
       have hc2 : 2 ≤ c := hS c (Finset.mem_sdiff.mp hc).1
       have step1 : ∏ s ∈ S \ T, f s ≤ f c ^ (S \ T).card := by
         rw [← Finset.prod_const]
-        apply Finset.prod_le_prod (fun s hs => hfS s (Finset.mem_sdiff.mp hs).1)
+        apply Finset.prod_le_prod₀ (fun s hs => hfS s (Finset.mem_sdiff.mp hs).1)
         intro s hs
         exact g_anti hc2 (Finset.min'_le _ _ hs)
       have step2 : f c ^ R.card ≤ ∏ r ∈ R, f r := by
         rw [← Finset.prod_const]
-        apply Finset.prod_le_prod (fun _ _ => zero_le_one.trans (g_one_le hc2))
+        apply Finset.prod_le_prod₀ (fun _ _ => zero_le_one.trans (g_one_le hc2))
         intro r hr
         exact g_anti (hT r (hRT r hr))
           (hST c (Finset.mem_sdiff.mp hc).1 (Finset.mem_sdiff.mp hc).2 r (hRT r hr))
@@ -495,7 +495,7 @@ theorem prod_div_sub_one_le_of_exchange {S T : Finset ℕ} (hS : ∀ s ∈ S, 2 
     intro x hx hxR
     exact (Finset.mem_sdiff.mp (hRsub hxR)).2 (Finset.mem_inter.mp hx).1
   have step3 : ∏ x ∈ (S ∩ T) ∪ R, f x ≤ ∏ t ∈ T, f t := by
-    apply Finset.prod_le_prod_of_subset_of_one_le
+    apply Finset.prod_le_prod_of_subset_of_one_le₀
     · intro x hx
       rcases Finset.mem_union.mp hx with h | h
       · exact (Finset.mem_inter.mp h).2
@@ -673,7 +673,7 @@ private theorem leaf (h : OddPerfect N) {s : Finset ℕ} (hs : N.primeFactors = 
   have hpr : ∀ p ∈ s, p.Prime := fun p hp => Nat.prime_of_mem_primeFactors (hs ▸ hp)
   constructor
   · rw [← h2]
-    apply Finset.prod_le_prod
+    apply Finset.prod_le_prod₀
     · intro p hp
       rw [← abundancy_eq_abQ (hpr p hp)]
       unfold abundancy; positivity
@@ -681,7 +681,7 @@ private theorem leaf (h : OddPerfect N) {s : Finset ℕ} (hs : N.primeFactors = 
       rw [← abundancy_eq_abQ (hpr p hp)]
       exact abundancy_prime_pow_mono (hpr p hp) (hg p hp).1
   · rw [← h2]
-    apply Finset.prod_le_prod
+    apply Finset.prod_le_prod₀
     · intro p hp; unfold abundancy; positivity
     · intro p hp
       split_ifs with hF

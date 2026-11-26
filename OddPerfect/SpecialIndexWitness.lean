@@ -38,8 +38,8 @@ theorem two_mul_special_index_le_card {N q l : ℕ} (h : OddPerfect N) (hq : q.P
   have : Fact l.Prime := ⟨hl⟩
   have hl3 : 3 ≤ l := by have := hl.two_le; omega
   have hq3 : 3 ≤ q := by have := (special_mod_four h hq hodd).1; have := hq.two_le; omega
-  have hlv : l ^ padicValNat l (N.factorization q + 1) ∣ N.factorization q + 1 :=
-    pow_padicValNat_dvd
+  have hlv : l ^ padicValNat l (N.factorization q + 1) ∣ N.factorization q + 1 := by
+    rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _
   have h2a : 2 ∣ N.factorization q + 1 := by
     obtain ⟨k, hk⟩ := hodd
     exact ⟨k + 1, by omega⟩
@@ -145,10 +145,12 @@ theorem special_index_budget {N q l : ℕ} (h : OddPerfect N) (hq : q.Prime)
     obtain ⟨hpN, -, hp1, hpl⟩ := hp
     have hpp := Nat.prime_of_mem_primeFactors hpN
     simp only [f]
-    rw [Nat.factorization_def _ hl, padicValNat_sigma_of_mod_eq_one hpp hl hl2 hp1]
+    rw [Nat.factorization_def _ hl, ← Nat.padicValNat_def,
+      padicValNat_sigma_of_mod_eq_one hpp hl hl2 hp1, Nat.padicValNat_def]
     exact one_le_padicValNat_of_dvd (by omega) hpl
   have hc : G.card ≤ ∑ p ∈ G, f p := by simpa using Finset.card_nsmul_le_sum G f 1 hone
-  have hfq : f q = padicValNat l (σ 1 (q ^ N.factorization q)) := Nat.factorization_def _ hl
+  have hfq : f q = padicValNat l (σ 1 (q ^ N.factorization q)) := by
+    rw [Nat.padicValNat_def]; exact Nat.factorization_def _ hl
   simp only [f] at hle hbal hfq hc
   omega
 
@@ -216,12 +218,16 @@ theorem padicValNat_three_succ_le_sigma {q a : ℕ} (hq : q.Prime) (hq3 : q ≠ 
     rw [key, hpow, one_pow]
   have hσ0 : σ 1 (q ^ a) ≠ 0 := (sigma_pos 1 _ (pow_ne_zero _ hq.ne_zero)).ne'
   rw [← key', padicValNat.mul hσ0 (by omega)] at hlte
+  simp only [← Nat.padicValNat_def] at hlte
   have hdiv : q - 1 ∣ q ^ 2 - 1 := by simpa only [one_pow] using Nat.sub_dvd_pow_sub_pow q 1 2
   have hle : padicValNat 3 (q - 1) ≤ padicValNat 3 (q ^ 2 - 1) :=
-    (padicValNat_dvd_iff_le (by omega)).mp (pow_padicValNat_dvd.trans hdiv)
+    by simp only [Nat.padicValNat_def]
+       exact (padicValNat_dvd_iff_le (by omega)).mp ((pow_multiplicity_dvd _ _).trans hdiv)
   have hv : padicValNat 3 (a + 1) = padicValNat 3 (m + 1) := by
-    rw [show a + 1 = 2 * (m + 1) by omega, padicValNat.mul (by omega) (by omega),
-      padicValNat.eq_zero_of_not_dvd (by decide : ¬ 3 ∣ 2), zero_add]
+    rw [show a + 1 = 2 * (m + 1) by omega]
+    simp only [Nat.padicValNat_def]
+    rw [padicValNat.mul (by omega) (by omega),
+      multiplicity_eq_zero_of_not_dvd (by decide : ¬ 3 ∣ 2), zero_add]
   omega
 
 /-- `3 v_3(a + 1) ≤ v_3(N) + #{p ≠ q : p ≡ 1 (mod 3), v_p(N) ≥ 4, 3 ∤ v_p(N) + 1}`. -/
@@ -244,8 +250,8 @@ theorem four_exceptions_of_three_sq_of_nine_dvd {N q : ℕ} (h : OddPerfect N) (
     4 ≤ (N.primeFactors.filter fun p => p ≠ q ∧ p % 3 = 1 ∧ 4 ≤ N.factorization p).card := by
   have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
   have hm := three_mul_special_index_le h hq hodd
-  have hv : 2 ≤ padicValNat 3 (N.factorization q + 1) :=
-    (padicValNat_dvd_iff_le (by omega)).mp (by simpa using h9)
+  have hv : 2 ≤ padicValNat 3 (N.factorization q + 1) := by
+    rw [Nat.padicValNat_def]; exact (padicValNat_dvd_iff_le (by omega)).mp (by simpa using h9)
   have hsub : (N.primeFactors.filter fun p =>
         p ≠ q ∧ p % 3 = 1 ∧ 4 ≤ N.factorization p ∧ ¬ 3 ∣ N.factorization p + 1).card ≤
       (N.primeFactors.filter fun p => p ≠ q ∧ p % 3 = 1 ∧ 4 ≤ N.factorization p).card := by

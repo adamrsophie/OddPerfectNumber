@@ -63,8 +63,9 @@ theorem ordinary_row_pow_special_of_pure_common_index {N q l : ℕ} (h : OddPerf
     have he := hidx' p hp hpq
     obtain ⟨r, w, hr, hrow⟩ := hpure p hp hpq
     have hv := padicValNat_sigma_of_mod_eq_one (a := N.factorization p) hp' hl hl2 h1
-    rw [he, padicValNat_self] at hv
-    have hdvd : l ∣ r ^ w := hrow ▸ dvd_of_one_le_padicValNat (by omega)
+    rw [he, Nat.padicValNat_def (p := l) (n := l), Nat.Prime.multiplicity_self,
+      Nat.padicValNat_def] at hv
+    have hdvd : l ∣ r ^ w := hrow ▸ dvd_of_one_le_multiplicity (by omega)
     have hlr : l = r := (Nat.prime_dvd_prime_iff_eq hl hr).mp (hl.dvd_of_dvd_pow hdvd)
     have hmod := receiver_mod_index_of_pure hp' hp2 (by omega) hr hrow
     rw [he, ← hlr, Nat.mod_self] at hmod

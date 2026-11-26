@@ -84,6 +84,7 @@ private lemma card_receivers_le {N q l : ℕ} (h : OddPerfect N) (hl : l.Prime) 
         refine Finset.sum_le_sum fun p hp => ?_
         obtain ⟨hpN, hpq, -⟩ := mem_receivers.mp hp
         obtain ⟨γ, hγ1, hγ⟩ := hidx p hpN hpq
+        rw [Nat.padicValNat_def]
         exact one_le_padicValNat_of_dvd (by omega)
           (hγ ▸ dvd_pow_self l (by omega : γ ≠ 0))
     _ ≤ ∑ p ∈ N.primeFactors.filter (fun p => p % l = 1),

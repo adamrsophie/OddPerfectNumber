@@ -141,7 +141,7 @@ private theorem lemma1 : ∀ (r : ℕ) (G : Finset ℕ) (a b m : ℕ), G.card = 
   have hpos : ∀ T ⊆ G, 0 < ∏ x ∈ T, (1 - 1 / (x : ℚ)) :=
     fun T hT => prod_pos (fun x hx => one_sub_inv_pos (h2 x (hT hx)))
   have hle1 : ∀ T ⊆ G, ∏ x ∈ T, (1 - 1 / (x : ℚ)) ≤ 1 := fun T hT =>
-    prod_le_one (fun x hx => (one_sub_inv_pos (h2 x (hT hx))).le)
+    prod_le_one₀ (fun x hx => (one_sub_inv_pos (h2 x (hT hx))).le)
       (fun x _ => one_sub_inv_le_one x)
   have hb : 0 < b := by
     rcases Nat.eq_zero_or_pos b with h | h
@@ -398,7 +398,7 @@ private theorem prod_lt_d_div_n (hN1 : 1 < N) (hd : 0 < d) (hσ : d * σ 1 N = n
         rw [mul_comm, abundancy_mul_one_sub (Nat.prime_of_mem_primeFactors hp)])
     rw [this]
     calc _ < ∏ p ∈ N.primeFactors, (1 : ℚ) := by
-          apply prod_lt_prod_of_nonempty
+          apply prod_lt_prod_of_nonempty₀
           · intro p hp
             exact one_sub_inv_pos (le_trans (two_le_of_mem hp)
               (Nat.le_self_pow (by omega) p))
@@ -442,7 +442,7 @@ private theorem prod_pp_le (hN : 0 < N) (hd : 0 < d) (hσ : d * σ 1 N = n * N) 
     le_trans zero_le_one (h1 p hp)
   have : 1 ≤ ∏ p ∈ N.primeFactors \ R, abundancy (p ^ N.factorization p) := by
     calc (1 : ℚ) = ∏ p ∈ N.primeFactors \ R, (1 : ℚ) := prod_const_one.symm
-      _ ≤ _ := prod_le_prod (fun _ _ => zero_le_one)
+      _ ≤ _ := prod_le_prod₀ (fun _ _ => zero_le_one)
           (fun p hp => h1 p (sdiff_subset hp))
   have hpos : 0 ≤ ∏ p ∈ R, abundancy (p ^ N.factorization p) :=
     prod_nonneg (fun p hp => h0 p (hR hp))
@@ -597,7 +597,7 @@ private theorem step (hodd : Odd N) (hN1 : 1 < N) (hd : 0 < d) (hσ : d * σ 1 N
   have hW1 : (1 : ℚ) ≤ (∏ p ∈ W, (p : ℚ)) * ∏ p ∈ W, ((p : ℚ) - 1) := by
     rw [← prod_mul_distrib]
     calc (1 : ℚ) = ∏ p ∈ W, (1 : ℚ) := prod_const_one.symm
-      _ ≤ _ := prod_le_prod (fun _ _ => zero_le_one) (fun p hp => by
+      _ ≤ _ := prod_le_prod₀ (fun _ _ => zero_le_one) (fun p hp => by
           have : (2 : ℚ) ≤ p := by exact_mod_cast h2R p (hWR hp)
           nlinarith)
   have hsig2 : (∏ p ∈ W, ((σ 1 (p ^ N.factorization p) : ℕ) : ℚ)) * ∏ p ∈ W, ((p : ℚ) - 1) =

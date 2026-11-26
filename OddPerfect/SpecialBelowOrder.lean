@@ -152,10 +152,11 @@ private lemma padicValNat_order_and_not_dvd {r p a w : ℕ} (hr : r.Prime) (hr2 
     push Not at hc
     apply not_sq_dvd_sigma_sub_one hr (a - 1)
     rw [Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr ha), hrow]
-    exact (padicValNat_dvd_iff_le hwne).mpr hc
+    exact (padicValNat_dvd_iff_le hwne).mpr (by rw [← Nat.padicValNat_def]; omega)
   have hpdne : p ^ d - 1 ≠ 0 := by omega
   have hv1 := one_le_padicValNat_of_dvd hpdne hrdvd
-  have hu' : padicValNat r u = 0 := by omega
+  simp only [Nat.padicValNat_def] at hle ⊢
+  have hu' : multiplicity r u = 0 := by omega
   refine ⟨by omega, fun hrw => ?_⟩
   rw [hu] at hrw
   rcases (Nat.Prime.dvd_mul hr).mp hrw with h | h

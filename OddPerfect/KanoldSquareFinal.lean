@@ -192,7 +192,7 @@ private theorem factorization_kC_self {q j s : ℕ} (hq : q.Prime) (hq2 : q ≠ 
   have hd : q ∣ s - 1 := by have := Nat.dvd_sub_mod (n := q) s; rwa [hs1] at this
   have hv : ∀ k, padicValNat q (σ 1 (s ^ (q ^ k - 1))) = k := fun k => by
     rw [padicValNat_sigma_prime_pow_of_dvd_pred hs hq hq2 hd,
-      Nat.sub_add_cancel (pow_pos hq.pos k), padicValNat.prime_pow]
+      Nat.sub_add_cancel (pow_pos hq.pos k), Nat.padicValNat_def, padicValNat.prime_pow]
   have hσ : ∀ k, σ 1 (s ^ (q ^ k - 1)) ≠ 0 := fun k =>
     (ArithmeticFunction.sigma_pos 1 _ (pow_ne_zero _ hs.ne_zero)).ne'
   have hk : kC q j s ≠ 0 := by
@@ -201,7 +201,8 @@ private theorem factorization_kC_self {q j s : ℕ} (hq : q.Prime) (hq2 : q ≠ 
     rw [sigma_eq_mul_kC hs hq.pos, h0, mul_zero] at this
     exact this rfl
   have := hv (j + 1)
-  rw [sigma_eq_mul_kC hs hq.pos, padicValNat.mul (hσ j) hk, hv j] at this
+  rw [sigma_eq_mul_kC hs hq.pos, Nat.padicValNat_def, padicValNat.mul (hσ j) hk,
+    ← Nat.padicValNat_def, hv j] at this
   rw [Nat.factorization_def _ hq]
   omega
 

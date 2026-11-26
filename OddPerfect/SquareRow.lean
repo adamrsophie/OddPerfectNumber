@@ -431,7 +431,7 @@ theorem exists_prime_odd_factorization_sigma {p e : ℕ} (hp : p.Prime) (hp2 : p
   rw [← isSquare_sigma_prime_pow_iff hp hp2 he he0]
   refine isSquare_of_even_factorization (sigma_pos 1 _ (pow_ne_zero _ hp.ne_zero)).ne' fun r => ?_
   by_cases hr : r.Prime
-  · exact Nat.not_odd_iff_even.mp (hno r hr)
+  · exact hno r hr
   · rw [Nat.factorization_eq_zero_of_not_prime _ hr]
     exact ⟨0, rfl⟩
 

@@ -78,7 +78,7 @@ theorem exceptSmall_euler (D : Finset ℕ) (w : ℕ → ℝ) (hw0 : ∀ t ∈ D,
     _ = ∏ i : D, ∑ k ∈ Finset.range K, w i ^ k :=
         (Finset.prod_univ_sum (fun _ : D => Finset.range K) fun i k => w i ^ k).symm
     _ ≤ ∏ i : D, (1 - w i)⁻¹ := by
-        apply Finset.prod_le_prod
+        apply Finset.prod_le_prod₀
         · intro i _
           exact Finset.sum_nonneg fun k _ => pow_nonneg (hw0 i i.2) _
         · intro i _
@@ -371,7 +371,7 @@ theorem exceptSmall_bound {N : ℕ} (h : OddPerfect N) :
   have hEb : E ≤ 15 / 14 * (17 / 16) ^ 6 := by
     have hHprod : ∏ u ∈ Hs, (1 - w u)⁻¹ ≤ Real.exp (6 / 17) := by
       calc ∏ u ∈ Hs, (1 - w u)⁻¹ ≤ ∏ u ∈ Hs, Real.exp (((Nat.sqrt u : ℝ) - 1)⁻¹) := by
-            apply Finset.prod_le_prod
+            apply Finset.prod_le_prod₀
             · intro u hu
               exact (inv_pos.mpr (sub_pos.mpr (hw1 u (Finset.mem_insert_of_mem hu)))).le
             · intro u hu
@@ -470,7 +470,7 @@ theorem exceptSmall_bound {N : ℕ} (h : OddPerfect N) :
   have hprod : ∏ p ∈ N.primeFactors, ((p : ℝ) / ((p : ℝ) - 1)) ≤
       Real.exp (∑ p ∈ N.primeFactors, f p) := by
     rw [Real.exp_sum]
-    apply Finset.prod_le_prod
+    apply Finset.prod_le_prod₀
     · intro p hp
       have : (2 : ℝ) ≤ p := by exact_mod_cast (Nat.prime_of_mem_primeFactors hp).two_le
       exact div_nonneg (by linarith) (by linarith)

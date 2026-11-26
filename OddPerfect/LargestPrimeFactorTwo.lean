@@ -634,7 +634,7 @@ private theorem lowerOK_sound (h : OddPerfect N) (hB : ∀ r ∈ N.primeFactors,
     rw [hA, lt_div_iff₀ hpos]; exact hl''
   have h3 : ∏ q ∈ K, abundancy (q ^ N.factorization q) ≤
       ∏ q ∈ (primesUpTo B).toFinset, abundancy (q ^ N.factorization q) :=
-    Finset.prod_le_prod_of_subset_of_one_le hKP
+    Finset.prod_le_prod_of_subset_of_one_le₀ hKP
       (fun q _ => by unfold abundancy; positivity)
       (fun q hq _ => one_le_abundancy_pow
         (mem_primesUpTo.mp (List.mem_toFinset.mp hq)).2.2 _)
@@ -707,7 +707,7 @@ private theorem upperOK_sound (h : OddPerfect N) (hB : ∀ r ∈ N.primeFactors,
   have hRw : (∏ q ∈ R, abundancy (q ^ N.factorization q)) * ∏ q ∈ R, ((q - 1 : ℕ) : ℚ) ≤
       ∏ q ∈ R, (q : ℚ) := by
     rw [← Finset.prod_mul_distrib]
-    refine Finset.prod_le_prod (fun q hq => ?_) (fun q hq => hw q (Finset.sdiff_subset hq))
+    refine Finset.prod_le_prod₀ (fun q hq => ?_) (fun q hq => hw q (Finset.sdiff_subset hq))
     have := hc q (Finset.sdiff_subset hq)
     have : 0 ≤ abundancy (q ^ N.factorization q) := by unfold abundancy; positivity
     positivity

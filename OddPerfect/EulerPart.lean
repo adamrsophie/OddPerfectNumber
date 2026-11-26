@@ -346,7 +346,7 @@ theorem padicValNat_sigma_pow_pred_le {l p : ℕ} (hl : l.Prime) (hl2 : l ≠ 2)
   · subst hpl; rw [padicValNat_sigma_prime_pow_self hp]; omega
   by_cases h1 : l ∣ p - 1
   · rw [padicValNat_sigma_prime_pow_of_dvd_pred hp hl hl2 h1,
-      Nat.sub_add_cancel hl.one_lt.le, padicValNat_self]
+      Nat.sub_add_cancel hl.one_lt.le, Nat.padicValNat_def, padicValNat_self]
   · rw [padicValNat_sigma_prime_pow_of_not_orderOf_dvd hp hl]
     · omega
     rw [Nat.sub_add_cancel hl.one_lt.le]
@@ -367,8 +367,9 @@ theorem not_sq_dvd_sigma_pow_pred {l p : ℕ} (hl : l.Prime) (hl2 : l ≠ 2) (hp
     ¬ l ^ 2 ∣ σ 1 (p ^ (l - 1)) := by
   have : Fact l.Prime := ⟨hl⟩
   intro hd
-  have := (padicValNat_dvd_iff_le (sigma_pos 1 _ (pow_ne_zero _ hp.ne_zero)).ne').mp hd
+  have h2 := (padicValNat_dvd_iff_le (sigma_pos 1 _ (pow_ne_zero _ hp.ne_zero)).ne').mp hd
   have := padicValNat_sigma_pow_pred_le hl hl2 hp
+  rw [Nat.padicValNat_def] at this
   omega
 
 /-- Dris and Luca: `25 ∤ σ(p ^ 4)` for every prime `p`. -/
@@ -399,10 +400,12 @@ theorem pow_pred_dvd_succ_of_sigma_eq_pow {p q l b a : ℕ} (hp : p.Prime) (hp2 
     have := coprime_sigma_prime_pow hq (l' + 1)
     exact hq.one_lt.ne' (Nat.Coprime.eq_one_of_dvd (Nat.Coprime.symm this) h1)
   have hσa0 : σ 1 (q ^ a) ≠ 0 := (sigma_pos 1 _ (pow_ne_zero _ hq.ne_zero)).ne'
-  have hle : l' + 1 ≤ padicValNat p (σ 1 (q ^ a)) := (padicValNat_dvd_iff_le hσa0).mp hd
+  have hle : l' + 1 ≤ padicValNat p (σ 1 (q ^ a)) := by
+    rw [Nat.padicValNat_def]; exact (padicValNat_dvd_iff_le hσa0).mp hd
   have hpd : p ∣ σ 1 (q ^ a) := (dvd_pow_self p (Nat.succ_ne_zero l')).trans hd
   have ha0 : a + 1 ≠ 0 := Nat.succ_ne_zero a
   apply (padicValNat_dvd_iff_le ha0).mpr
+  rw [← Nat.padicValNat_def]
   by_cases h1 : orderOf (q : ZMod p) = 1
   · have hc : (q : ZMod p) = 1 := orderOf_eq_one_iff.mp h1
     have hdp : p ∣ q - 1 := by
@@ -422,8 +425,8 @@ theorem pow_pred_dvd_succ_of_sigma_eq_pow {p q l b a : ℕ} (hp : p.Prime) (hp2 
     -- `v_p(q ^ d - 1) ≤ v_p(q ^ b - 1) = 1`
     have hqb1 : q ^ b - 1 = p * s := by omega
     have hvb : padicValNat p (q ^ b - 1) = 1 := by
-      rw [hqb1, padicValNat.mul hp.ne_zero hs0, padicValNat_self,
-        padicValNat_sigma_prime_pow_self hp]
+      rw [hqb1, Nat.padicValNat_def, padicValNat.mul hp.ne_zero hs0, padicValNat_self,
+        ← Nat.padicValNat_def, padicValNat_sigma_prime_pow_self hp]
     have hqd : 1 < q ^ d := Nat.one_lt_pow hd0 hq.one_lt
     have hdvd : q ^ d - 1 ∣ q ^ b - 1 := by
       obtain ⟨c, hc⟩ := hdb
@@ -431,11 +434,13 @@ theorem pow_pred_dvd_succ_of_sigma_eq_pow {p q l b a : ℕ} (hp : p.Prime) (hp2 
       exact Nat.sub_one_dvd_pow_sub_one _ _
     have hv1 : padicValNat p (q ^ d - 1) ≤ 1 := by
       have := (padicValNat_dvd_iff_le (by rw [hqb1]; exact mul_ne_zero hp.ne_zero hs0)).mp
-        ((pow_padicValNat_dvd (p := p) (n := q ^ d - 1)).trans hdvd)
+        ((pow_multiplicity_dvd p (q ^ d - 1)).trans hdvd)
+      simp only [← Nat.padicValNat_def] at this
       omega
     have hv2 : padicValNat p ((a + 1) / d) ≤ padicValNat p (a + 1) := by
+      simp only [Nat.padicValNat_def]
       apply (padicValNat_dvd_iff_le ha0).mp
-      exact (pow_padicValNat_dvd (p := p) (n := (a + 1) / d)).trans (Nat.div_dvd_of_dvd hdiv)
+      exact (pow_multiplicity_dvd p ((a + 1) / d)).trans (Nat.div_dvd_of_dvd hdiv)
     omega
 
 end OddPerfect

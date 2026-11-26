@@ -96,7 +96,7 @@ theorem sigma_sub_mul_pred_lt_card_mul {T : Finset ℕ} {R : ℕ} {e : ℕ → �
     fun a ha b hb hab => Nat.coprime_pow_primes _ _ (hT a ha) (hT b hb) hab
   have hσ : σ 1 M = ∏ p ∈ T, σ 1 (p ^ e p) := isMultiplicative_sigma.map_prod _ T hcop
   have h1 : ∏ p ∈ T, (σ 1 (p ^ e p) * (p - 1)) < ∏ p ∈ T, (p * p ^ e p) :=
-    Finset.prod_lt_prod_of_nonempty
+    Finset.prod_lt_prod_of_nonempty₀
       (fun p hp => Nat.mul_pos (sigma_pos 1 _ (pow_ne_zero _ (hT p hp).ne_zero))
         (by have := (hT p hp).two_le; omega))
       (fun p hp => srl_sigma_mul_lt (hT p hp)) hne

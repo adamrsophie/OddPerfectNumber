@@ -114,7 +114,7 @@ theorem abundancy_eq_prod_primeFactors {n : ℕ} (hn : n ≠ 0) :
 theorem abundancy_lt_prod {n : ℕ} (hn : 1 < n) :
     abundancy n < ∏ p ∈ n.primeFactors, ((p : ℚ) / (p - 1)) := by
   rw [abundancy_eq_prod_primeFactors (by omega)]
-  apply Finset.prod_lt_prod_of_nonempty
+  apply Finset.prod_lt_prod_of_nonempty₀
   · intro p hp
     have hp' := Nat.prime_of_mem_primeFactors hp
     rw [abundancy_eq_sum_inv (pow_ne_zero _ hp'.ne_zero)]

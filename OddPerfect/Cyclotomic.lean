@@ -142,6 +142,7 @@ theorem padicValNat_sigma_prime_pow_of_dvd_pred {p q a : ℕ} (hp : p.Prime) (hq
   have hlte := padicValNat.pow_sub_pow (p := q) (x := p) (y := 1) hodd hp.one_lt
     (by simpa using h) hqp (n := a + 1) (by omega)
   rw [one_pow, ← sigma_prime_pow_mul_pred hp a, padicValNat.mul hσ hp1] at hlte
+  simp only [Nat.padicValNat_def] at hlte ⊢
   omega
 
 /-- If a prime `q` not dividing `d` divides the `d`th cyclotomic value at `p`, then

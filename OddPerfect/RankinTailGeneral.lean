@@ -116,7 +116,7 @@ private theorem one_le_prod_pow {P : Finset ℕ} {c : ℕ → ℚ} (f : ℕ → 
   rw [← Finset.prod_pow, Nat.cast_prod, ← Finset.prod_mul_distrib]
   calc (1 : ℚ) = ∏ g ∈ P, (1 : ℚ) := by simp
     _ ≤ _ := by
-      refine Finset.prod_le_prod (fun _ _ => zero_le_one) fun g hg => ?_
+      refine Finset.prod_le_prod₀ (fun _ _ => zero_le_one) fun g hg => ?_
       have e : (c g ^ f g) ^ k * ((g ^ f g : ℕ) : ℚ) = (c g ^ k * g) ^ f g := by
         push_cast; ring
       rw [e]
@@ -222,7 +222,7 @@ theorem rankin_tail_general (T K U : Finset ℕ) {x k M u : ℕ} {α : ℕ → �
     have e : ∑ f ∈ boxK, wK f = ∏ g ∈ K, ∑ i ∈ Finset.range N, α g ^ i :=
       (Finset.prod_sum K (fun _ => Finset.range N) (fun g i => α g ^ i)).symm
     rw [e]
-    exact Finset.prod_le_prod
+    exact Finset.prod_le_prod₀
       (fun g hg => Finset.sum_nonneg fun i _ => pow_nonneg (hα0 g hg) i)
       (fun g hg => geom_partial_le (hα0 g hg) (hα1 g hg) N)
   have sK0 : 0 ≤ ∑ f ∈ boxK, wK f := Finset.sum_nonneg fun f _ => wK0 f

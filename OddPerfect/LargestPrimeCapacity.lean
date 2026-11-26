@@ -84,7 +84,7 @@ theorem padicValNat_pow_orderOf_sub_one_lt_totient {p P : ℕ} (hp : p.Prime) (h
   push Not at hw
   have hpt : 1 ≤ p ^ t := Nat.one_le_pow _ _ hp.pos
   have h1 : P ^ t.totient ∣ p ^ t - 1 :=
-    (pow_dvd_pow P hw).trans pow_padicValNat_dvd
+    (pow_dvd_pow P hw).trans (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
   have h2 : ((P : ℤ)) ^ t.totient ∣ (p : ℤ) ^ t - 1 := by
     have := Int.natCast_dvd_natCast.mpr h1
     push_cast [hpt] at this
@@ -177,10 +177,11 @@ theorem sender_largest_data (h : OddPerfect N) {P p : ℕ} (hP : P ∈ N.primeFa
       omega
   refine ⟨hlt, hp2, by omega, h4, ?_⟩
   rw [padicValNat_sigma_prime_pow_of_orderOf_dvd hpp hPp (by omega) hpP (by omega) hdd]
-  have hq : padicValNat P ((e + 1) / t) = 0 := padicValNat.eq_zero_of_not_dvd fun hh => by
-    have := Nat.le_of_dvd (Nat.div_pos (Nat.le_of_dvd (by omega) hdd) (by omega)) hh
-    have := Nat.div_le_self (e + 1) t
-    omega
+  have hq : padicValNat P ((e + 1) / t) = 0 := by
+    rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd fun hh => by
+      have := Nat.le_of_dvd (Nat.div_pos (Nat.le_of_dvd (by omega) hdd) (by omega)) hh
+      have := Nat.div_le_self (e + 1) t
+      omega
   rw [hq, add_zero]
 
 /-- The odd part `d` of an order `t` with `4 ∤ t`: `t` itself if `t` is odd, else `t / 2`. -/
@@ -240,7 +241,7 @@ private theorem sum_senders' (h : OddPerfect N) {P : ℕ} (hP : P ∈ N.primeFac
     Finset.sum_filter_of_ne]
   intro p _ hne
   by_contra hd
-  exact hne (padicValNat.eq_zero_of_not_dvd hd)
+  exact hne (by rw [Nat.padicValNat_def]; exact multiplicity_eq_zero_of_not_dvd hd)
 
 /-- Everything about the senders at once: each sender `p` has odd class `d = oddPart(ord p)`
 in `m.divisors.erase 1`, weight at most `φ(d) - 1`, and at most `φ(d)` senders share `d`. -/

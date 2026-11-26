@@ -358,7 +358,7 @@ theorem mul_succ_le_factorization_special {N q a : ℕ} (h : OddPerfect N) (hq :
     refine Finset.card_nsmul_le_sum S _ a fun p hp => ?_
     obtain ⟨hpN, hp1⟩ := Finset.mem_filter.mp hp
     have hpq : p ≠ q := by rintro rfl; rw [Nat.mod_self] at hp1; omega
-    exact (padicValNat_dvd_iff_le (by omega)).mp (hexp p hpN hpq)
+    rw [Nat.padicValNat_def]; exact (padicValNat_dvd_iff_le (by omega)).mp (hexp p hpN hpq)
   have := sum_padicValNat_succ_le h.perfect hq hq2
   rw [smul_eq_mul] at hsum
   calc a * (a + 1) ≤ S.card * a := by rw [mul_comm]; exact Nat.mul_le_mul_right a hcard

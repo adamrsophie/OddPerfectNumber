@@ -385,7 +385,7 @@ theorem abundancy_close {N : ℕ} (h : OddPerfect N) (K : Finset ℕ) (hK : K �
   have hK0 : 0 ≤ ∏ p ∈ K, abundancy (p ^ N.factorization p) :=
     Finset.prod_nonneg fun _ _ => abundancy_nonneg _
   have hKC : ∏ p ∈ K, abundancy (p ^ N.factorization p) ≤ ∏ p ∈ K, c p :=
-    Finset.prod_le_prod (fun _ _ => abundancy_nonneg _) hC
+    Finset.prod_le_prod₀ (fun _ _ => abundancy_nonneg _) hC
   have hPT : (∏ t ∈ T, fv t) * (1 - S) ≤ 1 := by
     nlinarith [mul_le_mul_of_nonneg_left hS hP0]
   have hpos : 0 < 1 - S := by linarith

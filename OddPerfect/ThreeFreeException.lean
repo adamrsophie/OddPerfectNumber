@@ -353,7 +353,7 @@ private theorem ordinary_prod_le (S : Finset ℕ) (π : ℕ → ℕ × ℕ) (hin
   -- the box part
   have hb : ∏ s ∈ Sb, fval s ≤ boxProd Q R fl M := by
     calc ∏ s ∈ Sb, fval s ≤ ∏ s ∈ Sb, g (π s) := by
-          apply Finset.prod_le_prod (fun s hs => hfv0 s (Finset.mem_of_mem_filter s hs))
+          apply Finset.prod_le_prod₀ (fun s hs => hfv0 s (Finset.mem_of_mem_filter s hs))
           intro s hs
           obtain ⟨hfs, hsz, -⟩ := hS s (Finset.mem_of_mem_filter s hs)
           apply fval_anti (le_trans (by omega) (le_max_left _ _))
@@ -363,7 +363,7 @@ private theorem ordinary_prod_le (S : Finset ℕ) (π : ℕ → ℕ × ℕ) (hin
           (Finset.prod_image fun x hx y hy => hinj (Finset.mem_of_mem_filter x hx)
             (Finset.mem_of_mem_filter y hy)).symm
       _ ≤ boxProd Q R fl M := by
-          apply Finset.prod_le_prod_of_subset_of_one_le
+          apply Finset.prod_le_prod_of_subset_of_one_le₀
           · intro t ht
             obtain ⟨s, hs, rfl⟩ := Finset.mem_image.mp ht
             rw [Finset.mem_filter] at hs

@@ -84,7 +84,7 @@ theorem Inst.two_le (c : Inst N t) :
   rw [← c.abund]
   have ht2 : 2 ≤ t := (Nat.prime_of_mem_primeFactors c.ht).two_le
   have hP : ∏ s ∈ good N t, abundancy (s ^ N.factorization s) ≤ ∏ s ∈ good N t, rv s :=
-    Finset.prod_le_prod (fun s _ => abund_nonneg _) fun s hs =>
+    Finset.prod_le_prod₀ (fun s _ => abund_nonneg _) fun s hs =>
       (abundancy_prime_pow_lt (c.good_facts hs).1 _).le
   have l : ∀ p, p.Prime → ∀ k, abundancy (p ^ k) ≤ rv p := fun p hp k =>
     (abundancy_prime_pow_lt hp k).le
@@ -224,7 +224,7 @@ theorem Inst.prodG0 (c : Inst N t) :
       have := Finset.mem_of_mem_erase hs
       simp [hits0] at this
       omega))
-  · apply Finset.prod_le_prod_of_subset_of_one_le
+  · apply Finset.prod_le_prod_of_subset_of_one_le₀
     · intro s hs
       obtain ⟨hs1, hs2⟩ := Finset.mem_filter.mp hs
       exact Finset.mem_erase.mpr ⟨(mem_good.mp (hsub hs1)).2.2.2.2.2, List.mem_toFinset.mpr hs2⟩
@@ -287,7 +287,7 @@ theorem Inst.false_two_big (c : Inst N t) (h2 : t % 3 = 2) (h23 : 23 ≤ t) : Fa
     calc rv t ≤ rv 23 := this
       _ = 23 / 22 := by unfold rv; norm_num
   · have hsub : ∏ s ∈ hits0.toFinset.erase t, rv s ≤ ∏ s ∈ hits0.toFinset, rv s :=
-      Finset.prod_le_prod_of_subset_of_one_le (Finset.erase_subset _ _) (fun s hs => by
+      Finset.prod_le_prod_of_subset_of_one_le₀ (Finset.erase_subset _ _) (fun s hs => by
         have := Finset.mem_of_mem_erase hs
         simp [hits0] at this
         exact rv_nonneg (by omega)) fun s hs _ => by
@@ -371,7 +371,7 @@ theorem Inst.false_table (c : Inst N t) (hs : List ℕ) (hnd : hs.Nodup) (R : �
     False := by
   have ht := Nat.prime_of_mem_primeFactors c.ht
   have hy1 : 1 ≤ restP N t hs.toFinset := by
-    have := Finset.prod_le_prod (s := (good N t).filter (· ∉ hs.toFinset))
+    have := Finset.prod_le_prod₀ (s := (good N t).filter (· ∉ hs.toFinset))
       (f := fun _ => (1 : ℚ)) (g := fun s => abundancy (s ^ N.factorization s)) (fun _ _ => zero_le_one)
       (fun s hs' => one_le_abundancy_pow (c.good_facts (Finset.mem_of_mem_filter s hs')).1 _)
     simpa [restP] using this
@@ -452,7 +452,7 @@ theorem Inst.restP_le (c : Inst N t) (H : Finset ℕ) (h0 : ∀ s ∈ hits0, s �
     restP N t H ≤ 1 / (1 - X0) * (1 / (1 - X1)) := by
   have hsub : (good N t).filter (· ∉ H) ⊆ good N t := Finset.filter_subset _ _
   have h2 : ∀ s ∈ (good N t).filter (· ∉ H), 2 ≤ s := fun s hs => c.good_two (hsub hs)
-  refine le_trans (Finset.prod_le_prod (fun s _ => abund_nonneg _)
+  refine le_trans (Finset.prod_le_prod₀ (fun s _ => abund_nonneg _)
     fun s hs => (abundancy_prime_pow_lt (c.good_facts (hsub hs)).1 _).le) ?_
   rw [← Finset.prod_filter_mul_prod_filter_not ((good N t).filter (· ∉ H))
     (fun s => (vec t s).2.2.2.2 = 0)]

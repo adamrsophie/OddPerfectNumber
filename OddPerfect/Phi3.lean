@@ -69,18 +69,20 @@ theorem padicValNat_three_phi3 (x : ℕ) :
     have hle : padicValNat 3 (phi3 x) ≤ 1 := by
       by_contra hc
       have : 3 ^ 2 ∣ phi3 x :=
-        (pow_dvd_pow 3 (by omega)).trans pow_padicValNat_dvd
+        (pow_dvd_pow 3 (show 2 ≤ padicValNat 3 (phi3 x) by omega)).trans
+          (by rw [Nat.padicValNat_def]; exact pow_multiplicity_dvd _ _)
       exact not_nine_dvd_phi3 x (by simpa using this)
     have : 1 ≤ padicValNat 3 (phi3 x) := by
       have := Fact.mk Nat.prime_three
-      exact (one_le_padicValNat_of_dvd hpos h3)
+      rw [Nat.padicValNat_def]; exact (one_le_multiplicity_of_dvd hpos h3)
     omega
-  · exact padicValNat.eq_zero_of_not_dvd (fun h3 => h ((three_dvd_phi3_iff x).1 h3))
+  · rw [Nat.padicValNat_def]
+    exact multiplicity_eq_zero_of_not_dvd (fun h3 => h ((three_dvd_phi3_iff x).1 h3))
 
 /-- The exponent of `3` in `phi3 x`, via `Nat.factorization`. -/
 theorem factorization_three_phi3 (x : ℕ) :
     (phi3 x).factorization 3 = if x % 3 = 1 then 1 else 0 := by
-  rw [Nat.factorization_def _ Nat.prime_three, padicValNat_three_phi3]
+  rw [Nat.factorization_def _ Nat.prime_three, ← Nat.padicValNat_def, padicValNat_three_phi3]
 
 /-- A prime divisor of `phi3 x` other than `3` is `1` modulo `3`. -/
 theorem prime_dvd_phi3_mod_three {q x : ℕ} (hq : q.Prime) (hq3 : q ≠ 3)

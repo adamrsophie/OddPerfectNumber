@@ -427,6 +427,7 @@ private theorem table_keys : ∀ e ∈ table, 5 ≤ e.1 := by decide
 
 private theorem table_cover : ∀ s < 300, s % 3 = 2 → 5 ≤ s →
     s ∈ table.map Prod.fst ∨ ∃ d ∈ [2, 5, 7, 11, 13, 17], d < s ∧ s % d = 0 := by
+  refine @of_decide_eq_true _ (Nat.decidableBallLT 300 _) ?_
   decide +kernel
 
 private theorem table_complete {s : ℕ} (hs : s.Prime) (h3 : s % 3 = 2) (h5 : 5 ≤ s)
