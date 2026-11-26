@@ -538,3 +538,4 @@ import OddPerfect.LargestPrimeFourNone
 import OddPerfect.EulerIndexPairEmitterSix
 import OddPerfect.HalfSigmaSix
 import OddPerfect.EulerIndexPairSixParity
+import OddPerfect.EulerIndexPairEmitterTen
