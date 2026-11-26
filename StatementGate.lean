@@ -2797,12 +2797,60 @@ theorem StatementGate.eulerIndex_pair_not_palette :
     N) s = 4)) :=
   @OddPerfect.eulerIndex_pair_not_palette
 
+/-! ## Two prime index: the sender row of length 7; half sum at exponent 6 -/
+
+theorem StatementGate.prime_pow_six_poly_ne_two_mul_sq :
+    ∀ {p z : ℕ}, _root_.Nat.Prime p → p ≠ 2 → p ^ 6 + p ^ 5 + p ^ 4 + p ^ 3 + p ^ 2 + p + 2 ≠ 2
+    * z ^ 2 :=
+  @OddPerfect.prime_pow_six_poly_ne_two_mul_sq
+
+theorem StatementGate.sigma_prime_pow_six_add_one_ne_two_mul_sq :
+    ∀ {p z : ℕ}, _root_.Nat.Prime p → p ≠ 2 → (ArithmeticFunction.sigma 1) (p ^ 6) + 1 ≠ 2 * z ^
+    2 :=
+  @OddPerfect.sigma_prime_pow_six_add_one_ne_two_mul_sq
+
+theorem StatementGate.sigma_prime_sixth_row_even :
+    ∀ {t u q d w j f : ℕ}, _root_.Nat.Prime t → _root_.Nat.Prime u → u ≠ 2 →
+    (ArithmeticFunction.sigma 1) (t ^ 6) = q → q + 1 = 2 * u ^ d * w ^ 2 → ¬u ∣ w → j = 1 ∨ j =
+    3 ∨ j = 5 → 2 ≤ f → (ArithmeticFunction.sigma 1) (u ^ f) = t ^ j → Even d :=
+  @OddPerfect.sigma_prime_sixth_row_even
+
+theorem StatementGate.eulerIndex_pair_six_half_square :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ _root_.Nat.Prime t ∧ t ≠ 2 ∧ ∃ v j,
+    (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧
+    (ArithmeticFunction.sigma 1) (u ^ (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization
+    N) t ∧ _root_.Nat.Prime ((Nat.factorization N) t + 1) ∧ (v = 0 ∧ (ArithmeticFunction.sigma
+    1) (t ^ (Nat.factorization N) t) = q ∧ 6 ≤ (Nat.factorization N) t ∧ ((Nat.factorization N)
+    t = 6 → ∃ z, (ArithmeticFunction.sigma 1) (t ^ 6) + 1 = 2 * z ^ 2) ∨ v = 1 ∧ u =
+    (Nat.factorization N) t + 1 ∧ 5 ≤ u ∧ t % u = 1 ∧ q % u = 1 ∧ q + 1 = 2 * (∏ p ∈
+    Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2) :=
+  @OddPerfect.eulerIndex_pair_six_half_square
+
+theorem StatementGate.eulerIndex_pair_emitter_ten :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ _root_.Nat.Prime t ∧ t ≠ 2 ∧ ∃ v j,
+    (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧
+    (ArithmeticFunction.sigma 1) (u ^ (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization
+    N) t ∧ _root_.Nat.Prime ((Nat.factorization N) t + 1) ∧ (v = 0 ∧ (ArithmeticFunction.sigma
+    1) (t ^ (Nat.factorization N) t) = q ∧ 10 ≤ (Nat.factorization N) t ∨ v = 1 ∧ u =
+    (Nat.factorization N) t + 1 ∧ 7 ≤ u ∧ t % u = 1 ∧ q % u = 1 ∧ q + 1 = 2 * (∏ p ∈
+    Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2) :=
+  @OddPerfect.eulerIndex_pair_emitter_ten
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
     ∃ (k : ℕ) (c : OddPerfect.TuringOPN.Cfg),
       OddPerfect.TuringOPN.run k OddPerfect.TuringOPN.init = some c ∧
         OddPerfect.TuringOPN.step c = none := Iff.rfl
+
+example : OddPerfect.TuringOPN.St → Int → (Int → Bool) → OddPerfect.TuringOPN.Cfg :=
+  OddPerfect.TuringOPN.Cfg.mk
 
 example (c : OddPerfect.TuringOPN.Cfg) : OddPerfect.TuringOPN.run 0 c = some c := rfl
 
@@ -3575,6 +3623,13 @@ def expected : List (Name × Name) :=
     (`StatementGate.sigma_prime_pow_ne_five_pow, ``OddPerfect.sigma_prime_pow_ne_five_pow),
     (`StatementGate.eulerIndex_pair_emitter_six, ``OddPerfect.eulerIndex_pair_emitter_six),
     (`StatementGate.eulerIndex_pair_not_palette, ``OddPerfect.eulerIndex_pair_not_palette),
+    (`StatementGate.prime_pow_six_poly_ne_two_mul_sq,
+      ``OddPerfect.prime_pow_six_poly_ne_two_mul_sq),
+    (`StatementGate.sigma_prime_pow_six_add_one_ne_two_mul_sq,
+      ``OddPerfect.sigma_prime_pow_six_add_one_ne_two_mul_sq),
+    (`StatementGate.sigma_prime_sixth_row_even, ``OddPerfect.sigma_prime_sixth_row_even),
+    (`StatementGate.eulerIndex_pair_six_half_square, ``OddPerfect.eulerIndex_pair_six_half_square),
+    (`StatementGate.eulerIndex_pair_emitter_ten, ``OddPerfect.eulerIndex_pair_emitter_ten),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
