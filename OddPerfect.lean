@@ -600,3 +600,7 @@ import OddPerfect.TwoExceptionsEightyNineData
 import OddPerfect.TwoExceptionsSixtySeven
 import OddPerfect.TwoExceptionsEightyNine
 import OddPerfect.PureCoverPacking
+import OddPerfect.ImpureRowBase
+import OddPerfect.ImpureRowFourBase
+import OddPerfect.ImpureRowCount
+import OddPerfect.ImpureRowCountFour
