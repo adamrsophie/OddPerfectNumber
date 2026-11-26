@@ -541,3 +541,4 @@ import OddPerfect.EulerIndexPairSixParity
 import OddPerfect.EulerIndexPairEmitterTen
 import OddPerfect.EulerIndexPaletteThree
 import OddPerfect.EulerIndexPairSeven
+import OddPerfect.EqualExponentNotSpecial
