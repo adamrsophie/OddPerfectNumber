@@ -590,3 +590,7 @@ import OddPerfect.HalfSigmaTen
 import OddPerfect.EulerIndexPairTenArith
 import OddPerfect.EulerIndexPairEmitterTwelve
 import OddPerfect.EulerIndexPairExponentTwelve
+import OddPerfect.EqualExponentCount103Data
+import OddPerfect.EqualExponentCount103
+import OddPerfect.EqualExponentCount107Data
+import OddPerfect.EqualExponentCount107
