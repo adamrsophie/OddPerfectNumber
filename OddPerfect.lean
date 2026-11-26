@@ -586,3 +586,7 @@ import OddPerfect.EulerIndexPairFrame
 import OddPerfect.EulerIndexPairSmallCap
 import OddPerfect.EulerIndexPairReceiverSieve
 import OddPerfect.EulerIndexPairReceiverBound
+import OddPerfect.HalfSigmaTen
+import OddPerfect.EulerIndexPairTenArith
+import OddPerfect.EulerIndexPairEmitterTwelve
+import OddPerfect.EulerIndexPairExponentTwelve
