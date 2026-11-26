@@ -3150,6 +3150,33 @@ theorem StatementGate.exists_centers_of_pure_cover :
           (((3 : ℚ) ^ (l - 1) - 1) / ((3 : ℚ) ^ (l - 1) - 1 - (K : ℚ))) :=
   @OddPerfect.exists_centers_of_pure_cover
 
+/-! ## Counting certificates at 109 and 113, four impure rows for every odd prime -/
+
+theorem StatementGate.not_all_exponents_eq_one_hundred_eight :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 108) → False :=
+  @OddPerfect.not_all_exponents_eq_one_hundred_eight
+
+theorem StatementGate.not_all_exponents_eq_one_hundred_twelve :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 112) → False :=
+  @OddPerfect.not_all_exponents_eq_one_hundred_twelve
+
+theorem StatementGate.four_le_card_of_pure_outside_small :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → 5 ≤ l → l ≤ 521 → (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣
+    (Nat.factorization N) p + 1) → ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃
+    r w, _root_.Nat.Prime r ∧ (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w)
+    → 4 ≤ Finset.card M :=
+  @OddPerfect.four_le_card_of_pure_outside_small
+
+theorem StatementGate.four_le_card_of_pure_outside_all :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p +
+    1) → ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃ r w, _root_.Nat.Prime r ∧
+    (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) → 4 ≤ Finset.card M :=
+  @OddPerfect.four_le_card_of_pure_outside_all
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4008,6 +4035,14 @@ def expected : List (Name × Name) :=
     (`StatementGate.not_all_pure_common_index_one_hole,
       ``OddPerfect.not_all_pure_common_index_one_hole),
     (`StatementGate.exists_centers_of_pure_cover, ``OddPerfect.exists_centers_of_pure_cover),
+    (`StatementGate.not_all_exponents_eq_one_hundred_eight,
+      ``OddPerfect.not_all_exponents_eq_one_hundred_eight),
+    (`StatementGate.not_all_exponents_eq_one_hundred_twelve,
+      ``OddPerfect.not_all_exponents_eq_one_hundred_twelve),
+    (`StatementGate.four_le_card_of_pure_outside_small,
+      ``OddPerfect.four_le_card_of_pure_outside_small),
+    (`StatementGate.four_le_card_of_pure_outside_all,
+      ``OddPerfect.four_le_card_of_pure_outside_all),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
