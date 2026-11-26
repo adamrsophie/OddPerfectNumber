@@ -571,3 +571,6 @@ import OddPerfect.EqualExponentCount89
 import OddPerfect.EqualExponentCount97
 import OddPerfect.EqualExponentCount101Data
 import OddPerfect.EqualExponentCount101
+import OddPerfect.EqualExponentCountDivisible
+import OddPerfect.EqualExponentFloor
+import OddPerfect.EqualExponentFloorMore
