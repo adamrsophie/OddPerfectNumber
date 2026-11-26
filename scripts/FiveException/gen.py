@@ -372,7 +372,9 @@ theorem {nm}_ok : smoothOK (sqOK {h}) ({B}) ({p} :: {q} :: {pl}) {x} = true :=
     (by norm_num) (by norm_num) (by norm_num) {nm}L
     (by simp only [{nm}L, List.all_append,
       {thms}, Bool.and_self])
-    (by decide +kernel)
+    (by refine @of_decide_eq_true _ (@Nat.decidableBallLT {k1} _ fun _ _ =>
+          @Nat.decidableBallLT {k2} _ fun _ _ => inferInstance) ?_
+        decide +kernel)
 """.format(nm=name, x=x, p=p, q=q, B=Bexpr, cat=textwrap.fill(' ++ '.join('%sL%d' % (name, m) for m in range(len(chunks))), 96, subsequent_indent='    '),
            doc=textwrap.fill('/-- %s (%d products, %d chunks). -/' % (doc, total, len(chunks)), 100,
                              subsequent_indent=''), n=total, c=len(chunks), h=hits, pl=pl, k1=k1, k2=k2,

@@ -101,6 +101,17 @@ jobs:
           PYTHON: ${{ runner.temp }}/venv/bin/python
         run: bash scripts/CommonFamilies/rebuild95.sh . "$RUNNER_TEMP/rebuild95"
 
+      # Regenerates the four generated modules of the five exception theorem with the
+      # generator in scripts/FiveException and compares them byte for byte with the checkout
+      # (a few seconds; the generator needs only the Python standard library).
+      - name: Rebuild of the five exception data modules
+        run: |
+          mkdir "$RUNNER_TEMP/five"
+          python3 -I scripts/FiveException/gen.py "$RUNNER_TEMP/five" > /dev/null
+          for f in FiveExceptionData0 FiveExceptionData79 FiveExceptionDataT FiveExceptionScan; do
+            cmp "$RUNNER_TEMP/five/$f.lean" "OddPerfect/$f.lean"
+          done
+
       # Constructs in the library sources that AxiomGate.lean cannot see in the compiled
       # environment: debug options such as debug.skipKernelTC, commands that run code at
       # elaboration time, new syntax, notation or elaborators, local instances, set_option
