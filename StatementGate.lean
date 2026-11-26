@@ -2842,6 +2842,37 @@ theorem StatementGate.eulerIndex_pair_emitter_ten :
     Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^ 2) :=
   @OddPerfect.eulerIndex_pair_emitter_ten
 
+/-! ## Two prime index: emitter exponent 10 in both branches; palette index of three primes -/
+
+theorem StatementGate.three_le_card_primeFactors_eulerIndex_of_palette :
+    ∀ {N q m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 2 ∨ (Nat.factorization N) p = 4) → 3 ≤
+    Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) :=
+  @OddPerfect.three_le_card_primeFactors_eulerIndex_of_palette
+
+theorem StatementGate.three_pow_ne_seven_pow_add_two :
+    ∀ {X Y : ℕ}, 2 ≤ Y → 3 ^ X ≠ 7 ^ Y + 2 :=
+  @OddPerfect.three_pow_ne_seven_pow_add_two
+
+theorem StatementGate.sigma_prime_pow_ne_seven_pow :
+    ∀ {p g w : ℕ}, _root_.Nat.Prime p → p ≠ 2 → 2 ≤ g → (ArithmeticFunction.sigma 1) (p ^ g) ≠ 7
+    ^ w :=
+  @OddPerfect.sigma_prime_pow_ne_seven_pow
+
+theorem StatementGate.eulerIndex_pair_emitter_ten_all :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} :
+    Finset ℕ) = ({r, s} : Finset ℕ) ∧ t ≠ u ∧ _root_.Nat.Prime t ∧ t ≠ 2 ∧ ∃ v j,
+    (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v ∧ 0 < j ∧ Odd j ∧
+    (ArithmeticFunction.sigma 1) (u ^ (Nat.factorization N) u) = t ^ j ∧ j < (Nat.factorization
+    N) t ∧ _root_.Nat.Prime ((Nat.factorization N) t + 1) ∧ 10 ≤ (Nat.factorization N) t ∧ (v =
+    0 ∧ (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q ∧ 10 ≤ (Nat.factorization
+    N) t ∨ v = 1 ∧ u = (Nat.factorization N) t + 1 ∧ 11 ≤ u ∧ t % u = 1 ∧ q % u = 1 ∧ q + 1 = 2
+    * (∏ p ∈ Nat.primeFactors N \ ({q, r, s} : Finset ℕ), p ^ ((Nat.factorization N) p / 2)) ^
+    2) :=
+  @OddPerfect.eulerIndex_pair_emitter_ten_all
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3630,6 +3661,11 @@ def expected : List (Name × Name) :=
     (`StatementGate.sigma_prime_sixth_row_even, ``OddPerfect.sigma_prime_sixth_row_even),
     (`StatementGate.eulerIndex_pair_six_half_square, ``OddPerfect.eulerIndex_pair_six_half_square),
     (`StatementGate.eulerIndex_pair_emitter_ten, ``OddPerfect.eulerIndex_pair_emitter_ten),
+    (`StatementGate.three_le_card_primeFactors_eulerIndex_of_palette,
+      ``OddPerfect.three_le_card_primeFactors_eulerIndex_of_palette),
+    (`StatementGate.three_pow_ne_seven_pow_add_two, ``OddPerfect.three_pow_ne_seven_pow_add_two),
+    (`StatementGate.sigma_prime_pow_ne_seven_pow, ``OddPerfect.sigma_prime_pow_ne_seven_pow),
+    (`StatementGate.eulerIndex_pair_emitter_ten_all, ``OddPerfect.eulerIndex_pair_emitter_ten_all),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
