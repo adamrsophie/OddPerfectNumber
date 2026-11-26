@@ -620,3 +620,4 @@ import OddPerfect.ImpureRowTreeD08
 import OddPerfect.ImpureRowTreeD09
 import OddPerfect.ImpureRowTreeD10
 import OddPerfect.ImpureRowCountSmall
+import OddPerfect.ImpureRowCountAll
