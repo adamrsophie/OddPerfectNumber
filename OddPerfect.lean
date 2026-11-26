@@ -575,3 +575,8 @@ import OddPerfect.EqualExponentCountDivisible
 import OddPerfect.EqualExponentFloor
 import OddPerfect.EqualExponentFloorMore
 import OddPerfect.EqualExponentDivisorFan
+import OddPerfect.CycloRootCount
+import OddPerfect.AbundancyTail
+import OddPerfect.TwoExceptionsNinetySevenData
+import OddPerfect.TwoExceptionsNinetySevenCore
+import OddPerfect.TwoExceptionsNinetySeven
