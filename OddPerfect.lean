@@ -536,3 +536,4 @@ import OddPerfect.SpecialRankLadder
 import OddPerfect.SpecialRankLadderCube
 import OddPerfect.LargestPrimeFourNone
 import OddPerfect.EulerIndexPairEmitterSix
+import OddPerfect.HalfSigmaSix
