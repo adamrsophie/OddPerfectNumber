@@ -550,3 +550,9 @@ import OddPerfect.EqualExponentChainFar53Spec
 import OddPerfect.EqualExponentChainFar53Ord0
 import OddPerfect.EqualExponentChainFar53Ord1
 import OddPerfect.EqualExponentChainFar53
+import OddPerfect.EqualExponentChainFar67Data
+import OddPerfect.EqualExponentChainFar67Spec
+import OddPerfect.EqualExponentChainFar67Ord0
+import OddPerfect.EqualExponentChainFar67Ord1
+import OddPerfect.EqualExponentChainFar67Ord2
+import OddPerfect.EqualExponentChainFar67
