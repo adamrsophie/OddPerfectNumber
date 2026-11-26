@@ -43,7 +43,7 @@ theorem RowValuationTransfer : OddPerfect.Steps.RowValuationTransfer := by
     omega
   have hmulv : padicValNat q (p ^ (c + 1) - 1) =
       padicValNat q (p - 1) + padicValNat q (σ 1 (p ^ c)) := by
-    rw [← hgeom, padicValNat.mul (by omega) hS0]
+    rw [← hgeom]; simp only [Nat.padicValNat_def]; exact padicValNat.mul (by omega) hS0
   have hmod : p % q = 1 ↔ q ∣ p - 1 := by
     rw [← Nat.modEq_iff_dvd' hp.one_le, Nat.ModEq, Nat.mod_eq_of_lt hq1]
     exact eq_comm
@@ -56,11 +56,11 @@ theorem RowValuationTransfer : OddPerfect.Steps.RowValuationTransfer := by
       simp at h
     have hl := padicValNat.pow_sub_pow (p := q) (x := p) (y := 1) hqo hp1 hd hnd
       (n := c + 1) (by omega)
-    simp only [one_pow] at hl
+    simp only [one_pow, ← Nat.padicValNat_def] at hl
     omega
   · intro h
-    have hv1 : padicValNat q (p - 1) = 0 :=
-      padicValNat.eq_zero_of_not_dvd (fun hd => h (hmod.mpr hd))
+    have hv1 : padicValNat q (p - 1) = 0 := by
+      rw [Nat.padicValNat_def]; exact padicValNat.eq_zero_of_not_dvd (fun hd => h (hmod.mpr hd))
     obtain ⟨n, rfl⟩ : ∃ n, x = n + 1 := ⟨x - 1, by omega⟩
     rw [sigma_one_apply_prime_pow hq, geom_two] at hrow
     set T := ∑ k ∈ Finset.range n, q ^ k
@@ -77,7 +77,8 @@ theorem RowValuationTransfer : OddPerfect.Steps.RowValuationTransfer := by
       exact hq_one ((Nat.dvd_add_left (dvd_mul_right q _)).mp h2)
     have hpy1 : p ^ y - 1 = q * (1 + q * T) := by omega
     have hvy : padicValNat q (p ^ y - 1) = 1 := by
-      rw [hpy1, padicValNat.mul hq.ne_zero (by positivity), padicValNat.self hq1,
+      rw [hpy1, Nat.padicValNat_def, padicValNat.mul hq.ne_zero (by positivity),
+        padicValNat.self hq1,
         padicValNat.eq_zero_of_not_dvd]
       intro hd
       exact hq_one ((Nat.dvd_add_left (dvd_mul_right q T)).mp hd)
@@ -88,7 +89,7 @@ theorem RowValuationTransfer : OddPerfect.Steps.RowValuationTransfer := by
       apply ZMod.pow_card_sub_one_eq_one
       rwa [Ne, ZMod.natCast_eq_zero_iff]
     have hqq : padicValNat q (q - 1) = 0 := by
-      apply padicValNat.eq_zero_of_not_dvd
+      rw [Nat.padicValNat_def]; apply padicValNat.eq_zero_of_not_dvd
       intro hd
       have := Nat.le_of_dvd (by omega) hd
       omega
@@ -100,15 +101,15 @@ theorem RowValuationTransfer : OddPerfect.Steps.RowValuationTransfer := by
       have h2 := padicValNat.pow_sub_pow (p := q) (x := p ^ k) (y := 1) hqo
         (Nat.one_lt_pow hk hp1) hkd (fun hh => hnp (hq.dvd_of_dvd_pow hh))
         (n := q - 1) (by omega)
-      simp only [one_pow, ← pow_mul] at h1 h2
+      simp only [one_pow, ← pow_mul, ← Nat.padicValNat_def] at h1 h2
       rw [mul_comm k] at h2
       omega
     have hm : q ∣ p ^ (c + 1) - 1 := hgeom ▸ dvd_mul_of_dvd_right hdvd _
     have hqy : q ∣ p ^ y - 1 := hpy1 ▸ dvd_mul_right _ _
     have hk1 := key y hy0 hqy
     have hk2 := key (c + 1) (by omega) hm
-    have hge : 1 ≤ padicValNat q (p ^ (q - 1) - 1) :=
-      one_le_padicValNat_of_dvd (by omega) hferm
+    have hge : 1 ≤ padicValNat q (p ^ (q - 1) - 1) := by
+      rw [Nat.padicValNat_def]; exact one_le_padicValNat_of_dvd (by omega) hferm
     omega
 
 end OddPerfect.Proofs
