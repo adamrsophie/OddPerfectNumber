@@ -582,3 +582,5 @@ import OddPerfect.TwoExceptionsNinetySevenCore
 import OddPerfect.TwoExceptionsNinetySeven
 import OddPerfect.FifthOrderReceivers
 import OddPerfect.EulerIndexPairFive
+import OddPerfect.EulerIndexPairFrame
+import OddPerfect.EulerIndexPairSmallCap
