@@ -562,3 +562,5 @@ import OddPerfect.EqualExponentCount61
 import OddPerfect.EqualExponentCount71
 import OddPerfect.EqualExponentCount73Data
 import OddPerfect.EqualExponentCount73
+import OddPerfect.EqualExponentCount79Data
+import OddPerfect.EqualExponentCount79
