@@ -608,3 +608,15 @@ import OddPerfect.EqualExponentCount109Data
 import OddPerfect.EqualExponentCount109
 import OddPerfect.EqualExponentCount113Data
 import OddPerfect.EqualExponentCount113
+import OddPerfect.ImpureRowTreeCheck
+import OddPerfect.ImpureRowTreeD01
+import OddPerfect.ImpureRowTreeD02
+import OddPerfect.ImpureRowTreeD03
+import OddPerfect.ImpureRowTreeD04
+import OddPerfect.ImpureRowTreeD05
+import OddPerfect.ImpureRowTreeD06
+import OddPerfect.ImpureRowTreeD07
+import OddPerfect.ImpureRowTreeD08
+import OddPerfect.ImpureRowTreeD09
+import OddPerfect.ImpureRowTreeD10
+import OddPerfect.ImpureRowCountSmall
