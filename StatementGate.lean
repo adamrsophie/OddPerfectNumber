@@ -3086,6 +3086,70 @@ theorem StatementGate.sigma_prime_pow_ten_add_one_ne_two_mul_sq :
     2 :=
   @OddPerfect.sigma_prime_pow_ten_add_one_ne_two_mul_sq
 
+/-! ## Counting certificates at 103 and 107, exceptions at 67 and 89, impure row counts -/
+
+theorem StatementGate.not_all_exponents_eq_one_hundred_two :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 102) → False :=
+  @OddPerfect.not_all_exponents_eq_one_hundred_two
+
+theorem StatementGate.not_all_exponents_eq_one_hundred_six :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 106) → False :=
+  @OddPerfect.not_all_exponents_eq_one_hundred_six
+
+theorem StatementGate.sixtyseven_dvd_of_two_exceptions :
+    ∀ {N a b : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, p ≠ a → p ≠ b → 67 ∣
+    (Nat.factorization N) p + 1) → 67 ∣ N :=
+  @OddPerfect.sixtyseven_dvd_of_two_exceptions
+
+theorem StatementGate.eightynine_dvd_of_two_exceptions :
+    ∀ {N a b : ℕ}, _root_.OddPerfect N → (∀ p ∈ Nat.primeFactors N, p ≠ a → p ≠ b → 89 ∣
+    (Nat.factorization N) p + 1) → 89 ∣ N :=
+  @OddPerfect.eightynine_dvd_of_two_exceptions
+
+theorem StatementGate.two_le_card_of_pure_outside :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → 7 ≤ l → (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p +
+    1) → ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃ r w, _root_.Nat.Prime r ∧
+    (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) → 2 ≤ Finset.card M :=
+  @OddPerfect.two_le_card_of_pure_outside
+
+theorem StatementGate.three_le_card_of_pure_outside :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → 31 ≤ l → (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p +
+    1) → ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃ r w, _root_.Nat.Prime r ∧
+    (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) → 3 ≤ Finset.card M :=
+  @OddPerfect.three_le_card_of_pure_outside
+
+theorem StatementGate.four_le_card_of_pure_outside :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → 523 ≤ l → (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p
+    + 1) → ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃ r w, _root_.Nat.Prime r
+    ∧ (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) → 4 ≤ Finset.card M :=
+  @OddPerfect.four_le_card_of_pure_outside
+
+theorem StatementGate.not_all_pure_common_index_one_hole :
+    ∀ {N q l d : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → 13 ≤ l → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ d → l ∣
+    (Nat.factorization N) p + 1) → (∀ p ∈ Nat.primeFactors N, p ≠ q → p ≠ d → ∃ r w,
+    _root_.Nat.Prime r ∧ (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) →
+    False :=
+  @OddPerfect.not_all_pure_common_index_one_hole
+
+theorem StatementGate.exists_centers_of_pure_cover :
+    ∀ {l K : ℕ} {S X : Finset ℕ}, _root_.Nat.Prime l → l ≠ 2 →
+    (∀ p ∈ S, _root_.Nat.Prime p ∧ p ≠ 2) → Finset.card X ≤ K → K + 1 < 3 ^ (l - 1) →
+    (∀ p ∈ S, p ∉ X → ∃ r ∈ X, ∃ w, _root_.Nat.Prime r ∧
+      ∑ i ∈ Finset.range l, p ^ i = r ^ w) →
+    ∃ C : Finset ℕ, C ⊆ S ∧ Finset.card C ≤ K ∧
+      (∀ p ∈ S, p % l ≠ 1 → p ≤ 3 ^ (l - 1) → p ∈ C) ∧
+      ∏ p ∈ S \ C, ((p : ℚ) / ((p : ℚ) - 1)) ≤
+        (∏ j ∈ Finset.range K,
+            (((2 * (j + 1) * l + 1 : ℕ) : ℚ) / ((2 * (j + 1) * l : ℕ) : ℚ))) *
+          (((3 : ℚ) ^ (l - 1) - 1) / ((3 : ℚ) ^ (l - 1) - 1 - (K : ℚ))) :=
+  @OddPerfect.exists_centers_of_pure_cover
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -3930,6 +3994,20 @@ def expected : List (Name × Name) :=
     (`StatementGate.eulerIndex_pair_exponent_twelve, ``OddPerfect.eulerIndex_pair_exponent_twelve),
     (`StatementGate.sigma_prime_pow_ten_add_one_ne_two_mul_sq,
       ``OddPerfect.sigma_prime_pow_ten_add_one_ne_two_mul_sq),
+    (`StatementGate.not_all_exponents_eq_one_hundred_two,
+      ``OddPerfect.not_all_exponents_eq_one_hundred_two),
+    (`StatementGate.not_all_exponents_eq_one_hundred_six,
+      ``OddPerfect.not_all_exponents_eq_one_hundred_six),
+    (`StatementGate.sixtyseven_dvd_of_two_exceptions,
+      ``OddPerfect.sixtyseven_dvd_of_two_exceptions),
+    (`StatementGate.eightynine_dvd_of_two_exceptions,
+      ``OddPerfect.eightynine_dvd_of_two_exceptions),
+    (`StatementGate.two_le_card_of_pure_outside, ``OddPerfect.two_le_card_of_pure_outside),
+    (`StatementGate.three_le_card_of_pure_outside, ``OddPerfect.three_le_card_of_pure_outside),
+    (`StatementGate.four_le_card_of_pure_outside, ``OddPerfect.four_le_card_of_pure_outside),
+    (`StatementGate.not_all_pure_common_index_one_hole,
+      ``OddPerfect.not_all_pure_common_index_one_hole),
+    (`StatementGate.exists_centers_of_pure_cover, ``OddPerfect.exists_centers_of_pure_cover),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
