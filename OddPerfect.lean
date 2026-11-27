@@ -639,3 +639,4 @@ import OddPerfect.EulerIndexPairCommon
 import OddPerfect.ReceiverSqueeze
 import OddPerfect.EqualExponentCount127Data
 import OddPerfect.EqualExponentCount127
+import OddPerfect.DisjointReceiverTail
