@@ -635,3 +635,4 @@ import OddPerfect.ImpureRowLog
 import OddPerfect.ExceptionsExplicit
 import OddPerfect.IndexColumnLower
 import OddPerfect.DivisorRichExceptions
+import OddPerfect.EulerIndexPairCommon
