@@ -3450,6 +3450,67 @@ theorem StatementGate.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten :
     ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) :=
   @OddPerfect.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten
 
+/-! ## Receiver bound 401, row capacity, Euler index of equal exponents -/
+
+theorem StatementGate.eulerIndex_pair_receiver_ge_wide :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors ((ArithmeticFunction.sigma
+    1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} : Finset ℕ) = ({r, s} : Finset ℕ) ∧
+    t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v) ∧
+    ((ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u → ¬3 ∣ N ∧ 401 ≤ u ∧
+    400 ≤ (Nat.factorization N) t) :=
+  @OddPerfect.eulerIndex_pair_receiver_ge_wide
+
+theorem StatementGate.weighted_row_capacity :
+    ∀ {q w T r : ℕ} {P V : Finset ℕ}, 0 < w → q ∉ P → Finset.card P ≤ r →
+      (∀ n ∈ V, 1 < n ∧ ∀ p ∈ Nat.primeFactors n, p = q ∨ p ∈ P) →
+      T * Finset.card V ≤
+        ∑ n ∈ V, (w * (Nat.factorization n) q + ∑ p ∈ P, (Nat.factorization n) p) +
+          ∑ i ∈ Finset.range T, ∑ j ∈ Finset.range T,
+            if (i = 0 ∧ j = 0) ∨ T ≤ w * i + j then 0
+            else (T - (w * i + j)) * Nat.choose (j + r - 1) j :=
+  @OddPerfect.weighted_row_capacity
+
+theorem StatementGate.not_all_exponents_eq_pred_of_lt_131 :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 → l < 131 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) → False :=
+  @OddPerfect.not_all_exponents_eq_pred_of_lt_131
+
+theorem StatementGate.equal_exponents_row_capacity :
+    ∀ {N q a m l w T r : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 →
+      ¬q ∣ m → _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) → 0 < w →
+      Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ≤ r + 1 →
+      T * (l - padicValNat l (a + 1)) ≤ w * a + r * (l - 1) +
+        ∑ i ∈ Finset.range T, ∑ j ∈ Finset.range T,
+          if (i = 0 ∧ j = 0) ∨ T ≤ w * i + j then 0
+          else (T - (w * i + j)) * Nat.choose (j + r - 1) j :=
+  @OddPerfect.equal_exponents_row_capacity
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_equal_exponents :
+    ∀ {N q m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      6 ≤ Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_equal_exponents
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_five :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 →
+      ¬q ∣ m → a ≤ 5 → _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      6 ≤ Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ∨
+        l = 131 :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_five
+
+theorem StatementGate.index_le_of_card_primeFactors_eulerIndex_le_six :
+    ∀ {N q m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) ≤ 6 →
+      l ≤ 457 :=
+  @OddPerfect.index_le_of_card_primeFactors_eulerIndex_le_six
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4384,6 +4445,20 @@ def expected : List (Name × Name) :=
       ``OddPerfect.index_pred_le_card_impure_of_not_dvd_special_index),
     (`StatementGate.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten,
       ``OddPerfect.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten),
+    (`StatementGate.eulerIndex_pair_receiver_ge_wide,
+      ``OddPerfect.eulerIndex_pair_receiver_ge_wide),
+    (`StatementGate.weighted_row_capacity,
+      ``OddPerfect.weighted_row_capacity),
+    (`StatementGate.not_all_exponents_eq_pred_of_lt_131,
+      ``OddPerfect.not_all_exponents_eq_pred_of_lt_131),
+    (`StatementGate.equal_exponents_row_capacity,
+      ``OddPerfect.equal_exponents_row_capacity),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_equal_exponents,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_equal_exponents),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_five,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_five),
+    (`StatementGate.index_le_of_card_primeFactors_eulerIndex_le_six,
+      ``OddPerfect.index_le_of_card_primeFactors_eulerIndex_le_six),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
