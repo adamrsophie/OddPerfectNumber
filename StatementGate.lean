@@ -3222,6 +3222,29 @@ theorem StatementGate.dvd_of_three_exceptions_uniform :
     Nat.primeFactors N, p ≠ a → p ≠ b → p ≠ c → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
   @OddPerfect.dvd_of_three_exceptions_uniform
 
+/-! ## Any bounded number of exceptions for a large common index prime -/
+
+theorem StatementGate.exists_abundancy_gap_general :
+    ∀ (s : ℕ), ∃ ε : ℚ, 0 < ε ∧
+      ∀ (C : Finset ℕ) (e : ℕ → ℕ) (q : ℕ), Finset.card C ≤ s →
+        (∀ c ∈ C, _root_.Nat.Prime c ∧ c ≠ 2) → (∀ c ∈ C, c ≠ q → Even (e c)) →
+        (q ∈ C → q % 4 = 1 ∧ e q % 4 = 1) →
+        ∏ c ∈ C, (((ArithmeticFunction.sigma 1) (c ^ e c) : ℚ) / ((c : ℚ) ^ e c)) < 2 →
+        ∏ c ∈ C, (((ArithmeticFunction.sigma 1) (c ^ e c) : ℚ) / ((c : ℚ) ^ e c)) < 2 - ε :=
+  @OddPerfect.exists_abundancy_gap_general
+
+theorem StatementGate.exists_index_bound_of_exceptions :
+    ∀ (s : ℕ), ∃ L : ℕ, ∀ {N l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → L ≤ l →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
+  @OddPerfect.exists_index_bound_of_exceptions
+
+theorem StatementGate.exists_index_bound_of_six_exceptions :
+    ∃ L : ℕ, ∀ {N l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → L ≤ l →
+      ∀ E : Finset ℕ, Finset.card E ≤ 6 →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
+  @OddPerfect.exists_index_bound_of_six_exceptions
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4100,6 +4123,12 @@ def expected : List (Name × Name) :=
       ``OddPerfect.dvd_of_two_exceptions_uniform),
     (`StatementGate.dvd_of_three_exceptions_uniform,
       ``OddPerfect.dvd_of_three_exceptions_uniform),
+    (`StatementGate.exists_abundancy_gap_general,
+      ``OddPerfect.exists_abundancy_gap_general),
+    (`StatementGate.exists_index_bound_of_exceptions,
+      ``OddPerfect.exists_index_bound_of_exceptions),
+    (`StatementGate.exists_index_bound_of_six_exceptions,
+      ``OddPerfect.exists_index_bound_of_six_exceptions),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
