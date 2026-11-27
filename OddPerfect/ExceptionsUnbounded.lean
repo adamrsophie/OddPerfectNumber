@@ -16,8 +16,15 @@ every odd perfect number, since it has at least seven prime factors.
 
 Restricted result: the bound `L` is not explicit (the proof gives no value), so for each
 fixed `l` this says nothing about a given number of exceptions; the landed modules give
-`l ≥ 23` for two exceptions and `l ≥ 359` for three. No published source was checked;
+`l ≥ 23` for two exceptions and `l ≥ 359` for three. Published method, see below;
 novelty not verified. The odd perfect number conjecture remains open.
+
+Method. The count of monomials `p ^ i * p' ^ j` below a prime power modulus, all of them roots
+of `X ^ l = 1`, is Lemma 3.1 of T. Yamada, On finiteness of odd superperfect numbers
+(arXiv 0803.0437v7). A gap of this kind between two primes with a common dominant receiver is
+Lemma 3.2 there (with other constants), and the split of the sources into classes by dominant
+receiver is the proof of Lemma 3.3 there. That paper does not state the theorems of this
+module; no other source was checked.
 -/
 
 open ArithmeticFunction
@@ -32,7 +39,7 @@ theorem generalGapStatement_holds (s : ℕ) : GeneralGapStatement s :=
 /-- For every `s` there is a bound `L` such that for every prime `l ≥ L`: if every prime
 factor of an odd perfect number `N` outside a set `E` of at most `s` numbers has an index
 divisible by `l`, and some prime factor of `N` lies outside `E`, then `l` divides `N`.
-Restricted result; the bound `L` is not explicit; no published source was checked; novelty
+Restricted result; the bound `L` is not explicit; published method, see header; novelty
 not verified. The odd perfect number conjecture remains open. -/
 theorem exists_index_bound_of_exceptions (s : ℕ) :
     ∃ L : ℕ, ∀ {N l : ℕ}, OddPerfect N → l.Prime → L ≤ l →
@@ -43,7 +50,7 @@ theorem exists_index_bound_of_exceptions (s : ℕ) :
 /-- At most six exceptions: there is a bound `L` such that for every prime `l ≥ L`, an odd
 perfect number all of whose prime factors outside a set `E` of at most six numbers have an
 index divisible by `l` is divisible by `l`. Restricted result; the bound `L` is not explicit;
-no published source was checked; novelty not verified. The odd perfect number conjecture
+published method, see header; novelty not verified. The odd perfect number conjecture
 remains open. -/
 theorem exists_index_bound_of_six_exceptions :
     ∃ L : ℕ, ∀ {N l : ℕ}, OddPerfect N → l.Prime → L ≤ l →

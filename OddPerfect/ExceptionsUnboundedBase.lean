@@ -20,8 +20,15 @@ multiply to less than `2`, hence to less than `2 - ε` by the gap statement. The
 the compatible primes above `3 ^ G` contribute at most `1 / (1 - x)` with
 `x = S / (3 ^ G - 1) + S / (2 l) ≤ ε / 2`.
 
-Restricted result; no published source was checked; novelty not verified. The odd perfect
+Restricted result; published method, see below; novelty not verified. The odd perfect
 number conjecture remains open.
+
+Method. The count of monomials `p ^ i * p' ^ j` below a prime power modulus, all of them roots
+of `X ^ l = 1`, is Lemma 3.1 of T. Yamada, On finiteness of odd superperfect numbers
+(arXiv 0803.0437v7). A gap of this kind between two primes with a common dominant receiver is
+Lemma 3.2 there (with other constants), and the split of the sources into classes by dominant
+receiver is the proof of Lemma 3.3 there. That paper does not state the theorems of this
+module; no other source was checked.
 -/
 
 open ArithmeticFunction
@@ -447,7 +454,7 @@ end ExcS
 every set `E` of at most `s` natural numbers with a prime factor of `N` outside `E` and with
 `l ∣ e_p + 1` for every prime factor `p ∉ E` of `N` satisfy `l ∣ N`. Restricted result. The
 bound `L` is not explicit: the proof gives no value for it. For two and three exceptions the
-landed modules give `l ≥ 23` and `l ≥ 359`. No published source was checked; novelty not
+landed modules give `l ≥ 23` and `l ≥ 359`. Published method, see header; novelty not
 verified. The odd perfect number conjecture remains open. -/
 theorem exists_index_bound_of_exceptions_of (hgap : ∀ s, GeneralGapStatement s) (s : ℕ) :
     ∃ L : ℕ, ∀ {N l : ℕ}, OddPerfect N → l.Prime → L ≤ l →

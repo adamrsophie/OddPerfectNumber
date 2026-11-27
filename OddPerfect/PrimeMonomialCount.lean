@@ -15,8 +15,11 @@ Write `R(x) = ∑ i < l, x ^ i` for a prime `l` and let `d ≠ l` be a prime.
   `p ^ i * p' ^ j`, `i + G j ≤ A`, are all below `d ^ min x x'` and are all `l`th roots of unity
   modulo that power.
 
-No odd perfect number appears in this module. Restricted result; no published source was
-checked; novelty not verified.
+No odd perfect number appears in this module. Published method, see below.
+
+Method. The counting argument of `pow_lt_of_common_receiver_power` is that of Lemma 3.1 of
+T. Yamada, On finiteness of odd superperfect numbers (arXiv 0803.0437v7); the statement here
+uses the region `i + G j ≤ A` in place of the triangle used there.
 -/
 
 open Finset
@@ -102,8 +105,7 @@ open OddPerfect.PrimeMonomial
 /-- Gap between two primes whose rows share a large power of one receiver. Let `l` and `d ≠ l`
 be primes and `p < p'` primes with `d ^ x ∣ R(p)`, `d ^ x' ∣ R(p')`, where
 `R(y) = ∑ i < l, y ^ i`, and `p ^ A` below both powers. If the number of pairs `(i, j)` with
-`i + G j ≤ A` exceeds `l`, then `p ^ G < p'`. Restricted result; no published source was
-checked; novelty not verified. -/
+`i + G j ≤ A` exceeds `l`, then `p ^ G < p'`. Published method, see the module header. -/
 theorem pow_lt_of_common_receiver_power {l d x x' p p' A G : ℕ} (hl : l.Prime) (hd : d.Prime)
     (hdl : d ≠ l) (hp : p.Prime) (hp' : p'.Prime) (hlt : p < p')
     (h : d ^ x ∣ ∑ i ∈ Finset.range l, p ^ i) (h' : d ^ x' ∣ ∑ i ∈ Finset.range l, p' ^ i)

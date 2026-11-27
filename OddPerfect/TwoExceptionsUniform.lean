@@ -17,9 +17,16 @@ the number of receivers, and every interval `(81 ^ j, 81 ^ (j + 1)]` holds at mo
 of them. The receivers are prime factors of `N` that are `1` modulo `2 l`. Hence
 `∏ p / (p - 1) ≤ (15 / 8) (47 / 46) (93 / 92) (40 / 39) < 2`, a contradiction.
 
-Restricted result; no published source was checked; novelty not verified. Three exceptions
+Restricted result; published method, see below; novelty not verified. Three exceptions
 (see `ThreeExceptionsUniform` for `l ≥ 359`) and primes `l` below `23` are not covered by this
 module. The odd perfect number conjecture remains open.
+
+Method. The count of monomials `p ^ i * p' ^ j` below a prime power modulus, all of them roots
+of `X ^ l = 1`, is Lemma 3.1 of T. Yamada, On finiteness of odd superperfect numbers
+(arXiv 0803.0437v7). A gap of this kind between two primes with a common dominant receiver is
+Lemma 3.2 there (with other constants), and the split of the sources into classes by dominant
+receiver is the proof of Lemma 3.3 there. That paper does not state the theorems of this
+module; no other source was checked.
 -/
 
 namespace OddPerfect.ExcUniform
@@ -93,7 +100,7 @@ open OddPerfect.TwoExcGen OddPerfect.ExcUniform
 /-- Let `l ≥ 23` be a prime and let `a` and `b` be arbitrary natural numbers. An odd perfect
 number all of whose prime factors other than `a` and `b` have an index divisible by `l` is
 divisible by `l`. Restricted result; three exceptions and primes `l` below `23` are not
-covered by this module; no published source was checked; novelty not verified. The odd
+covered by this module; published method, see header; novelty not verified. The odd
 perfect number conjecture remains open. -/
 theorem dvd_of_two_exceptions_uniform {N l a b : ℕ} (h : OddPerfect N) (hl : l.Prime)
     (hl23 : 23 ≤ l)

@@ -19,8 +19,15 @@ satisfy `p ^ (l - 1) < p'` (`pow_lt_of_common_receiver_power`), so a class of `m
 reaches `3 ^ ((l - 1) ^ (m - 1))` and `N ≥ 3 ^ ((l - 1) ^ m)`, while `ω(N) ≤ s (m + 1)`.
 With `N < 2 ^ (4 ^ ω(N))` this gives `(l - 1) ^ m < (16 ^ s) ^ m`.
 
-Restricted result; the common index family is not excluded; no published source was checked;
+Restricted result; the common index family is not excluded; published method, see below;
 novelty not verified. The odd perfect number conjecture remains open.
+
+Method. The count of monomials `p ^ i * p' ^ j` below a prime power modulus, all of them roots
+of `X ^ l = 1`, is Lemma 3.1 of T. Yamada, On finiteness of odd superperfect numbers
+(arXiv 0803.0437v7). A gap of this kind between two primes with a common dominant receiver is
+Lemma 3.2 there (with other constants), and the split of the sources into classes by dominant
+receiver is the proof of Lemma 3.3 there. That paper does not state the theorems of this
+module; no other source was checked.
 -/
 
 open ArithmeticFunction
@@ -117,7 +124,7 @@ open OddPerfect.ExcUniform OddPerfect.RowLog
 ordinary index. If every ordinary row `σ(p ^ e_p)` with `p ∉ M` is a prime power, then
 `l - 1 < 16 ^ (M.card + 1)`. Restricted result; an explicit form of
 `exists_index_bound_of_impure_rows` (the bound there was not explicit); the common index family
-is not excluded; no published source was checked; novelty not verified. The odd perfect number
+is not excluded; published method, see header; novelty not verified. The odd perfect number
 conjecture remains open. -/
 theorem index_pred_lt_sixteen_pow_of_pure_outside {N q l : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hl : l.Prime)
@@ -247,8 +254,8 @@ theorem index_pred_lt_sixteen_pow_of_pure_outside {N q l : ℕ} (h : OddPerfect 
 ordinary index, with `16 ^ K < l`. Every set `M` outside of which all ordinary rows
 `σ(p ^ e_p)` are prime powers has at least `K` elements; so at least `K` ordinary rows are
 impure. Restricted result; an explicit form of `exists_index_bound_of_impure_rows` (the bound
-there was not explicit); the common index family is not excluded; no published source was
-checked; novelty not verified. The odd perfect number conjecture remains open. -/
+there was not explicit); the common index family is not excluded; published method, see
+header; novelty not verified. The odd perfect number conjecture remains open. -/
 theorem card_le_of_pure_outside_of_sixteen_pow_lt {N q l K : ℕ} (h : OddPerfect N) (hq : q.Prime)
     (hodd : Odd (N.factorization q)) (hl : l.Prime) (hK : 16 ^ K < l)
     (hcomp : ∀ p ∈ N.primeFactors, p ≠ q → l ∣ N.factorization p + 1) (M : Finset ℕ)

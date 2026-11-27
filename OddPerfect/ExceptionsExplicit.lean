@@ -20,8 +20,15 @@ prime `p ≥ 3 ^ (G ^ (m - 1))` with exponent at least `l - 1`, so
 `3 ^ (G ^ (m - 1) (l - 1)) ≤ N < 2 ^ (4 ^ ω(N))` with `ω(N) ≤ s (m + 1)`, while
 `G ^ (m - 1) (l - 1) ≥ (4 ^ s) ^ (m - 1) 16 ^ s = 4 ^ (s (m + 1))`.
 
-Restricted result; no published source was checked; novelty not verified. The odd perfect
+Restricted result; published method, see below; novelty not verified. The odd perfect
 number conjecture remains open.
+
+Method. The count of monomials `p ^ i * p' ^ j` below a prime power modulus, all of them roots
+of `X ^ l = 1`, is Lemma 3.1 of T. Yamada, On finiteness of odd superperfect numbers
+(arXiv 0803.0437v7). A gap of this kind between two primes with a common dominant receiver is
+Lemma 3.2 there (with other constants), and the split of the sources into classes by dominant
+receiver is the proof of Lemma 3.3 there. That paper does not state the theorems of this
+module; no other source was checked.
 -/
 
 open ArithmeticFunction
@@ -81,8 +88,8 @@ with `16 ^ s < l`. If some prime factor of `N` lies outside `E` and every prime 
 has `l ∣ e_p + 1`, then `l ∣ N`. Restricted result; an explicit form of
 `exists_index_bound_of_exceptions` (the bound there was not explicit); for two and three
 exceptions the landed modules give the smaller bounds `l ≥ 23` and `l ≥ 359`. The hypothesis
-`hex` is needed: with every prime factor in `E` the index hypothesis is empty. No published
-source was checked; novelty not verified. The odd perfect number conjecture remains open. -/
+`hex` is needed: with every prime factor in `E` the index hypothesis is empty. Published method,
+see header; novelty not verified. The odd perfect number conjecture remains open. -/
 theorem dvd_of_exceptions_of_sixteen_pow_lt {N l s : ℕ} (h : OddPerfect N) (hl : l.Prime)
     (hs : 16 ^ s < l) (E : Finset ℕ) (hE : E.card ≤ s) (hex : ∃ p ∈ N.primeFactors, p ∉ E)
     (hcomp : ∀ p ∈ N.primeFactors, p ∉ E → l ∣ N.factorization p + 1) : l ∣ N := by
@@ -254,7 +261,7 @@ theorem dvd_of_exceptions_of_sixteen_pow_lt {N l s : ℕ} (h : OddPerfect N) (hl
 /-- Let `N` be an odd perfect number, `E` a set of at most six natural numbers and `l` a prime
 with `16 ^ 6 < l`. If every prime factor `p ∉ E` of `N` has `l ∣ e_p + 1`, then `l ∣ N`. Some
 prime factor lies outside `E`, since `N` has at least seven prime factors. Restricted result;
-an explicit form of `exists_index_bound_of_six_exceptions`; no published source was checked;
+an explicit form of `exists_index_bound_of_six_exceptions`; published method, see header;
 novelty not verified. The odd perfect number conjecture remains open. -/
 theorem dvd_of_six_exceptions_of_lt {N l : ℕ} (h : OddPerfect N) (hl : l.Prime)
     (hl6 : 16 ^ 6 < l) (E : Finset ℕ) (hE : E.card ≤ 6)

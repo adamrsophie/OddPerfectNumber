@@ -21,9 +21,16 @@ receivers are prime factors of `N` that are `1` modulo `2 l`. Hence
 `2 ≤ (52514 / 26325) (719 / 718) (1437 / 1436) (2155 / 2154) (43046720 / 43046717) < 2`,
 a contradiction.
 
-Restricted result; no published source was checked; novelty not verified. Four exceptions are
+Restricted result; published method, see below; novelty not verified. Four exceptions are
 not covered, and primes `l` below `359` are not covered by this module. The odd perfect number
 conjecture remains open.
+
+Method. The count of monomials `p ^ i * p' ^ j` below a prime power modulus, all of them roots
+of `X ^ l = 1`, is Lemma 3.1 of T. Yamada, On finiteness of odd superperfect numbers
+(arXiv 0803.0437v7). A gap of this kind between two primes with a common dominant receiver is
+Lemma 3.2 there (with other constants), and the split of the sources into classes by dominant
+receiver is the proof of Lemma 3.3 there. That paper does not state the theorems of this
+module; no other source was checked.
 -/
 
 open ArithmeticFunction
@@ -166,7 +173,7 @@ open OddPerfect.TwoExcGen OddPerfect.ExcUniform OddPerfect.ExcUniform3
 /-- Let `l ≥ 359` be a prime and let `a`, `b` and `c` be arbitrary natural numbers. An odd
 perfect number all of whose prime factors other than `a`, `b` and `c` have an index divisible
 by `l` is divisible by `l`. Restricted result; four exceptions are not covered; primes `l`
-below `359` are not covered by this module; no published source was checked; novelty not
+below `359` are not covered by this module; published method, see header; novelty not
 verified. The odd perfect number conjecture remains open. -/
 theorem dvd_of_three_exceptions_uniform {N l a b c : ℕ} (h : OddPerfect N) (hl : l.Prime)
     (hl359 : 359 ≤ l)
