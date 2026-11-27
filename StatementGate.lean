@@ -3393,6 +3393,13 @@ theorem StatementGate.index_le_of_common_index_eulerIndex :
         4 ^ (Finset.card (Nat.primeFactors (ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k)) + 1) :=
   @OddPerfect.index_le_of_common_index_eulerIndex
 
+/-! ## Equal exponents 126 -/
+
+theorem StatementGate.not_all_exponents_eq_one_hundred_twenty_six :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 126) → False :=
+  @OddPerfect.not_all_exponents_eq_one_hundred_twenty_six
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4313,6 +4320,8 @@ def expected : List (Name × Name) :=
       ``OddPerfect.index_le_of_common_index_receivers),
     (`StatementGate.index_le_of_common_index_eulerIndex,
       ``OddPerfect.index_le_of_common_index_eulerIndex),
+    (`StatementGate.not_all_exponents_eq_one_hundred_twenty_six,
+      ``OddPerfect.not_all_exponents_eq_one_hundred_twenty_six),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
