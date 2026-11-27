@@ -625,3 +625,5 @@ import OddPerfect.AbundancyGap
 import OddPerfect.ImpureRowUnboundedBase
 import OddPerfect.ImpureRowUnbounded
 import OddPerfect.ThreeComponentGap
+import OddPerfect.PrimeMonomialCount
+import OddPerfect.TwoExceptionsUniform
