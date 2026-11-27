@@ -629,3 +629,5 @@ import OddPerfect.PrimeMonomialCount
 import OddPerfect.TwoExceptionsUniform
 import OddPerfect.ThreeExceptionsUniform
 import OddPerfect.AbundancyGapGeneral
+import OddPerfect.ExceptionsUnboundedBase
+import OddPerfect.ExceptionsUnbounded
