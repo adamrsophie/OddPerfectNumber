@@ -658,3 +658,5 @@ import OddPerfect.EulerIndexPairReceiverWideB
 import OddPerfect.EulerIndexPairReceiverWideC
 import OddPerfect.EulerIndexPairReceiverWide
 import OddPerfect.RowCapacity
+import OddPerfect.EqualExponentBelow131
+import OddPerfect.EqualExponentEulerIndex
