@@ -637,3 +637,5 @@ import OddPerfect.IndexColumnLower
 import OddPerfect.DivisorRichExceptions
 import OddPerfect.EulerIndexPairCommon
 import OddPerfect.ReceiverSqueeze
+import OddPerfect.EqualExponentCount127Data
+import OddPerfect.EqualExponentCount127
