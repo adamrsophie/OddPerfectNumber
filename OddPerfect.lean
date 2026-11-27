@@ -640,3 +640,13 @@ import OddPerfect.ReceiverSqueeze
 import OddPerfect.EqualExponentCount127Data
 import OddPerfect.EqualExponentCount127
 import OddPerfect.DisjointReceiverTail
+import OddPerfect.EulerIndexPairReceiverCore
+import OddPerfect.EulerIndexPairReceiverPacking
+import OddPerfect.EulerIndexPairReceiverTableA
+import OddPerfect.EulerIndexPairReceiverTableB
+import OddPerfect.EulerIndexPairReceiverTableC
+import OddPerfect.EulerIndexPairReceiverTableD
+import OddPerfect.EulerIndexPairReceiverTableE
+import OddPerfect.EulerIndexPairReceiverTableF
+import OddPerfect.EulerIndexPairReceiverTableG
+import OddPerfect.EulerIndexPairReceiverTable
