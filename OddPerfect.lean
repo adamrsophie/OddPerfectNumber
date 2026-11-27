@@ -652,3 +652,8 @@ import OddPerfect.EulerIndexPairReceiverTableG
 import OddPerfect.EulerIndexPairReceiverTable
 import OddPerfect.EqualExponentImpureLinear
 import OddPerfect.EulerIndexPairSmallCapTen
+import OddPerfect.EulerIndexPairReceiverFastEnv
+import OddPerfect.EulerIndexPairReceiverWideA
+import OddPerfect.EulerIndexPairReceiverWideB
+import OddPerfect.EulerIndexPairReceiverWideC
+import OddPerfect.EulerIndexPairReceiverWide
