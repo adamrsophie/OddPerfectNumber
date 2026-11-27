@@ -3177,6 +3177,51 @@ theorem StatementGate.four_le_card_of_pure_outside_all :
     (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) → 4 ≤ Finset.card M :=
   @OddPerfect.four_le_card_of_pure_outside_all
 
+/-! ## Impure rows unbounded, three component gap, uniform two and three exceptions -/
+
+theorem StatementGate.exists_abundancy_gap :
+    ∀ (K : ℕ), ∃ B : ℕ, ∃ ε : ℚ, 0 < ε ∧
+      ∀ (C : Finset ℕ) (e : ℕ → ℕ) (q : ℕ), Finset.card C ≤ K →
+        (∀ c ∈ C, _root_.Nat.Prime c ∧ c ≠ 2) → (∀ c ∈ C, c ≠ q → B ≤ e c) →
+        (q ∈ C → q % 4 = 1 ∧ e q % 4 = 1) →
+        ∏ c ∈ C, (((ArithmeticFunction.sigma 1) (c ^ e c) : ℚ) / ((c : ℚ) ^ e c)) ≤ 2 →
+        ∏ c ∈ C, (((ArithmeticFunction.sigma 1) (c ^ e c) : ℚ) / ((c : ℚ) ^ e c)) < 2 - ε :=
+  @OddPerfect.exists_abundancy_gap
+
+theorem StatementGate.exists_index_bound_of_impure_rows :
+    ∀ (K : ℕ), ∃ L : ℕ, ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q →
+      Odd ((Nat.factorization N) q) → _root_.Nat.Prime l → L ≤ l →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      ∀ M : Finset ℕ, (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M →
+        ∃ r w, _root_.Nat.Prime r ∧
+          (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) →
+      K ≤ Finset.card M :=
+  @OddPerfect.exists_index_bound_of_impure_rows
+
+theorem StatementGate.abundancy_three_components_le :
+    ∀ {N : ℕ}, _root_.OddPerfect N → ∀ {C : Finset ℕ}, C ⊆ Nat.primeFactors N →
+      Finset.card C ≤ 3 →
+      ∏ c ∈ C, (((ArithmeticFunction.sigma 1) (c ^ (Nat.factorization N) c) : ℚ) /
+        ((c : ℚ) ^ (Nat.factorization N) c)) ≤ 52514 / 26325 :=
+  @OddPerfect.abundancy_three_components_le
+
+theorem StatementGate.pow_lt_of_common_receiver_power :
+    ∀ {l d x x' p p' A G : ℕ}, _root_.Nat.Prime l → _root_.Nat.Prime d → d ≠ l → _root_.Nat.Prime
+    p → _root_.Nat.Prime p' → p < p' → d ^ x ∣ ∑ i ∈ Finset.range l, p ^ i → d ^ x' ∣ ∑ i ∈
+    Finset.range l, p' ^ i → p ^ A < d ^ x → p ^ A < d ^ x' → l < ∑ j ∈ Finset.range (A / G + 1),
+    (A - G * j + 1) → p ^ G < p' :=
+  @OddPerfect.pow_lt_of_common_receiver_power
+
+theorem StatementGate.dvd_of_two_exceptions_uniform :
+    ∀ {N l a b : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → 23 ≤ l → (∀ p ∈ Nat.primeFactors
+    N, p ≠ a → p ≠ b → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
+  @OddPerfect.dvd_of_two_exceptions_uniform
+
+theorem StatementGate.dvd_of_three_exceptions_uniform :
+    ∀ {N l a b c : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → 359 ≤ l → (∀ p ∈
+    Nat.primeFactors N, p ≠ a → p ≠ b → p ≠ c → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
+  @OddPerfect.dvd_of_three_exceptions_uniform
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4043,6 +4088,18 @@ def expected : List (Name × Name) :=
       ``OddPerfect.four_le_card_of_pure_outside_small),
     (`StatementGate.four_le_card_of_pure_outside_all,
       ``OddPerfect.four_le_card_of_pure_outside_all),
+    (`StatementGate.exists_abundancy_gap,
+      ``OddPerfect.exists_abundancy_gap),
+    (`StatementGate.exists_index_bound_of_impure_rows,
+      ``OddPerfect.exists_index_bound_of_impure_rows),
+    (`StatementGate.abundancy_three_components_le,
+      ``OddPerfect.abundancy_three_components_le),
+    (`StatementGate.pow_lt_of_common_receiver_power,
+      ``OddPerfect.pow_lt_of_common_receiver_power),
+    (`StatementGate.dvd_of_two_exceptions_uniform,
+      ``OddPerfect.dvd_of_two_exceptions_uniform),
+    (`StatementGate.dvd_of_three_exceptions_uniform,
+      ``OddPerfect.dvd_of_three_exceptions_uniform),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
