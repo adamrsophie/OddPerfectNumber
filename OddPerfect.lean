@@ -624,3 +624,4 @@ import OddPerfect.ImpureRowCountAll
 import OddPerfect.AbundancyGap
 import OddPerfect.ImpureRowUnboundedBase
 import OddPerfect.ImpureRowUnbounded
+import OddPerfect.ThreeComponentGap
