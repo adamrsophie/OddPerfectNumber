@@ -3279,6 +3279,120 @@ theorem StatementGate.dvd_of_six_exceptions_of_lt :
         (∀ p ∈ Nat.primeFactors N, p ∉ E → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
   @OddPerfect.dvd_of_six_exceptions_of_lt
 
+/-! ## Index columns, divisor rich exceptions and receiver counts -/
+
+theorem StatementGate.two_mul_index_pred_le_of_no_outside_feeder :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 → l ≠ q →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      (∀ p ∈ Nat.primeFactors N, p % l ≠ 1 →
+        ¬ l ∣ (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p)) →
+      2 * (l - 1) ≤
+        2 * Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) ^ 2 +
+        Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) :=
+  @OddPerfect.two_mul_index_pred_le_of_no_outside_feeder
+
+theorem StatementGate.two_mul_index_pred_le_of_prime_pow_index :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → ∃ γ, 1 ≤ γ ∧ (Nat.factorization N) p + 1 = l ^ γ) →
+      2 * (l - 1) ≤
+        2 * Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) ^ 2 +
+        Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) :=
+  @OddPerfect.two_mul_index_pred_le_of_prime_pow_index
+
+theorem StatementGate.two_mul_index_pred_le_of_fermat :
+    ∀ {N q l k : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 → l = 2 ^ k + 1 → l ≠ q → ¬ l ∣ q + 1 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      2 * (l - 1) ≤
+        2 * Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) ^ 2 +
+        Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) :=
+  @OddPerfect.two_mul_index_pred_le_of_fermat
+
+theorem StatementGate.two_mul_index_pred_le_three_mul_card_of_equal_exponents :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      2 * (l - 1) ≤
+        3 * Finset.card (Finset.filter (fun p => p ≠ q ∧ p % l = 1) (Nat.primeFactors N)) :=
+  @OddPerfect.two_mul_index_pred_le_three_mul_card_of_equal_exponents
+
+theorem StatementGate.two_mul_index_add_four_le_of_equal_exponents :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      2 * l + 4 ≤ 3 * Finset.card (Nat.primeFactors N) :=
+  @OddPerfect.two_mul_index_add_four_le_of_equal_exponents
+
+theorem StatementGate.padicValNat_mul_card_sub_le_factorization :
+    ∀ {N l D s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → D ∣ (Nat.factorization N) p + 1) →
+        padicValNat l D * (Finset.card (Finset.filter (fun d => l ∣ d) (Nat.divisors D)) - s) ≤
+          (Nat.factorization N) l :=
+  @OddPerfect.padicValNat_mul_card_sub_le_factorization
+
+theorem StatementGate.dvd_of_divisor_rich :
+    ∀ {N l D s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → D ∣ (Nat.factorization N) p + 1) →
+        l ∣ D → s < Finset.card (Finset.filter (fun d => l ∣ d) (Nat.divisors D)) → l ∣ N :=
+  @OddPerfect.dvd_of_divisor_rich
+
+theorem StatementGate.dvd_of_two_mul_lt_card_divisors :
+    ∀ {N l D s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → D ∣ (Nat.factorization N) p + 1) →
+        l ∣ D → 2 * s < Finset.card (Nat.divisors D) → l ∣ N :=
+  @OddPerfect.dvd_of_two_mul_lt_card_divisors
+
+theorem StatementGate.mul_sub_le_factorization_of_pow_dvd :
+    ∀ {N l b s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → l ^ b ∣ (Nat.factorization N) p + 1) →
+        b * (b - s) ≤ (Nat.factorization N) l :=
+  @OddPerfect.mul_sub_le_factorization_of_pow_dvd
+
+theorem StatementGate.dvd_of_exceptions_of_pow_dvd :
+    ∀ {N l b s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → l ^ b ∣ (Nat.factorization N) p + 1) →
+        s < b → l ∣ N :=
+  @OddPerfect.dvd_of_exceptions_of_pow_dvd
+
+theorem StatementGate.eulerIndex_pair_no_common_index :
+    ∀ {N q m r s l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s →
+      Nat.primeFactors (ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1) = {r, s} → _root_.Nat.Prime l →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) → False :=
+  @OddPerfect.eulerIndex_pair_no_common_index
+
+theorem StatementGate.false_of_few_receivers :
+    ∀ {N l b c : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → 1 ≤ b →
+      ∀ X T : Finset ℕ, Finset.card X ≤ b → T ⊆ Nat.primeFactors N → T.Nonempty →
+        Finset.card (Nat.primeFactors N \ T) ≤ c →
+        (∀ p ∈ T, l ∣ (Nat.factorization N) p + 1) →
+        (∀ p ∈ T, ∀ r, _root_.Nat.Prime r → r ∣ ∑ i ∈ Finset.range l, p ^ i → r = l ∨ r ∈ X) →
+        4 ^ (c + b) < l → 16 * b ^ 2 * 4 ^ b < l → False :=
+  @OddPerfect.false_of_few_receivers
+
+theorem StatementGate.index_le_of_common_index_receivers :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      l ≤ 16 * Finset.card (Finset.filter (fun r => r % l = 1) (Nat.primeFactors N)) ^ 2 *
+        4 ^ Finset.card (Finset.filter (fun r => r % l = 1) (Nat.primeFactors N)) :=
+  @OddPerfect.index_le_of_common_index_receivers
+
+theorem StatementGate.index_le_of_common_index_eulerIndex :
+    ∀ {N q k m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ k * m ^ 2 → ¬ q ∣ m →
+      _root_.Nat.Prime l →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      l ≤ 16 *
+          (Finset.card (Nat.primeFactors (ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k)) + 1) ^ 2 *
+        4 ^ (Finset.card (Nat.primeFactors (ArithmeticFunction.sigma 1 (m ^ 2) / q ^ k)) + 1) :=
+  @OddPerfect.index_le_of_common_index_eulerIndex
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4171,6 +4285,34 @@ def expected : List (Name × Name) :=
       ``OddPerfect.dvd_of_exceptions_of_sixteen_pow_lt),
     (`StatementGate.dvd_of_six_exceptions_of_lt,
       ``OddPerfect.dvd_of_six_exceptions_of_lt),
+    (`StatementGate.two_mul_index_pred_le_of_no_outside_feeder,
+      ``OddPerfect.two_mul_index_pred_le_of_no_outside_feeder),
+    (`StatementGate.two_mul_index_pred_le_of_prime_pow_index,
+      ``OddPerfect.two_mul_index_pred_le_of_prime_pow_index),
+    (`StatementGate.two_mul_index_pred_le_of_fermat,
+      ``OddPerfect.two_mul_index_pred_le_of_fermat),
+    (`StatementGate.two_mul_index_pred_le_three_mul_card_of_equal_exponents,
+      ``OddPerfect.two_mul_index_pred_le_three_mul_card_of_equal_exponents),
+    (`StatementGate.two_mul_index_add_four_le_of_equal_exponents,
+      ``OddPerfect.two_mul_index_add_four_le_of_equal_exponents),
+    (`StatementGate.padicValNat_mul_card_sub_le_factorization,
+      ``OddPerfect.padicValNat_mul_card_sub_le_factorization),
+    (`StatementGate.dvd_of_divisor_rich,
+      ``OddPerfect.dvd_of_divisor_rich),
+    (`StatementGate.dvd_of_two_mul_lt_card_divisors,
+      ``OddPerfect.dvd_of_two_mul_lt_card_divisors),
+    (`StatementGate.mul_sub_le_factorization_of_pow_dvd,
+      ``OddPerfect.mul_sub_le_factorization_of_pow_dvd),
+    (`StatementGate.dvd_of_exceptions_of_pow_dvd,
+      ``OddPerfect.dvd_of_exceptions_of_pow_dvd),
+    (`StatementGate.eulerIndex_pair_no_common_index,
+      ``OddPerfect.eulerIndex_pair_no_common_index),
+    (`StatementGate.false_of_few_receivers,
+      ``OddPerfect.false_of_few_receivers),
+    (`StatementGate.index_le_of_common_index_receivers,
+      ``OddPerfect.index_le_of_common_index_receivers),
+    (`StatementGate.index_le_of_common_index_eulerIndex,
+      ``OddPerfect.index_le_of_common_index_eulerIndex),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
