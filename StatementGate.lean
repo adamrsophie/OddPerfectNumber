@@ -3400,6 +3400,56 @@ theorem StatementGate.not_all_exponents_eq_one_hundred_twenty_six :
       (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 126) → False :=
   @OddPerfect.not_all_exponents_eq_one_hundred_twenty_six
 
+/-! ## Receiver packing, impure rows, exponent cap 10 -/
+
+theorem StatementGate.exists_center_of_common_receiver :
+    ∀ {d u B : ℕ} {S : Finset ℕ}, _root_.Nat.Prime d → 3 ≤ d → _root_.Nat.Prime u → u ≠ d →
+      3 ≤ B →
+      (∀ p ∈ S, _root_.Nat.Prime p ∧ B ≤ p ∧ ∃ w, ∑ i ∈ Finset.range d, p ^ i = u ^ w) →
+      ∃ C ⊆ S, Finset.card C ≤ 1 ∧
+        ∏ p ∈ S \ C, ((p : ℚ) / ((p : ℚ) - 1)) ≤
+          ((B : ℚ) ^ (d - 1) - 1) / ((B : ℚ) ^ (d - 1) - 2) :=
+  @OddPerfect.exists_center_of_common_receiver
+
+theorem StatementGate.eulerIndex_pair_receiver_ge_packing :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors ((ArithmeticFunction.sigma
+    1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} : Finset ℕ) = ({r, s} : Finset ℕ) ∧
+    t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v) ∧
+    ((ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u → ¬3 ∣ N ∧ 173 ≤ u ∧
+    172 ≤ (Nat.factorization N) t) :=
+  @OddPerfect.eulerIndex_pair_receiver_ge_packing
+
+theorem StatementGate.not_sigma_pow_pred_eq_prime_pow_of_mod_eq_one :
+    ∀ {l p : ℕ}, _root_.Nat.Prime l → l ≠ 2 → _root_.Nat.Prime p → p % l = 1 →
+      ¬∃ r w, _root_.Nat.Prime r ∧ (ArithmeticFunction.sigma 1) (p ^ (l - 1)) = r ^ w :=
+  @OddPerfect.not_sigma_pow_pred_eq_prime_pow_of_mod_eq_one
+
+theorem StatementGate.two_mul_index_pred_le_three_mul_card_impure :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃ r w, _root_.Nat.Prime r ∧
+        (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) →
+      2 * (l - 1) ≤ 3 * Finset.card M :=
+  @OddPerfect.two_mul_index_pred_le_three_mul_card_impure
+
+theorem StatementGate.index_pred_le_card_impure_of_not_dvd_special_index :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → l ≠ 2 →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) →
+      ¬l ∣ (Nat.factorization N) q + 1 →
+      ∀ (M : Finset ℕ), (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M → ∃ r w, _root_.Nat.Prime r ∧
+        (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) →
+      l - 1 ≤ Finset.card M :=
+  @OddPerfect.index_pred_le_card_impure_of_not_dvd_special_index
+
+theorem StatementGate.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten :
+    ∀ {N q m : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p ≤ 10) → 3 ≤ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 1))) :=
+  @OddPerfect.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4322,6 +4372,18 @@ def expected : List (Name × Name) :=
       ``OddPerfect.index_le_of_common_index_eulerIndex),
     (`StatementGate.not_all_exponents_eq_one_hundred_twenty_six,
       ``OddPerfect.not_all_exponents_eq_one_hundred_twenty_six),
+    (`StatementGate.exists_center_of_common_receiver,
+      ``OddPerfect.exists_center_of_common_receiver),
+    (`StatementGate.eulerIndex_pair_receiver_ge_packing,
+      ``OddPerfect.eulerIndex_pair_receiver_ge_packing),
+    (`StatementGate.not_sigma_pow_pred_eq_prime_pow_of_mod_eq_one,
+      ``OddPerfect.not_sigma_pow_pred_eq_prime_pow_of_mod_eq_one),
+    (`StatementGate.two_mul_index_pred_le_three_mul_card_impure,
+      ``OddPerfect.two_mul_index_pred_le_three_mul_card_impure),
+    (`StatementGate.index_pred_le_card_impure_of_not_dvd_special_index,
+      ``OddPerfect.index_pred_le_card_impure_of_not_dvd_special_index),
+    (`StatementGate.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten,
+      ``OddPerfect.three_le_card_primeFactors_eulerIndex_of_exponent_le_ten),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
