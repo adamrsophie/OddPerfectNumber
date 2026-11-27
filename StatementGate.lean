@@ -3245,6 +3245,40 @@ theorem StatementGate.exists_index_bound_of_six_exceptions :
         (∀ p ∈ Nat.primeFactors N, p ∉ E → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
   @OddPerfect.exists_index_bound_of_six_exceptions
 
+/-! ## Explicit bounds for impure rows and exceptions -/
+
+theorem StatementGate.index_pred_lt_sixteen_pow_of_pure_outside :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      ∀ M : Finset ℕ, (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M →
+        ∃ r w, _root_.Nat.Prime r ∧
+          (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) →
+      l - 1 < 16 ^ (Finset.card M + 1) :=
+  @OddPerfect.index_pred_lt_sixteen_pow_of_pure_outside
+
+theorem StatementGate.card_le_of_pure_outside_of_sixteen_pow_lt :
+    ∀ {N q l K : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+      _root_.Nat.Prime l → 16 ^ K < l →
+      (∀ p ∈ Nat.primeFactors N, p ≠ q → l ∣ (Nat.factorization N) p + 1) →
+      ∀ M : Finset ℕ, (∀ p ∈ Nat.primeFactors N, p ≠ q → p ∉ M →
+        ∃ r w, _root_.Nat.Prime r ∧
+          (ArithmeticFunction.sigma 1) (p ^ (Nat.factorization N) p) = r ^ w) →
+      K ≤ Finset.card M :=
+  @OddPerfect.card_le_of_pure_outside_of_sixteen_pow_lt
+
+theorem StatementGate.dvd_of_exceptions_of_sixteen_pow_lt :
+    ∀ {N l s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → 16 ^ s < l →
+      ∀ E : Finset ℕ, Finset.card E ≤ s → (∃ p ∈ Nat.primeFactors N, p ∉ E) →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
+  @OddPerfect.dvd_of_exceptions_of_sixteen_pow_lt
+
+theorem StatementGate.dvd_of_six_exceptions_of_lt :
+    ∀ {N l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime l → 16 ^ 6 < l →
+      ∀ E : Finset ℕ, Finset.card E ≤ 6 →
+        (∀ p ∈ Nat.primeFactors N, p ∉ E → l ∣ (Nat.factorization N) p + 1) → l ∣ N :=
+  @OddPerfect.dvd_of_six_exceptions_of_lt
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4129,6 +4163,14 @@ def expected : List (Name × Name) :=
       ``OddPerfect.exists_index_bound_of_exceptions),
     (`StatementGate.exists_index_bound_of_six_exceptions,
       ``OddPerfect.exists_index_bound_of_six_exceptions),
+    (`StatementGate.index_pred_lt_sixteen_pow_of_pure_outside,
+      ``OddPerfect.index_pred_lt_sixteen_pow_of_pure_outside),
+    (`StatementGate.card_le_of_pure_outside_of_sixteen_pow_lt,
+      ``OddPerfect.card_le_of_pure_outside_of_sixteen_pow_lt),
+    (`StatementGate.dvd_of_exceptions_of_sixteen_pow_lt,
+      ``OddPerfect.dvd_of_exceptions_of_sixteen_pow_lt),
+    (`StatementGate.dvd_of_six_exceptions_of_lt,
+      ``OddPerfect.dvd_of_six_exceptions_of_lt),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
