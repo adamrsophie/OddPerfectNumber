@@ -27,9 +27,19 @@ Consequences:
   factors then `l ≤ 457`.
 
 These are restricted results for the family where all ordinary exponents equal `l - 1`. The
-prime `l` and the number of prime factors of the Euler index both stay unbounded: the family
-is not excluded, and the odd perfect number conjecture remains open. Restricted result; no
-published source was checked; novelty not verified.
+number of prime factors of the Euler index is not bounded here. The prime `l` is already
+bounded through that number by `index_le_of_common_index_eulerIndex` (module
+`OddPerfect.ReceiverSqueeze`): `l ≤ 16 (ω(J) + 1) ^ 2 4 ^ (ω(J) + 1)` for every special
+exponent, which is `2359296` at five prime factors. The bounds of this module are smaller at
+small special exponent (`122` at `a = 1` and five prime factors), small enough to meet the
+excluded primes below `131`. The family is not excluded, and the odd perfect number conjecture
+remains open.
+
+Literature. T. Yamada, A new upper bound for odd perfect numbers of a special form
+(arXiv 1706.09341v3, the author's revised version of Colloq. Math. 156 (2019), 15 to 23),
+Theorem 1.1, bounds the number of prime factors of `N` by the common exponent, which is the
+opposite direction. That text does not state the theorems of this module; no other source was
+checked; novelty not verified.
 -/
 
 open ArithmeticFunction
