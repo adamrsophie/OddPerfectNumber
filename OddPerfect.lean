@@ -674,3 +674,6 @@ import OddPerfect.EqualExponentEulerIndexFive
 import OddPerfect.EqualExponentSupport
 import OddPerfect.EqualExponentSupportData
 import OddPerfect.EqualExponentSupportIndex
+import OddPerfect.EqualExponentCount131Data
+import OddPerfect.EqualExponentCount131
+import OddPerfect.EqualExponentBelow137
