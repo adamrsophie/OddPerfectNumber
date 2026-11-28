@@ -684,3 +684,6 @@ import OddPerfect.EqualExponentSupportRange
 import OddPerfect.EqualExponentSupportModFour
 import OddPerfect.EqualExponentSupportModFourData
 import OddPerfect.EqualExponentSupportEvery
+import OddPerfect.EqualExponentSupportSplit
+import OddPerfect.EqualExponentSupportSplitData
+import OddPerfect.EqualExponentSupportAll
