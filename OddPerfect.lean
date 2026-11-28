@@ -679,3 +679,4 @@ import OddPerfect.EqualExponentCount131
 import OddPerfect.EqualExponentBelow137
 import OddPerfect.EqualExponentSupportWide
 import OddPerfect.EqualExponentSpecialLowerPow
+import OddPerfect.EqualExponentSupportTable
