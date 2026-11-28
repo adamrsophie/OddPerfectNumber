@@ -3700,6 +3700,22 @@ theorem StatementGate.not_all_exponents_eq_pred_of_lt_137 :
     N) p = l - 1) → False :=
   @OddPerfect.not_all_exponents_eq_pred_of_lt_137
 
+/-! ## Support certificate for the index prime 197 with a wider source bound -/
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_forty_nine :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → a ≤
+    49 → _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p =
+    l - 1) → 6 ≤ Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ∨ l
+    = 179 ∧ 33 ≤ a :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_forty_nine
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_special_le_forty_nine_of_ne :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → a ≤
+    49 → _root_.Nat.Prime l → l ≠ 2 → l ≠ 179 → (∀ p ∈ Nat.primeFactors N, p ≠ q →
+    (Nat.factorization N) p = l - 1) → 6 ≤ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_special_le_forty_nine_of_ne
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4691,6 +4707,10 @@ def expected : List (Name × Name) :=
       ``OddPerfect.not_all_exponents_eq_one_hundred_thirty),
     (`StatementGate.not_all_exponents_eq_pred_of_lt_137,
       ``OddPerfect.not_all_exponents_eq_pred_of_lt_137),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_forty_nine,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_forty_nine),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_special_le_forty_nine_of_ne,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_special_le_forty_nine_of_ne),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
