@@ -3768,6 +3768,36 @@ theorem StatementGate.six_le_card_primeFactors_eulerIndex_or_of_special_le_sixty
     = 179 :=
   @OddPerfect.six_le_card_primeFactors_eulerIndex_or_of_special_le_sixty_nine
 
+/-! ## Six prime factors in the Euler index for every special exponent -/
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_index_mem :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → l ∈
+    [137, 149, 157, 173, 181, 193, 197, 233, 241, 269, 281, 293, 313, 317] → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) → 6 ≤ Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_index_mem
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_index_mod_four :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l % 4 = 1 → l ≤ 197 → (∀ p ∈ Nat.primeFactors N, p ≠ q →
+    (Nat.factorization N) p = l - 1) → 6 ≤ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_index_mod_four
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_split_mem :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → l ∈
+    [139, 151, 163, 167, 191, 199, 211, 227, 229, 239, 251, 257, 277, 283, 307, 311, 331] → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) → 6 ≤ Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_split_mem
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_index_le_331 :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → l ≤ 331 → l ≠ 179 ∧ l ≠ 223 ∧ l ≠ 263 ∧ l ≠ 271 → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l - 1) → 6 ≤ Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_index_le_331
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4777,6 +4807,14 @@ def expected : List (Name × Name) :=
       ``OddPerfect.six_le_card_primeFactors_eulerIndex_or_of_special_le_221),
     (`StatementGate.six_le_card_primeFactors_eulerIndex_or_of_special_le_sixty_nine,
       ``OddPerfect.six_le_card_primeFactors_eulerIndex_or_of_special_le_sixty_nine),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_index_mem,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_index_mem),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_index_mod_four,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_index_mod_four),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_split_mem,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_split_mem),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_index_le_331,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_index_le_331),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
