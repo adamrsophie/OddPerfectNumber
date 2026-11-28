@@ -665,3 +665,5 @@ import OddPerfect.EulerIndexPairReceiverFarB
 import OddPerfect.EulerIndexPairReceiverFarC
 import OddPerfect.EulerIndexPairReceiverFar
 import OddPerfect.ComponentBound
+import OddPerfect.EulerIndexExponentBound
+import OddPerfect.EulerIndexIndexPrimeBound
