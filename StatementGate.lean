@@ -3522,6 +3522,184 @@ theorem StatementGate.eulerIndex_pair_receiver_ge_far :
     556 ≤ (Nat.factorization N) t) :=
   @OddPerfect.eulerIndex_pair_receiver_ge_far
 
+/-! ## Component bound, Euler index bounds, row budget, support certificates, l = 131 -/
+
+theorem StatementGate.component_lt_three_mul :
+    ∀ {N p q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime p → _root_.Nat.Prime q → p ∣ N → q ∣ N →
+    p ≠ q → Even ((Nat.factorization N) p) → p ^ (Nat.factorization N) p < 3 * (p - 1) * (N / (q ^
+    (Nat.factorization N) q * p ^ (Nat.factorization N) p)) * (ArithmeticFunction.sigma 1) (N / (q
+    ^ (Nat.factorization N) q * p ^ (Nat.factorization N) p)) :=
+  @OddPerfect.component_lt_three_mul
+
+theorem StatementGate.component_lt_thirty_six_mul_pow_four :
+    ∀ {N p q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime p → _root_.Nat.Prime q → p ∣ N → q ∣ N →
+    p ≠ q → Even ((Nat.factorization N) p) → p ^ (Nat.factorization N) p < 36 * (N / (q ^
+    (Nat.factorization N) q * p ^ (Nat.factorization N) p)) ^ 4 :=
+  @OddPerfect.component_lt_thirty_six_mul_pow_four
+
+theorem StatementGate.lt_mul_complement_pow_ten :
+    ∀ {N p q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime p → _root_.Nat.Prime q → p ∣ N → q ∣ N →
+    p ≠ q → Even ((Nat.factorization N) p) → N < 2592 * (N / (q ^ (Nat.factorization N) q * p ^
+    (Nat.factorization N) p)) ^ 10 :=
+  @OddPerfect.lt_mul_complement_pow_ten
+
+theorem StatementGate.lt_mul_complement_pow_ten_of_ne :
+    ∀ {N p q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime p → _root_.Nat.Prime q → p ∣ N → q ∣ N →
+    p ≠ q → N < 2592 * (N / (q ^ (Nat.factorization N) q * p ^ (Nat.factorization N) p)) ^ 10 :=
+  @OddPerfect.lt_mul_complement_pow_ten_of_ne
+
+theorem StatementGate.exists_congrPrime_pow_dvd_sigma_special :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → ¬l ∣ a + 1 → Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^
+    a))) < l - 1 → ∃ p, _root_.Nat.Prime p ∧ 2 * l + 1 ≤ p ∧ p ^ (l - 1) ∣
+    (ArithmeticFunction.sigma 1) (q ^ a) :=
+  @OddPerfect.exists_congrPrime_pow_dvd_sigma_special
+
+theorem StatementGate.special_gt_of_small_eulerIndex :
+    ∀ {N q a m l A B : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → ¬l ∣ a + 1 → Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^
+    a))) < l - 1 → a ≤ A → ∑ j ∈ Finset.range (A + 1), B ^ j < (2 * l + 1) ^ (l - 1) → B < q :=
+  @OddPerfect.special_gt_of_small_eulerIndex
+
+theorem StatementGate.card_odd_valuation_eulerIndex_le_of_equal_exponents :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → Finset.card ({t ∈ Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)) | Odd
+    ((Nat.factorization ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) t)}) ≤ l - 1 :=
+  @OddPerfect.card_odd_valuation_eulerIndex_le_of_equal_exponents
+
+theorem StatementGate.not_dvd_special_pred_of_mem_otherPrimes :
+    ∀ {N q a m l w : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → w ∈ (Finset.filter (fun p => p ≠ q ∧ p ≠ l ∧ p % l ≠ 1) (Nat.primeFactors N)) → ¬w ∣ q -
+    1 :=
+  @OddPerfect.not_dvd_special_pred_of_mem_otherPrimes
+
+theorem StatementGate.two_mul_sum_padicValNat_otherPrimes_le :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → 2 * ∑ w ∈ (Finset.filter (fun p => p ≠ q ∧ p ≠ l ∧ p % l ≠ 1) (Nat.primeFactors N)),
+    padicValNat w ((a + 1) / 2) ≤ l - 1 :=
+  @OddPerfect.two_mul_sum_padicValNat_otherPrimes_le
+
+theorem StatementGate.pow_half_dvd_pow_pred_sub_one_of_mem_otherPrimes :
+    ∀ {N q a m l w : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → w ∈ (Finset.filter (fun p => p ≠ q ∧ p ≠ l ∧ p % l ≠ 1) (Nat.primeFactors N)) → w ^ ((l -
+    1) / 2) ∣ q ^ (w - 1) - 1 :=
+  @OddPerfect.pow_half_dvd_pow_pred_sub_one_of_mem_otherPrimes
+
+theorem StatementGate.card_primeFactors_le_of_eulerIndex_exponents :
+    ∀ {N q a m k E : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ≤ k → (∀ r ∈
+    Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)), (Nat.factorization N) r ≤ E)
+    → Finset.card (Nat.primeFactors N) ≤ 1 + k * (E + 1) + k / 2 :=
+  @OddPerfect.card_primeFactors_le_of_eulerIndex_exponents
+
+theorem StatementGate.factorization_succ_le_pow_of_mem_eulerIndex :
+    ∀ {N q a m r T : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → r
+    ∈ Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)) → (∀ d ∈ Nat.primeFactors
+    ((Nat.factorization N) r + 1), d ≤ T) → (Nat.factorization N) r + 1 ≤ T ^ Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.factorization_succ_le_pow_of_mem_eulerIndex
+
+theorem StatementGate.card_primeFactors_le_of_eulerIndex_index_primes :
+    ∀ {N q a m T : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → (∀
+    r ∈ Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)), ∀ d ∈ Nat.primeFactors
+    ((Nat.factorization N) r + 1), d ≤ T) → Finset.card (Nat.primeFactors N) ≤ 1 + Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) * T ^ Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) + Finset.card
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) / 2 :=
+  @OddPerfect.card_primeFactors_le_of_eulerIndex_index_primes
+
+theorem StatementGate.lt_two_pow_four_pow_of_eulerIndex_index_primes :
+    ∀ {N q a m T : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → (∀
+    r ∈ Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)), ∀ d ∈ Nat.primeFactors
+    ((Nat.factorization N) r + 1), d ≤ T) → N < 2 ^ 4 ^ (1 + Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) * T ^ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) + Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) / 2) :=
+  @OddPerfect.lt_two_pow_four_pow_of_eulerIndex_index_primes
+
+theorem StatementGate.card_primeFactors_le_of_prime_pow_index_eulerIndex :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → (∀ p ∈ Nat.primeFactors N, p ≠ q → ∃ γ, 1 ≤ γ ∧ (Nat.factorization N) p +
+    1 = l ^ γ) → Finset.card (Nat.primeFactors N) ≤ 1 + Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) * (16 * (Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) + 1) ^ 2 * 4 ^ (Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) + 1)) ^ Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) + Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) / 2 :=
+  @OddPerfect.card_primeFactors_le_of_prime_pow_index_eulerIndex
+
+theorem StatementGate.padicValNat_eulerIndex_index_add :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → padicValNat l ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a)) + padicValNat l (a + 1) = l
+    - 1 :=
+  @OddPerfect.padicValNat_eulerIndex_index_add
+
+theorem StatementGate.equal_exponents_row_budget :
+    ∀ {N q a m l w T r : ℕ} {H : Finset ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a *
+    m ^ 2 → ¬q ∣ m → _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q →
+    (Nat.factorization N) p = l - 1) → 0 < w → Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ≤ r + 1 → (∀ s ∈ H, _root_.Nat.Prime s ∧ s ∣ m
+    ∧ s < l) → T * (l - padicValNat l (a + 1) + Finset.card H) + Finset.card ({t ∈ Finset.erase
+    (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) l | Odd ((Nat.factorization
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) t)}) ≤ w * a + r * (l - 1) + (∑ i ∈
+    Finset.range T, ∑ j ∈ Finset.range T, if (i = 0 ∧ j = 0) ∨ T ≤ w * i + j then 0 else (T - (w *
+    i + j)) * Nat.choose (j + r - 1) j) :=
+  @OddPerfect.equal_exponents_row_budget
+
+theorem StatementGate.equal_exponents_row_budget_two :
+    ∀ {N q a m l w T r : ℕ} {H : Finset ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a *
+    m ^ 2 → ¬q ∣ m → _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q →
+    (Nat.factorization N) p = l - 1) → a ≠ 1 → ¬l ∣ a + 1 → 0 < w → Finset.card (Nat.primeFactors
+    ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ≤ r + 1 → (∀ s ∈ H, _root_.Nat.Prime s ∧ s ∣ m
+    ∧ s < l) → T * (l + Finset.card H) + 2 ≤ w * a + r * (l - 1) + (∑ i ∈ Finset.range T, ∑ j ∈
+    Finset.range T, if (i = 0 ∧ j = 0) ∨ T ≤ w * i + j then 0 else (T - (w * i + j)) * Nat.choose
+    (j + r - 1) j) :=
+  @OddPerfect.equal_exponents_row_budget_two
+
+theorem StatementGate.index_le_of_special_eq_five :
+    ∀ {N q m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ 5 * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime l → 7 ≤ l → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = l -
+    1) → Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ 5))) ≤ 5 → l ≤
+    130 :=
+  @OddPerfect.index_le_of_special_eq_five
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_special_le_five :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → a ≤
+    5 → _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p =
+    l - 1) → 6 ≤ Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_special_le_five
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_or_of_special_le_forty_nine :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → a ≤
+    49 → _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p =
+    l - 1) → 6 ≤ Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) ∨ l
+    = 179 ∨ l = 197 :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_or_of_special_le_forty_nine
+
+theorem StatementGate.six_le_card_primeFactors_eulerIndex_of_special_le_twenty_nine :
+    ∀ {N q a m l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q ^ a * m ^ 2 → ¬q ∣ m → a ≤
+    29 → _root_.Nat.Prime l → l ≠ 2 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization N) p =
+    l - 1) → 6 ≤ Finset.card (Nat.primeFactors ((ArithmeticFunction.sigma 1 (m ^ 2) / q ^ a))) :=
+  @OddPerfect.six_le_card_primeFactors_eulerIndex_of_special_le_twenty_nine
+
+theorem StatementGate.not_all_exponents_eq_one_hundred_thirty :
+    ∀ {N q : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) → (∀ p ∈
+    Nat.primeFactors N, p ≠ q → (Nat.factorization N) p = 130) → False :=
+  @OddPerfect.not_all_exponents_eq_one_hundred_thirty
+
+theorem StatementGate.not_all_exponents_eq_pred_of_lt_137 :
+    ∀ {N q l : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → Odd ((Nat.factorization N) q) →
+    _root_.Nat.Prime l → l ≠ 2 → l < 137 → (∀ p ∈ Nat.primeFactors N, p ≠ q → (Nat.factorization
+    N) p = l - 1) → False :=
+  @OddPerfect.not_all_exponents_eq_pred_of_lt_137
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4472,6 +4650,47 @@ def expected : List (Name × Name) :=
       ``OddPerfect.index_le_of_card_primeFactors_eulerIndex_le_six),
     (`StatementGate.eulerIndex_pair_receiver_ge_far,
       ``OddPerfect.eulerIndex_pair_receiver_ge_far),
+    (`StatementGate.component_lt_three_mul, ``OddPerfect.component_lt_three_mul),
+    (`StatementGate.component_lt_thirty_six_mul_pow_four,
+      ``OddPerfect.component_lt_thirty_six_mul_pow_four),
+    (`StatementGate.lt_mul_complement_pow_ten, ``OddPerfect.lt_mul_complement_pow_ten),
+    (`StatementGate.lt_mul_complement_pow_ten_of_ne, ``OddPerfect.lt_mul_complement_pow_ten_of_ne),
+    (`StatementGate.exists_congrPrime_pow_dvd_sigma_special,
+      ``OddPerfect.exists_congrPrime_pow_dvd_sigma_special),
+    (`StatementGate.special_gt_of_small_eulerIndex, ``OddPerfect.special_gt_of_small_eulerIndex),
+    (`StatementGate.card_odd_valuation_eulerIndex_le_of_equal_exponents,
+      ``OddPerfect.card_odd_valuation_eulerIndex_le_of_equal_exponents),
+    (`StatementGate.not_dvd_special_pred_of_mem_otherPrimes,
+      ``OddPerfect.not_dvd_special_pred_of_mem_otherPrimes),
+    (`StatementGate.two_mul_sum_padicValNat_otherPrimes_le,
+      ``OddPerfect.two_mul_sum_padicValNat_otherPrimes_le),
+    (`StatementGate.pow_half_dvd_pow_pred_sub_one_of_mem_otherPrimes,
+      ``OddPerfect.pow_half_dvd_pow_pred_sub_one_of_mem_otherPrimes),
+    (`StatementGate.card_primeFactors_le_of_eulerIndex_exponents,
+      ``OddPerfect.card_primeFactors_le_of_eulerIndex_exponents),
+    (`StatementGate.factorization_succ_le_pow_of_mem_eulerIndex,
+      ``OddPerfect.factorization_succ_le_pow_of_mem_eulerIndex),
+    (`StatementGate.card_primeFactors_le_of_eulerIndex_index_primes,
+      ``OddPerfect.card_primeFactors_le_of_eulerIndex_index_primes),
+    (`StatementGate.lt_two_pow_four_pow_of_eulerIndex_index_primes,
+      ``OddPerfect.lt_two_pow_four_pow_of_eulerIndex_index_primes),
+    (`StatementGate.card_primeFactors_le_of_prime_pow_index_eulerIndex,
+      ``OddPerfect.card_primeFactors_le_of_prime_pow_index_eulerIndex),
+    (`StatementGate.padicValNat_eulerIndex_index_add,
+      ``OddPerfect.padicValNat_eulerIndex_index_add),
+    (`StatementGate.equal_exponents_row_budget, ``OddPerfect.equal_exponents_row_budget),
+    (`StatementGate.equal_exponents_row_budget_two, ``OddPerfect.equal_exponents_row_budget_two),
+    (`StatementGate.index_le_of_special_eq_five, ``OddPerfect.index_le_of_special_eq_five),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_special_le_five,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_special_le_five),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_or_of_special_le_forty_nine,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_or_of_special_le_forty_nine),
+    (`StatementGate.six_le_card_primeFactors_eulerIndex_of_special_le_twenty_nine,
+      ``OddPerfect.six_le_card_primeFactors_eulerIndex_of_special_le_twenty_nine),
+    (`StatementGate.not_all_exponents_eq_one_hundred_thirty,
+      ``OddPerfect.not_all_exponents_eq_one_hundred_thirty),
+    (`StatementGate.not_all_exponents_eq_pred_of_lt_137,
+      ``OddPerfect.not_all_exponents_eq_pred_of_lt_137),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
