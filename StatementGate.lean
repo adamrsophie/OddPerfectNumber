@@ -3511,6 +3511,17 @@ theorem StatementGate.index_le_of_card_primeFactors_eulerIndex_le_six :
       l ≤ 457 :=
   @OddPerfect.index_le_of_card_primeFactors_eulerIndex_le_six
 
+/-! ## Receiver bound 557 -/
+
+theorem StatementGate.eulerIndex_pair_receiver_ge_far :
+    ∀ {N q m r s : ℕ}, _root_.OddPerfect N → _root_.Nat.Prime q → N = q * m ^ 2 → ¬q ∣ m →
+    _root_.Nat.Prime r → _root_.Nat.Prime s → r ≠ s → Nat.primeFactors ((ArithmeticFunction.sigma
+    1 (m ^ 2) / q ^ 1)) = ({r, s} : Finset ℕ) → ∃ t u, ({t, u} : Finset ℕ) = ({r, s} : Finset ℕ) ∧
+    t ≠ u ∧ (∃ v, (ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u ^ v) ∧
+    ((ArithmeticFunction.sigma 1) (t ^ (Nat.factorization N) t) = q * u → ¬3 ∣ N ∧ 557 ≤ u ∧
+    556 ≤ (Nat.factorization N) t) :=
+  @OddPerfect.eulerIndex_pair_receiver_ge_far
+
 /-! ## The Turing machine -/
 
 example : OddPerfect.TuringOPN.Halts ↔
@@ -4459,6 +4470,8 @@ def expected : List (Name × Name) :=
       ``OddPerfect.six_le_card_primeFactors_eulerIndex_or_eq_of_special_le_five),
     (`StatementGate.index_le_of_card_primeFactors_eulerIndex_le_six,
       ``OddPerfect.index_le_of_card_primeFactors_eulerIndex_le_six),
+    (`StatementGate.eulerIndex_pair_receiver_ge_far,
+      ``OddPerfect.eulerIndex_pair_receiver_ge_far),
     (`StatementGate.turing_halts_iff_exists_oddPerfect,
       ``OddPerfect.TuringOPN.halts_iff_exists_oddPerfect)]
 
